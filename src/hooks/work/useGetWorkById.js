@@ -1,45 +1,34 @@
-import { useCallback, useMemo, useState } from "react";
-import mainPicture from "../../assets/mainPicture.jpg";
+import { useQuery } from "@tanstack/react-query";
+import Cookies from "js-cookie";
+import { BASE_URL } from "../../constants/base-url";
+import { TOKEN_KEY } from "../../constants/token-key";
 
-const buildMockWork = (workId) => ({
-	id: workId ?? "demo-work",
-	title: "Nebula Drift",
-	summary:
-		"Pilot a mythic starship while your crew negotiates uneasy truces between rival houses. This workspace keeps every chapter aligned before you go live.",
-	status: "Ongoing",
-	coverImageUrl: mainPicture,
-	genresList: [
-		{ id: 1, name: "Space Opera" },
-		{ id: 2, name: "Adventure" },
-	],
-});
+const fetchWork = async (workId) => {
+	if (!workId) throw new Error("Missing work identifier");
 
-export const useGetWorkById = (workId) => {
-	const [isPending, setIsPending] = useState(false);
-	const [isError, setIsError] = useState(false);
+	const accessToken = Cookies.get(TOKEN_KEY);
+	const headers = {};
+	if (accessToken) {
+		headers.Authorization = `Bearer ${accessToken}`;
+	}
 
-	const data = useMemo(() => buildMockWork(workId), [workId]);
+	const response = await fetch(`${BASE_URL}/api/myworks/${workId}`, {
+		headers,
+	});
 
-	const refetch = useCallback(async () => {
-		try {
-			setIsPending(true);
-			setIsError(false);
-			return buildMockWork(workId);
-		} catch (error) {
-			setIsError(true);
-			throw error;
-		} finally {
-			setIsPending(false);
-		}
-	}, [workId]);
+	if (!response.ok) {
+		throw new Error("Failed to load work details");
+	}
 
-	return useMemo(
-		() => ({
-			data,
-			isPending,
-			isError,
-			refetch,
-		}),
-		[data, isError, isPending, refetch]
-	);
+	return response.json();
+};
+
+export const useGetWorkById = (workId, options = {}) => {
+	return useQuery({
+		queryKey: ["my-works", workId],
+		queryFn: () => fetchWork(workId),
+		enabled: Boolean(workId),
+		staleTime: 1000 * 30,
+		...options,
+	});
 };

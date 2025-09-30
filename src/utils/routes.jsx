@@ -11,6 +11,7 @@ import ProfilePage from "../pages/profile/page";
 import Test from "../pages/test";
 import EditWorkPage from "../pages/work/edit";
 import WorkDashboardPage from "../pages/work/dashboard";
+import ChapterEditorPage from "../pages/work/chapter-editor";
 
 const routes = [
   // auth
@@ -67,6 +68,14 @@ const routes = [
   {
     url: "/dashboard/works/:workId/edit",
     component: <EditWorkPage />,
+  },
+  {
+    url: "/dashboard/works/:workId/chapters/:chapterId/edit",
+    component: <ChapterEditorPage />,
+  },
+  {
+    url: "/dashboard/works/:workId/chapters/new",
+    component: <ChapterEditorPage />,
   },
 ];
 
