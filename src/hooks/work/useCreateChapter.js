@@ -19,7 +19,16 @@ const postChapter = async ({ workId, payload }) => {
     throw new Error("Failed to create chapter");
   }
 
-  return response.json();
+  const text = await response.text();
+  if (!text) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    return {};
+  }
 };
 
 export const useCreateChapter = () => {

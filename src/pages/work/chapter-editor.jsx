@@ -571,32 +571,102 @@ const ChapterEditorPage = () => {
         </main>
       </div>
 
-      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
-        <div className="space-y-6 text-zinc-100">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-red-500/40 bg-red-500/10 text-red-300">
-              <Trash2 className="h-6 w-6" />
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        overlayClassName="backdrop-blur-sm"
+        contentClassName="w-full max-w-3xl px-4 sm:px-0"
+        unstyled
+      >
+        <div className="relative overflow-hidden rounded-[28px] border border-red-500/40 bg-zinc-950/95 px-6 py-7 shadow-[0_30px_68px_-28px_rgba(244,63,94,0.55)] sm:px-8 sm:py-9">
+          <div className="pointer-events-none absolute -top-32 right-0 h-64 w-64 rounded-full bg-red-500/20 blur-3xl" aria-hidden="true" />
+          <div className="pointer-events-none absolute -bottom-28 left-10 h-52 w-52 rounded-full bg-rose-500/10 blur-3xl" aria-hidden="true" />
+
+          <div className="relative space-y-8 text-zinc-100" data-testid="delete-chapter-modal">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex items-start gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-red-500/40 bg-red-500/15 text-red-300 shadow-[0_18px_40px_-18px_rgba(244,63,94,0.6)]">
+                  <Trash2 className="h-7 w-7" />
+                </div>
+                <div className="space-y-2">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-red-200">
+                    Irreversible
+                  </span>
+                  <h3 className="text-2xl font-semibold leading-tight">Delete this chapter?</h3>
+                  <p className="max-w-xl text-sm text-zinc-400">
+                    Removing “{editorState.title?.trim() || "Untitled chapter"}” makes it disappear for readers instantly. The draft history stays on our servers for a limited time, but your dashboard will no longer display it.
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/70 px-4 py-3 text-xs uppercase tracking-[0.28em] text-zinc-500">
+                <span className="block text-[10px] font-semibold text-zinc-400">Active chapter</span>
+                <span className="mt-1 block text-sm font-semibold text-zinc-100" data-testid="delete-modal-chapter-label">
+                  {editorState.title?.trim() || "Untitled chapter"}
+                </span>
+                <span className="mt-1 block text-[11px] text-zinc-400">
+                  {wordCount > 0 ? `${wordCount.toLocaleString()} words` : "No draft content"}
+                </span>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold">Delete this chapter?</h3>
-              <p className="text-sm text-zinc-400">
-                This action removes the chapter immediately. Readers will no longer see it in the novel flow.
-              </p>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2 rounded-2xl border border-zinc-800/70 bg-zinc-900/70 p-4">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-zinc-500">
+                  <AlertCircle className="h-4 w-4 text-red-300" /> Impact
+                </div>
+                <p className="text-sm text-zinc-300">
+                  Chapter cards, analytics, and release pacing will adjust immediately. Any scheduled publishing windows tied to this entry are cancelled.
+                </p>
+              </div>
+              <div className="space-y-2 rounded-2xl border border-zinc-800/70 bg-zinc-900/70 p-4">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-zinc-500">
+                  <Clock3 className="h-4 w-4 text-amber-200" /> Recovery
+                </div>
+                <p className="text-sm text-zinc-300">
+                  Autosave snapshots stay available for 30 days. Contact support if you need a restore during that window.
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="space-y-2 rounded-2xl border border-zinc-800/70 bg-zinc-900/70 p-4 text-sm text-zinc-400">
-            <p className="font-medium text-zinc-300">What happens next</p>
-            <p>
-              The autosave history will remain for restoration by our support team, but it won\'t show in your dashboard.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-            <Button variant="ghost" onClick={() => setShowDeleteModal(false)} disabled={isDeletingChapter}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} isLoading={isDeletingChapter}>
-              Delete chapter
-            </Button>
+
+            <div className="rounded-2xl border border-zinc-800/70 bg-zinc-900/70 p-4">
+              <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">Checklist</p>
+              <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+                <li className="flex items-start gap-2">
+                  <Type className="mt-0.5 h-4 w-4 text-blue-200" />
+                  <span>Export or copy any passages you want to reuse before confirming.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Sparkles className="mt-0.5 h-4 w-4 text-purple-200" />
+                  <span>Notify collaborators so they know the chapter will vanish from shared outlines.</span>
+                </li>
+                {autosaveState.lastSavedAt ? (
+                  <li className="flex items-start gap-2 text-emerald-200">
+                    <BadgeCheck className="mt-0.5 h-4 w-4" />
+                    <span>Last autosave {formatSmart(autosaveState.lastSavedAt)} — you can restore from support within the retention window.</span>
+                  </li>
+                ) : null}
+              </ul>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+              <Button
+                variant="ghost"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeletingChapter}
+                className="border border-zinc-700/50 bg-zinc-900/60 px-6 py-2 text-zinc-200 hover:border-zinc-500/60"
+              >
+                Keep chapter
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                isLoading={isDeletingChapter}
+                className="px-6 py-2 shadow-[0_18px_32px_-20px_rgba(244,63,94,0.7)]"
+                data-testid="confirm-delete-chapter"
+              >
+                Delete permanently
+              </Button>
+            </div>
           </div>
         </div>
       </Modal>

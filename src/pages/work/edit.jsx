@@ -21,7 +21,7 @@ import {
 import { toast } from "sonner";
 import Button from "../../components/ui/button";
 import Select from "../../components/ui/select";
-import { Modal } from "../../components/ui/modal";
+import ChapterDeleteModal from "../../components/work/ChapterDeleteModal";
 import mainPicture from "../../assets/mainPicture.jpg";
 import { formatSmart } from "../../utils/date";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
