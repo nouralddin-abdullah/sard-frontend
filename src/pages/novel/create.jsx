@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
 import { useCreateWork } from "../../hooks/work/useCreateWork";
 import { toast } from "sonner";
 import Button from "../../components/ui/button";
 import { Image, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
+const SUMMARY_MAX = 500;
 
 export default function CreateNovel() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     title: "",
     summary: "",
@@ -23,7 +27,7 @@ export default function CreateNovel() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "summary" ? value.slice(0, SUMMARY_MAX) : value,
     }));
   };
 
@@ -52,14 +56,25 @@ export default function CreateNovel() {
     );
   };
 
+  const handleCoverSelection = (file) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error(t("workPage.create.validation.invalidImage"));
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(t("workPage.create.validation.maxSize"));
+      return;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      cover: file,
+    }));
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setFormData((prev) => ({
-        ...prev,
-        cover: file,
-      }));
-    }
+    handleCoverSelection(file);
   };
 
   const handleDrag = (e) => {
@@ -78,35 +93,37 @@ export default function CreateNovel() {
     setDragActive(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      if (file.type.startsWith("image/")) {
-        setFormData((prev) => ({
-          ...prev,
-          cover: file,
-        }));
-      }
+      handleCoverSelection(e.dataTransfer.files[0]);
     }
   };
 
   const { mutateAsync: createWork, isPending: isCreatingNovel } =
     useCreateWork();
 
+  const genrePlaceholder = useMemo(
+    () =>
+      selectedGenres.length === 0
+        ? t("workPage.create.form.genresPlaceholderEmpty")
+        : t("workPage.create.form.genresPlaceholderAdd"),
+    [selectedGenres.length, t]
+  );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validate required fields
     if (!formData.title.trim()) {
-      alert("Please enter a title for your novel.");
+      toast.error(t("workPage.create.validation.title"));
       return;
     }
 
     if (!formData.summary.trim()) {
-      alert("Please enter a summary for your novel.");
+      toast.error(t("workPage.create.validation.summary"));
       return;
     }
 
     if (formData.genreIds.length === 0) {
-      alert("Please select at least one genre for your novel.");
+      toast.error(t("workPage.create.validation.genre"));
       return;
     }
 
@@ -121,7 +138,7 @@ export default function CreateNovel() {
     try {
       await createWork(multipartForm);
 
-      toast.success("Novel Created Successfully");
+      toast.success(t("workPage.create.toast.success"));
 
       for (let i = 0; i < selectedGenres.length; i++) {
         removeGenre(selectedGenres[i].id);
@@ -135,7 +152,7 @@ export default function CreateNovel() {
       });
     } catch (error) {
       console.error(error);
-      toast.error(error);
+      toast.error(error?.message || t("workPage.create.toast.error"));
     }
   };
 
@@ -145,9 +162,11 @@ export default function CreateNovel() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-zinc-100 mb-2">
-            Create Your Novel
+            {t("workPage.create.hero.title")}
           </h1>
-          <p className="text-zinc-400 text-lg">Bring your story to life</p>
+          <p className="text-zinc-400 text-lg">
+            {t("workPage.create.hero.subtitle")}
+          </p>
         </div>
 
         {/* Main Form */}
@@ -164,7 +183,7 @@ export default function CreateNovel() {
                   htmlFor="title"
                   className="block text-sm font-semibold text-zinc-300 mb-2"
                 >
-                  Novel Title *
+                  {t("workPage.create.form.titleLabel")}
                 </label>
                 <input
                   type="text"
@@ -172,7 +191,7 @@ export default function CreateNovel() {
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  placeholder="Enter your novel's title"
+                  placeholder={t("workPage.create.form.titlePlaceholder")}
                   className="w-full px-4 py-3 bg-zinc-700 border border-zinc-600 rounded-lg text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:border-transparent transition-all"
                   required
                 />
@@ -184,7 +203,7 @@ export default function CreateNovel() {
                   htmlFor="genre"
                   className="block text-sm font-semibold text-zinc-300 mb-2"
                 >
-                  Genres *
+                  {t("workPage.create.form.genresLabel")}
                 </label>
 
                 {/* Selected Genres Display */}
@@ -216,9 +235,7 @@ export default function CreateNovel() {
                   className="w-full px-4 py-3 bg-zinc-700 border border-zinc-600 rounded-lg text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:border-transparent transition-all"
                 >
                   <option value="" className="text-zinc-400">
-                    {selectedGenres.length === 0
-                      ? "Select genres"
-                      : "Add another genre"}
+                    {genrePlaceholder}
                   </option>
                   {genres
                     ?.filter((genre) => !formData.genreIds.includes(genre.id))
@@ -235,10 +252,10 @@ export default function CreateNovel() {
 
                 <p className="text-zinc-500 text-sm mt-1">
                   {selectedGenres.length === 0
-                    ? "Select at least one genre"
-                    : `${selectedGenres.length} genre${
-                        selectedGenres.length > 1 ? "s" : ""
-                      } selected`}
+                    ? t("workPage.create.form.genresHelpEmpty")
+                    : t("workPage.create.form.genresHelpSelected", {
+                        count: selectedGenres.length,
+                      })}
                 </p>
               </div>
 
@@ -248,7 +265,7 @@ export default function CreateNovel() {
                   htmlFor="summary"
                   className="block text-sm font-semibold text-zinc-300 mb-2"
                 >
-                  Summary *
+                  {t("workPage.create.form.summaryLabel")}
                 </label>
                 <textarea
                   id="summary"
@@ -256,12 +273,16 @@ export default function CreateNovel() {
                   value={formData.summary}
                   onChange={handleInputChange}
                   rows="6"
-                  placeholder="Write a compelling summary of your novel..."
+                  placeholder={t("workPage.create.form.summaryPlaceholder")}
                   className="w-full px-4 py-3 bg-zinc-700 border border-zinc-600 rounded-lg text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:border-transparent transition-all resize-vertical"
+                  maxLength={SUMMARY_MAX}
                   required
                 />
                 <p className="text-zinc-500 text-sm mt-1">
-                  {formData.summary.length}/500 characters
+                  {t("workPage.create.form.summaryCounter", {
+                    count: formData.summary.length,
+                    max: SUMMARY_MAX,
+                  })}
                 </p>
               </div>
             </div>
@@ -269,7 +290,7 @@ export default function CreateNovel() {
             {/* Right Column - Cover Upload */}
             <div>
               <label className="block text-sm font-semibold text-zinc-300 mb-2">
-                Cover Image (Optional)
+                {t("workPage.create.form.coverLabel")}
               </label>
 
               <div
@@ -295,7 +316,7 @@ export default function CreateNovel() {
                     <div className="w-32 h-48 mx-auto bg-zinc-600 rounded-lg overflow-hidden">
                       <img
                         src={URL.createObjectURL(formData.cover)}
-                        alt="Cover preview"
+                        alt={t("workPage.create.form.coverPreviewAlt")}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -311,7 +332,7 @@ export default function CreateNovel() {
                         }}
                         className="text-zinc-500 hover:text-zinc-300 text-sm mt-1 transition-colors"
                       >
-                        Remove cover
+                        {t("workPage.create.form.coverRemove")}
                       </button>
                     </div>
                   </div>
@@ -322,13 +343,13 @@ export default function CreateNovel() {
                     </div>
                     <div>
                       <p className="text-zinc-300 font-medium mb-2">
-                        Upload Cover Image
+                        {t("workPage.create.form.coverUploadTitle")}
                       </p>
                       <p className="text-zinc-500 text-sm">
-                        Drag and drop an image here, or click to select
+                        {t("workPage.create.form.coverUploadSubtitle")}
                       </p>
                       <p className="text-zinc-600 text-xs mt-1">
-                        PNG, JPG, GIF up to 10MB
+                        {t("workPage.create.form.coverUploadHelp")}
                       </p>
                     </div>
                   </div>
@@ -340,7 +361,9 @@ export default function CreateNovel() {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-zinc-700">
             <Button type="submit" isLoading={isCreatingNovel}>
-              Create Novel
+              {isCreatingNovel
+                ? t("workPage.create.actions.submitting")
+                : t("workPage.create.actions.submit")}
             </Button>
           </div>
         </form>

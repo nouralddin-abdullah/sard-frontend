@@ -157,6 +157,227 @@
       "novelsErrorMessage": "فشل تحميل رواياتك. يرجى المحاولة مرة أخرى لاحقاً."
     }
   },
+  "workPage": {
+    "create": {
+      "hero": {
+        "title": "أنشئ قصتك القادمة",
+        "subtitle": "ابن روايتك، صفها، ومهد الطريق لقرّائك."
+      },
+      "form": {
+        "titleLabel": "العنوان *",
+        "titlePlaceholder": "أدخل عنواناً يعبر عن قصتك",
+        "genresLabel": "التصنيفات *",
+        "genresPlaceholderEmpty": "اختر التصنيفات",
+        "genresPlaceholderAdd": "أضف تصنيفاً آخر",
+        "genresHelpEmpty": "اختر تصنيفًا واحدًا على الأقل",
+        "genresHelpSelected_zero": "لم يتم اختيار أي تصنيف",
+        "genresHelpSelected_one": "تم اختيار تصنيف واحد",
+        "genresHelpSelected_two": "تم اختيار تصنيفين",
+        "genresHelpSelected_few": "تم اختيار {{count}} تصنيفات",
+        "genresHelpSelected_many": "تم اختيار {{count}} تصنيفًا",
+        "genresHelpSelected_other": "تم اختيار {{count}} تصنيف",
+        "summaryLabel": "الملخص *",
+        "summaryPlaceholder": "اكتب ملخصًا جذابًا لروايتك...",
+        "summaryCounter": "{{count}} / {{max}} حرف",
+        "coverLabel": "صورة الغلاف (اختياري)",
+        "coverPreviewAlt": "معاينة الغلاف",
+        "coverRemove": "إزالة الغلاف",
+        "coverUploadTitle": "ارفع صورة الغلاف",
+        "coverUploadSubtitle": "اسحب وأسقط الصورة هنا أو انقر للاختيار",
+        "coverUploadHelp": "PNG أو JPG أو GIF حتى 10 ميجابايت"
+      },
+      "actions": {
+        "submit": "إنشاء رواية",
+        "submitting": "جاري الإنشاء..."
+      },
+      "validation": {
+        "invalidImage": "يرجى اختيار ملف صورة صالح",
+        "maxSize": "يجب أن يكون حجم الصورة أقل من 10 ميجابايت",
+        "title": "عنوان الرواية مطلوب",
+        "summary": "الملخص مطلوب",
+        "genre": "اختر تصنيفًا واحدًا على الأقل"
+      },
+      "toast": {
+        "success": "تم إنشاء الرواية بنجاح!",
+        "error": "فشل إنشاء الرواية. حاول مرة أخرى."
+      }
+    },
+    "edit": {
+      "tabs": {
+        "story": "القصة",
+        "chapters": "الفصول"
+      },
+      "error": {
+        "title": "لم نعثر على هذا العمل",
+        "subtitle": "تحقق من الرابط أو عد إلى لوحة أعمالك.",
+        "backButton": "العودة إلى لوحة الأعمال"
+      },
+      "header": {
+        "back": "رجوع",
+        "badge": "مساحة التحرير",
+        "untitled": "عمل بدون عنوان",
+        "description": "صقِل أساس القصة، حدّث الغلاف، ونظّم إيقاع الفصول في مساحة واحدة مركّزة. يتم مزامنة التغييرات فورًا عبر تجربة القارئ.",
+        "statusLabel": "الحالة",
+        "genresLabel": "التصنيفات",
+        "genresFallback": "غير محدد"
+      },
+      "story": {
+        "heading": "تفاصيل القصة",
+        "description": "حافظ على توافق العنوان والملخص والحالة قبل مشاركة الفصول مع القرّاء التجريبيين.",
+        "fields": {
+          "title": {
+            "label": "العنوان",
+            "placeholder": "أدخل عنوانًا لروايتك"
+          },
+          "summary": {
+            "label": "الملخص",
+            "placeholder": "صف الحبكة الرئيسية والأبطال والرهانات."
+          },
+          "status": {
+            "label": "الحالة"
+          },
+          "genre": {
+            "label": "إضافة تصنيف",
+            "placeholder": "اختر تصنيفًا",
+            "helper": "اختر تصنيفًا واحدًا على الأقل لتحسين التوصيات."
+          }
+        },
+        "actions": {
+          "save": "حفظ تفاصيل القصة",
+          "saving": "جارٍ الحفظ...",
+          "helper": "تتم مزامنة التغييرات فورًا مع ملف القارئ."
+        }
+      },
+      "form": {
+        "status": {
+          "options": {
+            "ongoing": "مستمرة",
+            "completed": "مكتملة"
+          }
+        }
+      },
+      "validation": {
+        "title": "أضف عنوانًا واضحًا وحيويًا.",
+        "summary": "صف مسار القصة قبل الحفظ.",
+        "genre": "اختر تصنيفًا واحدًا على الأقل.",
+        "coverInvalid": "ارفع ملف صورة (PNG أو JPG أو GIF)",
+        "coverSize": "يجب ألا يتجاوز حجم الصورة 10 ميجابايت",
+        "coverRequired": "اختر صورة غلاف قبل الحفظ"
+      },
+      "toast": {
+        "detailsSuccess": "تم تحديث تفاصيل القصة",
+        "detailsError": "تعذر حفظ التفاصيل",
+        "coverSuccess": "تم تحديث الغلاف",
+        "coverError": "تعذر تحديث الغلاف",
+        "chapterDeleteSuccess": "تم حذف الفصل",
+        "chapterDeleteError": "تعذر حذف الفصل",
+        "chapterOrderSuccess": "تم تحديث ترتيب الفصول",
+        "chapterOrderError": "تعذر إعادة ترتيب الفصول"
+      },
+      "cover": {
+        "heading": "فن الغلاف",
+        "description": "ارفع عملاً بصريًا يعكس نبرة قصتك.",
+        "dropzone": {
+          "title": "اسحب الصورة هنا أو انقر للرفع",
+          "helper": "PNG / JPG / GIF · حد أدنى 1600 بكسل · بحد أقصى 10 ميجابايت"
+        },
+        "live": {
+          "label": "الغلاف الحالي"
+        },
+        "new": {
+          "label": "الرفع الجديد",
+          "previewAlt": "معاينة الغلاف الجديد",
+          "clear": "مسح الاختيار"
+        },
+        "placeholder": {
+          "title": "معاينة الغلاف",
+          "body": "ارفع غلافًا سينمائيًا لمعاينة النتيجة بجانب العمل الحالي."
+        },
+        "actions": {
+          "save": "حفظ تحديث الغلاف",
+          "saving": "جارٍ الحفظ..."
+        }
+      },
+      "launchChecklist": {
+        "title": "قائمة الإطلاق",
+        "items": {
+          "titleSummary": "تنسيق العنوان والملخص",
+          "genres": "تثبيت التصنيفات الأساسية",
+          "cover": "الغلاف يعكس النبرة",
+          "chapters": "ترتيب الفصول مقصود"
+        }
+      },
+      "chapters": {
+        "heading": "إيقاع الفصول",
+        "description": "تصفح كل فصل بالترتيب. رشّح، وابحث، وأعد الترتيب بدون أعمدة إضافية.",
+        "searchPlaceholder": "ابحث في الفصول",
+        "actions": {
+          "add": "إضافة فصل",
+          "resetView": "إعادة التعيين",
+          "saveOrder": "حفظ ترتيب الفصول",
+          "savingOrder": "جارٍ الحفظ..."
+        },
+        "stats": {
+          "inLibrary": {
+            "label": "في المكتبة",
+            "helper": "فصول جاهزة لقرّائك"
+          },
+          "published": {
+            "label": "منشور"
+          },
+          "drafting": {
+            "label": "مسودة",
+            "helper": "بانتظار اللمسات النهائية للنشر"
+          }
+        },
+        "filters": {
+          "all": "جميع الحالات",
+          "published": "منشور",
+          "draft": "مسودة"
+        },
+        "sort": {
+          "sequence": "ترتيب القصة",
+          "recent": "الأحدث تحديثًا"
+        },
+        "empty": {
+          "title": "لا توجد فصول بعد",
+          "subtitle": "ابدأ بكتابة المشهد الافتتاحي لملء هذه القائمة. يمكنك إعادة ترتيب الإيقاع لاحقًا.",
+          "cta": "اكتب الفصل الأول"
+        },
+        "filteredEmpty": {
+          "title": "لا يوجد نتائج مطابقة للمرشحات",
+          "subtitle": "جرّب تعديل مرشح الحالة أو إعادة تعيين الفرز أو مسح البحث لإظهار المزيد من الفصول.",
+          "cta": "مسح المرشحات"
+        },
+        "chapterCard": {
+          "noSummary": "لا يوجد ملخص بعد. افتح لإضافة السياق.",
+          "untitled": "فصل غير معنْون {{index}}",
+          "fallbackStatus": "مسودة",
+          "moveUp": "تحريك الفصل للأعلى",
+          "moveDown": "تحريك الفصل للأسفل",
+          "openMenu": "فتح إجراءات الفصل",
+          "noTimestamp": "لا يوجد طابع زمني",
+          "sequence": "تسلسل {{index}}",
+          "wordCount": "{{formattedCount}} كلمة",
+          "reorderHint": "استخدم الأسهم لضبط الإيقاع. احفظ لتفعيل الترتيب الجديد.",
+          "reorderDisabled": "إعادة الترتيب معطلة أثناء تفعيل المرشحات أو أنماط الفرز الأخرى."
+        },
+        "menu": {
+          "edit": "تعديل الفصل",
+          "delete": "حذف الفصل"
+        },
+        "modal": {
+          "title": "حذف {{name}}؟",
+          "untitledFallback": "هذا الفصل",
+          "body": "سيُزال الفصل فورًا من عرض الإيقاع. لا يمكنك التراجع إلا بإعادة إنشاء الفصل.",
+          "noteTitle": "تنبيه",
+          "noteBody": "الحذف لا يؤثر على الفصول المنشورة، لكن القرّاء في المسودات لن يشاهدوا هذا الإدخال بعد الآن.",
+          "cancel": "إلغاء",
+          "confirm": "حذف الفصل"
+        }
+      }
+    }
+  },
   "novelPage": {
     "novelTitle": "سندباد",
     "onGoing": "مستمرة",

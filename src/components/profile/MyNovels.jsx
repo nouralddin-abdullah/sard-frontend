@@ -78,6 +78,12 @@ const MyNovels = () => {
             <Plus />
             {t("profilePage.myNovels.addNovelButton")}
           </Link>
+          <Link
+            to="/dashboard/works"
+            className="block mt-4 text-sm text-blue-200 hover:text-blue-100 transition-colors"
+          >
+            {t("profilePage.myNovels.manageWorksLink")}
+          </Link>
         </div>
       </div>
 

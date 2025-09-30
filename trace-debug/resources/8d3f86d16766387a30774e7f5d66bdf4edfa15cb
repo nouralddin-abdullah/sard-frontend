@@ -1,0 +1,152 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications alt+T"
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6]:
+          - button "Back" [ref=e7]:
+            - img [ref=e8]
+            - text: Back
+          - generic [ref=e10]:
+            - img [ref=e11]
+            - text: Editing workspace
+        - generic [ref=e13]:
+          - generic [ref=e14]:
+            - heading "Echoes of the Halcyon Rift" [level=1] [ref=e15]
+            - paragraph [ref=e16]: Refine story foundations, update your cover, and orchestrate chapter pacing in one focused surface. Changes sync instantly across the reader experience.
+          - generic [ref=e17]:
+            - generic [ref=e18]:
+              - paragraph [ref=e19]: Status
+              - paragraph [ref=e20]: Ongoing
+            - generic [ref=e21]:
+              - paragraph [ref=e22]: Genres
+              - paragraph [ref=e23]: Science Fiction, Space Opera
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - button "Story studio" [ref=e26]
+          - button "Chapters & pacing" [ref=e27]
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - generic [ref=e32]:
+              - heading "Chapter pacing" [level=2] [ref=e33]
+              - paragraph [ref=e34]: Scan every chapter in sequence. Filter, search, and reorder without any extra columns in the way.
+            - generic [ref=e35]:
+              - generic [ref=e36]:
+                - img
+                - searchbox "Search chapters" [ref=e37]
+              - button "Create new chapter" [ref=e38] [cursor=pointer]:
+                - img [ref=e39] [cursor=pointer]
+                - text: Create new chapter
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - paragraph [ref=e44]: In library
+              - paragraph [ref=e45]: "3"
+              - paragraph [ref=e46]: Chapters staged for your readership
+            - generic [ref=e47]:
+              - paragraph [ref=e48]: Published
+              - generic [ref=e49]:
+                - paragraph [ref=e50]: "1"
+                - generic [ref=e51]: 33% live
+            - generic [ref=e54]:
+              - paragraph [ref=e55]: Drafting
+              - paragraph [ref=e56]: "2"
+              - paragraph [ref=e57]: Waiting for their publishing glow-up
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - button "All statuses" [ref=e60]:
+                - img [ref=e61]
+                - text: All statuses
+              - button "Published" [ref=e63]:
+                - img [ref=e64]
+                - text: Published
+              - button "Draft" [ref=e67]:
+                - img [ref=e68]
+                - text: Draft
+            - generic [ref=e72]:
+              - button "Story order" [ref=e73]
+              - button "Recently updated" [ref=e74]
+          - generic [ref=e75]:
+            - list [ref=e76]:
+              - listitem [ref=e77]:
+                - 'button "01 Chapter 1: Glass Currents Published Mara bargains with a coral-coded AI colony for safe passage through the rift. Move chapter up Move chapter down Open chapter actions Today at 5:50 PM Seq. 1" [ref=e78]':
+                  - generic [ref=e79]:
+                    - generic [ref=e80]:
+                      - generic [ref=e81]: "01"
+                      - generic [ref=e82]:
+                        - generic [ref=e83]:
+                          - paragraph [ref=e84]: "Chapter 1: Glass Currents"
+                          - generic [ref=e85]: Published
+                        - paragraph [ref=e86]: Mara bargains with a coral-coded AI colony for safe passage through the rift.
+                    - generic [ref=e87]:
+                      - generic [ref=e88]:
+                        - button "Move chapter up" [disabled] [ref=e89]:
+                          - img [ref=e90]
+                        - button "Move chapter down" [ref=e92] [cursor=pointer]:
+                          - img [ref=e93] [cursor=pointer]
+                      - button "Open chapter actions" [ref=e96] [cursor=pointer]:
+                        - img [ref=e97] [cursor=pointer]
+                  - generic [ref=e101]:
+                    - generic [ref=e102]:
+                      - img [ref=e103]
+                      - text: Today at 5:50 PM
+                    - generic [ref=e107]: Seq. 1
+              - listitem [ref=e108]:
+                - 'button "02 Prologue: Eventide Draft A fractured distress signal pulls the Halcyon into an anomaly on the edge of mapped space. Move chapter up Move chapter down Open chapter actions Today at 5:50 PM Seq. 2" [ref=e109]':
+                  - generic [ref=e110]:
+                    - generic [ref=e111]:
+                      - generic [ref=e112]: "02"
+                      - generic [ref=e113]:
+                        - generic [ref=e114]:
+                          - paragraph [ref=e115]: "Prologue: Eventide"
+                          - generic [ref=e116]: Draft
+                        - paragraph [ref=e117]: A fractured distress signal pulls the Halcyon into an anomaly on the edge of mapped space.
+                    - generic [ref=e118]:
+                      - generic [ref=e119]:
+                        - button "Move chapter up" [ref=e120] [cursor=pointer]:
+                          - img [ref=e121] [cursor=pointer]
+                        - button "Move chapter down" [ref=e123] [cursor=pointer]:
+                          - img [ref=e124] [cursor=pointer]
+                      - button "Open chapter actions" [expanded] [active] [ref=e127] [cursor=pointer]:
+                        - img [ref=e128] [cursor=pointer]
+                  - generic [ref=e132]:
+                    - generic [ref=e133]:
+                      - img [ref=e134]
+                      - text: Today at 5:50 PM
+                    - generic [ref=e138]: Seq. 2
+              - listitem [ref=e139]:
+                - 'button "03 Chapter 2: Dirge of Suns Draft An allied captain mutinies, threatening to expose their hidden jump coordinates. Move chapter up Move chapter down Open chapter actions Today at 5:50 PM Seq. 3" [ref=e140]':
+                  - generic [ref=e141]:
+                    - generic [ref=e142]:
+                      - generic [ref=e143]: "03"
+                      - generic [ref=e144]:
+                        - generic [ref=e145]:
+                          - paragraph [ref=e146]: "Chapter 2: Dirge of Suns"
+                          - generic [ref=e147]: Draft
+                        - paragraph [ref=e148]: An allied captain mutinies, threatening to expose their hidden jump coordinates.
+                    - generic [ref=e149]:
+                      - generic [ref=e150]:
+                        - button "Move chapter up" [ref=e151] [cursor=pointer]:
+                          - img [ref=e152] [cursor=pointer]
+                        - button "Move chapter down" [disabled] [ref=e154]:
+                          - img [ref=e155]
+                      - button "Open chapter actions" [ref=e158] [cursor=pointer]:
+                        - img [ref=e159] [cursor=pointer]
+                  - generic [ref=e163]:
+                    - generic [ref=e164]:
+                      - img [ref=e165]
+                      - text: Today at 5:50 PM
+                    - generic [ref=e169]: Seq. 3
+            - generic [ref=e170]:
+              - paragraph [ref=e171]: Use the arrow controls to dial in pacing. Save to push the new order live.
+              - button "Save chapter order" [ref=e172] [cursor=pointer]
+  - menu [ref=e173]:
+    - menuitem "Edit chapter" [ref=e174]:
+      - img [ref=e175]
+      - text: Edit chapter
+    - menuitem "Delete chapter" [ref=e178]:
+      - img [ref=e179]
+      - text: Delete chapter
+```

@@ -157,6 +157,223 @@
       "novelsErrorMessage": "Failed to load your novels. Please try again later."
     }
   },
+  "workPage": {
+    "create": {
+      "hero": {
+        "title": "Create Your Next Story",
+        "subtitle": "Craft your novel, set its tone, and share it with eager readers."
+      },
+      "form": {
+        "titleLabel": "Title *",
+        "titlePlaceholder": "Enter a title that captures your story",
+        "genresLabel": "Genres *",
+        "genresPlaceholderEmpty": "Select genres",
+        "genresPlaceholderAdd": "Add another genre",
+        "genresHelpEmpty": "Select at least one genre",
+        "genresHelpSelected_one": "{{count}} genre selected",
+        "genresHelpSelected_other": "{{count}} genres selected",
+        "summaryLabel": "Summary *",
+        "summaryPlaceholder": "Write a compelling summary of your novel...",
+        "summaryCounter": "{{count}} / {{max}} characters",
+        "coverLabel": "Cover Image (Optional)",
+        "coverPreviewAlt": "Cover preview",
+        "coverRemove": "Remove cover",
+        "coverUploadTitle": "Upload Cover Image",
+        "coverUploadSubtitle": "Drag and drop an image here, or click to select",
+        "coverUploadHelp": "PNG, JPG, GIF up to 10MB"
+      },
+      "actions": {
+        "submit": "Create Novel",
+        "submitting": "Creating..."
+      },
+      "validation": {
+        "invalidImage": "Please select a valid image file",
+        "maxSize": "Image must be smaller than 10MB",
+        "title": "A title is required",
+        "summary": "A summary is required",
+        "genre": "Select at least one genre"
+      },
+      "toast": {
+        "success": "Novel created successfully!",
+        "error": "Failed to create the novel. Please try again."
+      }
+    },
+    "edit": {
+      "tabs": {
+        "story": "Story",
+        "chapters": "Chapters"
+      },
+      "error": {
+        "title": "We couldn't find that work",
+        "subtitle": "Check the link or return to your works dashboard.",
+        "backButton": "Back to dashboard"
+      },
+      "header": {
+        "back": "Back",
+        "badge": "Editing workspace",
+        "untitled": "Untitled work",
+        "description": "Refine story foundations, update your cover, and orchestrate chapter pacing in one focused surface. Changes sync instantly across the reader experience.",
+        "statusLabel": "Status",
+        "genresLabel": "Genres",
+        "genresFallback": "Not set"
+      },
+      "story": {
+        "heading": "Story details",
+        "description": "Keep title, summary, and status aligned before you share chapters with beta readers.",
+        "fields": {
+          "title": {
+            "label": "Title",
+            "placeholder": "Title of your novel"
+          },
+          "summary": {
+            "label": "Summary",
+            "placeholder": "Describe your core hook, protagonists, and stakes."
+          },
+          "status": {
+            "label": "Status"
+          },
+          "genre": {
+            "label": "Add genre",
+            "placeholder": "Select genre",
+            "helper": "Select at least one genre to align recommendations."
+          }
+        },
+        "actions": {
+          "save": "Save story details",
+          "saving": "Saving...",
+          "helper": "Changes sync instantly to your reader profile."
+        }
+      },
+      "form": {
+        "status": {
+          "options": {
+            "ongoing": "Ongoing",
+            "completed": "Completed"
+          }
+        }
+      },
+      "validation": {
+        "title": "Add a clear, energetic title.",
+        "summary": "Describe the arc before saving.",
+        "genre": "Select at least one genre.",
+        "coverInvalid": "Upload an image (PNG, JPG, GIF)",
+        "coverSize": "Image must be under 10MB",
+        "coverRequired": "Select a cover image before saving"
+      },
+      "toast": {
+        "detailsSuccess": "Story details updated",
+        "detailsError": "Unable to save details",
+        "coverSuccess": "Cover refreshed",
+        "coverError": "Unable to update cover",
+        "chapterDeleteSuccess": "Chapter deleted",
+        "chapterDeleteError": "Unable to delete chapter",
+        "chapterOrderSuccess": "Chapter order updated",
+        "chapterOrderError": "Unable to reorder chapters"
+      },
+      "cover": {
+        "heading": "Cover art",
+        "description": "Upload key art that matches your story's tone.",
+        "dropzone": {
+          "title": "Drag imagery here or click to upload",
+          "helper": "PNG / JPG / GIF · 1600px min · Max 10MB"
+        },
+        "live": {
+          "label": "Live cover"
+        },
+        "new": {
+          "label": "New upload",
+          "previewAlt": "New cover preview",
+          "clear": "Clear selection"
+        },
+        "placeholder": {
+          "title": "Preview placeholder",
+          "body": "Upload a cinematic cover to see a live preview alongside the current artwork."
+        },
+        "actions": {
+          "save": "Save cover update",
+          "saving": "Saving..."
+        }
+      },
+      "launchChecklist": {
+        "title": "Launch checklist",
+        "items": {
+          "titleSummary": "Title and summary polished",
+          "genres": "Primary genres locked",
+          "cover": "Cover matches tone",
+          "chapters": "Chapter order intentional"
+        }
+      },
+      "chapters": {
+        "heading": "Chapter pacing",
+        "description": "Scan every chapter in sequence. Filter, search, and reorder without any extra columns in the way.",
+        "searchPlaceholder": "Search chapters",
+        "actions": {
+          "add": "Add Chapter",
+          "resetView": "Reset view",
+          "saveOrder": "Save chapter order",
+          "savingOrder": "Saving..."
+        },
+        "stats": {
+          "inLibrary": {
+            "label": "In library",
+            "helper": "Chapters staged for your readership"
+          },
+          "published": {
+            "label": "Published"
+          },
+          "drafting": {
+            "label": "Drafting",
+            "helper": "Waiting for their publishing glow-up"
+          }
+        },
+        "filters": {
+          "all": "All statuses",
+          "published": "Published",
+          "draft": "Draft"
+        },
+        "sort": {
+          "sequence": "Story order",
+          "recent": "Recently updated"
+        },
+        "empty": {
+          "title": "No chapters yet",
+          "subtitle": "Draft your opening scene to populate this list. You can always rearrange the beats later.",
+          "cta": "Draft the first chapter"
+        },
+        "filteredEmpty": {
+          "title": "No chapters match your filters",
+          "subtitle": "Try adjusting the status filter, resetting the sort, or clearing the search query to reveal more chapters.",
+          "cta": "Clear filters"
+        },
+        "chapterCard": {
+          "noSummary": "No summary yet. Open to add context.",
+          "untitled": "Untitled chapter {{index}}",
+          "fallbackStatus": "Draft",
+          "moveUp": "Move chapter up",
+          "moveDown": "Move chapter down",
+          "openMenu": "Open chapter actions",
+          "noTimestamp": "No timestamp",
+          "sequence": "Seq. {{index}}",
+          "wordCount": "{{formattedCount}} words",
+          "reorderHint": "Use the arrow controls to dial in pacing. Save to push the new order live.",
+          "reorderDisabled": "Reordering is disabled while filters or alternate sorting are active."
+        },
+        "menu": {
+          "edit": "Edit chapter",
+          "delete": "Delete chapter"
+        },
+        "modal": {
+          "title": "Delete {{name}}?",
+          "untitledFallback": "this chapter",
+          "body": "This removes the chapter from your pacing view immediately. You can't undo this without re-creating the chapter.",
+          "noteTitle": "Heads up",
+          "noteBody": "Deleting won't disturb published chapters, but any readers currently in drafts won't see this entry anymore.",
+          "cancel": "Cancel",
+          "confirm": "Delete chapter"
+        }
+      }
+    }
+  },
   "novelPage": {
     "novelTitle": "Sindbad",
     "onGoing": "Ongoing",

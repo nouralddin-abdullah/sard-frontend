@@ -1,0 +1,192 @@
+Work
+
+
+POST
+/api/myworks
+
+
+Parameters
+Try it out
+Name	Description
+Title
+string
+(query)
+Title
+Summary
+string
+(query)
+Summary
+GenreIds
+array[integer]
+(query)
+Request body
+
+multipart/form-data
+CoverImageUrl
+string($binary)
+Responses
+Code	Description	Links
+200	
+OK
+
+No links
+
+GET
+/api/myworks
+
+
+Parameters
+Try it out
+Name	Description
+PageSize
+integer($int32)
+(query)
+PageSize
+PageNumber
+integer($int32)
+(query)
+PageNumber
+Responses
+Code	Description	Links
+200	
+OK
+
+No links
+
+PATCH
+/api/myworks/novel-cover/{novelId}
+
+
+Parameters
+Try it out
+Name	Description
+novelId *
+string($uuid)
+(path)
+novelId
+Request body
+
+multipart/form-data
+CoverUrl *
+string($binary)
+Responses
+Code	Description	Links
+200	
+OK
+
+No links
+
+PATCH
+/api/myworks/{novelId}
+
+
+Parameters
+Try it out
+Name	Description
+novelId *
+string($uuid)
+(path)
+novelId
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "title": "string",
+  "summary": "string",
+  "status": "string",
+  "genreIds": [
+    0
+  ]
+}
+Responses
+Code	Description	Links
+200	
+OK
+
+No links
+
+GET
+/api/myworks/{workId}
+
+
+Parameters
+Try it out
+Name	Description
+workId *
+string($uuid)
+(path)
+workId
+Responses
+Code	Description	Links
+200	
+OK
+
+No links
+
+GET
+/api/myworks/{workId}/chapters
+
+
+Parameters
+Try it out
+Name	Description
+workId *
+string($uuid)
+(path)
+workId
+Responses
+Code	Description	Links
+200	
+OK
+
+No links
+
+PATCH
+/api/myworks/{workId}/chapters
+
+
+Parameters
+Try it out
+Name	Description
+workId *
+string($uuid)
+(path)
+workId
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "orderedChapterIds": [
+    "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+  ]
+}
+Responses
+Code	Description	Links
+200	
+OK
+
+No links
+
+GET
+/api/myworks/{workId}/chapters/{chapterId}
+
+
+Parameters
+Try it out
+Name	Description
+workId *
+string($uuid)
+(path)
+workId
+chapterId *
+string($uuid)
+(path)
+chapterId
+Responses
+Code	Description	Links
+200	
+OK

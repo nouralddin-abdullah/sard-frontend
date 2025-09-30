@@ -3,11 +3,27 @@ import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-const getMyWork = async (page) => {
+const EMPTY_FILTERS = Object.freeze({});
+
+const buildQueryString = (pageNumber, pageSize, filters = {}) => {
+  const params = new URLSearchParams();
+  params.set("PageNumber", pageNumber.toString());
+  params.set("PageSize", pageSize.toString());
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return;
+    params.set(key, value);
+  });
+
+  return params.toString();
+};
+
+const getMyWork = async ({ pageNumber, pageSize, filters }) => {
   const accessToken = Cookies.get(TOKEN_KEY);
 
   try {
-    const response = await fetch(`${BASE_URL}/api/myWorks?Page=${page}`, {
+    const queryString = buildQueryString(pageNumber, pageSize, filters);
+    const response = await fetch(`${BASE_URL}/api/myworks?${queryString}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -23,15 +39,21 @@ const getMyWork = async (page) => {
   }
 };
 
-export const useGetMyWorks = () => {
+export const useGetMyWorks = ({
+  pageSize = 9,
+  filters = EMPTY_FILTERS,
+  enabled = true,
+} = {}) => {
   return useInfiniteQuery({
-    queryKey: ["my-works"],
-    queryFn: ({ pageParam = 1 }) => getMyWork(pageParam),
+    queryKey: ["my-works", pageSize, filters],
+    queryFn: ({ pageParam = 1 }) =>
+      getMyWork({ pageNumber: pageParam, pageSize, filters }),
     getNextPageParam: (lastPage, allPages) => {
-      // If the current page number is less than total pages, return next page
+      if (!lastPage?.totalPages) return undefined;
       const currentPage = allPages.length;
       return currentPage < lastPage.totalPages ? currentPage + 1 : undefined;
     },
     initialPageParam: 1,
+    enabled,
   });
 };

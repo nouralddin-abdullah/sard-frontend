@@ -1,0 +1,212 @@
+import { test, expect } from "@playwright/test";
+
+const WORK_ID = "3d437f4a-4f95-46b5-8abe-9f8f84c99055";
+const API_BASE = "https://api-sareed.runasp.net";
+
+const mockWorkPayload = {
+  id: WORK_ID,
+  title: "Echoes of the Halcyon Rift",
+  summary:
+    "Captain Mara charts a fractured galaxy while negotiating with sentient nebulae and rogue AIs for humanity's survival.",
+  status: "Ongoing",
+  genresList: [
+    { id: 6, name: "Science Fiction" },
+    { id: 12, name: "Space Opera" },
+  ],
+  coverImageUrl: "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=640&q=80",
+};
+
+const seededChapters = [
+  {
+    id: "chapter-1",
+    title: "Prologue: Eventide",
+    status: "Draft",
+    synopsis: "A fractured distress signal pulls the Halcyon into an anomaly on the edge of mapped space.",
+    createdAt: "2025-01-03T10:00:00.000Z",
+    updatedAt: "2025-01-03T10:00:00.000Z",
+  },
+  {
+    id: "chapter-2",
+    title: "Chapter 1: Glass Currents",
+    status: "Published",
+    synopsis: "Mara bargains with a coral-coded AI colony for safe passage through the rift.",
+    createdAt: "2025-01-07T14:30:00.000Z",
+    updatedAt: "2025-01-08T09:15:00.000Z",
+  },
+  {
+    id: "chapter-3",
+    title: "Chapter 2: Dirge of Suns",
+    status: "Draft",
+    synopsis: "An allied captain mutinies, threatening to expose their hidden jump coordinates.",
+    createdAt: "2025-01-11T16:45:00.000Z",
+    updatedAt: "2025-01-11T16:45:00.000Z",
+  },
+];
+
+const buildChapterDetail = (chapter) => ({
+  id: chapter.id,
+  novelId: WORK_ID,
+  title: chapter.title,
+  status: chapter.status,
+  content: `${chapter.synopsis}\n\nFull content for ${chapter.title}.`,
+  createdAt: chapter.createdAt,
+  updatedAt: chapter.updatedAt,
+});
+
+test.describe("Work editor workspace", () => {
+  test("summarizes pacing and hands off deep drafting to the advanced composer", async ({ page }, testInfo) => {
+    let chapters = JSON.parse(JSON.stringify(seededChapters));
+    const chapterDetails = new Map(chapters.map((chapter) => [chapter.id, buildChapterDetail(chapter)]));
+
+    await page.route(`${API_BASE}/api/myworks/${WORK_ID}`, async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(mockWorkPayload),
+        });
+        return;
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true }),
+      });
+    });
+
+    await page.route(`${API_BASE}/api/myworks/${WORK_ID}/chapters`, async (route) => {
+      const method = route.request().method();
+      if (method === "GET") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ items: chapters }),
+        });
+        return;
+      }
+
+      if (method === "PATCH") {
+        const { orderedChapterIds = [] } = route.request().postDataJSON() ?? {};
+        const reordered = orderedChapterIds
+          .map((id) => chapters.find((chapter) => chapter.id === id))
+          .filter(Boolean);
+        if (reordered.length === chapters.length) {
+          chapters = reordered.map((chapter, index) => ({
+            ...chapter,
+            updatedAt: new Date(Date.now() + index * 1000).toISOString(),
+          }));
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ success: true }),
+        });
+        return;
+      }
+
+      await route.continue();
+    });
+
+    await page.route(new RegExp(`${API_BASE}/api/myworks/${WORK_ID}/chapters/([^/]+)$`), async (route) => {
+      const match = route.request().url().match(/chapters\/(.+)$/);
+      const chapterId = match?.[1];
+      const detail = chapterId ? chapterDetails.get(chapterId) : null;
+
+      if (!detail) {
+        await route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ message: "Not found" }) });
+        return;
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(detail),
+      });
+    });
+
+  await page.addInitScript(() => window.sessionStorage.clear());
+  await page.goto(`/dashboard/works/${WORK_ID}/edit`);
+
+    await expect(page.getByRole("heading", { name: "Story details" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Cover art" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Launch checklist" })).toBeVisible();
+
+    const storyScreenshotPath = testInfo.outputPath("work-editor-story.png");
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: storyScreenshotPath, fullPage: true });
+
+  await page.getByRole("button", { name: "Chapters & pacing" }).click();
+    await expect(page.getByRole("heading", { name: "Chapter pacing" })).toBeVisible();
+    await expect(page.getByTestId("chapter-search")).toBeVisible();
+    await expect(page.getByTestId("start-new-chapter")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Create new chapter" })).toHaveCount(1);
+    await expect(
+      page.getByText(
+        "Scan every chapter in sequence. Filter, search, and reorder without any extra columns in the way."
+      )
+    ).toBeVisible();
+    await expect(page.getByText("Chapters staged for your readership")).toBeVisible();
+    await expect(page.getByText("Waiting for their publishing glow-up")).toBeVisible();
+
+    await expect(page.getByTestId("chapter-filter-all")).toBeVisible();
+    await expect(page.getByTestId("chapter-filter-published")).toBeVisible();
+    await expect(page.getByTestId("chapter-filter-draft")).toBeVisible();
+    await expect(page.getByTestId("chapter-sort-sequence")).toBeVisible();
+    await expect(page.getByTestId("chapter-sort-recent")).toBeVisible();
+
+  const chapterCards = page.locator('[data-testid^="chapter-card-"][data-testid$="-container"]');
+    await expect(chapterCards).toHaveCount(3);
+    await expect(chapterCards.first()).toContainText("Draft");
+
+    await page.getByTestId("chapter-filter-published").click();
+    await expect(chapterCards).toHaveCount(1);
+    const saveOrderButton = page.getByRole("button", { name: "Save chapter order" });
+    await expect(saveOrderButton).toBeDisabled();
+    await page.getByText("Reset view").click();
+    await expect(chapterCards).toHaveCount(3);
+
+    await page.getByTestId("chapter-sort-recent").click();
+    await expect(chapterCards.first()).toContainText("Dirge of Suns");
+    await expect(saveOrderButton).toBeDisabled();
+    await page.getByText("Reset view").click();
+    await expect(chapterCards).toHaveCount(3);
+    await expect(saveOrderButton).toBeEnabled();
+
+    const firstCardMoveDown = page
+      .getByTestId("chapter-card-chapter-1-container")
+      .getByRole("button", { name: "Move chapter down" });
+    await firstCardMoveDown.click();
+
+    const reorderResponse = page.waitForResponse((response) =>
+      response.url().includes(`/api/myworks/${WORK_ID}/chapters`) && response.request().method() === "PATCH"
+    );
+    await page.getByRole("button", { name: "Save chapter order" }).click();
+    await reorderResponse;
+    await expect(page.getByText("Chapter order updated")).toBeVisible();
+
+    const chaptersScreenshotPath = testInfo.outputPath("work-editor-chapters.png");
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: chaptersScreenshotPath, fullPage: true });
+
+    await page.getByTestId("chapter-card-chapter-1-menu-trigger").click();
+    await expect(page.getByTestId("chapter-card-chapter-1-menu-edit")).toBeVisible();
+    await expect(page.getByTestId("chapter-card-chapter-1-menu-delete")).toBeVisible();
+
+    await Promise.all([
+      page.waitForURL(new RegExp(`/dashboard/works/${WORK_ID}/chapters/chapter-1/edit$`)),
+      page.getByTestId("chapter-card-chapter-1-menu-edit").click(),
+    ]);
+    await expect(page.getByText("Advanced chapter composer")).toBeVisible();
+
+    await page.getByRole("button", { name: "Back to workspace" }).click();
+    await page.waitForURL(new RegExp(`/dashboard/works/${WORK_ID}/edit$`));
+    await expect(page.getByRole("heading", { name: "Chapter pacing" })).toBeVisible();
+
+    await Promise.all([
+      page.waitForURL(new RegExp(`/dashboard/works/${WORK_ID}/chapters/new$`)),
+      page.getByTestId("start-new-chapter").click(),
+    ]);
+    await expect(page.getByText("Advanced chapter composer")).toBeVisible();
+  });
+});

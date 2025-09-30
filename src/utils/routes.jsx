@@ -9,6 +9,8 @@ import CreateNovelPage from "../pages/novel/create";
 import NovelPage from "../pages/novel/page";
 import ProfilePage from "../pages/profile/page";
 import Test from "../pages/test";
+import EditWorkPage from "../pages/work/edit";
+import WorkDashboardPage from "../pages/work/dashboard";
 
 const routes = [
   // auth
@@ -37,7 +39,7 @@ const routes = [
     component: <AuthFailure />,
   },
 
-  //   pages
+  // pages
   {
     url: "/",
     component: <HomePage />,
@@ -57,6 +59,14 @@ const routes = [
   {
     url: "/novel/create",
     component: <CreateNovelPage />,
+  },
+  {
+    url: "/dashboard/works",
+    component: <WorkDashboardPage />,
+  },
+  {
+    url: "/dashboard/works/:workId/edit",
+    component: <EditWorkPage />,
   },
 ];
 
