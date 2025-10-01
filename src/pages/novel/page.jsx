@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import { useNovelDetails } from "../../hooks/novel/useNovelDetails";
@@ -18,6 +18,11 @@ import PenIcon from "../../components/common/PenIcon";
 import Header from "../../components/common/Header";
 import Button from "../../components/ui/button";
 import ReviewModal from "../../components/novel/ReviewModal";
+import AuthRequiredModal from "../../components/common/AuthRequiredModal";
+import { useGetReviews } from "../../hooks/novel/useGetReviews";
+import { useLikeReview } from "../../hooks/novel/useLikeReview";
+import { useUnlikeReview } from "../../hooks/novel/useUnlikeReview";
+import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 
 const NovelPage = () => {
   const { t } = useTranslation();
@@ -25,9 +30,35 @@ const NovelPage = () => {
 
   const { novel, loading: novelLoading, error: novelError } = useNovelDetails(novelSlug);
   const { chapters, loading: chaptersLoading, error: chaptersError } = useNovelChapters(novel?.id);
+  const { data: currentUser } = useGetLoggedInUser();
 
   const [selectedSubPage, setSelectedSubPage] = useState("chapters");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalAction, setAuthModalAction] = useState("لتنفيذ هذا الإجراء");
+  
+  // Reviews pagination and sorting
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [reviewsSorting, setReviewsSorting] = useState("likes"); // "likes" or "newest"
+  const reviewsPageSize = 10;
+  
+  // Track which spoiler reviews are revealed
+  const [revealedSpoilers, setRevealedSpoilers] = useState({});
+  
+  // Reset revealed spoilers when page or sorting changes (new set of reviews)
+  useEffect(() => {
+    setRevealedSpoilers({});
+  }, [reviewsPage, reviewsSorting]);
+  
+  const { data: reviewsData, isLoading: reviewsLoading, error: reviewsError } = useGetReviews(
+    novel?.id, 
+    reviewsPageSize, 
+    reviewsPage, 
+    reviewsSorting
+  );
+  
+  const { mutate: likeReview } = useLikeReview();
+  const { mutate: unlikeReview } = useUnlikeReview();
 
   // Static data (will be replaced with API later)
   const staticNovel = {
@@ -188,12 +219,12 @@ const NovelPage = () => {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="bg-neutral-800 flex justify-between text-white p-2 rounded-lg mb-[40px]">
+      <div className="flex justify-center text-white mb-[40px] gap-6">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => navigateSubPages(tab.id)}
-            className={`noto-sans-arabic-extrabold cursor-pointer px-4 py-2 rounded transition-colors ${
+            className={`noto-sans-arabic-extrabold cursor-pointer px-6 py-2 rounded transition-colors text-[20px] ${
               selectedSubPage === tab.id
                 ? "bg-neutral-700"
                 : "hover:bg-neutral-700"
@@ -241,7 +272,14 @@ const NovelPage = () => {
                   <Button 
                     variant="primary" 
                     size="lg"
-                    onClick={() => setIsReviewModalOpen(true)}
+                    onClick={() => {
+                      if (!currentUser) {
+                        setAuthModalAction("لمشاركة تقييمك");
+                        setIsAuthModalOpen(true);
+                      } else {
+                        setIsReviewModalOpen(true);
+                      }
+                    }}
                     className="bg-[#4A9EFF] hover:bg-[#3A8EEF] text-white noto-sans-arabic-extrabold text-[18px] px-12 py-4"
                   >
                     شارك تقييمك
@@ -254,31 +292,31 @@ const NovelPage = () => {
                     {/* جودة الكتابة */}
                     <div className="flex items-center justify-between">
                       <p className="text-white noto-sans-arabic-extrabold text-[20px]">جودة الكتابة</p>
-                      <StarRating rating={5} className="w-[28px] h-[28px]" />
+                      <StarRating rating={novel?.averageWritingQualityScore || 0} className="w-[28px] h-[28px]" />
                     </div>
                     
                     {/* استقرار التحديثات */}
                     <div className="flex items-center justify-between">
                       <p className="text-white noto-sans-arabic-extrabold text-[20px]">استقرار التحديثات</p>
-                      <StarRating rating={4} className="w-[28px] h-[28px]" />
+                      <StarRating rating={novel?.averageUpdatingStabilityScore || 0} className="w-[28px] h-[28px]" />
                     </div>
                     
                     {/* تطور القصة */}
                     <div className="flex items-center justify-between">
                       <p className="text-white noto-sans-arabic-extrabold text-[20px]">تطور القصة</p>
-                      <StarRating rating={3} className="w-[28px] h-[28px]" />
+                      <StarRating rating={novel?.averageStoryDevelopmentScore || 0} className="w-[28px] h-[28px]" />
                     </div>
                     
                     {/* بناء الشخصيات */}
                     <div className="flex items-center justify-between">
                       <p className="text-white noto-sans-arabic-extrabold text-[20px]">بناء الشخصيات</p>
-                      <StarRating rating={5} className="w-[28px] h-[28px]" />
+                      <StarRating rating={novel?.averageCharacterDevelopmentScore || 0} className="w-[28px] h-[28px]" />
                     </div>
                     
                     {/* بناء العالم القصصي */}
                     <div className="flex items-center justify-between">
                       <p className="text-white noto-sans-arabic-extrabold text-[20px]">بناء العالم القصصي</p>
-                      <StarRating rating={4} className="w-[28px] h-[28px]" />
+                      <StarRating rating={novel?.averageWorldBuildingScore || 0} className="w-[28px] h-[28px]" />
                     </div>
                   </div>
                 </div>
@@ -286,66 +324,157 @@ const NovelPage = () => {
 
               {/* Filter Buttons - Moved to Left */}
               <div className="flex justify-start items-center gap-6 mb-8">
-                <button className="text-[#4A9EFF] noto-sans-arabic-extrabold text-[18px] hover:underline">
+                <button 
+                  onClick={() => {
+                    setReviewsSorting("likes");
+                    setReviewsPage(1);
+                  }}
+                  className={`${reviewsSorting === "likes" ? "text-[#4A9EFF]" : "text-[#AAAAAA]"} noto-sans-arabic-extrabold text-[18px] hover:underline`}
+                >
                   الاكثر إعجاباً
                 </button>
-                <button className="text-[#AAAAAA] noto-sans-arabic-extrabold text-[18px] hover:underline">
+                <button 
+                  onClick={() => {
+                    setReviewsSorting("newest");
+                    setReviewsPage(1);
+                  }}
+                  className={`${reviewsSorting === "newest" ? "text-[#4A9EFF]" : "text-[#AAAAAA]"} noto-sans-arabic-extrabold text-[18px] hover:underline`}
+                >
                   الأحدث
                 </button>
               </div>
 
-              {/* Review Item */}
-              <div className="border-b border-[#797979] pb-8">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-center gap-4">
-                    <img 
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
-                      alt="Mariam El-Gendy"
-                      className="w-16 h-16 rounded-full"
-                    />
-                    <div>
-                      <p className="text-white noto-sans-arabic-extrabold text-[20px]">Mariam El-Gendy</p>
-                      <div className="mt-2">
-                        <StarRating rating={5} className="w-[22px] h-[22px]" />
-                      </div>
-                    </div>
-                  </div>
+              {/* Reviews Loading */}
+              {reviewsLoading && (
+                <div className="text-center py-12">
+                  <p className="text-white noto-sans-arabic-extrabold text-[18px]">جاري تحميل التقييمات...</p>
                 </div>
-                <p className="text-white noto-sans-arabic-extrabold text-[18px] leading-relaxed">
-                  الرواية مدهشة في فكرتها ومبناء عالمها، وقد استطاع الكاتب أن يمنحني منذ الفصول الأولى، تطور الشخصيات جذب وافي، تطور الشخصيات يكون ذلك مدهشة ومتنوع وبشكل عام، تجربة ممتعة وأنصح التحديثات القادمة بشغف.
-                </p>
-                <div className="flex items-center gap-6 mt-6">
-                  <button className="flex items-center gap-3 text-[#AAAAAA] hover:text-white transition-colors">
-                    <span className="text-[18px] noto-sans-arabic-extrabold">(205)</span>
-                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                    </svg>
-                  </button>
-                  <span className="text-[#AAAAAA] text-[16px]">...</span>
-                </div>
-              </div>
+              )}
 
-              {/* Second Review */}
-              <div className="border-b border-[#797979] pb-8">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-center gap-4">
-                    <img 
-                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop" 
-                      alt="Youssef Hassany"
-                      className="w-16 h-16 rounded-full"
-                    />
-                    <div>
-                      <p className="text-white noto-sans-arabic-extrabold text-[20px]">Youssef Hassany</p>
-                      <div className="mt-2">
-                        <StarRating rating={2} className="w-[22px] h-[22px]" />
+              {/* Reviews Error */}
+              {reviewsError && (
+                <div className="text-center py-12">
+                  <p className="text-red-400 noto-sans-arabic-extrabold text-[18px]">حدث خطأ في تحميل التقييمات</p>
+                </div>
+              )}
+
+              {/* Reviews List */}
+              {!reviewsLoading && !reviewsError && reviewsData?.items?.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-[#AAAAAA] noto-sans-arabic-extrabold text-[18px]">لا توجد تقييمات بعد. كن أول من يقيّم!</p>
+                </div>
+              )}
+
+              {!reviewsLoading && !reviewsError && reviewsData?.items?.map((review) => {
+                const isSpoilerRevealed = revealedSpoilers[review.id];
+                
+                return (
+                <div key={review.id} className="border-b border-[#797979] pb-8">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      {review.reviewer.profilePhoto ? (
+                        <img 
+                          src={review.reviewer.profilePhoto}
+                          alt={review.reviewer.displayName}
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-full bg-[#4A4A4A] flex items-center justify-center">
+                          <User className="w-8 h-8 text-white" />
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-white noto-sans-arabic-extrabold text-[20px]">{review.reviewer.displayName}</p>
+                        <div className="mt-2">
+                          <StarRating rating={review.totalAverageScore} className="w-[22px] h-[22px]" />
+                        </div>
                       </div>
                     </div>
+                    <span className="text-[#AAAAAA] noto-sans-arabic-medium text-[14px]">
+                      {formatDateShort(review.createdAt)}
+                    </span>
+                  </div>
+                  
+                  {/* Review Content and Like Button Side by Side */}
+                  <div className="flex items-start gap-4">
+                    {/* Review Content with Blur Effect for Spoilers */}
+                    <div className="relative flex-1">
+                      <p className={`text-white noto-sans-arabic-extrabold text-[18px] leading-relaxed transition-all duration-300 ${
+                        review.isSpoiler && !isSpoilerRevealed ? 'blur-md select-none' : ''
+                      }`}>
+                        {review.content}
+                      </p>
+                      
+                      {/* Click to Reveal Spoiler Overlay */}
+                      {review.isSpoiler && !isSpoilerRevealed && (
+                        <div 
+                          onClick={() => setRevealedSpoilers(prev => ({ ...prev, [review.id]: true }))}
+                          className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/10 hover:bg-black/20 transition-colors rounded-lg"
+                        >
+                          <div className="bg-[#3C3C3C] px-6 py-3 rounded-xl border-2 border-yellow-500/50 shadow-lg">
+                            <p className="text-yellow-400 noto-sans-arabic-extrabold text-[16px] flex items-center gap-2">
+                              <AlertTriangle className="w-5 h-5" />
+                              يحتوي على حرق - اضغط للعرض
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Like Button - Show for all users except the review author */}
+                    {(!currentUser || currentUser.id !== review.reviewer.id) && (
+                      <button 
+                        onClick={() => {
+                          // Check if user is logged in before allowing like/unlike
+                          if (!currentUser) {
+                            setAuthModalAction("للإعجاب بالمراجعة");
+                            setIsAuthModalOpen(true);
+                            return;
+                          }
+
+                          if (review.isLikedByCurrentUser) {
+                            unlikeReview({ novelId: novel?.id, reviewId: review.id });
+                          } else {
+                            likeReview({ novelId: novel?.id, reviewId: review.id });
+                          }
+                        }}
+                        className={`flex flex-col items-center gap-2 transition-colors flex-shrink-0 ${
+                          review.isLikedByCurrentUser ? 'text-[#4A9EFF]' : 'text-[#AAAAAA] hover:text-white'
+                        }`}
+                      >
+                        <svg className="w-7 h-7" fill={review.isLikedByCurrentUser ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                        </svg>
+                        <span className="text-[16px] noto-sans-arabic-extrabold">{review.likeCount}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
-                <p className="text-white noto-sans-arabic-extrabold text-[18px] leading-relaxed">
-                  الفكرة الأساسية للرواية جيدة، وفيها جانب مشوق. لكن التنفيذ لم يكن على قدر التوقع. بعض الشخصيات بدت سطحية، والأحداث في المنتصف كانت متسرعة قليلاً. أشعر أن الكاتب استعجل بعض المشاهد. والحوار في بعض المواقف ي...
-                </p>
-              </div>
+                );
+              })}
+
+              {/* Pagination */}
+              {!reviewsLoading && !reviewsError && reviewsData && reviewsData.totalPages > 1 && (
+                <div className="flex justify-center items-center gap-4 mt-12">
+                  <button
+                    onClick={() => setReviewsPage(prev => Math.max(1, prev - 1))}
+                    disabled={reviewsPage === 1}
+                    className="px-6 py-3 bg-[#4A4A4A] text-white noto-sans-arabic-extrabold text-[16px] rounded-xl hover:bg-[#5A5A5A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    السابق
+                  </button>
+                  <span className="text-white noto-sans-arabic-extrabold text-[16px]">
+                    {reviewsPage} / {reviewsData.totalPages}
+                  </span>
+                  <button
+                    onClick={() => setReviewsPage(prev => Math.min(reviewsData.totalPages, prev + 1))}
+                    disabled={reviewsPage === reviewsData.totalPages}
+                    className="px-6 py-3 bg-[#4A4A4A] text-white noto-sans-arabic-extrabold text-[16px] rounded-xl hover:bg-[#5A5A5A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    التالي
+                  </button>
+                </div>
+              )}
             </div>
           )}
           
@@ -420,6 +549,14 @@ const NovelPage = () => {
       isOpen={isReviewModalOpen}
       onClose={() => setIsReviewModalOpen(false)}
       novelTitle={novel?.title || ""}
+      novelId={novel?.id}
+    />
+
+    {/* Auth Required Modal */}
+    <AuthRequiredModal 
+      isOpen={isAuthModalOpen}
+      onClose={() => setIsAuthModalOpen(false)}
+      action={authModalAction}
     />
     </>
   );

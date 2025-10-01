@@ -26,8 +26,14 @@ const getLoggedInUser = async () => {
 };
 
 export const useGetLoggedInUser = () => {
+  const accessToken = Cookies.get(TOKEN_KEY);
+  
   return useQuery({
     queryKey: ["me"],
     queryFn: getLoggedInUser,
+    enabled: !!accessToken, // Only run query if token exists
+    retry: false, // Don't retry on failure
+    staleTime: 0, // Always consider data stale
+    gcTime: 0, // Don't cache data (formerly cacheTime)
   });
 };

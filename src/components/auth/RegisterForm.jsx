@@ -126,176 +126,197 @@ export default function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {/* Form */}
-      <div className="space-y-6">
-        {/* Username Field */}
-        <div>
-          <label
-            htmlFor="username"
-            className="block text-sm font-medium text-gray-300 mb-2"
-          >
-            {t("auth.register.username")}
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <User className="h-5 w-5 text-gray-500" />
-            </div>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              value={formFields.username}
-              onChange={handleChange}
-              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              placeholder={t("auth.register.usernamePlaceholder")}
-            />
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Username Field */}
+      <div className="group">
+        <label
+          htmlFor="username"
+          className="block text-[14px] noto-sans-arabic-medium text-gray-300 mb-1.5"
+        >
+          {t("auth.register.username")}
+        </label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <User className="h-5 w-5 text-gray-500 group-focus-within:text-[#4A9EFF] transition-colors" />
           </div>
-          {errors.username && (
-            <p className="text-red-600 my-3">{errors.username}</p>
-          )}
+          <input
+            id="username"
+            name="username"
+            type="text"
+            value={formFields.username}
+            onChange={handleChange}
+            className="w-full pl-12 pr-4 py-3 bg-[#2C2C2C] border border-gray-600/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]/50 focus:border-[#4A9EFF] transition-all duration-200 hover:border-gray-500"
+            placeholder={t("auth.register.usernamePlaceholder")}
+          />
         </div>
-
-        {/* Email Field */}
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-300 mb-2"
-          >
-            {t("auth.register.email")}
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Mail className="h-5 w-5 text-gray-500" />
-            </div>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formFields.email}
-              onChange={handleChange}
-              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              placeholder={t("auth.register.emailPlaceholder")}
-            />
-          </div>
-          {errors.email && <p className="text-red-600 my-3">{errors.email}</p>}
-        </div>
-
-        {/* Display Name Field */}
-        <div>
-          <label
-            htmlFor="displayName"
-            className="block text-sm font-medium text-gray-300 mb-2"
-          >
-            {t("auth.register.displayName")}
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <User className="h-5 w-5 text-gray-500" />
-            </div>
-            <input
-              id="displayName"
-              name="displayName"
-              type="text"
-              value={formFields.displayName}
-              onChange={handleChange}
-              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              placeholder={t("auth.register.displayNamePlaceholder")}
-            />
-          </div>
-          {errors.displayName && (
-            <p className="text-red-600 my-3">{errors.displayName}</p>
-          )}
-        </div>
-
-        {/* Password Field */}
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-300 mb-2"
-          >
-            {t("auth.register.password")}
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Lock className="h-5 w-5 text-gray-500" />
-            </div>
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={formFields.password}
-              onChange={handleChange}
-              className="w-full pl-10 pr-12 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              placeholder={t("auth.register.passwordPlaceholder")}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              {showPassword ? (
-                <EyeOff className="h-5 w-5" />
-              ) : (
-                <Eye className="h-5 w-5" />
-              )}
-            </button>
-          </div>
-          {errors.password && (
-            <p className="text-red-600 my-3">{errors.password}</p>
-          )}
-        </div>
-
-        {/* Confirm Password Field */}
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-sm font-medium text-gray-300 mb-2"
-          >
-            {t("auth.register.confirmPassword")}
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Lock className="h-5 w-5 text-gray-500" />
-            </div>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showConfirmPassword ? "text" : "password"}
-              value={formFields.confirmPassword}
-              onChange={handleChange}
-              className="w-full pl-10 pr-12 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              placeholder={t("auth.register.confirmPasswordPlaceholder")}
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              {showConfirmPassword ? (
-                <EyeOff className="h-5 w-5" />
-              ) : (
-                <Eye className="h-5 w-5" />
-              )}
-            </button>
-          </div>
-          {errors.confirmPassword && (
-            <p className="text-red-600 my-3">{errors.confirmPassword}</p>
-          )}
-        </div>
-
-        {isError && <p className="text-red-600 my-3">{error?.message}</p>}
-
-        {/* Submit Button */}
-        <Button type="submit" isLoading={isLoading}>
-          <div className="flex items-center">
-            {t("auth.register.createAccount")}
-            {!isLoading && (
-              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            )}
-          </div>
-        </Button>
+        {errors.username && (
+          <p className="text-[#FF6B6B] text-[13px] mt-1.5 flex items-center gap-1 animate-shake">
+            <span className="inline-block w-1 h-1 rounded-full bg-[#FF6B6B]"></span>
+            {errors.username}
+          </p>
+        )}
       </div>
+
+      {/* Email Field */}
+      <div className="group">
+        <label
+          htmlFor="email"
+          className="block text-[14px] noto-sans-arabic-medium text-gray-300 mb-1.5"
+        >
+          {t("auth.register.email")}
+        </label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Mail className="h-5 w-5 text-gray-500 group-focus-within:text-[#4A9EFF] transition-colors" />
+          </div>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={formFields.email}
+            onChange={handleChange}
+            className="w-full pl-12 pr-4 py-3 bg-[#2C2C2C] border border-gray-600/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]/50 focus:border-[#4A9EFF] transition-all duration-200 hover:border-gray-500"
+            placeholder={t("auth.register.emailPlaceholder")}
+          />
+        </div>
+        {errors.email && (
+          <p className="text-[#FF6B6B] text-[13px] mt-1.5 flex items-center gap-1 animate-shake">
+            <span className="inline-block w-1 h-1 rounded-full bg-[#FF6B6B]"></span>
+            {errors.email}
+          </p>
+        )}
+      </div>
+
+      {/* Display Name Field */}
+      <div className="group">
+        <label
+          htmlFor="displayName"
+          className="block text-[14px] noto-sans-arabic-medium text-gray-300 mb-1.5"
+        >
+          {t("auth.register.displayName")}
+        </label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <User className="h-5 w-5 text-gray-500 group-focus-within:text-[#4A9EFF] transition-colors" />
+          </div>
+          <input
+            id="displayName"
+            name="displayName"
+            type="text"
+            value={formFields.displayName}
+            onChange={handleChange}
+            className="w-full pl-12 pr-4 py-3 bg-[#2C2C2C] border border-gray-600/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]/50 focus:border-[#4A9EFF] transition-all duration-200 hover:border-gray-500"
+            placeholder={t("auth.register.displayNamePlaceholder")}
+          />
+        </div>
+        {errors.displayName && (
+          <p className="text-[#FF6B6B] text-[13px] mt-1.5 flex items-center gap-1 animate-shake">
+            <span className="inline-block w-1 h-1 rounded-full bg-[#FF6B6B]"></span>
+            {errors.displayName}
+          </p>
+        )}
+      </div>
+
+      {/* Password Field */}
+      <div className="group">
+        <label
+          htmlFor="password"
+          className="block text-[14px] noto-sans-arabic-medium text-gray-300 mb-1.5"
+        >
+          {t("auth.register.password")}
+        </label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-[#4A9EFF] transition-colors" />
+          </div>
+          <input
+            id="password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={formFields.password}
+            onChange={handleChange}
+            className="w-full pl-12 pr-12 py-3 bg-[#2C2C2C] border border-gray-600/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]/50 focus:border-[#4A9EFF] transition-all duration-200 hover:border-gray-500"
+            placeholder={t("auth.register.passwordPlaceholder")}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white transition-colors"
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </button>
+        </div>
+        {errors.password && (
+          <p className="text-[#FF6B6B] text-[13px] mt-1.5 flex items-center gap-1 animate-shake">
+            <span className="inline-block w-1 h-1 rounded-full bg-[#FF6B6B]"></span>
+            {errors.password}
+          </p>
+        )}
+      </div>
+
+      {/* Confirm Password Field */}
+      <div className="group">
+        <label
+          htmlFor="confirmPassword"
+          className="block text-[14px] noto-sans-arabic-medium text-gray-300 mb-1.5"
+        >
+          {t("auth.register.confirmPassword")}
+        </label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-[#4A9EFF] transition-colors" />
+          </div>
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type={showConfirmPassword ? "text" : "password"}
+            value={formFields.confirmPassword}
+            onChange={handleChange}
+            className="w-full pl-12 pr-12 py-3 bg-[#2C2C2C] border border-gray-600/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]/50 focus:border-[#4A9EFF] transition-all duration-200 hover:border-gray-500"
+            placeholder={t("auth.register.confirmPasswordPlaceholder")}
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white transition-colors"
+          >
+            {showConfirmPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </button>
+        </div>
+        {errors.confirmPassword && (
+          <p className="text-[#FF6B6B] text-[13px] mt-1.5 flex items-center gap-1 animate-shake">
+            <span className="inline-block w-1 h-1 rounded-full bg-[#FF6B6B]"></span>
+            {errors.confirmPassword}
+          </p>
+        )}
+      </div>
+
+      {/* Error Message */}
+      {isError && (
+        <div className="bg-[#FF6B6B]/10 border border-[#FF6B6B]/30 rounded-xl p-4 animate-shake">
+          <p className="text-[#FF6B6B] text-[14px] text-center noto-sans-arabic-medium">
+            {error?.message}
+          </p>
+        </div>
+      )}
+
+      {/* Submit Button */}
+      <Button type="submit" isLoading={isLoading} className="w-full mt-6">
+        <div className="flex items-center justify-center gap-2 noto-sans-arabic-extrabold text-[16px]">
+          {t("auth.register.createAccount")}
+          {!isLoading && (
+            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+          )}
+        </div>
+      </Button>
     </form>
   );
 }

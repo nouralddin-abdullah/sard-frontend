@@ -2,8 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { X } from 'lucide-react';
 import StarRating from '../common/StarRating';
 import ReviewStar from '../common/ReviewStar';
+import { useCreateReview } from '../../hooks/novel/useCreateReview';
 
-const ReviewModal = ({ isOpen, onClose, novelTitle }) => {
+const ReviewModal = ({ isOpen, onClose, novelTitle, novelId }) => {
+  const { mutate: createReview, isPending, isError, error } = useCreateReview();
   const [ratings, setRatings] = useState({
     writingQuality: 0,
     updateStability: 0,
@@ -67,11 +69,25 @@ const ReviewModal = ({ isOpen, onClose, novelTitle }) => {
       content: reviewText
     };
     
-    // TODO: Implement API integration here
-    console.log('Review payload:', payload);
-    console.log('Overall rating:', overallRating);
-    
-    onClose();
+    createReview(
+      { novelId, payload },
+      {
+        onSuccess: () => {
+          // Reset form
+          setRatings({
+            writingQuality: 0,
+            updateStability: 0,
+            storyDevelopment: 0,
+            characterDesign: 0,
+            worldBuilding: 0
+          });
+          setReviewText('');
+          setIsSpoiler(false);
+          // Close modal
+          onClose();
+        },
+      }
+    );
   };
 
   const getDisplayRating = (category) => {
@@ -80,25 +96,22 @@ const ReviewModal = ({ isOpen, onClose, novelTitle }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" dir="rtl">
-      <div className="bg-[#3C3C3C] rounded-2xl w-full max-w-[1000px] max-h-[90vh] overflow-y-auto m-4 shadow-[0px_4px_4px_rgba(0,0,0,0.25)]">
-        {/* Header - Close Button Only */}
-        <div className="flex justify-start p-6 pb-0">
+      <div className="bg-[#2C2C2C] rounded-2xl w-full max-w-[1000px] max-h-[90vh] overflow-y-auto m-4 shadow-[0px_4px_4px_rgba(0,0,0,0.25)] scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {/* Header - Novel Title and Close Button */}
+        <div className="relative flex items-center justify-center p-6 pb-0">
           <button
             onClick={onClose}
-            className="text-white hover:text-[#AAAAAA] transition-colors"
+            className="absolute right-6 text-white hover:text-[#AAAAAA] transition-colors"
           >
             <X className="w-8 h-8" />
           </button>
+          <p className="text-white noto-sans-arabic-extrabold text-[22px]">
+            {novelTitle}
+          </p>
         </div>
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Novel Title */}
-          <div className="text-center">
-            <p className="text-white noto-sans-arabic-extrabold text-[22px]">
-              {novelTitle}
-            </p>
-          </div>
 
           {/* Rating Section - Side by Side Layout */}
           <div className="grid md:grid-cols-[1fr_2fr] gap-6">
@@ -108,18 +121,10 @@ const ReviewModal = ({ isOpen, onClose, novelTitle }) => {
                 <p className="text-white noto-sans-arabic-extrabold text-[20px]">
                   التقييم الكلي
                 </p>
-                {overallRating > 0 ? (
-                  <>
-                    <p className="text-white noto-sans-arabic-extrabold text-[48px] leading-none">
-                      {overallRating}
-                    </p>
-                    <StarRating rating={parseFloat(overallRating)} className="w-[28px] h-[28px]" />
-                  </>
-                ) : (
-                  <p className="text-[#AAAAAA] noto-sans-arabic-extrabold text-[18px] text-center">
-                    قيّم التصنيفات للحصول على التقييم الإجمالي
-                  </p>
-                )}
+                <p className="text-white noto-sans-arabic-extrabold text-[48px] leading-none">
+                  {overallRating > 0 ? overallRating : '0.0'}
+                </p>
+                <StarRating rating={parseFloat(overallRating)} className="w-[28px] h-[28px]" />
               </div>
             </div>
 
@@ -165,49 +170,54 @@ const ReviewModal = ({ isOpen, onClose, novelTitle }) => {
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
               placeholder="ندعوك لمشاركة أفكارك وانطباعاتك حول الرواية مع المجتمع، فآراؤك تُسهم في تطوير المحتوى وتوسيع النقاش. نرجو منك أن تعبّر عن رأيك بموضوعية واحترام، بعيدًا عن التحيّز أو الهجوم الشخصي. تذكّر أن كلماتك قد تؤثر في الكُتّاب والقرّاء على حدٍّ سواء، فكن صوتًا داعمًا للحوار البنّاء والتقدير الواعي."
-              className="w-full h-[200px] bg-[#4A4A4A] text-white noto-sans-arabic-extrabold text-[18px] rounded-2xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] placeholder:text-[#AAAAAA] placeholder:leading-relaxed"
+              className="w-full h-[200px] bg-[#4A4A4A] text-white noto-sans-arabic-extrabold text-[16px] rounded-2xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] placeholder:text-[#AAAAAA] placeholder:leading-relaxed"
+              disabled={isPending}
             />
-            <div className="flex items-center justify-between">
-              <p className="text-[#AAAAAA] noto-sans-arabic-extrabold text-[14px]">
-                الحد الأدنى 50 حرفًا ({reviewText.length}/50)
+            {/* Error Message */}
+            {isError && (
+              <p className="text-red-400 noto-sans-arabic-bold text-[14px]">
+                {error?.message || 'حدث خطأ أثناء نشر التقييم. يرجى المحاولة مرة أخرى.'}
               </p>
-              
-              {/* Spoiler Toggle */}
-              <div className="flex items-center gap-3">
-                <label className="text-white noto-sans-arabic-extrabold text-[16px] cursor-pointer">
-                  يحتوي على حرق
-                </label>
-                <button
-                  onClick={() => setIsSpoiler(!isSpoiler)}
-                  className={`relative w-14 h-7 rounded-full transition-colors ${
-                    isSpoiler ? 'bg-[#4A9EFF]' : 'bg-[#797979]'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${
-                      isSpoiler ? 'right-1' : 'right-8'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
+            )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4 justify-end pt-4">
-            <button
-              onClick={onClose}
-              className="px-8 py-3 bg-[#4A4A4A] text-white noto-sans-arabic-extrabold text-[18px] rounded-2xl hover:bg-[#5A5A5A] transition-colors"
-            >
-              إلغاء
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={reviewText.length < 50 || Object.values(ratings).some(r => r === 0)}
-              className="px-8 py-3 bg-[#4A9EFF] text-white noto-sans-arabic-extrabold text-[18px] rounded-2xl hover:bg-[#3A8EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              نشر التقييم
-            </button>
+          {/* Action Buttons and Spoiler Toggle */}
+          <div className="flex items-center justify-between">
+            {/* Spoiler Toggle - Left Side */}
+            <div className="flex items-center gap-3">
+              <label className="text-white noto-sans-arabic-extrabold text-[16px] cursor-pointer">
+                يحتوي على حرق
+              </label>
+              <button
+                onClick={() => setIsSpoiler(!isSpoiler)}
+                className={`relative w-14 h-7 rounded-full transition-colors duration-300 ease-in-out ${
+                  isSpoiler ? 'bg-[#4A9EFF]' : 'bg-[#797979]'
+                }`}
+              >
+                <span
+                  className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 ease-in-out ${
+                    isSpoiler ? 'right-1' : 'right-8'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Action Buttons - Right Side */}
+            <div className="flex gap-4">
+              <button
+                onClick={onClose}
+                className="px-8 py-3 bg-[#4A4A4A] text-white noto-sans-arabic-extrabold text-[18px] rounded-2xl hover:bg-[#5A5A5A] transition-colors"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={reviewText.length < 50 || Object.values(ratings).some(r => r === 0) || isPending}
+                className="px-8 py-3 bg-[#4A9EFF] text-white noto-sans-arabic-extrabold text-[18px] rounded-2xl hover:bg-[#3A8EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isPending ? 'جاري النشر...' : 'نشر التقييم'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

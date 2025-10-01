@@ -7,6 +7,7 @@ import RegisterPage from "../pages/auth/register";
 import HomePage from "../pages/home/page";
 import CreateNovelPage from "../pages/novel/create";
 import NovelPage from "../pages/novel/page";
+import ChapterReaderPage from "../pages/novel/chapter-reader";
 import ProfilePage from "../pages/profile/page";
 import Test from "../pages/test";
 import EditWorkPage from "../pages/work/edit";
@@ -56,6 +57,10 @@ const routes = [
   {
     url: "/novel/:novelSlug",
     component: <NovelPage />,
+  },
+  {
+    url: "/novel/:novelSlug/chapter/:chapterId",
+    component: <ChapterReaderPage />,
   },
   {
     url: "/novel/create",

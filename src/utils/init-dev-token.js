@@ -11,8 +11,12 @@ export const ensureDevToken = () => {
   if (!configuredToken) return;
 
   const existingToken = Cookies.get(TOKEN_KEY);
-  if (existingToken === configuredToken) return;
+  
+  // If there's already a token (even if different), don't override it
+  // This allows users to login with different accounts and logout properly
+  if (existingToken) return;
 
+  // Only set the dev token if there's NO token at all
   Cookies.set(TOKEN_KEY, configuredToken, {
     sameSite: "strict",
   });
