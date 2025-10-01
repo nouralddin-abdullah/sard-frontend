@@ -6,7 +6,7 @@ import Button from "../../components/ui/button";
 import { Image, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-const SUMMARY_MAX = 500;
+const SUMMARY_MAX = 2000;
 
 export default function CreateNovel() {
   const { t } = useTranslation();
