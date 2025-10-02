@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { useNovelDetails } from "../../hooks/novel/useNovelDetails";
 import { useNovelChapters } from "../../hooks/novel/useNovelChapters";
 import { formatDateShort } from "../../utils/date";
+import { translateGenre } from "../../utils/translate-genre";
 import { 
   Plus, 
   AlertTriangle, 
@@ -176,7 +177,7 @@ const NovelPage = () => {
                   key={genre.id}
                   className="noto-sans-arabic-extrabold bg-[#4A4A4A] rounded-2xl px-[20px] py-[6px] text-[15px]"
                 >
-                  {genre.name}
+                  {translateGenre(genre.name)}
                 </span>
               ))}
             </div>

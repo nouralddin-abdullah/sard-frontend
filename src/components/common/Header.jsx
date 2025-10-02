@@ -28,10 +28,12 @@ const Header = () => {
   const [imageError, setImageError] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside (desktop only)
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      // Only close on click outside for desktop screens (md and above)
+      const isDesktop = window.innerWidth >= 768; // md breakpoint
+      if (isDesktop && dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
       }
     };

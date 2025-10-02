@@ -27,3 +27,86 @@
 .chapter-scroll::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, rgba(59, 130, 246, 0.75), rgba(59, 130, 246, 0.2));
 }
+
+/* Home Page Color Variables */
+:root {
+  --home-bg: #1C1C1C;
+  --home-card-bg: #2C2C2C;
+  --home-accent: #4A9EFF;
+  --home-text-primary: #FFFFFF;
+  --home-text-secondary: #9CA3AF;
+  --home-border: #4B5563;
+}
+
+/* Swiper Custom Styles */
+.swiper-button-next,
+.swiper-button-prev {
+  width: 48px !important;
+  height: 48px !important;
+  background: rgba(44, 44, 44, 0.9) !important;
+  border-radius: 50% !important;
+  border: 2px solid rgba(75, 85, 99, 0.5) !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s ease !important;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: rgba(74, 158, 255, 0.9) !important;
+  border-color: rgba(74, 158, 255, 0.7) !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 0 20px rgba(74, 158, 255, 0.4) !important;
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 20px !important;
+  color: white !important;
+  font-weight: bold !important;
+}
+
+.swiper-pagination-bullet {
+  width: 12px !important;
+  height: 12px !important;
+  background: rgba(100, 116, 139, 0.5) !important;
+  opacity: 1 !important;
+  transition: all 0.3s ease !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #4A9EFF !important;
+  width: 32px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.6) !important;
+}
+
+/* All Swiper sections use same blue theme */
+.top-novels-swiper .swiper-pagination-bullet-active,
+.trending-swiper .swiper-pagination-bullet-active,
+.category-swiper .swiper-pagination-bullet-active {
+  background: #4A9EFF !important;
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.6) !important;
+}
+
+/* Category Swiper Specific */
+.category-swiper .swiper-button-next,
+.category-swiper .swiper-button-prev {
+  width: 44px !important;
+  height: 44px !important;
+}
+
+/* Fade In Animation for New Arrivals Text */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
