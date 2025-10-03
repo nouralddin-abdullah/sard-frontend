@@ -90,10 +90,10 @@ const ProfilePage = () => {
 
       {/* the navigation buttons */}
       <div className="bg-neutral-800 flex justify-between items-center text-white px-6 drop-shadow-md">
-        <div className="flex gap-8">
+        <div className="flex gap-4 md:gap-8">
           {subPages.map((subPage) => (
             <button
-              className={`cursor-pointer relative text-3xl py-3 btn-underline ${
+              className={`cursor-pointer relative whitespace-nowrap text-[14px] md:text-3xl py-3 btn-underline ${
                 subPage.value === selectedSubPage && "border-b-2 border-white"
               }`}
               onClick={() => navigateSubPages(subPage.value)}
@@ -105,11 +105,11 @@ const ProfilePage = () => {
 
         {loggedInUser?.id === userData?.id ? (
           <div
-            className="flex justify-between items-center gap-3 bg-neutral-700 py-2 px-3 rounded-md cursor-pointer"
+            className="flex justify-between items-center gap-3 bg-neutral-700 py-1.5 px-2 md:py-2 md:px-3 rounded-md cursor-pointer"
             onClick={() => setIsUpdateMeOpen(true)}
           >
-            <Settings></Settings>
-            <button className="cursor-pointer text-shadow-sm text-shadow-gray-800">
+            <Settings className="w-[18px] h-[18px] md:w-[24px] md:h-[24px]"></Settings>
+            <button className="cursor-pointer text-shadow-sm text-shadow-gray-800 hidden md:block">
               {t("profilePage.profileNav.profileSettings")}
             </button>
           </div>

@@ -9,7 +9,7 @@ const AboutMePost = ({ content }) => {
   return (
     <div className="bg-neutral-700 rounded-3xl mb-10">
       <div className=" px-3 py-6 flex gap-5 items-center">
-        <img src={mainPicture} alt="" className="w-16 rounded-full" />
+        <img src={mainPicture} alt="" className="w-12 md:w-16 rounded-full" />
         <p>{content}</p>
       </div>
 

@@ -20,13 +20,17 @@ const WorkFilters = ({
     <section className="rounded-[26px] border border-zinc-800 bg-zinc-900/70 px-6 py-5 shadow-[0_20px_55px_-45px_rgba(15,23,42,0.9)]">
       <header className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-zinc-500">Filters</p>
-          <h3 className="text-lg font-semibold text-zinc-50">Refine your workspace</h3>
+          <p className="text-xs uppercase tracking-[0.35em] text-zinc-500">
+            Filters
+          </p>
+          <h3 className="text-lg font-semibold text-zinc-50">
+            Refine your workspace
+          </h3>
         </div>
         <button
           type="button"
           onClick={onClearFilters}
-          className="text-xs font-medium text-blue-300 hover:text-blue-200"
+          className="text-xs font-medium text-blue-300 hover:text-blue-200 cursor-pointer"
         >
           Reset filters
         </button>
@@ -52,7 +56,7 @@ const WorkFilters = ({
                 key={value}
                 type="button"
                 onClick={() => onStatusChange(value)}
-                className={`flex-1 rounded-lg px-4 py-2 text-xs font-semibold transition-colors duration-200 ${
+                className={`flex-1 rounded-lg px-4 py-2 text-xs font-semibold transition-colors duration-200 cursor-pointer ${
                   statusFilter === value
                     ? "bg-blue-500 text-white shadow-[0_12px_30px_-15px_rgba(59,130,246,0.8)]"
                     : "text-zinc-400 hover:text-zinc-200"
@@ -73,7 +77,9 @@ const WorkFilters = ({
             className="border-zinc-700 bg-transparent text-zinc-100 hover:bg-zinc-800 gap-2"
           >
             <RotateCcw
-              className={`h-4 w-4 transition-transform ${isRefreshing ? "animate-spin" : ""}`}
+              className={`h-4 w-4 transition-transform ${
+                isRefreshing ? "animate-spin" : ""
+              }`}
             />
             <span>Refresh</span>
           </Button>
