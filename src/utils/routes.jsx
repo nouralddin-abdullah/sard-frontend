@@ -9,6 +9,7 @@ import CreateNovelPage from "../pages/novel/create";
 import NovelPage from "../pages/novel/page";
 import ChapterReaderPage from "../pages/novel/chapter-reader";
 import ProfilePage from "../pages/profile/page";
+import ReadingListPage from "../pages/profile/ReadingListPage";
 import Test from "../pages/test";
 import EditWorkPage from "../pages/work/edit";
 import WorkDashboardPage from "../pages/work/dashboard";
@@ -53,6 +54,10 @@ const routes = [
   {
     url: "/profile/:username",
     component: <ProfilePage />,
+  },
+  {
+    url: "/profile/:username/list/:listId",
+    component: <ReadingListPage />,
   },
   {
     url: "/novel/:novelSlug",

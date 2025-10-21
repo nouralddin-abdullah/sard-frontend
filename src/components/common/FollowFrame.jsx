@@ -6,7 +6,7 @@ const FollowFrame = ({ followType, usersList, total }) => {
   const remaining = usersList?.length - total;
 
   return (
-    <div className="bg-neutral-700 flex gap-10 items-center p-3 w-full rounded-3xl">
+    <div className="bg-neutral-700 flex gap-10 items-center p-3 w-full rounded-3xl noto-sans-arabic-medium">
       <div className="text-md md:text-2xl font-semibold">{followType}</div>
       <div className="flex justify-center items-center">
         {usersList?.map((item) => (

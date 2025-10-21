@@ -19,8 +19,12 @@ const AboutMe = ({ userData }) => {
       <div className="flex flex-col md:flex-row justify-between p-6 gap-10 md:gap-15 ">
         <div className="flex  items-center flex-col gap-5">
           {/* user about info */}
-          <div className="flex flex-col gap-6 bg-neutral-700 p-3 rounded-3xl text-sm md:text-xl font-semibold max-w-[100%] w-full  ">
-            {userData?.userBio && <p>{userData?.userBio}</p>}
+          <div className="flex flex-col gap-6 bg-neutral-700 p-3 rounded-3xl text-sm md:text-xl font-semibold max-w-[100%] w-full noto-sans-arabic-medium">
+            {/* Bio Section */}
+            <p className="text-right leading-relaxed">
+              "سأحارب الأشرار واحمي العجائز والنساء.. نعم انا القط المشمشي حلو بس مش شقي."
+            </p>
+            
             <div className="flex flex-wrap gap-y-5">
               <div className="flex gap-2 basis-1/2">
                 <div>
@@ -87,7 +91,7 @@ const AboutMe = ({ userData }) => {
             />
             <textarea
               placeholder={t("profilePage.aboutMe.writeSomething")}
-              className="bg-amber-50 w-full h-22 text-black p-6 rounded-3xl border-none outline-none resize-none"
+              className="bg-amber-50 w-full h-22 text-black p-6 rounded-3xl border-none outline-none resize-none noto-sans-arabic-medium"
               onInput={(e) => {
                 e.target.style.height = "auto";
                 e.target.style.height = e.target.scrollHeight + "px";

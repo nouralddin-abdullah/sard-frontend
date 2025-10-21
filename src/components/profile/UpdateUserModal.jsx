@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
-import { Modal } from "../ui/modal";
+import { useNavigate } from "react-router-dom";
 import { User, MessageSquare, Upload, Image, X } from "lucide-react";
-import Input from "../ui/input";
 import { useUpdateMe } from "../../hooks/user/useUpdateMe";
 import { toast } from "sonner";
-import Button from "../ui/button";
-import { useTranslation } from "react-i18next";
 
 const UpdateUserModal = ({ userData, isOpen, onClose }) => {
-  const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     userName: "",
@@ -47,31 +44,31 @@ const UpdateUserModal = ({ userData, isOpen, onClose }) => {
     switch (name) {
       case "userName":
         if (!value.trim()) {
-          return t("profilePage.updateModal.validation.usernameRequired");
+          return "اسم المستخدم مطلوب";
         }
         if (value.length < 3) {
-          return t("profilePage.updateModal.validation.usernameMinLength");
+          return "اسم المستخدم يجب أن يكون 3 أحرف على الأقل";
         }
         if (value.length > 20) {
-          return t("profilePage.updateModal.validation.usernameMaxLength");
+          return "اسم المستخدم يجب ألا يتجاوز 20 حرف";
         }
         if (!/^[a-zA-Z0-9_]+$/.test(value)) {
-          return t("profilePage.updateModal.validation.usernameInvalid");
+          return "اسم المستخدم يجب أن يحتوي على أحرف وأرقام فقط";
         }
         return "";
 
       case "displayName":
         if (!value.trim()) {
-          return t("profilePage.updateModal.validation.displayNameRequired");
+          return "الاسم المعروض مطلوب";
         }
         if (value.length > 50) {
-          return t("profilePage.updateModal.validation.displayNameMaxLength");
+          return "الاسم المعروض يجب ألا يتجاوز 50 حرف";
         }
         return "";
 
       case "userBio":
         if (value.length > 500) {
-          return t("profilePage.updateModal.validation.bioMaxLength");
+          return "السيرة الذاتية يجب ألا تتجاوز 500 حرف";
         }
         return "";
 
@@ -100,7 +97,7 @@ const UpdateUserModal = ({ userData, isOpen, onClose }) => {
       if (!file.type.startsWith("image/")) {
         setErrors((prev) => ({
           ...prev,
-          [fieldName]: t("profilePage.updateModal.validation.invalidImageFile"),
+          [fieldName]: "يجب أن يكون الملف صورة",
         }));
         return;
       }
@@ -109,7 +106,7 @@ const UpdateUserModal = ({ userData, isOpen, onClose }) => {
       if (file.size > 5 * 1024 * 1024) {
         setErrors((prev) => ({
           ...prev,
-          [fieldName]: t("profilePage.updateModal.validation.fileSizeLimit"),
+          [fieldName]: "حجم الملف يجب ألا يتجاوز 5 ميجابايت",
         }));
         return;
       }
@@ -163,6 +160,10 @@ const UpdateUserModal = ({ userData, isOpen, onClose }) => {
     try {
       if (validateForm()) {
         const formDataPayload = new FormData();
+        
+        // Check if username has changed
+        const usernameChanged = formData.userName !== userData.userName;
+        const newUsername = formData.userName;
 
         formDataPayload.append("UserName", formData.userName);
         formDataPayload.append("DisplayName", formData.displayName);
@@ -176,11 +177,21 @@ const UpdateUserModal = ({ userData, isOpen, onClose }) => {
 
         await updateMe(formDataPayload);
 
+        // Close modal first
         onClose();
+        
+        // If username changed, redirect to new profile URL
+        if (usernameChanged) {
+          toast.success("تم تحديث الملف الشخصي بنجاح");
+          // Small delay to allow the toast to show before navigation
+          setTimeout(() => {
+            navigate(`/profile/${newUsername}`, { replace: true });
+          }, 500);
+        }
       }
     } catch (error) {
       console.error(error);
-      toast.error(t("profilePage.updateModal.updateError"));
+      toast.error("حدث خطأ أثناء تحديث الملف الشخصي");
     }
   };
 
@@ -204,184 +215,226 @@ const UpdateUserModal = ({ userData, isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose}>
-      <div className="rounded-lg p-6 w-full max-w-2xl">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-white">
-            {t("profilePage.updateModal.title")}
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-[#3A3A3A] rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative custom-scrollbar">
+        {/* Header */}
+        <div className="sticky top-0 bg-[#3A3A3A] p-6 border-b border-neutral-600 flex items-center justify-between z-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-white noto-sans-arabic-extrabold">
+            تحديث الملف الشخصي
           </h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-neutral-600 rounded-lg"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Profile Photo Section */}
+          <div className="flex flex-col items-center gap-4 pb-6 border-b border-neutral-600">
+            <label className="block text-base md:text-lg font-semibold text-white noto-sans-arabic-medium">
+              الصورة الشخصية
+            </label>
+            
+            <div className="relative">
+              {previews.profilePhoto ? (
+                <>
+                  <img
+                    src={previews.profilePhoto}
+                    alt="معاينة الصورة الشخصية"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-neutral-600"
+                    style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}
+                  />
+                  {formData.profilePhoto && (
+                    <button
+                      type="button"
+                      onClick={() => removeFile("profilePhoto")}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors shadow-lg"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div className="w-32 h-32 rounded-full bg-neutral-600 flex items-center justify-center border-4 border-neutral-500">
+                  <User className="h-16 w-16 text-gray-400" />
+                </div>
+              )}
+            </div>
+
+            <label className="flex items-center gap-2 bg-[#4A9EFF] hover:bg-[#3A8EEF] text-white rounded-lg px-6 py-3 cursor-pointer transition-colors noto-sans-arabic-medium">
+              <Upload className="h-5 w-5" />
+              <span>
+                {formData.profilePhoto ? "تغيير الصورة" : "رفع صورة"}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileChange(e, "profilePhoto")}
+                className="hidden"
+              />
+            </label>
+            {errors.profilePhoto && (
+              <p className="text-red-400 text-sm noto-sans-arabic-medium">{errors.profilePhoto}</p>
+            )}
+          </div>
+
+          {/* Profile Banner Section */}
+          <div className="space-y-4 pb-6 border-b border-neutral-600">
+            <label className="block text-base md:text-lg font-semibold text-white noto-sans-arabic-medium">
+              صورة الغلاف
+            </label>
+            
+            {previews.profileBanner ? (
+              <div className="relative">
+                <img
+                  src={previews.profileBanner}
+                  alt="معاينة صورة الغلاف"
+                  className="w-full h-48 rounded-xl object-cover border-2 border-neutral-600"
+                  style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}
+                />
+                {formData.profileBanner && (
+                  <button
+                    type="button"
+                    onClick={() => removeFile("profileBanner")}
+                    className="absolute top-3 right-3 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors shadow-lg"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="w-full h-48 rounded-xl bg-neutral-600 flex flex-col items-center justify-center border-2 border-dashed border-neutral-500">
+                <Image className="h-12 w-12 text-gray-400 mb-2" />
+                <span className="text-gray-400 text-sm noto-sans-arabic-medium">
+                  رفع صورة الغلاف
+                </span>
+              </div>
+            )}
+
+            <label className="flex items-center justify-center gap-2 bg-neutral-600 hover:bg-neutral-500 text-white rounded-lg px-6 py-3 cursor-pointer transition-colors noto-sans-arabic-medium">
+              <Image className="h-5 w-5" />
+              <span>
+                {formData.profileBanner ? "تغيير الغلاف" : "رفع صورة الغلاف"}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileChange(e, "profileBanner")}
+                className="hidden"
+              />
+            </label>
+            {errors.profileBanner && (
+              <p className="text-red-400 text-sm noto-sans-arabic-medium">{errors.profileBanner}</p>
+            )}
+          </div>
+
           {/* Username */}
-          <Input
-            id="userName"
-            name="userName"
-            type="text"
-            value={formData.userName}
-            onChange={handleInputChange}
-            label={t("profilePage.updateModal.username")}
-            placeholder={t("profilePage.updateModal.usernamePlaceholder")}
-            icon={<User className="h-5 w-5 text-gray-400" />}
-            error={errors.userName}
-            required
-          />
+          <div className="space-y-2">
+            <label htmlFor="userName" className="block text-base md:text-lg font-semibold text-white noto-sans-arabic-medium">
+              اسم المستخدم <span className="text-red-400">*</span>
+            </label>
+            <div className="relative">
+              <User className="absolute top-1/2 -translate-y-1/2 right-4 h-5 w-5 text-gray-400 pointer-events-none" />
+              <input
+                id="userName"
+                name="userName"
+                type="text"
+                value={formData.userName}
+                onChange={handleInputChange}
+                placeholder="أدخل اسم المستخدم"
+                className={`w-full bg-[#5A5A5A] text-white rounded-lg pr-12 pl-4 py-3 text-right noto-sans-arabic-medium focus:outline-none focus:ring-2 ${
+                  errors.userName ? "focus:ring-red-400 border-2 border-red-400" : "focus:ring-[#4A9EFF]"
+                } transition-all`}
+                required
+              />
+            </div>
+            {errors.userName && (
+              <p className="text-red-400 text-sm noto-sans-arabic-medium">{errors.userName}</p>
+            )}
+          </div>
 
           {/* Display Name */}
-          <Input
-            id="displayName"
-            name="displayName"
-            type="text"
-            value={formData.displayName}
-            onChange={handleInputChange}
-            label={t("profilePage.updateModal.displayName")}
-            placeholder={t("profilePage.updateModal.displayNamePlaceholder")}
-            icon={<User className="h-5 w-5 text-gray-400" />}
-            error={errors.displayName}
-            required
-          />
+          <div className="space-y-2">
+            <label htmlFor="displayName" className="block text-base md:text-lg font-semibold text-white noto-sans-arabic-medium">
+              الاسم المعروض <span className="text-red-400">*</span>
+            </label>
+            <div className="relative">
+              <User className="absolute top-1/2 -translate-y-1/2 right-4 h-5 w-5 text-gray-400 pointer-events-none" />
+              <input
+                id="displayName"
+                name="displayName"
+                type="text"
+                value={formData.displayName}
+                onChange={handleInputChange}
+                placeholder="أدخل الاسم المعروض"
+                className={`w-full bg-[#5A5A5A] text-white rounded-lg pr-12 pl-4 py-3 text-right noto-sans-arabic-medium focus:outline-none focus:ring-2 ${
+                  errors.displayName ? "focus:ring-red-400 border-2 border-red-400" : "focus:ring-[#4A9EFF]"
+                } transition-all`}
+                required
+              />
+            </div>
+            {errors.displayName && (
+              <p className="text-red-400 text-sm noto-sans-arabic-medium">{errors.displayName}</p>
+            )}
+          </div>
 
           {/* Bio */}
-          <div>
-            <label
-              htmlFor="userBio"
-              className="block text-sm font-medium text-gray-300 mb-2"
-            >
-              {t("profilePage.updateModal.bio")}
-              <span className="text-gray-500 ml-2">
+          <div className="space-y-2">
+            <label htmlFor="userBio" className="block text-base md:text-lg font-semibold text-white noto-sans-arabic-medium">
+              السيرة الذاتية
+              <span className="text-gray-400 text-sm mr-2">
                 ({formData.userBio.length}/500)
               </span>
             </label>
             <div className="relative">
-              <MessageSquare className="absolute top-3 left-3 h-5 w-5 text-gray-400 pointer-events-none" />
+              <MessageSquare className="absolute top-3 right-4 h-5 w-5 text-gray-400 pointer-events-none" />
               <textarea
                 id="userBio"
                 name="userBio"
                 value={formData.userBio}
                 onChange={handleInputChange}
-                placeholder={t("profilePage.updateModal.bioPlaceholder")}
+                placeholder="اكتب نبذة عنك..."
                 rows={4}
-                className={`w-full pl-10 pr-4 py-3 bg-gray-800 border ${
-                  errors.userBio ? "border-red-500" : "border-gray-600"
-                } rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 ${
-                  errors.userBio ? "focus:ring-red-500" : "focus:ring-blue-500"
-                } focus:border-transparent transition-all duration-200 resize-none`}
+                className={`w-full bg-[#5A5A5A] text-white rounded-lg pr-12 pl-4 py-3 text-right noto-sans-arabic-medium focus:outline-none focus:ring-2 ${
+                  errors.userBio ? "focus:ring-red-400 border-2 border-red-400" : "focus:ring-[#4A9EFF]"
+                } transition-all resize-none`}
               />
             </div>
             {errors.userBio && (
-              <p className="text-red-600 my-3 text-sm">{errors.userBio}</p>
-            )}
-          </div>
-
-          {/* Profile Photo */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              {t("profilePage.updateModal.profilePhoto")}
-            </label>
-            <div className="flex items-center space-x-4">
-              {previews.profilePhoto && (
-                <div className="relative">
-                  <img
-                    src={previews.profilePhoto}
-                    alt={t("profilePage.updateModal.profilePhotoPreview")}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-gray-600"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeFile("profilePhoto")}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              )}
-              <label className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 cursor-pointer transition-colors">
-                <Upload className="h-5 w-5 text-gray-400" />
-                <span className="text-sm text-gray-300">
-                  {formData.profilePhoto
-                    ? t("profilePage.updateModal.changePhoto")
-                    : t("profilePage.updateModal.uploadPhoto")}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileChange(e, "profilePhoto")}
-                  className="hidden"
-                />
-              </label>
-            </div>
-            {errors.profilePhoto && (
-              <p className="text-red-600 my-3 text-sm">{errors.profilePhoto}</p>
-            )}
-          </div>
-
-          {/* Profile Banner */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              {t("profilePage.updateModal.profileBanner")}
-            </label>
-            <div className="space-y-3">
-              {previews.profileBanner && (
-                <div className="relative">
-                  <img
-                    src={previews.profileBanner}
-                    alt={t("profilePage.updateModal.bannerPreview")}
-                    className="w-full h-32 rounded-lg object-cover border-2 border-gray-600"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeFile("profileBanner")}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              )}
-              <label className="flex items-center justify-center space-x-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 border-dashed rounded-lg p-6 cursor-pointer transition-colors">
-                <Image className="h-6 w-6 text-gray-400" />
-                <span className="text-sm text-gray-300">
-                  {formData.profileBanner
-                    ? t("profilePage.updateModal.changeBanner")
-                    : t("profilePage.updateModal.uploadBanner")}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileChange(e, "profileBanner")}
-                  className="hidden"
-                />
-              </label>
-            </div>
-            {errors.profileBanner && (
-              <p className="text-red-600 my-3 text-sm">
-                {errors.profileBanner}
-              </p>
+              <p className="text-red-400 text-sm noto-sans-arabic-medium">{errors.userBio}</p>
             )}
           </div>
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-700">
+          <div className="flex items-center justify-end gap-4 pt-6 border-t border-neutral-600">
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 text-gray-300 hover:text-white border border-gray-600 hover:border-gray-500 rounded-lg transition-colors"
+              className="px-6 py-3 text-white bg-neutral-600 hover:bg-neutral-500 rounded-lg transition-colors noto-sans-arabic-medium"
             >
-              {t("profilePage.updateModal.cancel")}
+              إلغاء
             </button>
 
-            <Button type="submit" isLoading={isPending}>
-              {t("profilePage.updateModal.updateProfile")}
-            </Button>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="px-6 py-3 bg-[#4A9EFF] text-white rounded-lg hover:bg-[#3A8EEF] disabled:opacity-50 disabled:cursor-not-allowed transition-colors noto-sans-arabic-medium flex items-center gap-2"
+            >
+              {isPending ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>جاري التحديث...</span>
+                </>
+              ) : (
+                "تحديث الملف الشخصي"
+              )}
+            </button>
           </div>
         </form>
       </div>
-    </Modal>
+    </div>
   );
 };
 

@@ -9,6 +9,15 @@
   font-variation-settings: "wdth" 100;
 }
 
+/* Noto Sans Arabic Bold 700 */
+.noto-sans-arabic-bold {
+  font-family: "Noto Sans Arabic", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
 /* Noto Sans Arabic Medium 500 */
 .noto-sans-arabic-medium {
   font-family: "Noto Sans Arabic", sans-serif;

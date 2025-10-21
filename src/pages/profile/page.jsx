@@ -4,6 +4,7 @@ import AboutMe from "../../components/profile/AboutMe";
 import MyNovels from "../../components/profile/MyNovels";
 import Library from "../../components/profile/Library";
 import BadgesList from "../../components/profile/BadgesList";
+import Header from "../../components/common/Header";
 import mainPicture from "../../assets/mainPicture.jpg";
 import profilePicture from "../../assets/profilePicture.jpg";
 import { Settings } from "lucide-react";
@@ -61,19 +62,21 @@ const ProfilePage = () => {
   if (isPending) return <>Loading..</>;
 
   return (
-    <div className="bg-zinc-800 min-h-screen">
-      {/* profile image, username */}
-      <div
-        className="w-full h-80 bg-cover bg-center flex justify-center"
-        style={{
-          backgroundImage: `url(${userData?.profileBanner || profilePicture})`,
-        }}
-      >
+    <>
+      <Header />
+      <div className="bg-zinc-800 min-h-screen">
+        {/* profile image, username */}
+        <div
+          className="w-full h-80 bg-cover bg-center flex justify-center"
+          style={{
+            backgroundImage: `url(${userData?.profileBanner || profilePicture})`,
+          }}
+        >
         <div className=" flex justify-center items-center flex-col gap-4">
           <img
             src={userData?.profilePhoto || mainPicture}
             alt={userData?.displayName}
-            className="w-40 rounded-full"
+            className="w-40 h-40 rounded-full object-cover"
           />
           <p className="text-3xl text-white font-bold text-shadow-sm text-shadow-gray-800">
             {userData?.displayName}
@@ -93,7 +96,8 @@ const ProfilePage = () => {
         <div className="flex gap-4 md:gap-8">
           {subPages.map((subPage) => (
             <button
-              className={`cursor-pointer relative whitespace-nowrap text-[14px] md:text-3xl py-3 btn-underline ${
+              key={subPage.value}
+              className={`cursor-pointer relative whitespace-nowrap text-[14px] md:text-3xl py-3 btn-underline noto-sans-arabic-medium ${
                 subPage.value === selectedSubPage && "border-b-2 border-white"
               }`}
               onClick={() => navigateSubPages(subPage.value)}
@@ -109,7 +113,7 @@ const ProfilePage = () => {
             onClick={() => setIsUpdateMeOpen(true)}
           >
             <Settings className="w-[18px] h-[18px] md:w-[24px] md:h-[24px]"></Settings>
-            <button className="cursor-pointer text-shadow-sm text-shadow-gray-800 hidden md:block">
+            <button className="cursor-pointer text-shadow-sm text-shadow-gray-800 hidden md:block noto-sans-arabic-medium">
               {t("profilePage.profileNav.profileSettings")}
             </button>
           </div>
@@ -124,7 +128,7 @@ const ProfilePage = () => {
       {/* components of the sub sections */}
       {selectedSubPage === "about-me" && <AboutMe userData={userData} />}
       {selectedSubPage === "my-novels" && <MyNovels />}
-      {selectedSubPage === "library" && <Library />}
+      {selectedSubPage === "library" && <Library username={username} />}
       {selectedSubPage === "badges" && <BadgesList />}
 
       <UpdateUserModal
@@ -132,7 +136,8 @@ const ProfilePage = () => {
         onClose={() => setIsUpdateMeOpen(false)}
         userData={userData}
       />
-    </div>
+      </div>
+    </>
   );
 };
 
