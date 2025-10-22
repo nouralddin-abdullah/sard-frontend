@@ -16,6 +16,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
+import Header from "../../components/common/Header";
 import Button from "../../components/ui/button";
 import { Modal } from "../../components/ui/modal";
 import { useGetWorkById } from "../../hooks/work/useGetWorkById";
@@ -42,6 +43,7 @@ const ChapterEditorPage = () => {
   const [chapterId, setChapterId] = useState(normalizedChapterId);
   const [editorState, setEditorState] = useState({ title: "", status: STATUS_OPTIONS[0].value, content: "" });
   const [autosaveState, setAutosaveState] = useState({ status: "idle", lastSavedAt: null, error: null });
+  const [isAutosaveEnabled, setIsAutosaveEnabled] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -173,11 +175,11 @@ const ChapterEditorPage = () => {
   useEffect(() => {
     if (!hasInteracted) return;
     if (!workId) return;
+    if (!isAutosaveEnabled) return;
 
     const snapshot = lastSavedSnapshotRef.current;
     const hasChanges =
       editorState.title !== snapshot.title ||
-      editorState.status !== snapshot.status ||
       editorState.content !== snapshot.content;
 
     if (!hasChanges) return;
@@ -201,7 +203,7 @@ const ChapterEditorPage = () => {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editorState, hasInteracted, workId, chapterId]);
+  }, [editorState.title, editorState.content, hasInteracted, workId, chapterId, isAutosaveEnabled]);
 
   const runAutosave = useCallback(
     async (source) => {
@@ -308,34 +310,63 @@ const ChapterEditorPage = () => {
   }, [work?.coverImageUrl]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-indigo-950/70 to-zinc-900 text-zinc-100">
+    <>
+      <Header />
+      <div dir="rtl" className="min-h-screen text-white" style={{ backgroundColor: '#2C2C2C' }}>
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-10">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-3">
             <Button
               variant="ghost"
-              className="border border-zinc-700/60 bg-zinc-900/70 px-4 py-2"
+              className="noto-sans-arabic-bold border px-4 py-2"
+              style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C', color: '#FFFFFF' }}
               onClick={() => goToChaptersView()}
             >
-              <ArrowRight className="mr-2 h-4 w-4" />
-              Back to workspace
+              <ArrowRight className="ml-2 h-4 w-4" />
+              العودة لمساحة العمل
             </Button>
-            <span className="inline-flex items-center gap-2 rounded-full border border-blue-500/40 bg-blue-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-blue-100">
-              <Sparkles className="h-3.5 w-3.5" /> Advanced chapter composer
+            <span className="noto-sans-arabic-bold inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }}>
+              <Sparkles className="h-3.5 w-3.5" /> محرر الفصل المتقدم
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-400">
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            <div className="flex items-center gap-3">
+              <label className="text-white noto-sans-arabic-bold text-sm">
+                الحفظ التلقائي
+              </label>
+              <button
+                onClick={() => setIsAutosaveEnabled(!isAutosaveEnabled)}
+                className={`cursor-pointer relative w-14 h-7 rounded-full transition-colors duration-300 ease-in-out ${
+                  isAutosaveEnabled ? "bg-[#0077FF]" : "bg-[#797979]"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 ease-in-out ${
+                    isAutosaveEnabled ? "right-1" : "right-8"
+                  }`}
+                />
+              </button>
+            </div>
             <div
-              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.28em] ${
+              className={`noto-sans-arabic-bold inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs ${
                 autosaveState.status === "saved"
-                  ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-200"
+                  ? ""
                   : autosaveState.status === "saving"
-                  ? "border-blue-500/40 bg-blue-500/10 text-blue-200"
+                  ? ""
                   : autosaveState.status === "error"
-                  ? "border-red-500/40 bg-red-500/10 text-red-200"
-                  : "border-zinc-700/70 bg-zinc-900/70 text-zinc-400"
+                  ? ""
+                  : ""
               }`}
+              style={
+                autosaveState.status === "saved"
+                  ? { borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }
+                  : autosaveState.status === "saving"
+                  ? { borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }
+                  : autosaveState.status === "error"
+                  ? { borderColor: 'rgb(244 63 94)', backgroundColor: 'rgba(244, 63, 94, 0.1)', color: 'rgb(248 113 113)' }
+                  : { borderColor: '#5A5A5A', backgroundColor: '#3C3C3C', color: '#B8B8B8' }
+              }
               data-testid="autosave-status"
             >
               {autosaveState.status === "saving" ? (
@@ -347,97 +378,131 @@ const ChapterEditorPage = () => {
               ) : (
                 <Clock3 className="h-3.5 w-3.5" />
               )}
-              <span>{autosaveDescription}</span>
+              <span>{autosaveState.status === "saving" ? "جاري الحفظ" : autosaveState.status === "saved" ? (autosaveState.lastSavedAt ? `تم الحفظ ${formatSmart(autosaveState.lastSavedAt)}` : "تم حفظ جميع التغييرات") : autosaveState.status === "error" ? (autosaveState.error || "الحفظ التلقائي متوقف") : "الحفظ التلقائي جاهز"}</span>
             </div>
             <Button
               variant="primary"
               size="sm"
               onClick={handleManualSave}
               disabled={isSavingRemotely}
-              className="shadow-[0_12px_32px_-14px_rgba(59,130,246,0.65)]"
+              className="noto-sans-arabic-bold"
             >
-              <Pencil className="mr-2 h-4 w-4" />
-              Save now
+              <Pencil className="ml-2 h-4 w-4" />
+              احفظ الآن
             </Button>
           </div>
         </header>
 
-        <main className="grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-          <section className="rounded-[32px] border border-zinc-800/70 bg-zinc-950/70 px-10 py-12 shadow-[0_50px_140px_-100px_rgba(59,130,246,0.65)]">
+        <main className="mx-auto w-full max-w-5xl">
+          <section className="rounded-2xl border px-10 py-12" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
             {shouldShowBlockingLoader ? (
               <div className="flex h-[28rem] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+                <Loader2 className="h-8 w-8 animate-spin" style={{ color: '#797979' }} />
               </div>
             ) : (
               <div className="flex flex-col gap-10">
                 <div className="space-y-2">
-                  <label htmlFor="chapter-title" className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">
-                    Chapter title
+                  <label htmlFor="chapter-title" className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>
+                    عنوان الفصل
                   </label>
                   <input
                     id="chapter-title"
                     value={editorState.title}
                     onChange={(event) => handleFieldChange("title", event.target.value.slice(0, 180))}
-                    placeholder="E.g. Singularity at Halcyon Reef"
-                    className="w-full rounded-[24px] border border-zinc-700/60 bg-zinc-950/80 px-6 py-4 text-2xl font-semibold text-zinc-50 placeholder:text-zinc-500 focus:border-blue-500/60 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                    placeholder="مثال: بداية الرحلة"
+                    className="noto-sans-arabic-extrabold w-full rounded-2xl border px-6 py-4 text-2xl text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 transition"
+                    style={{ 
+                      borderColor: '#5A5A5A', 
+                      backgroundColor: '#2C2C2C',
+                      caretColor: '#0077FF'
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#0077FF';
+                      e.currentTarget.style.ringColor = 'rgba(0, 119, 255, 0.4)';
+                    }}
+                    onBlur={(e) => e.currentTarget.style.borderColor = '#5A5A5A'}
                   />
                 </div>
 
-                <div className="rounded-[28px] border border-zinc-800/70 bg-zinc-950/80 p-6">
+                <div className="rounded-xl border p-6" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
                   <div className="flex flex-col gap-6">
                     <div className="flex w-full max-w-md flex-col gap-4">
                       <div className="space-y-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">Visibility</p>
+                        <p className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>الظهور</p>
                         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                           {STATUS_OPTIONS.map((option) => {
                             const isActive = editorState.status === option.value;
+                            const label = option.value === 'Draft' ? 'مسودة' : option.value === 'Published' ? 'منشور' : option.label;
                             return (
                               <button
                                 key={option.value}
                                 type="button"
                                 onClick={() => handleFieldChange("status", option.value)}
-                                className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-                                  isActive
-                                    ? "border-emerald-400/60 bg-emerald-500/15 text-emerald-200 shadow-[0_18px_50px_-32px_rgba(16,185,129,0.8)]"
-                                    : "border-zinc-700/70 bg-zinc-950/70 text-zinc-400 hover:border-zinc-600/70 hover:text-zinc-200"
-                                }`}
+                                className="noto-sans-arabic-bold rounded-full border px-4 py-2 text-sm transition"
+                                style={isActive ? {
+                                  borderColor: '#0077FF',
+                                  backgroundColor: 'rgba(0, 119, 255, 0.15)',
+                                  color: '#FFFFFF'
+                                } : {
+                                  borderColor: '#5A5A5A',
+                                  backgroundColor: '#2C2C2C',
+                                  color: '#B8B8B8'
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (!isActive) {
+                                    e.currentTarget.style.borderColor = '#797979';
+                                    e.currentTarget.style.color = '#FFFFFF';
+                                  }
+                                }}
+                                onMouseLeave={(e) => {
+                                  if (!isActive) {
+                                    e.currentTarget.style.borderColor = '#5A5A5A';
+                                    e.currentTarget.style.color = '#B8B8B8';
+                                  }
+                                }}
                               >
-                                {option.label}
+                                {label}
                               </button>
                             );
                           })}
                         </div>
                       </div>
-                      <div className="rounded-2xl border border-blue-500/25 bg-blue-500/10 px-4 py-4 text-sm text-blue-100/80">
-                        <div className="flex items-center gap-2 text-blue-100">
+                      <div className="rounded-xl border px-4 py-4 text-sm" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }}>
+                        <div className="flex items-center gap-2">
                           <Eye className="h-4 w-4" />
-                          <span className="text-[11px] font-semibold uppercase tracking-[0.3em]">Status insight</span>
+                          <span className="noto-sans-arabic-bold text-[11px]">نظرة على الحالة</span>
                         </div>
-                        <p className="mt-2 text-xs leading-relaxed text-blue-100/70">{visibilityMeta.helperText}</p>
+                        <p className="noto-sans-arabic-medium mt-2 text-xs leading-relaxed" style={{ color: 'rgba(0, 119, 255, 0.9)' }}>
+                          {editorState.status === "Published" 
+                            ? "القراء يمكنهم رؤية هذا الفصل بمجرد اكتمال المزامنة."
+                            : "فقط أنت يمكنك رؤية هذا الفصل حتى تقوم بنشره."}
+                        </p>
                       </div>
                     </div>
 
                     <dl className="grid w-full gap-3 sm:grid-cols-2" data-testid="chapter-metrics">
                       <div
-                        className="rounded-2xl border border-blue-500/30 bg-blue-500/10 px-5 py-5"
+                        className="rounded-xl border px-5 py-5"
+                        style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)' }}
                         data-testid="chapter-metric-word-count"
                       >
                         <div className="flex flex-col items-center gap-2 text-center">
-                          <dt className="flex items-center gap-2 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.3em] text-blue-200/80">
-                            <BookOpen className="h-4 w-4" /> Word count
+                          <dt className="noto-sans-arabic-bold flex items-center gap-2 whitespace-nowrap text-[11px]" style={{ color: '#0077FF' }}>
+                            <BookOpen className="h-4 w-4" /> عدد الكلمات
                           </dt>
-                          <dd className="whitespace-nowrap text-3xl font-semibold text-blue-100">{wordCount.toLocaleString()}</dd>
+                          <dd className="noto-sans-arabic-extrabold whitespace-nowrap text-3xl text-white">{wordCount.toLocaleString()}</dd>
                         </div>
                       </div>
                       <div
-                        className="rounded-2xl border border-zinc-700/60 bg-zinc-900/60 px-5 py-5"
+                        className="rounded-xl border px-5 py-5"
+                        style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}
                         data-testid="chapter-metric-characters"
                       >
                         <div className="flex flex-col items-center gap-2 text-center">
-                          <dt className="flex items-center gap-2 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.3em] text-zinc-400">
-                            <Type className="h-4 w-4" /> Characters
+                          <dt className="noto-sans-arabic-bold flex items-center gap-2 whitespace-nowrap text-[11px]" style={{ color: '#B8B8B8' }}>
+                            <Type className="h-4 w-4" /> الأحرف
                           </dt>
-                          <dd className="whitespace-nowrap text-3xl font-semibold text-zinc-100">{characterCount.toLocaleString()}</dd>
+                          <dd className="noto-sans-arabic-extrabold whitespace-nowrap text-3xl text-white">{characterCount.toLocaleString()}</dd>
                         </div>
                       </div>
                     </dl>
@@ -445,10 +510,10 @@ const ChapterEditorPage = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs text-zinc-500">
-                    <span>Chapter manuscript</span>
+                  <div className="noto-sans-arabic-medium flex items-center justify-between text-xs" style={{ color: '#797979' }}>
+                    <span>مخطوطة الفصل</span>
                     <span>
-                      {characterCount}/{MAX_CONTENT_LENGTH} characters
+                      {characterCount}/{MAX_CONTENT_LENGTH} حرف
                     </span>
                   </div>
                   <textarea
@@ -460,26 +525,36 @@ const ChapterEditorPage = () => {
                         handleFieldChange("content", event.target.value);
                       }
                     }}
-                    placeholder="Craft the full chapter here. Markdown shortcuts, live preview, and inline comments land later this year."
-                    className="h-[36rem] w-full rounded-[28px] border border-zinc-800/70 bg-zinc-950/80 px-6 py-5 text-base leading-relaxed text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500/60 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                    placeholder="اكتب الفصل كاملاً هنا. اختصارات الماركداون، المعاينة المباشرة، والتعليقات المضمنة ستأتي لاحقاً هذا العام."
+                    className="noto-sans-arabic-medium h-[36rem] w-full rounded-xl border px-6 py-5 text-base leading-relaxed text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 transition"
+                    style={{ 
+                      borderColor: '#5A5A5A', 
+                      backgroundColor: '#2C2C2C',
+                      caretColor: '#0077FF'
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#0077FF';
+                      e.currentTarget.style.ringColor = 'rgba(0, 119, 255, 0.4)';
+                    }}
+                    onBlur={(e) => e.currentTarget.style.borderColor = '#5A5A5A'}
                   />
                 </div>
 
-                <div className="flex flex-col gap-3 rounded-[24px] border border-zinc-800/70 bg-zinc-950/70 p-6 text-sm text-zinc-400 md:flex-row md:items-center md:justify-between">
-                  <div className="flex items-center gap-3 text-zinc-300">
+                <div className="noto-sans-arabic-medium flex flex-col gap-3 rounded-xl border p-6 text-sm md:flex-row md:items-center md:justify-between" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C', color: '#B8B8B8' }}>
+                  <div className="flex items-center gap-3 text-white">
                     {autosaveState.status === "saved" ? (
-                      <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                      <CheckCircle2 className="h-5 w-5" style={{ color: '#0077FF' }} />
                     ) : autosaveState.status === "error" ? (
                       <AlertCircle className="h-5 w-5 text-red-400" />
                     ) : (
-                      <PenSquare className="h-5 w-5 text-blue-400" />
+                      <PenSquare className="h-5 w-5" style={{ color: '#0077FF' }} />
                     )}
                     <span>
                       {autosaveState.status === "saved"
-                        ? "Draft synced. You can close the tab with confidence."
+                        ? "تمت مزامنة المسودة. يمكنك إغلاق التبويب بثقة."
                         : autosaveState.status === "error"
-                        ? "Autosave is paused. Manually save or retry in a few moments."
-                        : "Your writing autosaves every couple of seconds while you type."}
+                        ? "الحفظ التلقائي متوقف. احفظ يدوياً أو أعد المحاولة بعد لحظات."
+                        : "تتم كتابتك بالحفظ التلقائي كل ثانيتين أثناء الكتابة."}
                     </span>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -487,190 +562,50 @@ const ChapterEditorPage = () => {
                       variant="destructive"
                       onClick={() => setShowDeleteModal(true)}
                       disabled={!chapterId || isDeletingChapter}
-                      className="flex items-center gap-2 shadow-[0_14px_36px_-16px_rgba(244,63,94,0.55)]"
+                      className="noto-sans-arabic-bold flex items-center gap-2"
                     >
                       <Trash2 className="h-4 w-4" />
-                      Delete chapter
+                      حذف الفصل
                     </Button>
                   </div>
                 </div>
               </div>
             )}
           </section>
-
-          <aside className="flex flex-col gap-6">
-            <section className="rounded-[32px] border border-zinc-800/70 bg-zinc-950/70 p-8">
-              <div className="flex items-center gap-4">
-                <div className="h-16 w-16 overflow-hidden rounded-3xl border border-zinc-800/70">
-                  <img src={coverSource} alt={work?.title || "Work cover"} className="h-full w-full object-cover" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">Project</p>
-                  <h2 className="text-lg font-semibold text-zinc-50">{work?.title || "Untitled work"}</h2>
-                  <p className="text-xs text-zinc-400">{work?.summary?.slice(0, 96) || "Shape the narrative arc and keep chapters flowing."}</p>
-                </div>
-              </div>
-
-              <div className="mt-6 space-y-3 text-sm text-zinc-400">
-                <div className="rounded-2xl border border-zinc-800/70 bg-zinc-900/70 p-4">
-                  <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">Launch signal</p>
-                  <p className="mt-2 text-sm text-zinc-300">
-                    {editorState.status === "Published"
-                      ? "Readers see this chapter instantly. Double-check continuity and cliffhangers before shipping."
-                      : "Keep polishing. Publish when the beats are tight and pacing aligns with the release cadence."}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 p-4">
-                  <p className="text-xs uppercase tracking-[0.3em] text-blue-200/70">Craft cues</p>
-                  <ul className="mt-3 space-y-2 text-sm text-blue-100/80">
-                    <li>• Re-read the previous chapter to sustain emotional pacing.</li>
-                    <li>• Highlight new lore drops for quick reference later.</li>
-                    <li>• Flag spots needing art or soundtrack briefs.</li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-
-            <section className="rounded-[32px] border border-zinc-800/70 bg-zinc-950/70 p-8 text-sm text-zinc-400">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-zinc-500">Version timeline</h3>
-              <ul className="mt-4 space-y-3">
-                {autosaveState.lastSavedAt ? (
-                  <li className="flex items-start gap-3">
-                    <BadgeCheck className="mt-1 h-4 w-4 text-emerald-400" />
-                    <span>
-                      Last saved {formatSmart(autosaveState.lastSavedAt)}
-                      <br />
-                      Autosave keeps a rolling history on the server, so you can recover from browser crashes.
-                    </span>
-                  </li>
-                ) : (
-                  <li className="flex items-start gap-3">
-                    <Sparkles className="mt-1 h-4 w-4 text-blue-300" />
-                    <span>
-                      Start writing to activate autosave.
-                      <br />We create a draft record as soon as there's substance in the title or manuscript.
-                    </span>
-                  </li>
-                )}
-                {autosaveState.status === "error" ? (
-                  <li className="flex items-start gap-3 text-red-300">
-                    <AlertCircle className="mt-1 h-4 w-4" />
-                    <span>Autosave couldn't reach the server. Check your connection and use “Save now”.</span>
-                  </li>
-                ) : null}
-              </ul>
-
-              <div className="mt-6 space-y-2 rounded-2xl border border-zinc-800/70 bg-zinc-900/70 p-4 text-xs text-zinc-500">
-                <p className="font-semibold text-zinc-400">Pro tip</p>
-                <p>
-                  Write in focused bursts. The composer keeps everything synced in the background, and you can jump back to the pacing dashboard anytime without losing momentum.
-                </p>
-              </div>
-            </section>
-          </aside>
         </main>
       </div>
 
-      <Modal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        overlayClassName="backdrop-blur-sm"
-        contentClassName="w-full max-w-3xl px-4 sm:px-0"
-        unstyled
-      >
-        <div className="relative overflow-hidden rounded-[28px] border border-red-500/40 bg-zinc-950/95 px-6 py-7 shadow-[0_30px_68px_-28px_rgba(244,63,94,0.55)] sm:px-8 sm:py-9">
-          <div className="pointer-events-none absolute -top-32 right-0 h-64 w-64 rounded-full bg-red-500/20 blur-3xl" aria-hidden="true" />
-          <div className="pointer-events-none absolute -bottom-28 left-10 h-52 w-52 rounded-full bg-rose-500/10 blur-3xl" aria-hidden="true" />
-
-          <div className="relative space-y-8 text-zinc-100" data-testid="delete-chapter-modal">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex items-start gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-red-500/40 bg-red-500/15 text-red-300 shadow-[0_18px_40px_-18px_rgba(244,63,94,0.6)]">
-                  <Trash2 className="h-7 w-7" />
-                </div>
-                <div className="space-y-2">
-                  <span className="inline-flex items-center gap-1 rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-red-200">
-                    Irreversible
-                  </span>
-                  <h3 className="text-2xl font-semibold leading-tight">Delete this chapter?</h3>
-                  <p className="max-w-xl text-sm text-zinc-400">
-                    Removing “{editorState.title?.trim() || "Untitled chapter"}” makes it disappear for readers instantly. The draft history stays on our servers for a limited time, but your dashboard will no longer display it.
-                  </p>
-                </div>
-              </div>
-              <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/70 px-4 py-3 text-xs uppercase tracking-[0.28em] text-zinc-500">
-                <span className="block text-[10px] font-semibold text-zinc-400">Active chapter</span>
-                <span className="mt-1 block text-sm font-semibold text-zinc-100" data-testid="delete-modal-chapter-label">
-                  {editorState.title?.trim() || "Untitled chapter"}
-                </span>
-                <span className="mt-1 block text-[11px] text-zinc-400">
-                  {wordCount > 0 ? `${wordCount.toLocaleString()} words` : "No draft content"}
-                </span>
-              </div>
+      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
+        <div dir="rtl" className="space-y-6 text-white">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border text-red-400" style={{ borderColor: 'rgb(244 63 94)', backgroundColor: 'rgba(244, 63, 94, 0.1)' }}>
+              <Trash2 className="h-6 w-6" />
             </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-2 rounded-2xl border border-zinc-800/70 bg-zinc-900/70 p-4">
-                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-zinc-500">
-                  <AlertCircle className="h-4 w-4 text-red-300" /> Impact
-                </div>
-                <p className="text-sm text-zinc-300">
-                  Chapter cards, analytics, and release pacing will adjust immediately. Any scheduled publishing windows tied to this entry are cancelled.
-                </p>
-              </div>
-              <div className="space-y-2 rounded-2xl border border-zinc-800/70 bg-zinc-900/70 p-4">
-                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-zinc-500">
-                  <Clock3 className="h-4 w-4 text-amber-200" /> Recovery
-                </div>
-                <p className="text-sm text-zinc-300">
-                  Autosave snapshots stay available for 30 days. Contact support if you need a restore during that window.
-                </p>
-              </div>
+            <div>
+              <h3 className="noto-sans-arabic-extrabold text-lg">حذف هذا الفصل؟</h3>
+              <p className="noto-sans-arabic-medium text-sm" style={{ color: '#B8B8B8' }}>
+                هذا الإجراء يزيل الفصل فوراً. القراء لن يروه بعد الآن في تدفق الرواية.
+              </p>
             </div>
-
-            <div className="rounded-2xl border border-zinc-800/70 bg-zinc-900/70 p-4">
-              <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">Checklist</p>
-              <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-                <li className="flex items-start gap-2">
-                  <Type className="mt-0.5 h-4 w-4 text-blue-200" />
-                  <span>Export or copy any passages you want to reuse before confirming.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Sparkles className="mt-0.5 h-4 w-4 text-purple-200" />
-                  <span>Notify collaborators so they know the chapter will vanish from shared outlines.</span>
-                </li>
-                {autosaveState.lastSavedAt ? (
-                  <li className="flex items-start gap-2 text-emerald-200">
-                    <BadgeCheck className="mt-0.5 h-4 w-4" />
-                    <span>Last autosave {formatSmart(autosaveState.lastSavedAt)} — you can restore from support within the retention window.</span>
-                  </li>
-                ) : null}
-              </ul>
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-              <Button
-                variant="ghost"
-                onClick={() => setShowDeleteModal(false)}
-                disabled={isDeletingChapter}
-                className="border border-zinc-700/50 bg-zinc-900/60 px-6 py-2 text-zinc-200 hover:border-zinc-500/60"
-              >
-                Keep chapter
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                isLoading={isDeletingChapter}
-                className="px-6 py-2 shadow-[0_18px_32px_-20px_rgba(244,63,94,0.7)]"
-                data-testid="confirm-delete-chapter"
-              >
-                Delete permanently
-              </Button>
-            </div>
+          </div>
+          <div className="space-y-2 rounded-xl border p-4 text-sm" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C', color: '#B8B8B8' }}>
+            <p className="noto-sans-arabic-bold text-white">ماذا سيحدث بعد ذلك</p>
+            <p className="noto-sans-arabic-medium">
+              سيبقى سجل الحفظ التلقائي للاسترداد من قبل فريق الدعم، لكنه لن يظهر في لوحة التحكم الخاصة بك.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row-reverse sm:justify-end">
+            <Button variant="destructive" onClick={handleDelete} isLoading={isDeletingChapter} className="noto-sans-arabic-bold">
+              حذف الفصل
+            </Button>
+            <Button variant="ghost" onClick={() => setShowDeleteModal(false)} disabled={isDeletingChapter} className="noto-sans-arabic-bold">
+              إلغاء
+            </Button>
           </div>
         </div>
       </Modal>
     </div>
+    </>
   );
 };
 

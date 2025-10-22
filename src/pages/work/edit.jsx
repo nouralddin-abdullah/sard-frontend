@@ -19,6 +19,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
+import Header from "../../components/common/Header";
 import Button from "../../components/ui/button";
 import Select from "../../components/ui/select";
 import { Modal } from "../../components/ui/modal";
@@ -101,17 +102,22 @@ const getSafeStatus = (rawStatus) => {
 };
 
 const ChecklistItem = ({ label, complete }) => (
-  <li className="flex items-start gap-3 text-sm text-zinc-300">
+  <li className="noto-sans-arabic-medium flex items-start gap-3 text-sm">
     <span
-      className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-semibold ${
-        complete
-          ? "border-emerald-400/60 bg-emerald-500/10 text-emerald-300"
-          : "border-zinc-700 bg-zinc-900 text-zinc-500"
-      }`}
+      className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-semibold"
+      style={complete ? {
+        borderColor: '#0077FF',
+        backgroundColor: 'rgba(0, 119, 255, 0.1)',
+        color: '#0077FF'
+      } : {
+        borderColor: '#5A5A5A',
+        backgroundColor: '#2C2C2C',
+        color: '#797979'
+      }}
     >
       {complete ? "✓" : ""}
     </span>
-    <span className="leading-relaxed text-zinc-400">{label}</span>
+    <span className="leading-relaxed" style={{ color: '#B8B8B8' }}>{label}</span>
   </li>
 );
 
@@ -527,54 +533,69 @@ const EditWorkPage = () => {
 
   if (isError) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
+      <div dir="rtl" className="flex min-h-screen items-center justify-center px-4" style={{ backgroundColor: '#2C2C2C' }}>
         <div className="max-w-md space-y-4 text-center">
-          <h1 className="text-2xl font-semibold text-zinc-100">We couldn&apos;t find that work</h1>
-          <p className="text-sm text-zinc-400">Check the link or return to your works dashboard.</p>
-          <Button onClick={() => navigate("/dashboard/works")}>Back to dashboard</Button>
+          <h1 className="noto-sans-arabic-extrabold text-2xl text-white">لم نتمكن من العثور على هذا العمل</h1>
+          <p className="noto-sans-arabic-medium text-sm" style={{ color: '#B8B8B8' }}>تحقق من الرابط أو ارجع إلى لوحة الأعمال الخاصة بك.</p>
+          <Button onClick={() => navigate("/dashboard/works")}>العودة إلى لوحة التحكم</Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-indigo-950/40 px-4 py-12">
+    <>
+      <Header />
+      <div dir="rtl" className="min-h-screen px-4 py-12" style={{ backgroundColor: '#2C2C2C' }}>
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <header className="flex flex-col gap-6 rounded-[32px] border border-zinc-800/70 bg-zinc-900/80 px-8 py-10 shadow-[0_40px_110px_-90px_rgba(59,130,246,0.7)]">
-          <div className="flex items-center gap-4 text-sm text-zinc-400">
+        <header className="flex flex-col gap-6 rounded-2xl border px-8 py-10" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
+          <div className="flex items-center gap-4 text-sm">
             <button
               type="button"
               onClick={() => navigate("/dashboard/works")}
-              className="flex items-center gap-2 rounded-full border border-zinc-700/60 bg-zinc-900/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500 transition hover:border-zinc-600 hover:text-zinc-300"
+              className="noto-sans-arabic-bold flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition"
+              style={{ 
+                borderColor: '#5A5A5A', 
+                backgroundColor: '#2C2C2C',
+                color: '#B8B8B8'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#0077FF';
+                e.currentTarget.style.color = '#FFFFFF';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#5A5A5A';
+                e.currentTarget.style.color = '#B8B8B8';
+              }}
             >
               <ArrowLeft className="h-3.5 w-3.5" />
-              Back
+              رجوع
             </button>
-            <span className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-blue-200">
+            <span className="noto-sans-arabic-bold inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px]" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }}>
               <Sparkles className="h-3 w-3" />
-              Editing workspace
+              مساحة التحرير
             </span>
           </div>
 
           <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-3">
-              <h1 className="text-4xl font-semibold leading-tight text-zinc-50">
-                {detailsState.title || "Untitled work"}
+              <h1 className="noto-sans-arabic-extrabold text-4xl leading-tight text-white">
+                {detailsState.title || "عمل بدون عنوان"}
               </h1>
-              <p className="max-w-2xl text-base text-zinc-300">
-                Refine story foundations, update your cover, and orchestrate chapter pacing in one focused surface. Changes sync instantly across the reader experience.
+              <p className="noto-sans-arabic-medium max-w-2xl text-base" style={{ color: '#B8B8B8' }}>
+                حسّن أساسيات القصة، حدّث الغلاف، ونظّم إيقاع الفصول في مكان واحد. التغييرات تُزامن فوراً مع تجربة القارئ.
               </p>
             </div>
 
-            <div className="flex gap-4 text-sm text-zinc-400">
-              <div className="rounded-2xl border border-zinc-800/70 bg-zinc-900/70 px-5 py-3">
-                <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">Status</p>
-                <p className="text-sm font-medium text-zinc-100">{detailsState.status}</p>
+            <div className="flex gap-4 text-sm">
+              <div className="rounded-xl border px-5 py-3" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
+                <p className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>الحالة</p>
+                <p className="noto-sans-arabic-medium text-sm text-white">{detailsState.status === 'Ongoing' ? 'جاري' : detailsState.status === 'Completed' ? 'مكتمل' : detailsState.status}</p>
               </div>
-              <div className="rounded-2xl border border-zinc-800/70 bg-zinc-900/70 px-5 py-3">
-                <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">Genres</p>
-                <p className="text-sm font-medium text-zinc-100">
-                  {selectedGenres.length > 0 ? selectedGenres.map((genre) => genre.name).join(", ") : "Not set"}
+              <div className="rounded-xl border px-5 py-3" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
+                <p className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>الأنواع</p>
+                <p className="noto-sans-arabic-medium text-sm text-white">
+                  {selectedGenres.length > 0 ? selectedGenres.map((genre) => genre.name).join("، ") : "غير محدد"}
                 </p>
               </div>
             </div>
@@ -582,26 +603,44 @@ const EditWorkPage = () => {
         </header>
 
         {isLoading ? (
-          <div className="flex h-48 items-center justify-center rounded-[28px] border border-zinc-800/70 bg-zinc-900/70">
-            <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+          <div className="flex h-48 items-center justify-center rounded-xl border" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
+            <Loader2 className="h-8 w-8 animate-spin" style={{ color: '#797979' }} />
           </div>
         ) : (
-          <section className="rounded-[32px] border border-zinc-800/70 bg-zinc-900/70 px-8 py-9 shadow-[0_40px_110px_-90px_rgba(59,130,246,0.4)]">
+          <section className="rounded-2xl border px-8 py-9" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
             <div className="flex flex-wrap items-center gap-3">
               {TAB_OPTIONS.map((tab) => {
                 const isActive = activeTab === tab.id;
+                const label = tab.id === 'story' ? 'استوديو القصة' : 'الفصول والإيقاع';
                 return (
                   <button
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 rounded-full border px-5 py-2 text-sm font-medium tracking-wide transition ${
-                      isActive
-                        ? "border-blue-500/60 bg-blue-500/20 text-blue-100 shadow-[0_12px_30px_-18px_rgba(59,130,246,0.8)]"
-                        : "border-zinc-700/70 bg-zinc-950/70 text-zinc-400 hover:border-zinc-600/80 hover:text-zinc-200"
-                    }`}
+                    className="noto-sans-arabic-bold flex items-center gap-2 rounded-full border px-5 py-2 text-sm transition"
+                    style={isActive ? {
+                      borderColor: '#0077FF',
+                      backgroundColor: 'rgba(0, 119, 255, 0.2)',
+                      color: '#FFFFFF'
+                    } : {
+                      borderColor: '#5A5A5A',
+                      backgroundColor: '#2C2C2C',
+                      color: '#B8B8B8'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.borderColor = '#797979';
+                        e.currentTarget.style.color = '#FFFFFF';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.borderColor = '#5A5A5A';
+                        e.currentTarget.style.color = '#B8B8B8';
+                      }
+                    }}
                   >
-                    {tab.label}
+                    {label}
                   </button>
                 );
               })}
@@ -610,44 +649,58 @@ const EditWorkPage = () => {
             <div className="mt-10 space-y-10">
               {activeTab === "story" ? (
                 <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-                  <form onSubmit={handleDetailsSubmit} className="space-y-6 rounded-[28px] border border-zinc-800/70 bg-zinc-950/60 px-8 py-9 backdrop-blur">
+                  <form onSubmit={handleDetailsSubmit} className="space-y-6 rounded-xl border px-8 py-9" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
                     <div className="space-y-2">
-                      <h2 className="text-lg font-semibold text-zinc-100">Story details</h2>
-                      <p className="text-sm text-zinc-400">
-                        Keep title, summary, and status aligned before you share chapters with beta readers.
+                      <h2 className="noto-sans-arabic-extrabold text-lg text-white">تفاصيل القصة</h2>
+                      <p className="noto-sans-arabic-medium text-sm" style={{ color: '#B8B8B8' }}>
+                        حافظ على العنوان والملخص والحالة متوافقة قبل مشاركة الفصول مع القراء.
                       </p>
                     </div>
 
                     <div className="space-y-4">
                       <label className="block space-y-2">
-                        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">Title</span>
+                        <span className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>العنوان</span>
                         <input
                           type="text"
                           value={detailsState.title}
                           onChange={(event) =>
                             setDetailsState((prev) => ({ ...prev, title: event.target.value }))
                           }
-                          className="w-full rounded-2xl border border-zinc-800/70 bg-zinc-950/70 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-                          placeholder="Title of your novel"
+                          className="noto-sans-arabic-medium w-full rounded-xl border px-4 py-3 text-sm text-white transition focus:outline-none focus:ring-2"
+                          style={{ 
+                            borderColor: '#5A5A5A', 
+                            backgroundColor: '#5A5A5A',
+                            caretColor: '#0077FF'
+                          }}
+                          placeholder="عنوان روايتك"
+                          onFocus={(e) => e.currentTarget.style.borderColor = '#0077FF'}
+                          onBlur={(e) => e.currentTarget.style.borderColor = '#5A5A5A'}
                         />
                       </label>
 
                       <label className="block space-y-2">
-                        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">Summary</span>
+                        <span className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>الملخص</span>
                         <textarea
                           value={detailsState.summary}
                           onChange={(event) =>
                             setDetailsState((prev) => ({ ...prev, summary: event.target.value }))
                           }
                           rows={6}
-                          className="w-full resize-none rounded-2xl border border-zinc-800/70 bg-zinc-950/70 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-                          placeholder="Describe your core hook, protagonists, and stakes."
+                          className="noto-sans-arabic-medium w-full resize-none rounded-xl border px-4 py-3 text-sm text-white transition focus:outline-none focus:ring-2"
+                          style={{ 
+                            borderColor: '#5A5A5A', 
+                            backgroundColor: '#5A5A5A',
+                            caretColor: '#0077FF'
+                          }}
+                          placeholder="صف الفكرة الرئيسية، الأبطال، والرهانات."
+                          onFocus={(e) => e.currentTarget.style.borderColor = '#0077FF'}
+                          onBlur={(e) => e.currentTarget.style.borderColor = '#5A5A5A'}
                         />
                       </label>
 
                       <div className="grid gap-4 sm:grid-cols-2">
                         <label className="block space-y-2">
-                          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">Status</span>
+                          <span className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>الحالة</span>
                           <Select
                             value={detailsState.status}
                             onChange={(event) =>
@@ -656,15 +709,15 @@ const EditWorkPage = () => {
                           >
                             {STATUS_OPTIONS.map((option) => (
                               <option key={option.value} value={option.value}>
-                                {option.label}
+                                {option.value === 'Ongoing' ? 'جاري' : option.value === 'Completed' ? 'مكتمل' : option.label}
                               </option>
                             ))}
                           </Select>
                         </label>
 
                         <label className="block space-y-2">
-                          <span className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">Add genre</span>
-                          <Select value="" onChange={handleGenreSelect} placeholder="Select genre">
+                          <span className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>إضافة نوع</span>
+                          <Select value="" onChange={handleGenreSelect} placeholder="اختر النوع">
                             {genres.map((genre) => (
                               <option key={genre.id} value={genre.id}>
                                 {genre.name}
@@ -679,13 +732,17 @@ const EditWorkPage = () => {
                           {selectedGenres.map((genre) => (
                             <span
                               key={genre.id}
-                              className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs text-blue-200"
+                              className="noto-sans-arabic-medium inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs"
+                              style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }}
                             >
                               {genre.name}
                               <button
                                 type="button"
                                 onClick={() => removeGenre(genre.id)}
-                                className="rounded-full border border-blue-400/40 p-1 text-blue-200 transition hover:bg-blue-500/20"
+                                className="rounded-full border p-1 transition"
+                                style={{ borderColor: '#0077FF', color: '#0077FF' }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 119, 255, 0.2)'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                               >
                                 <X className="h-3 w-3" />
                               </button>
@@ -693,30 +750,37 @@ const EditWorkPage = () => {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-xs text-zinc-500">Select at least one genre to align recommendations.</p>
+                        <p className="noto-sans-arabic-medium text-xs" style={{ color: '#797979' }}>اختر نوعاً واحداً على الأقل لمواءمة التوصيات.</p>
                       )}
                     </div>
 
                     <div className="flex items-center gap-3">
                       <Button type="submit" isLoading={isSavingDetails}>
-                        Save story details
+                        حفظ تفاصيل القصة
                       </Button>
-                      <span className="text-xs text-zinc-500">Changes sync instantly to your reader profile.</span>
+                      <span className="noto-sans-arabic-medium text-xs" style={{ color: '#797979' }}>التغييرات تُزامن فوراً مع ملفك الشخصي.</span>
                     </div>
                   </form>
 
-                  <div className="space-y-6 rounded-[28px] border border-zinc-800/70 bg-zinc-950/60 px-8 py-9 backdrop-blur">
+                  <div className="space-y-6 rounded-xl border px-8 py-9" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
                     <section className="space-y-4">
                       <div className="space-y-1">
-                        <h2 className="text-lg font-semibold text-zinc-100">Cover art</h2>
-                        <p className="text-sm text-zinc-400">Upload key art that matches your story&apos;s tone.</p>
+                        <h2 className="noto-sans-arabic-extrabold text-lg text-white">غلاف العمل</h2>
+                        <p className="noto-sans-arabic-medium text-sm" style={{ color: '#B8B8B8' }}>ارفع صورة غلاف تناسب نبرة قصتك.</p>
                       </div>
 
                       <form onSubmit={handleCoverSubmit} className="space-y-4">
                         <div
-                          className={`relative flex flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-zinc-700/70 bg-zinc-950/60 px-6 py-10 text-center transition ${
-                            dragActive ? "border-blue-500/60 bg-blue-500/10 text-blue-100" : "text-zinc-400"
-                          }`}
+                          className="relative flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed px-6 py-10 text-center transition"
+                          style={dragActive ? {
+                            borderColor: '#0077FF',
+                            backgroundColor: 'rgba(0, 119, 255, 0.1)',
+                            color: '#FFFFFF'
+                          } : {
+                            borderColor: '#5A5A5A',
+                            backgroundColor: '#2C2C2C',
+                            color: '#B8B8B8'
+                          }}
                           onDragEnter={handleDrag}
                           onDragOver={handleDrag}
                           onDragLeave={handleDrag}
@@ -724,8 +788,8 @@ const EditWorkPage = () => {
                         >
                           <UploadCloud className="h-10 w-10" />
                           <div className="space-y-2">
-                            <p className="font-medium text-zinc-100">Drag imagery here or click to upload</p>
-                            <p className="text-xs text-zinc-500 text-pretty">PNG / JPG / GIF · 1600px min · Max 10MB</p>
+                            <p className="noto-sans-arabic-bold text-white">اسحب الصورة هنا أو اضغط للرفع</p>
+                            <p className="noto-sans-arabic-medium text-xs" style={{ color: '#797979' }}>PNG / JPG / GIF · 1600px كحد أدنى · أقصى حجم 10 ميجابايت</p>
                           </div>
                           <input
                             type="file"
@@ -735,139 +799,177 @@ const EditWorkPage = () => {
                           />
                         </div>
 
-                        <div className="grid gap-4 text-left lg:grid-cols-2">
-                          <div className="rounded-2xl border border-zinc-800/70 bg-zinc-950/70 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500">Live cover</p>
-                            <div className="mt-3 h-48 overflow-hidden rounded-2xl border border-zinc-800/70">
+                        <div className="grid gap-4 text-right lg:grid-cols-2">
+                          <div className="rounded-xl border p-4" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
+                            <p className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>الغلاف الحالي</p>
+                            <div className="mt-3 h-48 overflow-hidden rounded-xl border" style={{ borderColor: '#5A5A5A' }}>
                               <img src={coverSource} alt={detailsState.title} className="h-full w-full object-cover" />
                             </div>
                           </div>
                           {coverFile ? (
-                            <div className="rounded-2xl border border-blue-500/40 bg-blue-500/10 p-4">
-                              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-blue-200">New upload</p>
-                              <div className="mt-3 h-48 overflow-hidden rounded-2xl border border-blue-500/30">
+                            <div className="rounded-xl border p-4" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)' }}>
+                              <p className="noto-sans-arabic-bold text-xs" style={{ color: '#0077FF' }}>رفع جديد</p>
+                              <div className="mt-3 h-48 overflow-hidden rounded-xl border" style={{ borderColor: '#0077FF' }}>
                                 <img src={coverPreview} alt="New cover preview" className="h-full w-full object-cover" />
                               </div>
                               <button
                                 type="button"
                                 onClick={() => setCoverFile(null)}
-                                className="mt-3 text-xs text-blue-200/80 underline-offset-4 transition hover:text-blue-100 hover:underline"
+                                className="noto-sans-arabic-medium mt-3 text-xs underline-offset-4 transition hover:underline"
+                                style={{ color: '#0077FF' }}
                               >
-                                Clear selection
+                                إزالة الاختيار
                               </button>
                             </div>
                           ) : (
-                            <div className="rounded-2xl border border-zinc-800/70 bg-zinc-950/70 p-4 text-sm text-zinc-400">
-                              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500">
-                                <ImageIcon className="h-4 w-4" /> Preview placeholder
+                            <div className="rounded-xl border p-4 text-sm" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C', color: '#B8B8B8' }}>
+                              <p className="noto-sans-arabic-bold flex items-center gap-2 text-xs" style={{ color: '#797979' }}>
+                                <ImageIcon className="h-4 w-4" /> معاينة مؤقتة
                               </p>
-                              <p className="mt-2 text-xs text-pretty">
-                                Upload a cinematic cover to see a live preview alongside the current artwork.
+                              <p className="noto-sans-arabic-medium mt-2 text-xs">
+                                ارفع غلافاً لرؤية معاينة مباشرة بجانب الصورة الحالية.
                               </p>
                             </div>
                           )}
                         </div>
 
                         <Button type="submit" isLoading={isSavingCover} disabled={!coverFile}>
-                          Save cover update
+                          حفظ تحديث الغلاف
                         </Button>
                       </form>
                     </section>
 
-                    <section className="rounded-[28px] border border-emerald-400/20 bg-emerald-500/5 px-8 py-9">
+                    <section className="rounded-xl border px-8 py-9" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.05)' }}>
                       <div className="space-y-4">
-                        <h2 className="text-lg font-semibold text-emerald-200">Launch checklist</h2>
+                        <h2 className="noto-sans-arabic-extrabold text-lg" style={{ color: '#0077FF' }}>قائمة الإطلاق</h2>
                         <ul className="space-y-3">
-                          {LAUNCH_CHECKLIST.map((item) => (
-                            <ChecklistItem
-                              key={item.label}
-                              label={item.label}
-                              complete={item.isComplete(
-                                detailsState,
-                                { hasCover: Boolean(work?.coverImageUrl) || Boolean(coverFile) },
-                                chapterOrder
-                              )}
-                            />
-                          ))}
+                          {LAUNCH_CHECKLIST.map((item) => {
+                            const arabicLabels = {
+                              'Set a catchy title': 'ضع عنواناً جذاباً',
+                              'Add at least one genre': 'أضف نوعاً واحداً على الأقل',
+                              'Upload a polished cover': 'ارفع غلافاً احترافياً',
+                              'Write at least one chapter': 'اكتب فصلاً واحداً على الأقل'
+                            };
+                            return (
+                              <ChecklistItem
+                                key={item.label}
+                                label={arabicLabels[item.label] || item.label}
+                                complete={item.isComplete(
+                                  detailsState,
+                                  { hasCover: Boolean(work?.coverImageUrl) || Boolean(coverFile) },
+                                  chapterOrder
+                                )}
+                              />
+                            );
+                          })}
                         </ul>
                       </div>
                     </section>
                   </div>
                 </div>
               ) : (
-                <section className="flex flex-col gap-8 rounded-[28px] border border-zinc-800/70 bg-zinc-950/60 px-8 py-9 backdrop-blur">
+                <section className="flex flex-col gap-8 rounded-xl border px-8 py-9" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
                   <div className="space-y-6">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                       <div className="space-y-1">
-                        <h2 className="text-lg font-semibold text-zinc-100">Chapter pacing</h2>
-                        <p className="text-sm text-zinc-400">
-                          Scan every chapter in sequence. Filter, search, and reorder without any extra columns in the way.
+                        <h2 className="noto-sans-arabic-extrabold text-lg text-white">إيقاع الفصول</h2>
+                        <p className="noto-sans-arabic-medium text-sm" style={{ color: '#B8B8B8' }}>
+                          تصفح كل فصل بالتسلسل. صفّ، ابحث، وأعد ترتيب الفصول بدون أي أعمدة إضافية.
                         </p>
                       </div>
                       <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
                         <div className="relative w-full sm:w-56">
-                          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+                          <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: '#797979' }} />
                           <input
                             data-testid="chapter-search"
                             type="search"
                             value={chapterSearch}
                             onChange={(event) => setChapterSearch(event.target.value)}
-                            placeholder="Search chapters"
-                            className="w-full rounded-full border border-zinc-800/70 bg-zinc-900/70 py-2 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                            placeholder="ابحث عن فصل"
+                            className="noto-sans-arabic-medium w-full rounded-full border py-2 pr-10 pl-4 text-sm text-white transition focus:outline-none focus:ring-2"
+                            style={{ 
+                              borderColor: '#5A5A5A', 
+                              backgroundColor: '#5A5A5A',
+                              caretColor: '#0077FF'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.borderColor = '#0077FF'}
+                            onBlur={(e) => e.currentTarget.style.borderColor = '#5A5A5A'}
                           />
                         </div>
                         <Button
                           data-testid="start-new-chapter"
                           variant="primary"
                           onClick={() => openAdvancedComposer()}
-                          className="w-full sm:w-auto shadow-[0_12px_30px_-12px_rgba(59,130,246,0.7)] gap-2"
+                          className="noto-sans-arabic-bold w-full sm:w-auto gap-2"
                         >
                           <PenSquare className="h-4 w-4" />
-                          Add Chapter
+                          إضافة فصل
                         </Button>
                       </div>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-3">
-                      <div className="rounded-2xl border border-zinc-800/70 bg-zinc-950/70 px-4 py-3 text-center">
-                        <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">In library</p>
-                        <p className="mt-1 text-2xl font-semibold text-zinc-100">{chapterOrder.length}</p>
-                        <p className="text-[11px] text-zinc-500">Chapters staged for your readership</p>
+                      <div className="rounded-xl border px-4 py-3 text-center" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
+                        <p className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>في المكتبة</p>
+                        <p className="noto-sans-arabic-extrabold mt-1 text-2xl text-white">{chapterOrder.length}</p>
+                        <p className="noto-sans-arabic-medium text-[11px]" style={{ color: '#797979' }}>فصول جاهزة للقراء</p>
                       </div>
-                      <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-center">
-                        <p className="text-xs uppercase tracking-[0.3em] text-emerald-300/80">Published</p>
+                      <div className="rounded-xl border px-4 py-3 text-center" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)' }}>
+                        <p className="noto-sans-arabic-bold text-xs" style={{ color: '#0077FF' }}>منشور</p>
                         <div className="mt-1">
-                          <p className="text-2xl font-semibold text-emerald-200">{publishedChapterCount}</p>
+                          <p className="noto-sans-arabic-extrabold text-2xl text-white">{publishedChapterCount}</p>
                         </div>
-                        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-emerald-500/20">
+                        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: 'rgba(0, 119, 255, 0.2)' }}>
                           <div
-                            className="h-full rounded-full bg-emerald-400/70 transition-[width]"
-                            style={{ width: `${Math.min(100, Math.max(0, publicationProgress))}%` }}
+                            className="h-full rounded-full transition-[width]"
+                            style={{ width: `${Math.min(100, Math.max(0, publicationProgress))}%`, backgroundColor: '#0077FF' }}
                           />
                         </div>
                       </div>
-                      <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-center">
-                        <p className="text-xs uppercase tracking-[0.3em] text-amber-200/80">Drafting</p>
-                        <p className="mt-1 text-2xl font-semibold text-amber-200">{draftChapterCount}</p>
-                        <p className="text-[11px] text-amber-200/80">Waiting for their publishing glow-up</p>
+                      <div className="rounded-xl border px-4 py-3 text-center" style={{ borderColor: 'rgb(251 191 36)', backgroundColor: 'rgba(251, 191, 36, 0.1)' }}>
+                        <p className="noto-sans-arabic-bold text-xs text-amber-400">مسودة</p>
+                        <p className="noto-sans-arabic-extrabold mt-1 text-2xl text-amber-300">{draftChapterCount}</p>
+                        <p className="noto-sans-arabic-medium text-[11px] text-amber-400">في انتظار النشر</p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-800/60 bg-zinc-950/60 px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
                       <div className="flex flex-wrap items-center gap-2">
                         {STATUS_FILTERS.map((option) => {
                           const isActive = chapterFilter === option.id;
+                          const arabicLabels = {
+                            'all': 'الكل',
+                            'published': 'منشور',
+                            'draft': 'مسودة'
+                          };
                           return (
                             <button
                               key={option.id}
                               type="button"
                               data-testid={`chapter-filter-${option.id}`}
                               onClick={() => setChapterFilter(option.id)}
-                              className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                                isActive
-                                  ? "border-blue-500/60 bg-blue-500/15 text-blue-100 shadow-[0_10px_30px_-18px_rgba(59,130,246,0.8)]"
-                                  : "border-zinc-800/70 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700/60 hover:text-zinc-100"
-                              }`}
+                              className="noto-sans-arabic-bold flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition"
+                              style={isActive ? {
+                                borderColor: '#0077FF',
+                                backgroundColor: 'rgba(0, 119, 255, 0.15)',
+                                color: '#FFFFFF'
+                              } : {
+                                borderColor: '#5A5A5A',
+                                backgroundColor: '#2C2C2C',
+                                color: '#B8B8B8'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!isActive) {
+                                  e.currentTarget.style.borderColor = '#797979';
+                                  e.currentTarget.style.color = '#FFFFFF';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!isActive) {
+                                  e.currentTarget.style.borderColor = '#5A5A5A';
+                                  e.currentTarget.style.color = '#B8B8B8';
+                                }
+                              }}
                             >
                               {option.id === "published" ? (
                                 <CheckCircle2 className="h-3.5 w-3.5" />
@@ -876,28 +978,40 @@ const EditWorkPage = () => {
                               ) : (
                                 <Filter className="h-3.5 w-3.5" />
                               )}
-                              {option.label}
+                              {arabicLabels[option.id] || option.label}
                             </button>
                           );
                         })}
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="inline-flex items-center gap-1 rounded-full border border-zinc-800/60 bg-zinc-900/60 p-1">
+                        <div className="inline-flex items-center gap-1 rounded-full border p-1" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
                           {SORT_OPTIONS.map((option) => {
                             const isActive = chapterSort === option.id;
+                            const arabicLabels = {
+                              'sequence': 'التسلسل',
+                              'recent': 'الأحدث'
+                            };
                             return (
                               <button
                                 key={option.id}
                                 type="button"
                                 data-testid={`chapter-sort-${option.id}`}
                                 onClick={() => setChapterSort(option.id)}
-                                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                                  isActive
-                                    ? "bg-blue-500/20 text-blue-100 shadow-[0_8px_24px_-16px_rgba(59,130,246,0.6)]"
-                                    : "text-zinc-400 hover:text-zinc-100"
-                                }`}
+                                className="noto-sans-arabic-bold rounded-full px-3 py-1.5 text-xs transition"
+                                style={isActive ? {
+                                  backgroundColor: 'rgba(0, 119, 255, 0.2)',
+                                  color: '#FFFFFF'
+                                } : {
+                                  color: '#B8B8B8'
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (!isActive) e.currentTarget.style.color = '#FFFFFF';
+                                }}
+                                onMouseLeave={(e) => {
+                                  if (!isActive) e.currentTarget.style.color = '#B8B8B8';
+                                }}
                               >
-                                {option.label}
+                                {arabicLabels[option.id] || option.label}
                               </button>
                             );
                           })}
@@ -910,9 +1024,12 @@ const EditWorkPage = () => {
                               setChapterSort("sequence");
                               setChapterSearch("");
                             }}
-                            className="text-xs font-medium text-zinc-400 transition hover:text-zinc-100"
+                            className="noto-sans-arabic-bold text-xs transition"
+                            style={{ color: '#B8B8B8' }}
+                            onMouseEnter={(e) => e.currentTarget.style.color = '#FFFFFF'}
+                            onMouseLeave={(e) => e.currentTarget.style.color = '#B8B8B8'}
                           >
-                            Reset view
+                            إعادة تعيين
                           </button>
                         ) : null}
                       </div>
@@ -920,31 +1037,31 @@ const EditWorkPage = () => {
 
                     <div>
                       {isChaptersLoading ? (
-                        <div className="flex h-48 items-center justify-center rounded-2xl border border-zinc-800/70 bg-zinc-950/60">
-                          <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+                        <div className="flex h-48 items-center justify-center rounded-xl border" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
+                          <Loader2 className="h-6 w-6 animate-spin" style={{ color: '#797979' }} />
                         </div>
                       ) : chapterOrder.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-zinc-800/60 bg-zinc-950/60 p-8 text-center">
-                          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-zinc-800/60 bg-zinc-900/80 text-zinc-500">
+                        <div className="rounded-xl border border-dashed p-8 text-center" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
+                          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C', color: '#797979' }}>
                             <FileText className="h-5 w-5" />
                           </div>
-                          <h3 className="mt-4 text-base font-medium text-zinc-100">No chapters yet</h3>
-                          <p className="mt-2 text-sm text-zinc-400">
-                            Draft your opening scene to populate this list. You can always rearrange the beats later.
+                          <h3 className="noto-sans-arabic-extrabold mt-4 text-base text-white">لا توجد فصول بعد</h3>
+                          <p className="noto-sans-arabic-medium mt-2 text-sm" style={{ color: '#B8B8B8' }}>
+                            ابدأ بكتابة المشهد الافتتاحي لملء هذه القائمة. يمكنك دائماً إعادة ترتيب الأحداث لاحقاً.
                           </p>
-                          <Button className="mt-5" onClick={() => openAdvancedComposer()} variant="primary">
-                            <PenSquare className="mr-2 h-4 w-4" />
-                            Draft the first chapter
+                          <Button className="noto-sans-arabic-bold mt-5 gap-2" onClick={() => openAdvancedComposer()} variant="primary">
+                            <PenSquare className="h-4 w-4" />
+                            اكتب الفصل الأول
                           </Button>
                         </div>
                       ) : visibleChapters.length === 0 ? (
-                        <div className="rounded-2xl border border-zinc-800/70 bg-zinc-950/60 p-8 text-center">
-                          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-blue-500/40 bg-blue-500/10 text-blue-200">
+                        <div className="rounded-xl border p-8 text-center" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
+                          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }}>
                             <Filter className="h-5 w-5" />
                           </div>
-                          <h3 className="mt-4 text-base font-medium text-zinc-100">No chapters match your filters</h3>
-                          <p className="mt-2 text-sm text-zinc-400">
-                            Try adjusting the status filter, resetting the sort, or clearing the search query to reveal more chapters.
+                          <h3 className="noto-sans-arabic-extrabold mt-4 text-base text-white">لا توجد فصول تطابق الفلاتر</h3>
+                          <p className="noto-sans-arabic-medium mt-2 text-sm" style={{ color: '#B8B8B8' }}>
+                            حاول تعديل فلتر الحالة، أو إعادة تعيين الترتيب، أو مسح البحث لإظهار المزيد من الفصول.
                           </p>
                           <button
                             type="button"
@@ -953,21 +1070,24 @@ const EditWorkPage = () => {
                               setChapterSort("sequence");
                               setChapterSearch("");
                             }}
-                            className="mt-4 text-sm font-medium text-blue-300 transition hover:text-blue-100"
+                            className="noto-sans-arabic-bold mt-4 text-sm transition"
+                            style={{ color: '#0077FF' }}
+                            onMouseEnter={(e) => e.currentTarget.style.color = '#0066DD'}
+                            onMouseLeave={(e) => e.currentTarget.style.color = '#0077FF'}
                           >
-                            Clear filters
+                            مسح الفلاتر
                           </button>
                         </div>
                       ) : (
                         <>
-                          <ul className="chapter-scroll max-h-[28rem] space-y-3 overflow-y-auto pr-2">
+                          <ul className="chapter-scroll max-h-[28rem] space-y-3 overflow-y-auto pl-2">
                             {visibleChapters.map(({ chapter, orderIndex }) => {
                               const chapterKey = resolveChapterKey(chapter, orderIndex);
                               const timelineLabel = chapter.updatedAt || chapter.createdAt;
                               const previewText =
                                 chapter.synopsis?.trim()?.slice(0, 140) ||
                                 chapter.content?.trim()?.slice(0, 140) ||
-                                "No summary yet. Open to add context.";
+                                "لا يوجد ملخص بعد. افتح الفصل لإضافة سياق.";
                               const sequenceNumber = orderIndex + 1;
                               return (
                                 <li key={chapterKey}>
@@ -982,23 +1102,32 @@ const EditWorkPage = () => {
                                         openAdvancedComposer(chapter.id);
                                       }
                                     }}
-                                    className="group flex flex-col gap-4 rounded-2xl border border-zinc-800/70 bg-zinc-950/70 px-4 py-4 transition hover:border-zinc-700/70 hover:bg-zinc-900/70"
+                                    className="group flex flex-col gap-4 rounded-xl border px-4 py-4 transition cursor-pointer"
+                                    style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.borderColor = '#0077FF';
+                                      e.currentTarget.style.backgroundColor = '#2C2C2C';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.borderColor = '#5A5A5A';
+                                      e.currentTarget.style.backgroundColor = '#3C3C3C';
+                                    }}
                                   >
                                     <div className="flex items-start justify-between gap-4">
                                       <div className="flex items-start gap-3">
-                                        <span className="mt-1 flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-700 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                                        <span className="noto-sans-arabic-bold mt-1 flex h-8 w-8 items-center justify-center rounded-xl border text-xs" style={{ borderColor: '#5A5A5A', color: '#797979' }}>
                                           {String(sequenceNumber).padStart(2, "0")}
                                         </span>
                                         <div className="space-y-2">
                                           <div className="flex flex-wrap items-center gap-2">
-                                            <p className="text-sm font-semibold text-zinc-100">
-                                              {chapter.title || `Untitled chapter ${sequenceNumber}`}
+                                            <p className="noto-sans-arabic-extrabold text-sm text-white">
+                                              {chapter.title || `فصل بدون عنوان ${sequenceNumber}`}
                                             </p>
-                                            <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] ${getStatusTone(chapter.status)}`}>
-                                              {chapter.status || "Draft"}
+                                            <span className={`noto-sans-arabic-bold inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] ${getStatusTone(chapter.status)}`}>
+                                              {chapter.status === 'Published' ? 'منشور' : chapter.status === 'Draft' ? 'مسودة' : chapter.status || "مسودة"}
                                             </span>
                                           </div>
-                                          <p className="text-xs text-zinc-400 line-clamp-2">{previewText}</p>
+                                          <p className="noto-sans-arabic-medium text-xs line-clamp-2" style={{ color: '#B8B8B8' }}>{previewText}</p>
                                         </div>
                                       </div>
                                       <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
@@ -1011,8 +1140,8 @@ const EditWorkPage = () => {
                                               moveChapter(orderIndex, -1);
                                             }}
                                             disabled={!isReorderEnabled || orderIndex === 0}
-                                            aria-label="Move chapter up"
-                                            className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 disabled:text-zinc-600"
+                                            aria-label="تحريك الفصل لأعلى"
+                                            style={{ color: '#B8B8B8' }}
                                           >
                                             <ArrowUp className="h-4 w-4" />
                                           </Button>
@@ -1024,8 +1153,8 @@ const EditWorkPage = () => {
                                               moveChapter(orderIndex, 1);
                                             }}
                                             disabled={!isReorderEnabled || orderIndex === chapterOrder.length - 1}
-                                            aria-label="Move chapter down"
-                                            className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 disabled:text-zinc-600"
+                                            aria-label="تحريك الفصل لأسفل"
+                                            style={{ color: '#B8B8B8' }}
                                           >
                                             <ArrowDown className="h-4 w-4" />
                                           </Button>
@@ -1035,28 +1164,29 @@ const EditWorkPage = () => {
                                             variant="ghost"
                                             size="xs"
                                             aria-haspopup="menu"
-                                            aria-label="Open chapter actions"
+                                            aria-label="فتح إجراءات الفصل"
                                             aria-expanded={openChapterMenuId === chapterKey}
                                             data-testid={`chapter-card-${chapterKey}-menu-trigger`}
                                             onClick={(event) => handleChapterMenuToggle(event, chapter, orderIndex)}
-                                            className="rounded-full border border-zinc-700/60 bg-zinc-900/70 px-2"
+                                            className="rounded-full border px-2"
+                                            style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}
                                           >
                                             <MoreVertical className="h-4 w-4" />
                                           </Button>
                                         </div>
                                       </div>
                                     </div>
-                                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500">
+                                    <div className="noto-sans-arabic-medium flex flex-wrap items-center justify-between gap-2 text-xs" style={{ color: '#797979' }}>
                                       <span className="flex items-center gap-1">
                                         <Clock3 className="h-3.5 w-3.5" />
-                                        {timelineLabel ? formatSmart(timelineLabel) : "No timestamp"}
+                                        {timelineLabel ? formatSmart(timelineLabel) : "لا يوجد تاريخ"}
                                       </span>
                                       <div className="flex flex-wrap items-center gap-2">
-                                        <span className="rounded-full border border-zinc-800/70 px-2 py-0.5 text-[10px] uppercase tracking-[0.25em] text-zinc-500">
-                                          Seq. {sequenceNumber}
+                                        <span className="noto-sans-arabic-bold rounded-full border px-2 py-0.5 text-[10px]" style={{ borderColor: '#5A5A5A', color: '#797979' }}>
+                                          تسلسل {sequenceNumber}
                                         </span>
                                         {chapter.wordCount ? (
-                                          <span>{chapter.wordCount.toLocaleString()} words</span>
+                                          <span>{chapter.wordCount.toLocaleString()} كلمة</span>
                                         ) : null}
                                       </div>
                                     </div>
@@ -1065,19 +1195,19 @@ const EditWorkPage = () => {
                               );
                             })}
                           </ul>
-                          <div className="mt-5 flex flex-col gap-3 border-t border-zinc-800/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
-                            <p className="text-xs text-zinc-500">
+                          <div className="mt-5 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: '#5A5A5A' }}>
+                            <p className="noto-sans-arabic-medium text-xs" style={{ color: '#797979' }}>
                               {isReorderEnabled
-                                ? "Use the arrow controls to dial in pacing. Save to push the new order live."
-                                : "Reordering is disabled while filters or alternate sorting are active."}
+                                ? "استخدم أزرار الأسهم لضبط الإيقاع. احفظ لدفع الترتيب الجديد للعمل."
+                                : "إعادة الترتيب معطلة أثناء تفعيل الفلاتر أو الترتيب البديل."}
                             </p>
                             <Button
                               onClick={handleChapterOrderSave}
                               isLoading={isSavingChapters}
                               disabled={!isReorderEnabled || chapterOrder.length === 0}
-                              className="sm:w-auto"
+                              className="noto-sans-arabic-bold sm:w-auto"
                             >
-                              Save chapter order
+                              حفظ ترتيب الفصول
                             </Button>
                           </div>
                         </>
@@ -1094,8 +1224,13 @@ const EditWorkPage = () => {
         <div
           role="menu"
           data-chapter-menu
-          className="fixed z-[70] w-48 overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-950/95 shadow-[0_22px_60px_-28px_rgba(59,130,246,0.65)] backdrop-blur"
-          style={{ top: chapterMenuPosition.top, left: chapterMenuPosition.left }}
+          className="fixed z-[70] w-48 overflow-hidden rounded-xl border"
+          style={{ 
+            top: chapterMenuPosition.top, 
+            left: chapterMenuPosition.left,
+            borderColor: '#5A5A5A',
+            backgroundColor: '#3C3C3C'
+          }}
           onClick={(event) => event.stopPropagation()}
         >
           <button
@@ -1108,10 +1243,12 @@ const EditWorkPage = () => {
                 openAdvancedComposer(activeChapterForMenu.chapter.id);
               }
             }}
-            className="flex w-full items-center gap-2 px-3.5 py-2 text-sm text-zinc-200 transition hover:bg-blue-500/15 hover:text-blue-100"
+            className="noto-sans-arabic-bold flex w-full items-center gap-2 px-3.5 py-2 text-sm text-white transition"
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 119, 255, 0.15)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
             <PenSquare className="h-3.5 w-3.5" />
-            Edit chapter
+            تعديل الفصل
           </button>
           <button
             type="button"
@@ -1123,48 +1260,51 @@ const EditWorkPage = () => {
                 openChapterDeleteModal(activeChapterForMenu.chapter);
               }
             }}
-            className="flex w-full items-center gap-2 px-3.5 py-2 text-sm text-rose-200 transition hover:bg-rose-500/15 hover:text-rose-100"
+            className="noto-sans-arabic-bold flex w-full items-center gap-2 px-3.5 py-2 text-sm text-rose-400 transition"
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(244, 63, 94, 0.15)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
             <Trash2 className="h-3.5 w-3.5" />
-            Delete chapter
+            حذف الفصل
           </button>
         </div>
       ) : null}
       <Modal isOpen={Boolean(pendingChapterDelete)} onClose={() => setPendingChapterDelete(null)}>
-        <div className="space-y-6 text-zinc-100">
+        <div dir="rtl" className="space-y-6 text-white">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-rose-500/40 bg-rose-500/10 text-rose-200">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border text-rose-400" style={{ borderColor: 'rgb(244 63 94)', backgroundColor: 'rgba(244, 63, 94, 0.1)' }}>
               <Trash2 className="h-6 w-6" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-lg font-semibold">Delete {pendingChapterDelete?.title || "this chapter"}?</h3>
-              <p className="text-sm text-zinc-400">
-                This removes the chapter from your pacing view immediately. You can&apos;t undo this without re-creating the chapter.
+              <h3 className="noto-sans-arabic-extrabold text-lg">حذف {pendingChapterDelete?.title || "هذا الفصل"}؟</h3>
+              <p className="noto-sans-arabic-medium text-sm" style={{ color: '#B8B8B8' }}>
+                سيتم إزالة الفصل من قائمة الإيقاع فوراً. لا يمكنك التراجع عن هذا الإجراء دون إعادة إنشاء الفصل.
               </p>
             </div>
           </div>
-          <div className="rounded-2xl border border-zinc-800/70 bg-zinc-900/70 p-4 text-sm text-zinc-400">
-            <p className="font-medium text-zinc-300">Heads up</p>
-            <p className="mt-1">
-              Deleting won&apos;t disturb published chapters, but any readers currently in drafts won&apos;t see this entry anymore.
+          <div className="rounded-xl border p-4 text-sm" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C', color: '#B8B8B8' }}>
+            <p className="noto-sans-arabic-bold text-white">تنبيه</p>
+            <p className="noto-sans-arabic-medium mt-1">
+              الحذف لن يؤثر على الفصول المنشورة، لكن القراء الذين يتصفحون المسودات لن يروا هذا الإدخال بعد الآن.
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-            <Button variant="ghost" onClick={() => setPendingChapterDelete(null)} disabled={isDeletingChapter}>
-              Cancel
+            <Button variant="ghost" onClick={() => setPendingChapterDelete(null)} disabled={isDeletingChapter} className="noto-sans-arabic-bold">
+              إلغاء
             </Button>
             <Button
               variant="destructive"
               onClick={handleChapterDelete}
               isLoading={isDeletingChapter}
-              className="shadow-[0_14px_36px_-16px_rgba(244,63,94,0.6)]"
+              className="noto-sans-arabic-bold"
             >
-              Delete chapter
+              حذف الفصل
             </Button>
           </div>
         </div>
       </Modal>
     </div>
+    </>
   );
 };
 

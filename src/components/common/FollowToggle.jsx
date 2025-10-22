@@ -27,11 +27,12 @@ const FollowToggle = ({ isFollowed, userId }) => {
     <Button
       variant={isFollowedState ? "secondary" : "primary"}
       onClick={handleFollow}
+      className="noto-sans-arabic-bold"
     >
       {isFollowedState ? (
-        t("common.followed")
+        <span className="noto-sans-arabic-bold">{t("common.followed")}</span>
       ) : (
-        <p className="flex items-center gap-1">
+        <p className="flex items-center gap-1 noto-sans-arabic-bold">
           <span>{t("common.follow")}</span>
           <span>
             <Plus />{" "}

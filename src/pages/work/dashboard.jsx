@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
+import Header from "../../components/common/Header";
 import WorkDashboardHeader from "../../components/work/WorkDashboardHeader";
-import WorkSummary from "../../components/work/WorkSummary";
 import WorkFilters from "../../components/work/WorkFilters";
 import WorkSkeletonGrid from "../../components/work/WorkSkeletonGrid";
 import WorkEmptyState from "../../components/work/WorkEmptyState";
@@ -78,7 +78,9 @@ const WorkDashboardPage = () => {
   const lastUpdatedLabel = useMemo(() => computeLastUpdatedLabel(works), [works]);
 
   return (
-    <main className="min-h-screen bg-zinc-900 py-12 px-4 md:px-8 lg:px-16 space-y-10 text-zinc-50">
+    <>
+      <Header />
+      <main className="min-h-screen bg-[#2C2C2C] py-12 px-4 md:px-8 lg:px-16 space-y-10 text-white" dir="rtl">
       <WorkDashboardHeader
         totalWorks={works.length}
         ongoingCount={ongoingCount}
@@ -86,8 +88,6 @@ const WorkDashboardPage = () => {
         hiatusCount={hiatusCount}
         lastUpdatedLabel={lastUpdatedLabel}
       />
-
-      <WorkSummary works={works} isLoading={isPending} />
 
       <WorkFilters
         searchTerm={searchTerm}
@@ -110,8 +110,8 @@ const WorkDashboardPage = () => {
       />
 
       {error && (
-        <div className="bg-red-900/30 border border-red-700/60 rounded-2xl px-6 py-5 text-sm text-red-200">
-          Failed to load your works. Please try refreshing the page.
+        <div className="bg-red-900/30 border border-red-700/60 rounded-xl px-6 py-5 text-sm text-red-200 noto-sans-arabic-medium">
+          فشل تحميل أعمالك. يرجى تحديث الصفحة.
         </div>
       )}
 
@@ -128,6 +128,7 @@ const WorkDashboardPage = () => {
         />
       )}
     </main>
+    </>
   );
 };
 

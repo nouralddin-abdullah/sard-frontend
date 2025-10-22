@@ -45,13 +45,13 @@ const MyNovels = () => {
   // Show error state
   if (error) {
     return (
-      <section className="bg-zinc-800 p-6">
+      <section style={{ backgroundColor: '#2C2C2C' }} className="p-6">
         <div className="text-center py-12">
-          <div className="bg-red-900/20 border border-red-700 rounded-lg p-8 max-w-md mx-auto">
-            <h3 className="text-red-400 text-xl font-semibold mb-2">
+          <div className="border rounded-2xl p-8 max-w-md mx-auto" style={{ backgroundColor: '#3C3C3C', borderColor: '#5A5A5A' }}>
+            <h3 className="text-red-400 text-xl noto-sans-arabic-extrabold mb-2">
               {t("profilePage.myNovels.novelsErrorTitle")}
             </h3>
-            <p className="text-red-300 text-sm">
+            <p className="text-red-300 text-sm noto-sans-arabic-medium">
               {t("profilePage.myNovels.novelsErrorMessage")}
             </p>
           </div>
@@ -61,36 +61,33 @@ const MyNovels = () => {
   }
 
   return (
-    <section className="bg-zinc-800 min-h-screen">
+    <section style={{ backgroundColor: '#2C2C2C' }} className="min-h-screen">
       {/* Add Novel Section */}
-      <div className="p-3 border-b border-zinc-700">
-        <div className="bg-zinc-700 rounded-lg p-4 text-center">
-          <h3 className="text-white text-lg font-semibold mb-2">
-            {t("profilePage.myNovels.createNovelTitle")}
+      <div className="p-6 border-b" style={{ borderColor: '#5A5A5A' }}>
+        <div className="rounded-2xl p-8 text-center border" style={{ backgroundColor: '#3C3C3C', borderColor: '#5A5A5A' }}>
+          <h3 className="text-white text-xl noto-sans-arabic-extrabold mb-3">
+            إدارة رواياتك
           </h3>
-          <p className="text-zinc-300 text-sm mb-4">
-            {t("profilePage.myNovels.createNovelMessage")}
+          <p className="text-sm mb-6 noto-sans-arabic-medium" style={{ color: '#B8B8B8' }}>
+            للتحكم الكامل في رواياتك وتعديلها، استخدم أدوات المؤلف المخصصة
           </p>
           <Link
-            to="/novel/create"
-            className="max-w-56 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 mx-auto"
-          >
-            <Plus />
-            {t("profilePage.myNovels.addNovelButton")}
-          </Link>
-          <Link
             to="/dashboard/works"
-            className="block mt-4 text-sm text-blue-200 hover:text-blue-100 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl noto-sans-arabic-bold text-white transition-colors duration-200"
+            style={{ backgroundColor: '#0077FF' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0066DD'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0077FF'}
           >
-            {t("profilePage.myNovels.manageWorksLink")}
+            <Book className="h-5 w-5" />
+            انتقل إلى أدوات المؤلف
           </Link>
         </div>
       </div>
 
       {/* Loading state for initial load */}
       {isPending && (
-        <div className="p-3 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
+        <div className="p-6 grid gap-4 grid-cols-1 md:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, index) => (
             <NovelCardSkeleton key={index} />
           ))}
         </div>
@@ -98,15 +95,15 @@ const MyNovels = () => {
 
       {/* Empty state - only show if not loading and no novels */}
       {!isPending && novelsList.length === 0 && (
-        <div className="text-center py-12">
-          <div className="bg-zinc-700 rounded-lg p-8 max-w-md mx-auto">
-            <div className="text-zinc-400 mb-4">
+        <div className="text-center py-12 px-6">
+          <div className="rounded-2xl p-8 max-w-md mx-auto border" style={{ backgroundColor: '#3C3C3C', borderColor: '#5A5A5A' }}>
+            <div className="mb-4" style={{ color: '#797979' }}>
               <Book className="w-16 h-16 mx-auto mb-4" />
             </div>
-            <h3 className="text-white text-xl font-semibold mb-2">
+            <h3 className="text-white text-xl noto-sans-arabic-extrabold mb-3">
               {t("profilePage.myNovels.noNovelsTitle")}
             </h3>
-            <p className="text-zinc-300 text-sm mb-6">
+            <p className="text-sm noto-sans-arabic-medium" style={{ color: '#B8B8B8' }}>
               {t("profilePage.myNovels.noNovelsMessage")}
             </p>
           </div>
@@ -116,7 +113,7 @@ const MyNovels = () => {
       {/* Novels Grid */}
       {novelsList.length > 0 && (
         <>
-          <div className="p-3 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="p-6 grid gap-4 grid-cols-1 md:grid-cols-2">
             {novelsList.map((novel, index) => (
               <NovelCard key={`${novel.id || index}`} novel={novel} />
             ))}
@@ -124,10 +121,25 @@ const MyNovels = () => {
 
           {/* Loading more skeletons */}
           {isFetchingNextPage && (
-            <div className="p-3 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, index) => (
+            <div className="p-6 grid gap-4 grid-cols-1 md:grid-cols-2">
+              {Array.from({ length: 2 }).map((_, index) => (
                 <NovelCardSkeleton key={`loading-${index}`} />
               ))}
+            </div>
+          )}
+
+          {/* Load More Button - optional fallback */}
+          {hasNextPage && !isFetchingNextPage && (
+            <div className="p-6 text-center">
+              <button
+                onClick={() => fetchNextPage()}
+                className="px-6 py-3 rounded-xl noto-sans-arabic-bold text-white transition-colors duration-200"
+                style={{ backgroundColor: '#0077FF' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0066DD'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0077FF'}
+              >
+                تحميل المزيد
+              </button>
             </div>
           )}
         </>

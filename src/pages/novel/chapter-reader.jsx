@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen } from 'lucide-react';
+import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen, MessageCircle } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useGetNovelChapters } from '../../hooks/novel/useGetNovelChapters';
 import { useGetChapterById } from '../../hooks/novel/useGetChapterById';
 import { useGetNovelBySlug } from '../../hooks/novel/useGetNovelBySlug';
+import CommentPanel from '../../components/novel/CommentPanel';
 
 const ChapterReaderPage = () => {
   const { novelSlug, chapterId } = useParams();
@@ -25,6 +26,7 @@ const ChapterReaderPage = () => {
   
   const [showTOC, setShowTOC] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -247,6 +249,16 @@ const ChapterReaderPage = () => {
               pointerEvents: showMobileMenu ? 'auto' : 'none'
             }}
           >
+            <button
+              onClick={() => {
+                setShowComments(true);
+                setShowMobileMenu(false);
+              }}
+              className="p-3 rounded-xl bg-[#5A5A5A] hover:bg-[#6A6A6A] transition-colors text-white"
+              aria-label="التعليقات"
+            >
+              <MessageCircle size={20} />
+            </button>
             {/* Table of Contents Button */}
             <button
               onClick={() => {
@@ -596,6 +608,23 @@ const ChapterReaderPage = () => {
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
+
+      {/* Desktop Floating Comments Button */}
+      <button
+        onClick={() => setShowComments(true)}
+        className="md:flex fixed bottom-24 right-6 items-center justify-center w-14 h-14 bg-[#0077FF] text-white rounded-full shadow-lg hover:bg-[#0066DD] transition-all hover:scale-110 z-40"
+        aria-label="فتح التعليقات"
+      >
+        <MessageCircle size={24} />
+      </button>
+
+      {/* Comment Panel */}
+      <CommentPanel
+        isOpen={showComments}
+        onClose={() => setShowComments(false)}
+        chapterId={chapterId}
+        novelSlug={novelSlug}
+      />
     </div>
   );
 };

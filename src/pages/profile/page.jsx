@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Settings, Loader2 } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 import AboutMe from "../../components/profile/AboutMe";
 import MyNovels from "../../components/profile/MyNovels";
 import Library from "../../components/profile/Library";
@@ -7,8 +9,6 @@ import BadgesList from "../../components/profile/BadgesList";
 import Header from "../../components/common/Header";
 import mainPicture from "../../assets/mainPicture.jpg";
 import profilePicture from "../../assets/profilePicture.jpg";
-import { Settings } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
 import { useGetUserByUsername } from "../../hooks/user/useGetUserByUsername";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import UpdateUserModal from "../../components/profile/UpdateUserModal";
@@ -59,7 +59,38 @@ const ProfilePage = () => {
     setSelectedSubPage(val);
   };
 
-  if (isPending) return <>Loading..</>;
+  if (isPending) {
+    return (
+      <>
+        <Header />
+        <div className="bg-zinc-800 min-h-screen">
+          {/* Loading Banner */}
+          <div className="w-full h-80 bg-zinc-700 animate-pulse flex justify-center items-center">
+            <div className="flex justify-center items-center flex-col gap-4">
+              <div className="w-40 h-40 rounded-full bg-zinc-600 animate-pulse"></div>
+              <div className="h-8 w-48 bg-zinc-600 rounded animate-pulse"></div>
+              <div className="h-6 w-32 bg-zinc-600 rounded animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Loading Navigation */}
+          <div className="bg-neutral-800 flex justify-between items-center text-white px-6 py-3">
+            <div className="flex gap-4 md:gap-8">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-8 w-24 bg-zinc-600 rounded animate-pulse"></div>
+              ))}
+            </div>
+            <div className="h-10 w-32 bg-zinc-600 rounded animate-pulse"></div>
+          </div>
+
+          {/* Loading Content */}
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="h-12 w-12 animate-spin text-white" />
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
