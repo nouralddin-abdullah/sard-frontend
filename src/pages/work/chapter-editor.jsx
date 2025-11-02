@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   AlertCircle,
   ArrowRight,
@@ -42,14 +42,16 @@ const ChapterEditorPage = () => {
 
   const [chapterId, setChapterId] = useState(normalizedChapterId);
   const [editorState, setEditorState] = useState({ title: "", status: STATUS_OPTIONS[0].value, content: "" });
-  const [autosaveState, setAutosaveState] = useState({ status: "idle", lastSavedAt: null, error: null });
-  const [isAutosaveEnabled, setIsAutosaveEnabled] = useState(true);
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const [saveState, setSaveState] = useState({ status: "idle", lastSavedAt: null, error: null });
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
 
-  const autosaveTimerRef = useRef(null);
   const lastSavedSnapshotRef = useRef(editorState);
   const isUnmountedRef = useRef(false);
+  const location = useLocation();
+  const navigationInterceptedRef = useRef(false);
 
   const {
     data: work,
@@ -67,46 +69,124 @@ const ChapterEditorPage = () => {
   const { mutateAsync: updateChapter, isPending: isUpdatingChapter } = useUpdateChapter();
   const { mutateAsync: deleteChapter, isPending: isDeletingChapter } = useDeleteChapter();
 
-  const isSavingRemotely = autosaveState.status === "saving" || isCreatingChapter || isUpdatingChapter;
+  const isSaving = isCreatingChapter || isUpdatingChapter;
   const isNewChapter = !chapterId;
   const shouldShowBlockingLoader =
-    isWorkLoading || (isChapterFetching && !chapterData && !isNewChapter && !hasInteracted);
+    isWorkLoading || (isChapterFetching && !chapterData && !isNewChapter);
+
+  // Custom navigate wrapper that checks for unsaved changes
+  const navigateWithCheck = useCallback(
+    (to, options = {}) => {
+      if (hasUnsavedChanges && !navigationInterceptedRef.current) {
+        navigationInterceptedRef.current = true;
+        setPendingNavigation(() => () => {
+          navigationInterceptedRef.current = false;
+          navigate(to, options);
+        });
+        setShowUnsavedChangesModal(true);
+        return;
+      }
+      navigationInterceptedRef.current = false;
+      navigate(to, options);
+    },
+    [navigate, hasUnsavedChanges]
+  );
 
   const goToChaptersView = useCallback(
     (options = {}) => {
       if (!workId) return;
+      
       const { state: extraState, ...rest } = options;
-      navigate(`/dashboard/works/${workId}/edit`, {
+      navigateWithCheck(`/dashboard/works/${workId}/edit`, {
         state: { focusTab: "chapters", ...(extraState || {}) },
         ...rest,
       });
     },
-    [navigate, workId]
+    [navigateWithCheck, workId]
   );
 
   useEffect(() => {
     isUnmountedRef.current = false;
-
     return () => {
       isUnmountedRef.current = true;
-      if (autosaveTimerRef.current) {
-        clearTimeout(autosaveTimerRef.current);
-      }
     };
   }, []);
 
+  // Intercept browser back/forward navigation and link clicks
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (hasUnsavedChanges && !navigationInterceptedRef.current) {
+        // Prevent the navigation
+        event.preventDefault();
+        window.history.pushState(null, '', window.location.href);
+        
+        // Show modal with navigation to previous location
+        navigationInterceptedRef.current = true;
+        setPendingNavigation(() => () => {
+          navigationInterceptedRef.current = false;
+          window.history.back();
+        });
+        setShowUnsavedChangesModal(true);
+      }
+    };
+
+    // Intercept link clicks
+    const handleLinkClick = (event) => {
+      const target = event.target.closest('a');
+      if (!target) return;
+      
+      const href = target.getAttribute('href');
+      if (!href || href.startsWith('#') || target.getAttribute('target') === '_blank') return;
+      
+      // Check if it's an internal link (React Router)
+      if (href.startsWith('/') && hasUnsavedChanges && !navigationInterceptedRef.current) {
+        event.preventDefault();
+        navigationInterceptedRef.current = true;
+        setPendingNavigation(() => () => {
+          navigationInterceptedRef.current = false;
+          navigate(href);
+        });
+        setShowUnsavedChangesModal(true);
+      }
+    };
+
+    // Push current state to enable interception
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', handlePopState);
+    document.addEventListener('click', handleLinkClick, true);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      document.removeEventListener('click', handleLinkClick, true);
+    };
+  }, [hasUnsavedChanges, navigate]);
+
   useEffect(() => {
     if (!chapterData) return;
+    
+    // ✅ Reconstruct content from paragraphs array (backend returns paragraphs now)
+    let reconstructedContent = "";
+    if (chapterData.paragraphs && chapterData.paragraphs.length > 0) {
+      reconstructedContent = chapterData.paragraphs
+        .sort((a, b) => a.orderIndex - b.orderIndex)
+        .map((p) => p.content)
+        .join("\n\n"); // Join with double newline for paragraph separation
+    } else if (chapterData.content) {
+      // Fallback for old chapters (backward compatibility)
+      reconstructedContent = chapterData.content;
+    }
+    
     const nextState = {
       title: chapterData.title ?? "",
       status: STATUS_OPTIONS.some((option) => option.value === chapterData.status)
         ? chapterData.status
         : STATUS_OPTIONS[0].value,
-      content: chapterData.content ?? "",
+      content: reconstructedContent,
     };
     lastSavedSnapshotRef.current = nextState;
     setEditorState(nextState);
-    setAutosaveState((prev) => ({
+    setHasUnsavedChanges(false);
+    setSaveState((prev) => ({
       ...prev,
       status: "idle",
       error: null,
@@ -147,22 +227,16 @@ const ChapterEditorPage = () => {
     };
   }, [editorState.status]);
 
-  const autosaveDescription = useMemo(() => {
-    switch (autosaveState.status) {
-      case "saving":
-        return "Saving changes";
-      case "saved":
-        return autosaveState.lastSavedAt
-          ? `Saved ${formatSmart(autosaveState.lastSavedAt)}`
-          : "All changes saved";
-      case "error":
-        return autosaveState.error || "Autosave paused";
-      case "queued":
-        return "Pending changes";
-      default:
-        return "Autosave ready";
-    }
-  }, [autosaveState]);
+  // Track unsaved changes
+  useEffect(() => {
+    const snapshot = lastSavedSnapshotRef.current;
+    const hasChanges =
+      editorState.title !== snapshot.title ||
+      editorState.status !== snapshot.status ||
+      editorState.content !== snapshot.content;
+
+    setHasUnsavedChanges(hasChanges);
+  }, [editorState]);
 
   const syncSnapshotWithState = useCallback((state) => {
     lastSavedSnapshotRef.current = {
@@ -170,56 +244,34 @@ const ChapterEditorPage = () => {
       status: state.status,
       content: state.content,
     };
+    setHasUnsavedChanges(false);
   }, []);
 
-  useEffect(() => {
-    if (!hasInteracted) return;
-    if (!workId) return;
-    if (!isAutosaveEnabled) return;
-
-    const snapshot = lastSavedSnapshotRef.current;
-    const hasChanges =
-      editorState.title !== snapshot.title ||
-      editorState.content !== snapshot.content;
-
-    if (!hasChanges) return;
-
-    const payloadHasSignal = editorState.title.trim().length > 0 || editorState.content.trim().length > 0;
-    if (!payloadHasSignal && isNewChapter) return;
-
-    if (autosaveTimerRef.current) {
-      clearTimeout(autosaveTimerRef.current);
-    }
-
-    setAutosaveState((prev) => ({ ...prev, status: "queued", error: null }));
-
-    autosaveTimerRef.current = setTimeout(() => {
-      runAutosave("auto");
-    }, AUTOSAVE_DELAY);
-
-    return () => {
-      if (autosaveTimerRef.current) {
-        clearTimeout(autosaveTimerRef.current);
+  const handleSave = useCallback(
+    async () => {
+      if (!workId) return;
+      if (!hasUnsavedChanges) {
+        toast.info("لا توجد تغييرات للحفظ");
+        return;
       }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editorState.title, editorState.content, hasInteracted, workId, chapterId, isAutosaveEnabled]);
 
-  const runAutosave = useCallback(
-    async (source) => {
-    if (!workId) return;
-    const trimmedTitle = editorState.title.trim();
-    const trimmedContent = editorState.content.trim();
-    if (!trimmedTitle && !trimmedContent) return;
+      const trimmedTitle = editorState.title.trim();
+      const trimmedContent = editorState.content.trim();
+      
+      if (!trimmedTitle && !trimmedContent) {
+        toast.error("يجب إدخال عنوان أو محتوى على الأقل");
+        return;
+      }
 
-    setAutosaveState((prev) => ({ status: "saving", lastSavedAt: prev.lastSavedAt, error: null }));
+      setSaveState((prev) => ({ ...prev, status: "saving", error: null }));
 
       try {
         if (!chapterId) {
+          // Create new chapter
           const response = await createChapter({
             workId,
             payload: {
-              title: trimmedTitle || "Untitled chapter",
+              title: trimmedTitle || "فصل بدون عنوان",
               status: editorState.status,
               content: trimmedContent,
             },
@@ -232,51 +284,47 @@ const ChapterEditorPage = () => {
           if (isUnmountedRef.current) return;
 
           setChapterId(response.id);
-          syncSnapshotWithState({ ...editorState, title: trimmedTitle || "Untitled chapter", content: trimmedContent });
-          setAutosaveState({ status: "saved", lastSavedAt: new Date(), error: null });
-          navigate(`/dashboard/works/${workId}/chapters/${response.id}/edit`, { replace: true, state: { focusTab: "chapters" } });
-          toast.success("Draft saved");
+          syncSnapshotWithState({ ...editorState, title: trimmedTitle || "فصل بدون عنوان", content: trimmedContent });
+          setSaveState({ status: "saved", lastSavedAt: new Date(), error: null });
+          navigate(`/dashboard/works/${workId}/chapters/${response.id}/edit`, { replace: true });
+          toast.success("تم حفظ المسودة بنجاح");
         } else {
+          // Update existing chapter
           await updateChapter({
             workId,
             chapterId,
             payload: {
-              title: trimmedTitle || "Untitled chapter",
+              title: trimmedTitle || "فصل بدون عنوان",
               status: editorState.status,
               content: trimmedContent,
             },
           });
+          
           if (isUnmountedRef.current) return;
-          syncSnapshotWithState({ ...editorState, title: trimmedTitle || "Untitled chapter", content: trimmedContent });
-          setAutosaveState({ status: "saved", lastSavedAt: new Date(), error: null });
+          
+          syncSnapshotWithState({ ...editorState, title: trimmedTitle || "فصل بدون عنوان", content: trimmedContent });
+          setSaveState({ status: "saved", lastSavedAt: new Date(), error: null });
+          toast.success("تم حفظ التغييرات بنجاح");
         }
       } catch (error) {
         if (isUnmountedRef.current) return;
-        const message = error?.message || "Unable to save";
-        setAutosaveState((prev) => ({ ...prev, status: "error", error: message }));
-        if (source === "manual") {
-          toast.error(message);
-        }
+        const message = error?.message || "فشل الحفظ";
+        setSaveState((prev) => ({ ...prev, status: "error", error: message }));
+        toast.error(message);
       }
     },
-    [chapterId, createChapter, editorState, navigate, syncSnapshotWithState, updateChapter, workId]
+    [chapterId, createChapter, editorState, navigate, syncSnapshotWithState, updateChapter, workId, hasUnsavedChanges]
   );
 
-  const handleManualSave = async () => {
-    await runAutosave("manual");
-  };
-
   const handleFieldChange = (field, value) => {
-    setHasInteracted(true);
     setEditorState((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Warn before closing tab/window with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (event) => {
-      if (!hasInteracted) return;
-      if (autosaveState.status === "saving" || autosaveState.status === "queued" || autosaveState.status === "error") {
+      if (hasUnsavedChanges) {
         event.preventDefault();
-        // eslint-disable-next-line no-param-reassign
         event.returnValue = "";
       }
     };
@@ -285,7 +333,7 @@ const ChapterEditorPage = () => {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [autosaveState.status, hasInteracted]);
+  }, [hasUnsavedChanges]);
 
   const handleDelete = async () => {
     if (!workId || !chapterId) {
@@ -331,64 +379,51 @@ const ChapterEditorPage = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <div className="flex items-center gap-3">
-              <label className="text-white noto-sans-arabic-bold text-sm">
-                الحفظ التلقائي
-              </label>
-              <button
-                onClick={() => setIsAutosaveEnabled(!isAutosaveEnabled)}
-                className={`cursor-pointer relative w-14 h-7 rounded-full transition-colors duration-300 ease-in-out ${
-                  isAutosaveEnabled ? "bg-[#0077FF]" : "bg-[#797979]"
-                }`}
-              >
-                <span
-                  className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 ease-in-out ${
-                    isAutosaveEnabled ? "right-1" : "right-8"
-                  }`}
-                />
-              </button>
-            </div>
             <div
-              className={`noto-sans-arabic-bold inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs ${
-                autosaveState.status === "saved"
-                  ? ""
-                  : autosaveState.status === "saving"
-                  ? ""
-                  : autosaveState.status === "error"
-                  ? ""
-                  : ""
-              }`}
+              className="noto-sans-arabic-bold inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs"
               style={
-                autosaveState.status === "saved"
+                hasUnsavedChanges
+                  ? { borderColor: '#FF4444', backgroundColor: 'rgba(255, 68, 68, 0.1)', color: '#FF4444' }
+                  : saveState.lastSavedAt
                   ? { borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }
-                  : autosaveState.status === "saving"
-                  ? { borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }
-                  : autosaveState.status === "error"
-                  ? { borderColor: 'rgb(244 63 94)', backgroundColor: 'rgba(244, 63, 94, 0.1)', color: 'rgb(248 113 113)' }
                   : { borderColor: '#5A5A5A', backgroundColor: '#3C3C3C', color: '#B8B8B8' }
               }
-              data-testid="autosave-status"
+              data-testid="save-status"
             >
-              {autosaveState.status === "saving" ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : autosaveState.status === "saved" ? (
-                <BadgeCheck className="h-3.5 w-3.5" />
-              ) : autosaveState.status === "error" ? (
+              {hasUnsavedChanges ? (
                 <AlertCircle className="h-3.5 w-3.5" />
+              ) : saveState.lastSavedAt ? (
+                <CheckCircle2 className="h-3.5 w-3.5" />
               ) : (
-                <Clock3 className="h-3.5 w-3.5" />
+                <PenSquare className="h-3.5 w-3.5" />
               )}
-              <span>{autosaveState.status === "saving" ? "جاري الحفظ" : autosaveState.status === "saved" ? (autosaveState.lastSavedAt ? `تم الحفظ ${formatSmart(autosaveState.lastSavedAt)}` : "تم حفظ جميع التغييرات") : autosaveState.status === "error" ? (autosaveState.error || "الحفظ التلقائي متوقف") : "الحفظ التلقائي جاهز"}</span>
+              <span>
+                {hasUnsavedChanges 
+                  ? "تغييرات غير محفوظة" 
+                  : saveState.lastSavedAt 
+                    ? `آخر حفظ ${formatSmart(saveState.lastSavedAt)}` 
+                    : "لا توجد تغييرات"
+                }
+              </span>
             </div>
             <Button
               variant="primary"
               size="sm"
-              onClick={handleManualSave}
-              disabled={isSavingRemotely}
+              onClick={handleSave}
+              disabled={isSaving || !hasUnsavedChanges}
               className="noto-sans-arabic-bold"
             >
-              <Pencil className="ml-2 h-4 w-4" />
-              احفظ الآن
+              {isSaving ? (
+                <>
+                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                  جاري الحفظ...
+                </>
+              ) : (
+                <>
+                  <Pencil className="ml-2 h-4 w-4" />
+                  احفظ التغييرات
+                </>
+              )}
             </Button>
           </div>
         </header>
@@ -542,19 +577,19 @@ const ChapterEditorPage = () => {
 
                 <div className="noto-sans-arabic-medium flex flex-col gap-3 rounded-xl border p-6 text-sm md:flex-row md:items-center md:justify-between" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C', color: '#B8B8B8' }}>
                   <div className="flex items-center gap-3 text-white">
-                    {autosaveState.status === "saved" ? (
+                    {hasUnsavedChanges ? (
+                      <AlertCircle className="h-5 w-5" style={{ color: '#FF4444' }} />
+                    ) : saveState.lastSavedAt ? (
                       <CheckCircle2 className="h-5 w-5" style={{ color: '#0077FF' }} />
-                    ) : autosaveState.status === "error" ? (
-                      <AlertCircle className="h-5 w-5 text-red-400" />
                     ) : (
                       <PenSquare className="h-5 w-5" style={{ color: '#0077FF' }} />
                     )}
                     <span>
-                      {autosaveState.status === "saved"
+                      {hasUnsavedChanges
+                        ? "لديك تغييرات غير محفوظة. تذكر أن تضغط زر الحفظ قبل المغادرة."
+                        : saveState.lastSavedAt
                         ? "تمت مزامنة المسودة. يمكنك إغلاق التبويب بثقة."
-                        : autosaveState.status === "error"
-                        ? "الحفظ التلقائي متوقف. احفظ يدوياً أو أعد المحاولة بعد لحظات."
-                        : "تتم كتابتك بالحفظ التلقائي كل ثانيتين أثناء الكتابة."}
+                        : "اضغط زر الحفظ بعد إجراء التغييرات للاحتفاظ بعملك."}
                     </span>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -575,6 +610,7 @@ const ChapterEditorPage = () => {
         </main>
       </div>
 
+      {/* Delete Modal */}
       <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
         <div dir="rtl" className="space-y-6 text-white">
           <div className="flex items-center gap-4">
@@ -599,6 +635,72 @@ const ChapterEditorPage = () => {
               حذف الفصل
             </Button>
             <Button variant="ghost" onClick={() => setShowDeleteModal(false)} disabled={isDeletingChapter} className="noto-sans-arabic-bold">
+              إلغاء
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Unsaved Changes Modal */}
+      <Modal isOpen={showUnsavedChangesModal} onClose={() => setShowUnsavedChangesModal(false)}>
+        <div dir="rtl" className="space-y-6 text-white">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border" style={{ borderColor: '#FF4444', backgroundColor: 'rgba(255, 68, 68, 0.1)', color: '#FF4444' }}>
+              <AlertCircle className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="noto-sans-arabic-extrabold text-lg">تغييرات غير محفوظة</h3>
+              <p className="noto-sans-arabic-medium text-sm" style={{ color: '#B8B8B8' }}>
+                لديك تغييرات لم يتم حفظها. ماذا تريد أن تفعل؟
+              </p>
+            </div>
+          </div>
+          <div className="space-y-2 rounded-xl border p-4 text-sm" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C', color: '#B8B8B8' }}>
+            <p className="noto-sans-arabic-medium">
+              إذا غادرت الآن، ستفقد جميع التغييرات التي لم يتم حفظها منذ آخر عملية حفظ.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row-reverse sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row-reverse">
+              <Button 
+                variant="primary" 
+                onClick={async () => {
+                  await handleSave();
+                  if (pendingNavigation) {
+                    pendingNavigation();
+                  }
+                  setShowUnsavedChangesModal(false);
+                  setPendingNavigation(null);
+                }}
+                isLoading={isSaving}
+                className="noto-sans-arabic-bold"
+              >
+                احفظ ثم غادر
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => {
+                  if (pendingNavigation) {
+                    pendingNavigation();
+                  }
+                  setShowUnsavedChangesModal(false);
+                  setPendingNavigation(null);
+                }}
+                disabled={isSaving}
+                className="noto-sans-arabic-bold"
+              >
+                غادر بدون حفظ
+              </Button>
+            </div>
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setShowUnsavedChangesModal(false);
+                setPendingNavigation(null);
+              }}
+              disabled={isSaving}
+              className="noto-sans-arabic-bold"
+            >
               إلغاء
             </Button>
           </div>

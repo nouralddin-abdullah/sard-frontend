@@ -1,5 +1,6 @@
 import "./App.css";
 import AppRouter from "./components/common/AppRouter";
+import ScrollToTop from "./components/common/ScrollToTop";
 
 function App() {
   document.dir =
@@ -10,6 +11,7 @@ function App() {
 
   return (
     <>
+      <ScrollToTop />
       <AppRouter />
     </>
   );

@@ -6,6 +6,7 @@ import { useGetNovelChapters } from '../../hooks/novel/useGetNovelChapters';
 import { useGetChapterById } from '../../hooks/novel/useGetChapterById';
 import { useGetNovelBySlug } from '../../hooks/novel/useGetNovelBySlug';
 import CommentPanel from '../../components/novel/CommentPanel';
+import ChapterParagraph from '../../components/novel/ChapterParagraph';
 
 const ChapterReaderPage = () => {
   const { novelSlug, chapterId } = useParams();
@@ -27,6 +28,7 @@ const ChapterReaderPage = () => {
   const [showTOC, setShowTOC] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [commentContext, setCommentContext] = useState({ type: "chapter", targetId: null, preview: null });
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -123,6 +125,15 @@ const ChapterReaderPage = () => {
     navigate('/login');
   };
 
+  const handleParagraphClick = (paragraph) => {
+    setCommentContext({
+      type: "paragraph",
+      targetId: paragraph.id,
+      preview: paragraph.content.substring(0, 100) + (paragraph.content.length > 100 ? '...' : '')
+    });
+    setShowComments(true);
+  };
+
   const showDefaultIcon = !currentUser || !currentUser.profilePhoto || imageError;
 
   // Helper function to truncate title to max 10 words
@@ -188,7 +199,7 @@ const ChapterReaderPage = () => {
 
             {/* Dropdown Menu */}
             {isDropdownOpen && currentUser && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-[#3C3C3C] rounded-xl shadow-lg overflow-hidden z-50">
+              <div className="absolute top-full right-0 mt-2 w-48 bg-[#3C3C3C] rounded-xl shadow-lg overflow-hidden z-50">
                 <Link
                   to={`/profile/${currentUser.userName}`}
                   onClick={() => setIsDropdownOpen(false)}
@@ -251,13 +262,18 @@ const ChapterReaderPage = () => {
           >
             <button
               onClick={() => {
-                setShowComments(true);
+                setShowComments(!showComments);
                 setShowMobileMenu(false);
               }}
-              className="p-3 rounded-xl bg-[#5A5A5A] hover:bg-[#6A6A6A] transition-colors text-white"
+              className="p-3 rounded-xl bg-[#5A5A5A] hover:bg-[#6A6A6A] transition-colors text-white relative"
               aria-label="التعليقات"
             >
               <MessageCircle size={20} />
+              {chapter?.commentsCount > 0 && (
+                <span className="absolute -top-1 -left-1 bg-[#0077FF] text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center px-1 noto-sans-arabic-bold">
+                  {chapter.commentsCount > 99 ? '99+' : chapter.commentsCount}
+                </span>
+              )}
             </button>
             {/* Table of Contents Button */}
             <button
@@ -548,7 +564,7 @@ const ChapterReaderPage = () => {
             </button>
           </div>
         ) : chapter ? (
-          <div className="max-w-[800px] mx-auto">
+          <div className="max-w-[800px] mx-auto flex flex-col min-h-[calc(100vh-120px)]">
             {/* Chapter Title */}
             <h1 
               className="noto-sans-arabic-extrabold mb-8 text-center"
@@ -561,19 +577,41 @@ const ChapterReaderPage = () => {
               {chapter.title}
             </h1>
 
-            {/* Chapter Content */}
-            <div 
-              className="leading-[2] whitespace-pre-line"
-              style={{ 
-                color: currentTheme.text,
-                fontSize: `${fontSize}px`
-              }}
-            >
-              {chapter.content}
+            {/* Chapter Content - Takes available space */}
+            <div className="space-y-2 flex-grow">
+              {chapter.paragraphs && chapter.paragraphs.length > 0 ? (
+                // New format: Display paragraphs with inline comments
+                chapter.paragraphs.map((paragraph) => (
+                  <ChapterParagraph
+                    key={paragraph.id}
+                    paragraph={paragraph}
+                    onCommentClick={handleParagraphClick}
+                    theme={theme}
+                    fontSize={fontSize}
+                  />
+                ))
+              ) : chapter.content ? (
+                // Legacy format: Display old content as-is
+                <div 
+                  className="leading-[2] whitespace-pre-line py-4 px-4 md:px-6"
+                  style={{ 
+                    color: currentTheme.text,
+                    fontSize: `${fontSize}px`
+                  }}
+                >
+                  {chapter.content}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p style={{ color: currentTheme.secondary }} className="noto-sans-arabic-medium">
+                    لا يوجد محتوى لهذا الفصل بعد
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between items-center mt-12 pt-8 border-t" style={{ borderColor: theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8' }}>
+            {/* Navigation Buttons - Always at bottom */}
+            <div className="flex justify-between items-center mt-auto pt-8 pb-4 border-t" style={{ borderColor: theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8' }}>
               {prevChapterId ? (
                 <button 
                   onClick={() => navigate(`/novel/${novelSlug}/chapter/${prevChapterId}`)}
@@ -610,20 +648,36 @@ const ChapterReaderPage = () => {
       </div>
 
       {/* Desktop Floating Comments Button */}
-      <button
-        onClick={() => setShowComments(true)}
-        className="md:flex fixed bottom-24 right-6 items-center justify-center w-14 h-14 bg-[#0077FF] text-white rounded-full shadow-lg hover:bg-[#0066DD] transition-all hover:scale-110 z-40"
-        aria-label="فتح التعليقات"
-      >
-        <MessageCircle size={24} />
-      </button>
+      <div className="hidden md:block fixed bottom-24 right-6 z-40">
+        <button
+          onClick={() => {
+            setCommentContext({ type: "chapter", targetId: chapterId, preview: null });
+            setShowComments(true);
+          }}
+          className="relative flex items-center justify-center w-14 h-14 bg-[#0077FF] text-white rounded-full shadow-lg hover:bg-[#0066DD] transition-all hover:scale-110"
+          aria-label="فتح التعليقات"
+        >
+          <MessageCircle size={24} />
+          {chapter?.commentsCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-[#FF4444] text-white text-xs rounded-full min-w-6 h-6 flex items-center justify-center px-1.5 noto-sans-arabic-bold shadow-lg">
+              {chapter.commentsCount > 99 ? '99+' : chapter.commentsCount}
+            </span>
+          )}
+        </button>
+      </div>
 
-      {/* Comment Panel */}
+      {/* Unified Comment Panel (handles both chapter and paragraph comments) */}
       <CommentPanel
         isOpen={showComments}
-        onClose={() => setShowComments(false)}
+        onClose={() => {
+          setShowComments(false);
+          setCommentContext({ type: "chapter", targetId: null, preview: null });
+        }}
         chapterId={chapterId}
         novelSlug={novelSlug}
+        commentType={commentContext.type}
+        targetId={commentContext.targetId || chapterId}
+        paragraphPreview={commentContext.preview}
       />
     </div>
   );

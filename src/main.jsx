@@ -18,7 +18,42 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <I18nextProvider i18n={i18n}>
         <QueryClientProvider client={queryClient}>
-          <Toaster />
+          <Toaster 
+            position="bottom-right"
+            dir="rtl"
+            toastOptions={{
+              style: {
+                background: '#2C2C2C',
+                color: '#FFFFFF',
+                border: '1px solid #5A5A5A',
+              },
+              className: 'noto-sans-arabic-medium',
+              success: {
+                style: {
+                  background: '#2C2C2C',
+                  color: '#FFFFFF',
+                  border: '1px solid #0077FF',
+                },
+                className: 'noto-sans-arabic-medium',
+                iconTheme: {
+                  primary: '#0077FF',
+                  secondary: '#FFFFFF',
+                },
+              },
+              error: {
+                style: {
+                  background: '#2C2C2C',
+                  color: '#FFFFFF',
+                  border: '1px solid #FF4444',
+                },
+                className: 'noto-sans-arabic-medium',
+                iconTheme: {
+                  primary: '#FF4444',
+                  secondary: '#FFFFFF',
+                },
+              },
+            }}
+          />
           <App />
         </QueryClientProvider>
       </I18nextProvider>

@@ -3,25 +3,31 @@
  * Handles ISO datetime strings like: 2025-08-03T17:12:14.7334858
  */
 
+// Helper function to ensure UTC date strings are properly formatted
+const ensureUTC = (dateString) => {
+  if (!dateString || typeof dateString !== 'string') return dateString;
+  return dateString.endsWith('Z') ? dateString : dateString + 'Z';
+};
+
 // Basic formatting functions
 export const formatDate = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   return date.toLocaleDateString();
 };
 
 export const formatTime = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   return date.toLocaleTimeString();
 };
 
 export const formatDateTime = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   return date.toLocaleString();
 };
 
 // Specific format functions
 export const formatDateShort = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -30,7 +36,7 @@ export const formatDateShort = (dateString) => {
 };
 
 export const formatDateLong = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   return date.toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
@@ -40,7 +46,7 @@ export const formatDateLong = (dateString) => {
 };
 
 export const formatTime12Hour = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   return date.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -49,7 +55,7 @@ export const formatTime12Hour = (dateString) => {
 };
 
 export const formatTime24Hour = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   return date.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -59,7 +65,9 @@ export const formatTime24Hour = (dateString) => {
 
 // Relative time functions
 export const getTimeAgo = (dateString) => {
-  const date = new Date(dateString);
+  // Backend stores dates as UTC without 'Z' suffix, so we need to append it
+  const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+  const date = new Date(utcDateString);
   const now = new Date();
   const diffMs = now - date;
   const diffSecs = Math.floor(diffMs / 1000);
@@ -72,17 +80,17 @@ export const getTimeAgo = (dateString) => {
   if (diffHours < 24) return `${diffHours}h ago`;
   if (diffDays < 7) return `${diffDays}d ago`;
 
-  return formatDateShort(dateString);
+  return formatDateShort(utcDateString);
 };
 
 export const isToday = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   const today = new Date();
   return date.toDateString() === today.toDateString();
 };
 
 export const isYesterday = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   return date.toDateString() === yesterday.toDateString();
@@ -90,22 +98,24 @@ export const isYesterday = (dateString) => {
 
 // Custom format functions
 export const formatCustom = (dateString, options = {}) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   return date.toLocaleDateString("en-US", options);
 };
 
 export const formatDateOnly = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   return date.toISOString().split("T")[0]; // Returns YYYY-MM-DD
 };
 
 export const formatForInput = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   return date.toISOString().slice(0, 16); // Returns YYYY-MM-DDTHH:mm for datetime-local input
 };
 
 // Smart formatting based on context
 export const formatSmart = (dateString) => {
+  if (!dateString) return "N/A";
+  
   if (isToday(dateString)) {
     return `Today at ${formatTime12Hour(dateString)}`;
   }
@@ -113,7 +123,7 @@ export const formatSmart = (dateString) => {
     return `Yesterday at ${formatTime12Hour(dateString)}`;
   }
 
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   const now = new Date();
   const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
 
@@ -131,7 +141,7 @@ export const formatSmart = (dateString) => {
 
 // Utility functions
 export const isValidDate = (dateString) => {
-  const date = new Date(dateString);
+  const date = new Date(ensureUTC(dateString));
   return !isNaN(date.getTime());
 };
 

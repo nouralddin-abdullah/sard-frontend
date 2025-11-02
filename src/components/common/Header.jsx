@@ -215,7 +215,7 @@ const Header = () => {
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute top-full right-0 mt-2 w-44 bg-[#3C3C3C] rounded-lg shadow-lg overflow-hidden z-50">
+              <div className="absolute top-full left-0 mt-2 w-44 bg-[#3C3C3C] rounded-lg shadow-lg overflow-hidden z-50">
                 {currentUser ? (
                   // Logged in: Show Profile and Logout
                   <>
