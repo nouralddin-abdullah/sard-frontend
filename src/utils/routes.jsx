@@ -60,6 +60,10 @@ const routes = [
     component: <ReadingListPage />,
   },
   {
+    url: "/reading-list/:listId",
+    component: <ReadingListPage />,
+  },
+  {
     url: "/novel/:novelSlug",
     component: <NovelPage />,
   },

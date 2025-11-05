@@ -13,6 +13,7 @@ import Header from "../../components/common/Header";
 import Button from "../../components/ui/button";
 import ReviewModal from "../../components/novel/ReviewModal";
 import AuthRequiredModal from "../../components/common/AuthRequiredModal";
+import AddNovelToReadingListModal from "../../components/novel/AddNovelToReadingListModal";
 import { useGetReviews } from "../../hooks/novel/useGetReviews";
 import { useLikeReview } from "../../hooks/novel/useLikeReview";
 import { useUnlikeReview } from "../../hooks/novel/useUnlikeReview";
@@ -38,6 +39,7 @@ const NovelPage = () => {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalAction, setAuthModalAction] = useState("لتنفيذ هذا الإجراء");
+  const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
 
   // Reviews pagination and sorting
   const [reviewsPage, setReviewsPage] = useState(1);
@@ -625,7 +627,17 @@ const NovelPage = () => {
             <div className="flex flex-col gap-[30px] md:order-2">
               {/* Action Buttons */}
               <div className="flex flex-col gap-2 bg-[#3C3C3C] px-[25px] rounded-2xl p-[10px] shadow-[0px_4px_4px_rgba(0,0,0,0.25)]">
-                <div className="flex items-center gap-[10px] text-white text-[19px] md:text-[20px] noto-sans-arabic-extrabold py-2 cursor-pointer hover:opacity-80">
+                <div 
+                  onClick={() => {
+                    if (!currentUser) {
+                      setAuthModalAction("لإضافة رواية إلى قائمة القراءة");
+                      setIsAuthModalOpen(true);
+                    } else {
+                      setIsAddToListModalOpen(true);
+                    }
+                  }}
+                  className="flex items-center gap-[10px] text-white text-[19px] md:text-[20px] noto-sans-arabic-extrabold py-2 cursor-pointer hover:opacity-80"
+                >
                   <svg
                     className="w-[30px] h-[30px] flex-shrink-0"
                     width="47"
@@ -744,6 +756,14 @@ const NovelPage = () => {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         action={authModalAction}
+      />
+
+      {/* Add to Reading List Modal */}
+      <AddNovelToReadingListModal
+        isOpen={isAddToListModalOpen}
+        onClose={() => setIsAddToListModalOpen(false)}
+        novelId={novel?.id}
+        novelTitle={novel?.title}
       />
     </>
   );

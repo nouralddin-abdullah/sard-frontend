@@ -1,46 +1,66 @@
-import React, { useState, useEffect } from "react";
-import { X, Loader2 } from "lucide-react";
-import { useCreateReadingList } from "../../hooks/reading-list/useCreateReadingList";
-import { toast } from "sonner";
+import React, { useState, useEffect, useMemo } from "react";
+import { X } from "lucide-react";
+import { useUpdateReadingList } from "../../hooks/reading-list/useUpdateReadingList";
 
-const CreateReadingListModal = ({ isOpen, onClose }) => {
+const UpdateReadingListModal = ({ isOpen, onClose, readingList }) => {
   const [listName, setListName] = useState("");
   const [description, setDescription] = useState("");
   const [privacy, setPrivacy] = useState("public"); // 'public' or 'private'
   const [coverImage, setCoverImage] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
 
-  const createMutation = useCreateReadingList();
+  const updateMutation = useUpdateReadingList();
 
-  // Reset form when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setListName("");
-      setDescription("");
-      setPrivacy("public");
-      setCoverImage(null);
-      setCoverPreview(null);
+  // Store original values for comparison
+  const originalValues = useMemo(() => {
+    if (readingList) {
+      return {
+        name: readingList.name || "",
+        description: readingList.description || "",
+        isPublic: readingList.isPublic,
+        coverImageUrl: readingList.coverImageUrl || null,
+      };
     }
-  }, [isOpen]);
+    return null;
+  }, [readingList]);
 
-  if (!isOpen) return null;
+  // Initialize form with existing data when modal opens
+  useEffect(() => {
+    if (isOpen && readingList) {
+      setListName(readingList.name || "");
+      setDescription(readingList.description || "");
+      setPrivacy(readingList.isPublic ? "public" : "private");
+      setCoverPreview(readingList.coverImageUrl || null);
+      setCoverImage(null); // Reset file input
+    }
+  }, [isOpen, readingList]);
+
+  if (!isOpen || !readingList || !originalValues) return null;
+
+  // Check if any changes were made
+  const hasChanges = () => {
+    if (!originalValues) return false;
+    
+    const nameChanged = listName.trim() !== originalValues.name;
+    const descriptionChanged = description.trim() !== originalValues.description;
+    const privacyChanged = (privacy === "public") !== originalValues.isPublic;
+    const imageChanged = coverImage !== null;
+    
+    console.log("Change Detection:", {
+      nameChanged,
+      descriptionChanged,
+      privacyChanged,
+      imageChanged,
+      current: { name: listName.trim(), description: description.trim(), privacy },
+      original: originalValues
+    });
+    
+    return nameChanged || descriptionChanged || privacyChanged || imageChanged;
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
-        return;
-      }
-
-      // Validate file type
-      const validTypes = ["image/jpeg", "image/png", "image/webp"];
-      if (!validTypes.includes(file.type)) {
-        toast.error("نوع الملف يجب أن يكون JPEG أو PNG أو WebP");
-        return;
-      }
-
       setCoverImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -50,44 +70,30 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleSubmit = () => {
-    if (!listName.trim()) {
-      toast.error("الرجاء إدخال اسم القائمة");
-      return;
-    }
-
-    if (listName.trim().length > 100) {
-      toast.error("اسم القائمة يجب أن يكون أقل من 100 حرف");
-      return;
-    }
-
-    if (description && description.length > 1000) {
-      toast.error("الوصف يجب أن يكون أقل من 1000 حرف");
-      return;
-    }
-
-    createMutation.mutate(
+  const handleSubmit = async () => {
+    updateMutation.mutate(
       {
+        readingListId: readingList.id,
         name: listName.trim(),
-        description: description.trim() || undefined,
+        description: description.trim(),
         isPublic: privacy === "public",
         coverImage: coverImage,
       },
       {
         onSuccess: () => {
-          toast.success("تم إنشاء القائمة بنجاح");
           onClose();
-        },
-        onError: (error) => {
-          const errorMessage = error.response?.data?.message;
-          if (errorMessage?.toLowerCase().includes("duplicate")) {
-            toast.error("لديك قائمة بنفس الاسم بالفعل");
-          } else {
-            toast.error("حدث خطأ أثناء إنشاء القائمة");
-          }
         },
       }
     );
+  };
+
+  const handleClose = () => {
+    setListName("");
+    setDescription("");
+    setPrivacy("public");
+    setCoverImage(null);
+    setCoverPreview(null);
+    onClose();
   };
 
   return (
@@ -95,18 +101,19 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
       <div className="bg-[#3A3A3A] rounded-2xl w-full max-w-xl p-6 relative">
         {/* Close button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 left-4 text-white hover:text-[#4A9EFF] transition-colors duration-300"
+          disabled={updateMutation.isPending}
         >
           <X className="w-6 h-6" />
         </button>
 
         {/* Title */}
         <h2 className="text-2xl font-bold text-white text-center mb-6 noto-sans-arabic-extrabold">
-          إنشاء قائمة قراءة جديدة
+          تعديل قائمة القراءة
         </h2>
 
-        {/* Cover Image Upload */}
+        {/* Cover Image Upload - Matching CreateReadingListModal */}
         <div className="flex flex-col items-center mb-6">
           <div className="w-[160px] aspect-[3/4] rounded-xl overflow-hidden bg-[#4A4A4A] flex items-center justify-center mb-3" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
             {coverPreview ? (
@@ -118,6 +125,7 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
                   accept="image/*"
                   onChange={handleImageChange}
                   className="hidden"
+                  disabled={updateMutation.isPending}
                 />
                 <span className="text-[#686868] text-center noto-sans-arabic-medium">
                   انقر لتحميل صورة الغلاف
@@ -132,6 +140,7 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
                 accept="image/*"
                 onChange={handleImageChange}
                 className="hidden"
+                disabled={updateMutation.isPending}
               />
               تغيير الصورة
             </label>
@@ -139,21 +148,21 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* List Name Input */}
-        <div className="mb-4">
+        <div className="mb-5">
           <label className="block text-white text-right mb-2 noto-sans-arabic-medium text-sm">
-            اسم قائمة القراءة <span className="text-red-400">*</span>
+            اسم قائمة القراءة
           </label>
           <input
             type="text"
             value={listName}
             onChange={(e) => setListName(e.target.value)}
-            placeholder="اسم القائمة الجديدة"
-            maxLength={100}
+            placeholder="اسم القائمة"
             className="w-full bg-[#5A5A5A] text-white rounded-lg px-4 py-2.5 text-right noto-sans-arabic-medium placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]"
+            disabled={updateMutation.isPending}
           />
         </div>
 
-        {/* Description Input (Optional) */}
+        {/* Description Input */}
         <div className="mb-5">
           <label className="block text-white text-right mb-2 noto-sans-arabic-medium text-sm">
             الوصف (اختياري)
@@ -161,17 +170,14 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="وصف مختصر للقائمة"
-            maxLength={1000}
+            placeholder="وصف القائمة"
             rows={3}
             className="w-full bg-[#5A5A5A] text-white rounded-lg px-4 py-2.5 text-right noto-sans-arabic-medium placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] resize-none"
+            disabled={updateMutation.isPending}
           />
-          <p className="text-[#888888] text-xs text-right mt-1 noto-sans-arabic-regular">
-            {description.length}/1000
-          </p>
         </div>
 
-        {/* Privacy Setting and Warning in same row */}
+        {/* Privacy Setting and Warning in same row - Matching CreateReadingListModal */}
         <div className="mb-6 flex gap-4">
           {/* Privacy Dropdown */}
           <div className="flex-shrink-0">
@@ -181,6 +187,7 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
             <select
               value={privacy}
               onChange={(e) => setPrivacy(e.target.value)}
+              disabled={updateMutation.isPending}
               className="bg-[#5A5A5A] text-white rounded-lg px-5 py-2.5 text-right noto-sans-arabic-medium focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] cursor-pointer appearance-none min-w-[140px]"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")`,
@@ -209,21 +216,21 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
         {/* Submit Button */}
         <button
           onClick={handleSubmit}
-          disabled={!listName.trim() || createMutation.isPending}
-          className="w-full bg-[#4A9EFF] hover:bg-[#3A8EEF] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed text-white py-2.5 rounded-lg transition-colors duration-300 noto-sans-arabic-medium text-base flex items-center justify-center gap-2"
+          disabled={!listName.trim() || !hasChanges() || updateMutation.isPending}
+          className="w-full bg-[#4A9EFF] hover:bg-[#3A8EEF] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed text-white py-2.5 rounded-lg transition-colors duration-300 noto-sans-arabic-medium text-base"
         >
-          {createMutation.isPending ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>جاري الإنشاء...</span>
-            </>
-          ) : (
-            "إنشاء القائمة"
-          )}
+          {updateMutation.isPending ? "جاري الحفظ..." : "حفظ التغييرات"}
         </button>
+
+        {/* No changes message */}
+        {!hasChanges() && listName.trim() && (
+          <p className="text-[#686868] text-sm noto-sans-arabic-medium text-center mt-3">
+            لم يتم إجراء أي تغييرات
+          </p>
+        )}
       </div>
     </div>
   );
 };
 
-export default CreateReadingListModal;
+export default UpdateReadingListModal;
