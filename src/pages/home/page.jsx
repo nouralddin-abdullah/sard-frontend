@@ -5,11 +5,19 @@ import { Navigation, Pagination, Autoplay, EffectCoverflow, EffectCards } from "
 import { TrendingUp, Clock, Eye, Star, Sparkles, Crown, BookOpen } from "lucide-react";
 import ProtectedRoute from "../../components/auth/protected-route";
 import Header from "../../components/common/Header";
+import AddNovelToReadingListModal from "../../components/novel/AddNovelToReadingListModal";
+import AuthRequiredModal from "../../components/common/AuthRequiredModal";
+import GenreShowcase from "../../components/home/GenreShowcase";
+import GenreBadge from "../../components/common/GenreBadge";
 import { useGetRankings } from "../../hooks/novel/useGetRankings";
 import { useGetGenreRankings } from "../../hooks/novel/useGetGenreRankings";
+import { useGetReadingHistory } from "../../hooks/novel/useGetReadingHistory";
+import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import { getRandomGenreSections, RANKING_TITLES } from "../../utils/genreSections";
 import { formatViews } from "../../utils/format-views";
 import { translateGenre } from "../../utils/translate-genre";
+import Cookies from "js-cookie";
+import { TOKEN_KEY } from "../../constants/token-key";
 
 // Import Swiper styles
 import "swiper/css";
@@ -329,9 +337,18 @@ const placeholderData = {
 const HomePage = () => {
   const [mounted, setMounted] = useState(false);
   const [selectedArrival, setSelectedArrival] = useState(null);
+  const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
+  const [selectedNovelForList, setSelectedNovelForList] = useState(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalAction, setAuthModalAction] = useState("");
+
+  // Get current user and reading history
+  const token = Cookies.get(TOKEN_KEY);
+  const { data: currentUser } = useGetLoggedInUser();
+  const { data: readingHistoryData } = useGetReadingHistory(1, 6); // Get first 6 novels
 
   // Fetch rankings from API
-  const { data: trendingData, isLoading: trendingLoading } = useGetRankings("Trending", 5);
+  const { data: trendingData, isLoading: trendingLoading } = useGetRankings("Trending", 16);
   const { data: newArrivalsData, isLoading: newArrivalsLoading } = useGetRankings("NewArrivals", 8);
 
   // Get random genre sections (cached for 15 minutes)
@@ -396,7 +413,6 @@ const HomePage = () => {
             <Swiper
               modules={[Navigation, Pagination, EffectCoverflow]}
               effect="coverflow"
-              grabCursor={true}
               centeredSlides={true}
               slidesPerView="auto"
               initialSlide={2}
@@ -416,8 +432,8 @@ const HomePage = () => {
             >
               {placeholderData.topGreatestNovels.map((novel) => (
                 <SwiperSlide key={novel.id} className="!w-[280px] sm:!w-[320px] md:!w-[400px]">
-                  <Link to={`/novel/${novel.slug}`}>
-                    <div className="group relative bg-[#2C2C2C] rounded-3xl overflow-hidden border border-gray-700 hover:border-[#4A9EFF] transition-all duration-500 shadow-2xl hover:shadow-blue-500/20 transform hover:scale-105">
+                  <Link to={`/novel/${novel.slug}`} className="block">
+                    <div className="group relative bg-[#2C2C2C] rounded-3xl overflow-hidden border border-gray-700 hover:border-[#4A9EFF] transition-all duration-500 shadow-2xl hover:shadow-blue-500/20 transform hover:scale-105 cursor-pointer">
                       <div className="aspect-[3/4] relative overflow-hidden rounded-t-3xl">
                         <img
                           src={novel.coverImage}
@@ -451,11 +467,16 @@ const HomePage = () => {
                           </span>
                         </div>
                         
-                        <Link to={`/author/${novel.authorSlug}`} className="block">
-                          <p className="text-gray-400 noto-sans-arabic-medium hover:text-[#4A9EFF] transition-colors">
-                            بواسطة: {novel.author}
-                          </p>
-                        </Link>
+                        <p 
+                          className="text-gray-400 noto-sans-arabic-medium hover:text-[#4A9EFF] transition-colors cursor-pointer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            window.location.href = `/author/${novel.authorSlug}`;
+                          }}
+                        >
+                          بواسطة: {novel.author}
+                        </p>
 
                         <p className="text-gray-300 noto-sans-arabic-regular text-sm line-clamp-2 whitespace-pre-line">
                           {novel.summary && novel.summary.length > 100 
@@ -484,10 +505,10 @@ const HomePage = () => {
             </Swiper>
           </section>
 
-          {/* Trending Now - Cards Effect */}
+          {/* Trending Now - Grid Cards */}
           <section>
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-[#4A9EFF] rounded-xl flex items-center justify-center shadow-lg animate-pulse">
+              <div className="w-12 h-12 bg-[#4A9EFF] rounded-xl flex items-center justify-center shadow-lg">
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -497,76 +518,94 @@ const HomePage = () => {
             </div>
 
             {trendingLoading ? (
-              <div className="flex justify-center items-center h-[550px]">
+              <div className="flex justify-center items-center h-64">
                 <div className="text-white text-xl noto-sans-arabic-medium">جاري التحميل...</div>
               </div>
             ) : (
-              <div className="flex justify-center overflow-hidden">
-                <Swiper
-                  modules={[Navigation, Pagination, EffectCards, Autoplay]}
-                  effect="cards"
-                  grabCursor={true}
-                  autoplay={{
-                    delay: 3000,
-                    disableOnInteraction: false,
-                  }}
-                  pagination={{ clickable: true }}
-                  className="trending-swiper"
-                  style={{
-                    width: "min(340px, 90vw)",
-                    height: "500px",
-                    paddingBottom: "50px",
-                  }}
-                >
-                {trendingData?.items?.map((novel) => (
-                  <SwiperSlide key={novel.id}>
-                    <Link to={`/novel/${novel.slug}`}>
-                      <div className="relative w-full h-full bg-[#2C2C2C] rounded-3xl overflow-hidden border border-gray-700 shadow-2xl hover:shadow-blue-500/40 transition-shadow duration-300">
-                        <div className="aspect-[3/4] relative">
-                          <img
-                            src={novel.coverImageUrl}
-                            alt={novel.title}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1C] via-[#1C1C1C]/60 to-transparent" />
-                          
-                          {/* Status Badge */}
-                          <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold text-white noto-sans-arabic-bold ${
-                            novel.status === "Ongoing" ? "bg-green-500/90" : "bg-blue-500/90"
-                          }`}>
-                            {novel.status === "Ongoing" ? "مستمرة" : "مكتملة"}
-                          </div>
-                        </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 justify-items-center">
+                {trendingData?.items?.slice(0, 8).map((novel) => (
+                  <Link
+                    key={novel.id}
+                    to={`/novel/${novel.slug}`}
+                    className="group w-full max-w-[160px]"
+                  >
+                    {/* Cover Image */}
+                    <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-3 shadow-lg transition-transform duration-300 group-hover:scale-105">
+                      <img
+                        src={novel.coverImageUrl}
+                        alt={novel.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
 
-                        <div className="absolute bottom-0 left-0 right-0 p-6 space-y-3">
-                          <div>
-                            <h3 className="text-xl font-bold text-white noto-sans-arabic-bold line-clamp-2">
-                              {novel.title}
-                            </h3>
-                            {novel.genresList?.[0] && (
-                              <span className="inline-block mt-2 px-3 py-1 bg-[#4A9EFF]/20 text-[#4A9EFF] rounded-full text-xs font-semibold noto-sans-arabic-bold">
-                                {translateGenre(novel.genresList[0].name)}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-slate-300 noto-sans-arabic-regular text-sm line-clamp-3 whitespace-pre-line">
-                            {novel.summary && novel.summary.length > 150 
-                              ? `${novel.summary.substring(0, 150)}...` 
-                              : novel.summary}
-                          </p>
-                          <div className="flex items-center gap-2 text-slate-400">
-                            <Eye className="w-4 h-4" />
-                            <span className="text-sm noto-sans-arabic-regular">{novel.totalViews} مشاهدة</span>
-                          </div>
-                        </div>
+                    {/* Novel Title */}
+                    <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 mb-2 text-center">
+                      {novel.title}
+                    </h3>
+
+                    {/* Genres */}
+                    {novel.genresList && novel.genresList.length > 0 && (
+                      <div className="flex flex-wrap gap-1 justify-center">
+                        {novel.genresList.slice(0, 2).map((genre) => (
+                          <GenreBadge key={genre.id} genre={genre} size="xs" />
+                        ))}
                       </div>
-                    </Link>
-                  </SwiperSlide>
+                    )}
+                  </Link>
                 ))}
-                </Swiper>
               </div>
             )}
           </section>
+
+          {/* We Also Suggest - Shows remaining trending novels (9-16) */}
+          {trendingData?.items && trendingData.items.length > 8 && (
+            <section>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 bg-[#4A9EFF] rounded-xl flex items-center justify-center shadow-lg">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-white noto-sans-arabic-extrabold">نقترح عليك أيضاً</h2>
+                  <p className="text-gray-400 noto-sans-arabic-regular text-sm">المزيد من الروايات الرائجة</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 justify-items-center">
+                {trendingData.items.slice(8, 16).map((novel) => (
+                  <Link
+                    key={novel.id}
+                    to={`/novel/${novel.slug}`}
+                    className="group w-full max-w-[160px]"
+                  >
+                    {/* Cover Image */}
+                    <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-3 shadow-lg transition-transform duration-300 group-hover:scale-105">
+                      <img
+                        src={novel.coverImageUrl}
+                        alt={novel.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
+
+                    {/* Novel Title */}
+                    <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 mb-2 text-center">
+                      {novel.title}
+                    </h3>
+
+                    {/* Genres */}
+                    {novel.genresList && novel.genresList.length > 0 && (
+                      <div className="flex flex-wrap gap-1 justify-center">
+                        {novel.genresList.slice(0, 2).map((genre) => (
+                          <GenreBadge key={genre.id} genre={genre} size="xs" />
+                        ))}
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* New Arrivals */}
           <section>
@@ -667,8 +706,22 @@ const HomePage = () => {
                           >
                             اقرأ الآن
                           </Link>
-                          <button className="px-6 py-3 bg-[#2C2C2C] border-2 border-[#4A9EFF] text-[#4A9EFF] rounded-lg noto-sans-arabic-bold hover:bg-[#4A9EFF] hover:text-white transition-all duration-300">
-                            أضف للمكتبة +
+                          <button 
+                            onClick={() => {
+                              if (!currentUser) {
+                                setIsAuthModalOpen(true);
+                                setAuthModalAction("لإضافة الرواية لقائمة القراءة");
+                              } else {
+                                setSelectedNovelForList({
+                                  novelId: selectedArrival.id,
+                                  novelTitle: selectedArrival.title
+                                });
+                                setIsAddToListModalOpen(true);
+                              }
+                            }}
+                            className="px-6 py-3 bg-[#2C2C2C] border-2 border-[#4A9EFF] text-[#4A9EFF] rounded-lg noto-sans-arabic-bold hover:bg-[#4A9EFF] hover:text-white transition-all duration-300"
+                          >
+                            أضف لقائمة القراءة +
                           </button>
                         </div>
                       </div>
@@ -680,7 +733,7 @@ const HomePage = () => {
           </section>
 
           {/* Continue Reading */}
-          {placeholderData.continueReading.length > 0 && (
+          {token && currentUser && readingHistoryData?.items && readingHistoryData.items.length > 0 && (
             <section>
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 bg-[#4A9EFF] rounded-xl flex items-center justify-center shadow-lg">
@@ -693,35 +746,35 @@ const HomePage = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {placeholderData.continueReading.map((novel) => (
-                  <Link key={novel.id} to={`/novel/${novel.slug}`}>
+                {readingHistoryData.items.slice(0, 6).map((novel) => (
+                  <Link key={novel.novelId} to={`/novel/${novel.slug}/chapter/${novel.lastReadChapterId}`}>
                     <div className="group relative bg-[#2C2C2C] rounded-2xl overflow-hidden border border-gray-700 hover:border-[#4A9EFF] transition-all duration-300 shadow-lg hover:shadow-blue-500/20">
                       <div className="flex gap-4 p-4">
                         <div className="w-32 h-44 rounded-xl overflow-hidden flex-shrink-0 border border-slate-700/50">
                           <img
-                            src={novel.coverImage}
+                            src={novel.coverImageUrl}
                             alt={novel.title}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                           />
                         </div>
                         <div className="flex-1 space-y-3">
-                          <h3 className="text-xl font-bold text-white noto-sans-arabic-bold group-hover:text-[#4A9EFF] transition-colors">
+                          <h3 className="text-xl font-bold text-white noto-sans-arabic-bold group-hover:text-[#4A9EFF] transition-colors line-clamp-2">
                             {novel.title}
                           </h3>
                           <p className="text-gray-400 noto-sans-arabic-regular text-sm">
-                            الفصل {novel.lastChapter} من {novel.totalChapters}
+                            الفصل {novel.lastReadChapterNumber} من {novel.totalChapters}
                           </p>
                           
                           {/* Progress Bar */}
                           <div className="space-y-2">
                             <div className="flex justify-between text-xs text-gray-400 noto-sans-arabic-regular">
                               <span>التقدم</span>
-                              <span>{novel.progress}%</span>
+                              <span>{Math.round(novel.progressPercentage)}%</span>
                             </div>
                             <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-[#4A9EFF] rounded-full transition-all duration-500"
-                                style={{ width: `${novel.progress}%` }}
+                                style={{ width: `${novel.progressPercentage}%` }}
                               />
                             </div>
                           </div>
@@ -739,141 +792,108 @@ const HomePage = () => {
           )}
 
           {/* Dynamic Genre Sections */}
-          {[genreSection1, genreSection2, genreSection3].map((section, index) => {
-            const genreInfo = genreSections[index];
-            const rankingInfo = RANKING_TITLES[genreInfo.rankingType];
-            
-            // Icon component mapping
-            const IconComponent = 
-              rankingInfo.icon === "Sparkles" ? Sparkles :
-              rankingInfo.icon === "TrendingUp" ? TrendingUp :
-              Star;
-            
-            // Color gradient mapping
-            const iconGradient = 
-              rankingInfo.color === "purple" ? "bg-gradient-to-br from-purple-500 to-pink-600" :
-              rankingInfo.color === "red" ? "bg-gradient-to-br from-red-500 to-orange-600" :
-              "bg-gradient-to-br from-yellow-500 to-amber-600";
-            
-            const iconShadow = 
-              rankingInfo.color === "purple" ? "shadow-purple-500/20" :
-              rankingInfo.color === "red" ? "shadow-red-500/20" :
-              "shadow-yellow-500/20";
-            
-            const borderColor = 
-              rankingInfo.color === "purple" ? "border-purple-500/30 hover:border-purple-500/60" :
-              rankingInfo.color === "red" ? "border-red-500/30 hover:border-red-500/60" :
-              "border-yellow-500/30 hover:border-yellow-500/60";
-            
-            const shadowColor = 
-              rankingInfo.color === "purple" ? "hover:shadow-purple-500/20" :
-              rankingInfo.color === "red" ? "hover:shadow-red-500/20" :
-              "hover:shadow-yellow-500/20";
-            
-            const hoverTextColor = 
-              rankingInfo.color === "purple" ? "group-hover:text-purple-400" :
-              rankingInfo.color === "red" ? "group-hover:text-red-400" :
-              "group-hover:text-yellow-400";
-            
-            const badgeGradient = 
-              rankingInfo.color === "purple" ? "bg-purple-500/90" :
-              rankingInfo.color === "red" ? "bg-gradient-to-r from-red-500 to-orange-600" :
-              "bg-gradient-to-r from-yellow-500 to-amber-600";
-            
-            const badgeShadow = 
-              rankingInfo.color === "purple" ? "" :
-              rankingInfo.color === "red" ? "shadow-lg shadow-red-500/50" :
-              "shadow-lg shadow-yellow-500/50";
+          {[genreSection1, genreSection2, genreSection3]
+            .map((section, index) => ({ section, index }))
+            .filter(({ section }) => !section.isLoading && !section.error && section.data?.items && section.data.items.length > 0)
+            .map(({ section, index }) => {
+              const genreInfo = genreSections[index];
+              const rankingInfo = RANKING_TITLES[genreInfo.rankingType];
+              
+              // Icon component mapping
+              const IconComponent = 
+                rankingInfo.icon === "Sparkles" ? Sparkles :
+                rankingInfo.icon === "TrendingUp" ? TrendingUp :
+                Star;
 
-            return (
-              <section key={index}>
-                <div className="flex items-center gap-3 mb-8">
-                  <div className={`w-12 h-12 ${iconGradient} rounded-xl flex items-center justify-center shadow-lg ${iconShadow}`}>
-                    <IconComponent className="w-6 h-6 text-white" />
+              return (
+                <section key={index}>
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="w-12 h-12 bg-[#4A9EFF] rounded-xl flex items-center justify-center shadow-lg">
+                      <IconComponent className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-bold text-white noto-sans-arabic-extrabold">
+                        {rankingInfo.title} {translateGenre(genreInfo.genre.name)}
+                      </h2>
+                      <p className="text-gray-400 noto-sans-arabic-regular text-sm">
+                        {rankingInfo.subtitle.replace("{genre}", genreInfo.genre.description)}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-3xl font-bold text-white noto-sans-arabic-extrabold">
-                      {rankingInfo.title} {translateGenre(genreInfo.genre.name)}
-                    </h2>
-                    <p className="text-slate-400 noto-sans-arabic-regular text-sm">
-                      {rankingInfo.subtitle.replace("{genre}", genreInfo.genre.description)}
-                    </p>
-                  </div>
-                </div>
 
-                {section.isLoading ? (
-                  <div className="flex justify-center items-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4A9EFF]"></div>
-                  </div>
-                ) : section.error ? (
-                  <div className="text-center py-10 text-red-400 noto-sans-arabic-regular">
-                    حدث خطأ في تحميل البيانات
-                  </div>
-                ) : section.data?.items && section.data.items.length > 0 ? (
+                  {section.data?.items && section.data.items.length > 0 && (
                   <Swiper
                     modules={[Navigation, Pagination, Autoplay]}
-                    spaceBetween={20}
-                    slidesPerView={1}
+                    spaceBetween={12}
+                    slidesPerView={'auto'}
                     navigation={false}
                     pagination={{ clickable: true }}
                     autoplay={genreInfo.rankingType === "trending" ? {
                       delay: 4000,
                       disableOnInteraction: false,
                     } : false}
-                    breakpoints={{
-                      640: { slidesPerView: 2 },
-                      1024: { slidesPerView: 3 },
-                    }}
                     className="category-swiper"
                     style={{ paddingBottom: "50px", paddingTop: "10px", overflowY: "visible", overflowX: "hidden" }}
                   >
                     {section.data.items.map((novel) => (
-                      <SwiperSlide key={novel.id}>
-                        <Link to={`/novel/${novel.slug}`}>
-                          <div className={`group relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl overflow-hidden border ${borderColor} transition-all duration-300 shadow-lg ${shadowColor} transform hover:scale-105`}>
-                            <div className="aspect-[3/4] relative overflow-hidden">
+                      <SwiperSlide key={novel.id} style={{ width: '120px', height: 'auto' }}>
+                        <Link to={`/novel/${novel.slug}`} className="block">
+                          <div className="group relative">
+                            {/* Cover Image with 3:4 aspect ratio like Trending Now */}
+                            <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-3 shadow-lg transition-transform duration-300 group-hover:scale-105">
                               <img
                                 src={novel.coverImageUrl}
                                 alt={novel.title}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                className="w-full h-full object-cover"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent opacity-90" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                               
-                              <div className={`absolute top-4 right-4 px-3 py-1 ${badgeGradient} backdrop-blur-sm rounded-full ${badgeShadow}`}>
-                                <span className="text-xs font-bold text-white noto-sans-arabic-bold">
+                              {/* Rank Badge */}
+                              <div className="absolute top-1.5 right-1.5 px-2 py-0.5 bg-[#4A9EFF] backdrop-blur-sm rounded-md">
+                                <span className="text-[10px] font-bold text-white noto-sans-arabic-bold">
                                   #{section.data.items.indexOf(novel) + 1}
                                 </span>
                               </div>
                             </div>
 
-                            <div className="p-4 space-y-2">
-                              <h3 className={`text-lg font-bold text-white noto-sans-arabic-bold ${hoverTextColor} transition-colors line-clamp-2`}>
-                                {novel.title}
-                              </h3>
-                              <p className="text-slate-300 noto-sans-arabic-regular text-sm line-clamp-2 whitespace-pre-line">
-                                {novel.summary && novel.summary.length > 80 
-                                  ? `${novel.summary.substring(0, 80)}...` 
-                                  : novel.summary}
-                              </p>
-                            </div>
+                            {/* Novel Title */}
+                            <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 text-center">
+                              {novel.title}
+                            </h3>
                           </div>
                         </Link>
                       </SwiperSlide>
                     ))}
                   </Swiper>
-                ) : (
-                  <div className="text-center py-10 text-slate-400 noto-sans-arabic-regular">
-                    لا توجد روايات متاحة حالياً
-                  </div>
-                )}
-              </section>
-            );
-          })}
+                  )}
+                </section>
+              );
+            })}
         </main>
 
-        {/* Footer Spacing */}
-        <div className="h-20" />
+        {/* Genre Showcase Section */}
+        <GenreShowcase />
       </div>
+
+      {/* Add to Reading List Modal */}
+      {selectedNovelForList && (
+        <AddNovelToReadingListModal
+          isOpen={isAddToListModalOpen}
+          onClose={() => {
+            setIsAddToListModalOpen(false);
+            setSelectedNovelForList(null);
+          }}
+          novelId={selectedNovelForList.novelId}
+          novelTitle={selectedNovelForList.novelTitle}
+        />
+      )}
+
+      {/* Auth Required Modal */}
+      <AuthRequiredModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        action={authModalAction}
+      />
     </ProtectedRoute>
   );
 };

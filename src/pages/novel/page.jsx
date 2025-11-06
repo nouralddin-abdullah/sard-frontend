@@ -3,9 +3,10 @@ import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import { useNovelDetails } from "../../hooks/novel/useNovelDetails";
 import { useNovelChapters } from "../../hooks/novel/useNovelChapters";
+import { useGetNovelReadingProgress } from "../../hooks/novel/useGetNovelReadingProgress";
 import { formatDateShort } from "../../utils/date";
 import { translateGenre } from "../../utils/translate-genre";
-import { Plus, AlertTriangle, Share2, User, Calendar, Eye } from "lucide-react";
+import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen } from "lucide-react";
 import CustomStar from "../../components/common/CustomStar";
 import StarRating from "../../components/common/StarRating";
 import PenIcon from "../../components/common/PenIcon";
@@ -34,6 +35,9 @@ const NovelPage = () => {
     error: chaptersError,
   } = useNovelChapters(novel?.id);
   const { data: currentUser } = useGetLoggedInUser();
+  
+  // Get reading progress for this novel (only if user is logged in)
+  const { data: readingProgress } = useGetNovelReadingProgress(novel?.id);
 
   const [selectedSubPage, setSelectedSubPage] = useState("chapters");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -177,9 +181,31 @@ const NovelPage = () => {
 
           {/* Content */}
           <div className="flex flex-col h-full">
-            <p className="noto-sans-arabic-extrabold text-[25px] md:text-[40px] pb-[15px] border-b-[1px] border-b-[#797979] mb-[10px]">
-              {novel.title}
-            </p>
+            {/* Title with Start/Continue Reading Button */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pb-[15px] border-b-[1px] border-b-[#797979] mb-[10px]">
+              <p className="noto-sans-arabic-extrabold text-[25px] md:text-[40px]">
+                {novel.title}
+              </p>
+              
+              {/* Start/Continue Reading Button - Show if user is logged in and chapters exist */}
+              {currentUser && chapters.length > 0 && (
+                <Link
+                  to={
+                    readingProgress?.hasProgress && readingProgress?.progress
+                      ? `/novel/${novelSlug}/chapter/${readingProgress.progress.lastReadChapterId}`
+                      : `/novel/${novelSlug}/chapter/${chapters[0].id}`
+                  }
+                  className="flex items-center gap-2 bg-[#0077FF] hover:bg-[#0066DD] text-white px-6 py-3 rounded-lg noto-sans-arabic-medium transition-colors whitespace-nowrap self-start md:self-auto"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  <span>
+                    {readingProgress?.hasProgress && readingProgress?.progress
+                      ? "متابعة القراءة"
+                      : "ابدأ القراءة"}
+                  </span>
+                </Link>
+              )}
+            </div>
 
             <div className="flex flex-col flex-grow">
               {/* Genres */}
@@ -279,20 +305,47 @@ const NovelPage = () => {
             {selectedSubPage === "chapters" && (
               <>
                 {chapters.length > 0 ? (
-                  chapters.map((chapter) => (
-                    <Link
-                      key={chapter.id}
-                      to={`/novel/${novelSlug}/chapter/${chapter.id}`}
-                      className="flex justify-between items-center border-b border-[#797979] py-[15px] cursor-pointer hover:bg-[#4A4A4A] px-[10px] rounded transition-colors"
-                    >
-                      <p className="noto-sans-arabic-extrabold text-[18px] text-[#FFFFFF]">
-                        {chapter.title}
-                      </p>
-                      <p className="text-[16px] text-[#FFFFFF] noto-sans-arabic-extrabold">
-                        {formatDate(chapter.createdAt)}
-                      </p>
-                    </Link>
-                  ))
+                  chapters.map((chapter, index) => {
+                    const chapterNumber = index + 1;
+                    const lastReadChapterNumber = readingProgress?.progress?.lastReadChapterNumber || 0;
+                    const isRead = chapterNumber < lastReadChapterNumber;
+                    const isLastRead = chapterNumber === lastReadChapterNumber;
+                    const isUnread = chapterNumber > lastReadChapterNumber;
+                    
+                    return (
+                      <Link
+                        key={chapter.id}
+                        to={`/novel/${novelSlug}/chapter/${chapter.id}`}
+                        className={`flex justify-between items-center border-b border-[#797979] py-[15px] cursor-pointer hover:bg-[#4A4A4A] px-[10px] rounded transition-colors ${
+                          isRead ? "opacity-60" : ""
+                        } ${
+                          isLastRead ? "bg-[#0077FF]/10 border-l-4 border-l-[#0077FF]" : ""
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <p className={`noto-sans-arabic-extrabold text-[18px] ${
+                            isRead ? "text-[#B0B0B0]" : "text-[#FFFFFF]"
+                          } ${
+                            isLastRead ? "text-[#0077FF]" : ""
+                          }`}>
+                            {chapter.title}
+                          </p>
+                          {isLastRead && (
+                            <span className="text-xs bg-[#0077FF] text-white px-2 py-1 rounded noto-sans-arabic-medium">
+                              آخر قراءة
+                            </span>
+                          )}
+                        </div>
+                        <p className={`text-[16px] noto-sans-arabic-extrabold ${
+                          isRead ? "text-[#888888]" : "text-[#FFFFFF]"
+                        } ${
+                          isLastRead ? "text-[#0077FF]" : ""
+                        }`}>
+                          {formatDate(chapter.createdAt)}
+                        </p>
+                      </Link>
+                    );
+                  })
                 ) : (
                   <p className="text-white text-center noto-sans-arabic-extrabold">
                     لا توجد فصول متاحة حالياً

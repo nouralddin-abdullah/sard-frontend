@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Eye, Layers, Sparkles, Star } from "lucide-react";
 import { getTimeAgo } from "../../utils/date";
 import mainPicture from "../../assets/mainPicture.jpg";
+import GenreBadge from "../common/GenreBadge";
 
 const STATUS_STYLES = {
   ongoing: "bg-[#0077FF]/20 text-[#0077FF] border border-[#0077FF]/40",
@@ -93,12 +94,7 @@ const WorkCard = ({ work }) => {
           {work?.genresList?.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {work.genresList.map((genre) => (
-                <span
-                  key={genre.id}
-                  className="rounded-full border border-[#5A5A5A] bg-[#2C2C2C] px-3 py-1 text-xs noto-sans-arabic-medium text-[#B8B8B8]"
-                >
-                  {genre.name}
-                </span>
+                <GenreBadge key={genre.id} genre={genre} size="sm" />
               ))}
             </div>
           )}

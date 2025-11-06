@@ -5,13 +5,17 @@ import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useGetNovelChapters } from '../../hooks/novel/useGetNovelChapters';
 import { useGetChapterById } from '../../hooks/novel/useGetChapterById';
 import { useGetNovelBySlug } from '../../hooks/novel/useGetNovelBySlug';
+import { useTrackReadingProgress } from '../../hooks/novel/useTrackReadingProgress';
 import CommentPanel from '../../components/novel/CommentPanel';
 import ChapterParagraph from '../../components/novel/ChapterParagraph';
+import Cookies from 'js-cookie';
+import { TOKEN_KEY } from '../../constants/token-key';
 
 const ChapterReaderPage = () => {
   const { novelSlug, chapterId } = useParams();
   const navigate = useNavigate();
   const { data: currentUser } = useGetLoggedInUser();
+  const token = Cookies.get(TOKEN_KEY);
   
   // Fetch novel data
   const { data: novel, isLoading: novelLoading, error: novelError } = useGetNovelBySlug(novelSlug);
@@ -24,6 +28,9 @@ const ChapterReaderPage = () => {
   
   // Fetch all chapters for TOC
   const { data: allChapters = [], isLoading: chaptersLoading } = useGetNovelChapters(novel?.id);
+  
+  // Track reading progress (only for authenticated users)
+  const trackProgressMutation = useTrackReadingProgress();
   
   const [showTOC, setShowTOC] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -99,6 +106,19 @@ const ChapterReaderPage = () => {
       return () => content.removeEventListener('scroll', handleScroll);
     }
   }, [continueReading, nextChapterId, navigate, novelSlug, chapter]);
+
+  // Track reading progress (only for authenticated users)
+  useEffect(() => {
+    // Only track if user is logged in and chapter is loaded
+    if (token && chapterId && chapter) {
+      // Wait 3 seconds before tracking to ensure user is actually reading
+      const trackTimer = setTimeout(() => {
+        trackProgressMutation.mutate(chapterId);
+      }, 3000);
+
+      return () => clearTimeout(trackTimer);
+    }
+  }, [chapterId, token, chapter]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

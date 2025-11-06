@@ -65,9 +65,16 @@ export const formatTime24Hour = (dateString) => {
 
 // Relative time functions
 export const getTimeAgo = (dateString) => {
+  // Handle undefined or null dates
+  if (!dateString) return "غير محدد";
+  
   // Backend stores dates as UTC without 'Z' suffix, so we need to append it
   const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
   const date = new Date(utcDateString);
+  
+  // Check if date is invalid
+  if (isNaN(date.getTime())) return "غير محدد";
+  
   const now = new Date();
   const diffMs = now - date;
   const diffSecs = Math.floor(diffMs / 1000);

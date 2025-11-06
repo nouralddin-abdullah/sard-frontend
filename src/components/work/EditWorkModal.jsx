@@ -161,7 +161,7 @@ const EditWorkModal = ({ work, isOpen, onClose }) => {
                         onChange={() => toggleGenre(genre.id)}
                         className="accent-blue-500"
                       />
-                      <span>{genre.name}</span>
+                      <span>{translateGenre(genre.name)}</span>
                     </label>
                   );
                 })

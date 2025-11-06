@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router";
 import { Loader2, MoreVertical, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
 import StarRating from "../../components/common/StarRating";
+import GenreBadge from "../../components/common/GenreBadge";
 import UpdateReadingListModal from "../../components/profile/UpdateReadingListModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import { useGetReadingListById } from "../../hooks/reading-list/useGetReadingListById";
@@ -107,7 +108,7 @@ const ReadingListPage = () => {
       onSuccess: () => {
         setDeleteListModalOpen(false);
         // Navigate to user's profile after successful deletion
-        navigate(`/profile/${username}`);
+        navigate(`/profile/${loggedInUser?.userName || username}`);
       },
     });
   };
@@ -374,12 +375,11 @@ const ReadingListPage = () => {
                         {novel.genres && novel.genres.length > 0 && (
                           <div className="flex flex-wrap gap-2">
                             {novel.genres.map((genre, idx) => (
-                              <span
-                                key={idx}
-                                className="px-3 py-1 bg-[#5A5A5A] rounded-full text-sm noto-sans-arabic-medium text-white"
-                              >
-                                {genre}
-                              </span>
+                              <GenreBadge 
+                                key={idx} 
+                                genre={{ id: idx, name: genre }} 
+                                size="sm" 
+                              />
                             ))}
                           </div>
                         )}

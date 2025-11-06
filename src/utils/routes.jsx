@@ -10,10 +10,12 @@ import NovelPage from "../pages/novel/page";
 import ChapterReaderPage from "../pages/novel/chapter-reader";
 import ProfilePage from "../pages/profile/page";
 import ReadingListPage from "../pages/profile/ReadingListPage";
+import LibraryPage from "../pages/profile/LibraryPage";
 import Test from "../pages/test";
 import EditWorkPage from "../pages/work/edit";
 import WorkDashboardPage from "../pages/work/dashboard";
 import ChapterEditorPage from "../pages/work/chapter-editor";
+import GenrePage from "../pages/genre/GenrePage";
 
 const routes = [
   // auth
@@ -52,6 +54,10 @@ const routes = [
     component: <Test />,
   },
   {
+    url: "/library",
+    component: <LibraryPage />,
+  },
+  {
     url: "/profile/:username",
     component: <ProfilePage />,
   },
@@ -74,6 +80,10 @@ const routes = [
   {
     url: "/novel/create",
     component: <CreateNovelPage />,
+  },
+  {
+    url: "/genre/:genreSlug",
+    component: <GenrePage />,
   },
   {
     url: "/dashboard/works",

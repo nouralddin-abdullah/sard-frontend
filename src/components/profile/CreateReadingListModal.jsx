@@ -92,41 +92,41 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-[#3A3A3A] rounded-2xl w-full max-w-xl p-6 relative">
+      <div className="bg-[#3A3A3A] rounded-2xl w-full max-w-md p-5 relative">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 left-4 text-white hover:text-[#4A9EFF] transition-colors duration-300"
+          className="absolute top-3 left-3 text-white hover:text-[#4A9EFF] transition-colors duration-300"
         >
           <X className="w-6 h-6" />
         </button>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold text-white text-center mb-6 noto-sans-arabic-extrabold">
+        <h2 className="text-xl font-bold text-white text-center mb-4 noto-sans-arabic-extrabold">
           إنشاء قائمة قراءة جديدة
         </h2>
 
         {/* Cover Image Upload */}
-        <div className="flex flex-col items-center mb-6">
-          <div className="w-[160px] aspect-[3/4] rounded-xl overflow-hidden bg-[#4A4A4A] flex items-center justify-center mb-3" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
+        <div className="flex flex-col items-center mb-4">
+          <div className="w-[120px] aspect-[3/4] rounded-lg overflow-hidden bg-[#4A4A4A] flex items-center justify-center mb-2" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
             {coverPreview ? (
               <img src={coverPreview} alt="Cover preview" className="w-full h-full object-cover" />
             ) : (
-              <label className="cursor-pointer w-full h-full flex items-center justify-center">
+              <label className="cursor-pointer w-full h-full flex items-center justify-center px-2">
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
                   className="hidden"
                 />
-                <span className="text-[#686868] text-center noto-sans-arabic-medium">
+                <span className="text-[#686868] text-center noto-sans-arabic-medium text-sm">
                   انقر لتحميل صورة الغلاف
                 </span>
               </label>
             )}
           </div>
           {coverPreview && (
-            <label className="cursor-pointer text-[#4A9EFF] hover:text-[#3A8EEF] transition-colors duration-300 noto-sans-arabic-medium">
+            <label className="cursor-pointer text-[#4A9EFF] hover:text-[#3A8EEF] transition-colors duration-300 noto-sans-arabic-medium text-sm">
               <input
                 type="file"
                 accept="image/*"
@@ -139,8 +139,8 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* List Name Input */}
-        <div className="mb-4">
-          <label className="block text-white text-right mb-2 noto-sans-arabic-medium text-sm">
+        <div className="mb-3">
+          <label className="block text-white text-right mb-1.5 noto-sans-arabic-medium text-sm">
             اسم قائمة القراءة <span className="text-red-400">*</span>
           </label>
           <input
@@ -149,13 +149,13 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
             onChange={(e) => setListName(e.target.value)}
             placeholder="اسم القائمة الجديدة"
             maxLength={100}
-            className="w-full bg-[#5A5A5A] text-white rounded-lg px-4 py-2.5 text-right noto-sans-arabic-medium placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]"
+            className="w-full bg-[#5A5A5A] text-white rounded-lg px-3 py-2 text-right noto-sans-arabic-medium text-sm placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]"
           />
         </div>
 
         {/* Description Input (Optional) */}
-        <div className="mb-5">
-          <label className="block text-white text-right mb-2 noto-sans-arabic-medium text-sm">
+        <div className="mb-3">
+          <label className="block text-white text-right mb-1.5 noto-sans-arabic-medium text-sm">
             الوصف (اختياري)
           </label>
           <textarea
@@ -163,8 +163,8 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="وصف مختصر للقائمة"
             maxLength={1000}
-            rows={3}
-            className="w-full bg-[#5A5A5A] text-white rounded-lg px-4 py-2.5 text-right noto-sans-arabic-medium placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] resize-none"
+            rows={2}
+            className="w-full bg-[#5A5A5A] text-white rounded-lg px-3 py-2 text-right noto-sans-arabic-medium text-sm placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] resize-none"
           />
           <p className="text-[#888888] text-xs text-right mt-1 noto-sans-arabic-regular">
             {description.length}/1000
@@ -172,21 +172,21 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Privacy Setting and Warning in same row */}
-        <div className="mb-6 flex gap-4">
+        <div className="mb-4 flex gap-3">
           {/* Privacy Dropdown */}
           <div className="flex-shrink-0">
-            <label className="block text-white text-right mb-2 noto-sans-arabic-medium text-sm">
+            <label className="block text-white text-right mb-1.5 noto-sans-arabic-medium text-sm">
               خصوصية القائمة
             </label>
             <select
               value={privacy}
               onChange={(e) => setPrivacy(e.target.value)}
-              className="bg-[#5A5A5A] text-white rounded-lg px-5 py-2.5 text-right noto-sans-arabic-medium focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] cursor-pointer appearance-none min-w-[140px]"
+              className="bg-[#5A5A5A] text-white rounded-lg px-4 py-2 text-right noto-sans-arabic-medium text-sm focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] cursor-pointer appearance-none min-w-[120px]"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")`,
                 backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'left 1rem center',
-                paddingLeft: '3rem'
+                backgroundPosition: 'left 0.75rem center',
+                paddingLeft: '2.5rem'
               }}
             >
               <option value="public">عامة</option>
@@ -195,9 +195,9 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
           </div>
 
           {/* Privacy Notice */}
-          <div className="flex-1 bg-[#5A5A5A] rounded-lg p-3 flex items-start gap-2">
-            <div className="w-7 h-7 bg-[#4A9EFF] rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-lg font-bold">!</span>
+          <div className="flex-1 bg-[#5A5A5A] rounded-lg p-2.5 flex items-start gap-2">
+            <div className="w-6 h-6 bg-[#4A9EFF] rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-base font-bold">!</span>
             </div>
             <p className="text-[#CCCCCC] text-right text-xs noto-sans-arabic-medium leading-relaxed">
               تنويه: إذا كانت قائمتك خاصة، فلن يكون بإمكانك مشاركتها مع أي مستخدم. لضمان إمكانية المشاركة، يُرجى
@@ -210,7 +210,7 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
         <button
           onClick={handleSubmit}
           disabled={!listName.trim() || createMutation.isPending}
-          className="w-full bg-[#4A9EFF] hover:bg-[#3A8EEF] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed text-white py-2.5 rounded-lg transition-colors duration-300 noto-sans-arabic-medium text-base flex items-center justify-center gap-2"
+          className="w-full bg-[#4A9EFF] hover:bg-[#3A8EEF] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed text-white py-2 rounded-lg transition-colors duration-300 noto-sans-arabic-medium text-sm flex items-center justify-center gap-2"
         >
           {createMutation.isPending ? (
             <>
