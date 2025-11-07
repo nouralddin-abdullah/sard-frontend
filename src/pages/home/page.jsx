@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay, EffectCoverflow, EffectCards } from "swiper/modules";
 import { TrendingUp, Clock, Eye, Star, Sparkles, Crown, BookOpen } from "lucide-react";
-import ProtectedRoute from "../../components/auth/protected-route";
 import Header from "../../components/common/Header";
 import AddNovelToReadingListModal from "../../components/novel/AddNovelToReadingListModal";
 import AuthRequiredModal from "../../components/common/AuthRequiredModal";
@@ -384,17 +383,14 @@ const HomePage = () => {
 
   if (!mounted) {
     return (
-      <ProtectedRoute>
-        <div className="flex items-center justify-center min-h-screen bg-[#1C1C1C]">
-          <div className="text-white text-xl noto-sans-arabic-medium">جاري التحميل...</div>
-        </div>
-      </ProtectedRoute>
+      <div className="flex items-center justify-center min-h-screen bg-[#1C1C1C]">
+        <div className="text-white text-xl noto-sans-arabic-medium">جاري التحميل...</div>
+      </div>
     );
   }
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-[#1C1C1C]">
+    <div className="min-h-screen bg-[#1C1C1C]">
         <Header />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
@@ -873,29 +869,28 @@ const HomePage = () => {
 
         {/* Genre Showcase Section */}
         <GenreShowcase />
-      </div>
 
-      {/* Add to Reading List Modal */}
-      {selectedNovelForList && (
-        <AddNovelToReadingListModal
-          isOpen={isAddToListModalOpen}
-          onClose={() => {
-            setIsAddToListModalOpen(false);
-            setSelectedNovelForList(null);
-          }}
-          novelId={selectedNovelForList.novelId}
-          novelTitle={selectedNovelForList.novelTitle}
+        {/* Add to Reading List Modal */}
+        {selectedNovelForList && (
+          <AddNovelToReadingListModal
+            isOpen={isAddToListModalOpen}
+            onClose={() => {
+              setIsAddToListModalOpen(false);
+              setSelectedNovelForList(null);
+            }}
+            novelId={selectedNovelForList.novelId}
+            novelTitle={selectedNovelForList.novelTitle}
+          />
+        )}
+
+        {/* Auth Required Modal */}
+        <AuthRequiredModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          action={authModalAction}
         />
-      )}
-
-      {/* Auth Required Modal */}
-      <AuthRequiredModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        action={authModalAction}
-      />
-    </ProtectedRoute>
-  );
-};
+      </div>
+    );
+  };
 
 export default HomePage;

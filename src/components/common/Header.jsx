@@ -5,6 +5,7 @@ import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '../../store/authTokenStore';
 import SearchBar from './SearchBar';
+import AuthRequiredModal from './AuthRequiredModal';
 import Cookies from 'js-cookie';
 import { TOKEN_KEY } from '../../constants/token-key';
 
@@ -27,6 +28,7 @@ const Header = () => {
   const { deleteToken } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -57,11 +59,18 @@ const Header = () => {
     // Close dropdown
     setIsDropdownOpen(false);
     
-    // Navigate to login
-    navigate('/login');
+    // Navigate to home
+    navigate('/home');
     
     // Reload to ensure clean state
     window.location.reload();
+  };
+
+  const handleAuthorToolsClick = (e) => {
+    if (!currentUser) {
+      e.preventDefault();
+      setIsAuthModalOpen(true);
+    }
   };
 
   // Show SVG icon if not logged in, loading, or image failed to load
@@ -73,7 +82,7 @@ const Header = () => {
       <div className="hidden md:block py-4 px-6">
         <div className="max-w-[1920px] mx-auto flex items-center gap-6">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
+          <Link to="/home" className="flex-shrink-0">
             <h1 className="noto-sans-arabic-extrabold text-white text-[40px] leading-none">
               سَرْد
             </h1>
@@ -147,12 +156,6 @@ const Header = () => {
           {/* Navigation Links */}
           <nav className="flex items-center gap-8">
             <Link 
-              to="/" 
-              className="noto-sans-arabic-extrabold text-white text-[20px] hover:opacity-80 transition-opacity"
-            >
-              الرئيسية
-            </Link>
-            <Link 
               to="/library" 
               className="noto-sans-arabic-extrabold text-white text-[20px] hover:opacity-80 transition-opacity"
             >
@@ -162,7 +165,8 @@ const Header = () => {
 
           {/* Author Tools - Before Search */}
           <Link 
-            to="/dashboard/works" 
+            to="/dashboard/works"
+            onClick={handleAuthorToolsClick}
             className="noto-sans-arabic-extrabold text-white text-[20px] hover:opacity-80 transition-opacity mr-auto"
           >
             أدوات المؤلف
@@ -177,7 +181,7 @@ const Header = () => {
       <div className="md:hidden">
         <div className="py-3 px-4 flex items-center justify-between">
           {/* Logo - First Position */}
-          <Link to="/" className="flex-shrink-0">
+          <Link to="/home" className="flex-shrink-0">
             <h1 className="noto-sans-arabic-extrabold text-white text-[24px] leading-none">
               سَرْد
             </h1>
@@ -248,15 +252,6 @@ const Header = () => {
             </div>
           )}
 
-          {/* Home Icon */}
-          <Link 
-            to="/" 
-            className="flex-shrink-0 text-white hover:opacity-80 transition-opacity"
-            aria-label="الرئيسية"
-          >
-            <Home size={24} />
-          </Link>
-
           {/* Library Icon - Only show when logged in */}
           {currentUser && (
             <Link 
@@ -309,6 +304,13 @@ const Header = () => {
           </div>
         )}
       </div>
+
+      {/* Auth Required Modal */}
+      <AuthRequiredModal 
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        action="للوصول إلى أدوات المؤلف"
+      />
     </header>
   );
 };

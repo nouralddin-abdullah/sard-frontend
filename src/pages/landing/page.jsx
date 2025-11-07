@@ -4,10 +4,12 @@ import { ArrowRight, BookOpen, Sparkles, Users, TrendingUp, Heart, MessageCircle
 import Header from "../../components/common/Header";
 import { useGetRankings } from "../../hooks/novel/useGetRankings";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
+import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import { translateGenre } from "../../utils/translate-genre";
 import landingSImage from "../../assets/Landing-S.png";
 import landingTextImage from "../../assets/Landing-textinmiddleofit.png";
 import landing3Image from "../../assets/Landing-3.png";
+import picture1Image from "../../assets/Picture1.png";
 
 // Icon mapping for genres
 const GENRE_ICONS = {
@@ -27,6 +29,14 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const { data: trendingData, isLoading } = useGetRankings("Trending", 8);
   const { data: genres, isLoading: genresLoading } = useGetGenresList();
+  const { data: currentUser } = useGetLoggedInUser();
+
+  // Redirect to home if user is logged in
+  React.useEffect(() => {
+    if (currentUser) {
+      navigate("/home", { replace: true });
+    }
+  }, [currentUser, navigate]);
 
   // Typing animation states
   const [typingText, setTypingText] = React.useState("");
@@ -110,7 +120,7 @@ const LandingPage = () => {
                     <div className="flex items-start gap-2">
                       <MessageCircle className="w-4 h-4 text-[#4A9EFF] flex-shrink-0 mt-1" />
                       <div>
-                        <p className="text-white text-sm noto-sans-arabic-medium">رواية رائعة! 🔥</p>
+                        <p className="text-white text-sm noto-sans-arabic-medium">ازاي يعمل فيها كدا؟! 😣</p>
                         <div className="flex gap-1 mt-1">
                           <Heart className="w-3 h-3 text-red-500 fill-red-500" />
                           <span className="text-xs text-gray-400">12</span>
@@ -124,7 +134,7 @@ const LandingPage = () => {
                     <div className="flex items-start gap-2">
                       <MessageCircle className="w-4 h-4 text-[#4A9EFF] flex-shrink-0 mt-1" />
                       <div>
-                        <p className="text-white text-sm noto-sans-arabic-medium">فعلاً مبدع الكاتب 👏</p>
+                        <p className="text-white text-sm noto-sans-arabic-medium">لا انتو كدا بتهزرو 🤨</p>
                       </div>
                     </div>
                   </div>
@@ -256,15 +266,6 @@ const LandingPage = () => {
                 <p className="text-xl text-gray-300 noto-sans-arabic-medium mb-8">
                   اكتشف روايتك القادمة المفضلة، أياً كان اهتمامك أو حالتك المزاجية.
                 </p>
-                <div className="flex justify-center lg:justify-center">
-                  <Link
-                    to="/home"
-                    className="bg-[#4A9EFF] hover:bg-[#3A8EEF] text-white px-8 py-4 rounded-xl noto-sans-arabic-bold text-lg transition-all transform hover:scale-105 flex items-center gap-2"
-                  >
-                    ابدأ الاستكشاف الآن
-                    <ArrowRight className="w-5 h-5" />
-                  </Link>
-                </div>
               </div>
 
               {/* Right Side - Image with Search Bar Overlay */}
@@ -289,6 +290,26 @@ const LandingPage = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* World of Your Imagination Section */}
+        <section 
+          className="w-full min-h-screen px-4 relative bg-cover bg-center bg-no-repeat overflow-hidden flex items-center justify-center"
+          style={{
+            backgroundImage: `linear-gradient(rgba(28, 28, 28, 0.65), rgba(28, 28, 28, 0.65)), url(${picture1Image})`
+          }}
+        >
+          {/* Overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#1C1C1C]/40 via-transparent to-[#1C1C1C]/40"></div>
+          
+          <div className="max-w-5xl mx-auto text-center relative z-10 py-20">
+            <h2 className="text-5xl md:text-7xl text-white noto-sans-arabic-extrabold mb-6 leading-tight">
+              عالم من <span className="text-[#4A9EFF]">خيالك</span>
+            </h2>
+            <p className="text-xl md:text-2xl text-gray-200 noto-sans-arabic-medium max-w-3xl mx-auto leading-relaxed">
+              حيث تلتقي الكلمات بالأحلام، وتتحول القصص إلى واقع ملموس. ابدأ رحلتك الإبداعية الآن واكتب فصلك الأول في عالم لا حدود له.
+            </p>
           </div>
         </section>
 
@@ -395,33 +416,6 @@ const LandingPage = () => {
                   </div>
                 );
               })}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-20 px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl md:text-5xl text-white noto-sans-arabic-bold mb-6">
-              هل أنت مستعد للبدء؟
-            </h2>
-            <p className="text-xl text-gray-300 noto-sans-arabic-medium mb-8">
-              انضم إلى آلاف الكتاب والقراء اليوم
-            </p>
-            <div className="flex gap-4 justify-center flex-wrap">
-              <Link
-                to="/register"
-                className="bg-[#4A9EFF] hover:bg-[#3A8EEF] text-white px-8 py-4 rounded-xl noto-sans-arabic-bold text-lg transition-all transform hover:scale-105 flex items-center gap-2"
-              >
-                ابدأ الآن مجاناً
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                to="/login"
-                className="bg-transparent hover:bg-[#2C2C2C] text-white px-8 py-4 rounded-xl noto-sans-arabic-bold text-lg transition-all border border-gray-700"
-              >
-                لدي حساب بالفعل
-              </Link>
             </div>
           </div>
         </section>
