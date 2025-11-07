@@ -20,6 +20,7 @@ import WorkDashboardPage from "../pages/work/dashboard";
 import ChapterEditorPage from "../pages/work/chapter-editor";
 import GenrePage from "../pages/genre/GenrePage";
 
+
 const routes = [
   // auth
   {

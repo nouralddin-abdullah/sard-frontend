@@ -5,7 +5,8 @@ const ChapterParagraph = ({
   paragraph, 
   onCommentClick, 
   theme, 
-  fontSize 
+  fontSize,
+  textColor
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -28,6 +29,7 @@ const ChapterParagraph = ({
   };
 
   const currentTheme = themeStyles[theme];
+  const paragraphColor = textColor || currentTheme.text;
   const hasComments = paragraph.commentsCount > 0;
 
   return (
@@ -40,7 +42,7 @@ const ChapterParagraph = ({
       <p
         className="leading-[2] whitespace-pre-line px-4 md:px-6"
         style={{
-          color: currentTheme.text,
+          color: paragraphColor,
           fontSize: `${fontSize}px`
         }}
       >

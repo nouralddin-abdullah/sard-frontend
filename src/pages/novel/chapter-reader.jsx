@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen, MessageCircle } from 'lucide-react';
+import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen, MessageCircle, Facebook, Twitter, Link as LinkIcon, Copy, Check } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useGetNovelChapters } from '../../hooks/novel/useGetNovelChapters';
 import { useGetChapterById } from '../../hooks/novel/useGetChapterById';
 import { useGetNovelBySlug } from '../../hooks/novel/useGetNovelBySlug';
 import { useTrackReadingProgress } from '../../hooks/novel/useTrackReadingProgress';
+import { useToggleFollow } from '../../hooks/user/useToggleFollow';
 import CommentPanel from '../../components/novel/CommentPanel';
 import ChapterParagraph from '../../components/novel/ChapterParagraph';
+import PenIcon from '../../components/common/PenIcon';
 import Cookies from 'js-cookie';
 import { TOKEN_KEY } from '../../constants/token-key';
 
@@ -32,6 +34,9 @@ const ChapterReaderPage = () => {
   // Track reading progress (only for authenticated users)
   const trackProgressMutation = useTrackReadingProgress();
   
+  // Toggle follow mutation
+  const toggleFollowMutation = useToggleFollow();
+  
   const [showTOC, setShowTOC] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showComments, setShowComments] = useState(false);
@@ -41,15 +46,48 @@ const ChapterReaderPage = () => {
   const [imageError, setImageError] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // For TOC pagination
   const [showMobileMenu, setShowMobileMenu] = useState(false); // Mobile menu trigger
+  const [copied, setCopied] = useState(false);
   
-  // Reader settings
-  const [theme, setTheme] = useState('dark'); // 'dark', 'light', 'sepia'
-  const [fontSize, setFontSize] = useState(18);
-  const [fontFamily, setFontFamily] = useState('noto'); // 'noto', 'amiri'
-  const [continueReading, setContinueReading] = useState(false); // Auto-load next chapter
+  // Reader settings with localStorage persistence
+  const [theme, setTheme] = useState(() => localStorage.getItem('readerTheme') || 'dark');
+  const [fontSize, setFontSize] = useState(() => parseInt(localStorage.getItem('readerFontSize')) || 18);
+  const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('readerFontFamily') || 'noto');
+  const [continueReading, setContinueReading] = useState(() => localStorage.getItem('readerContinueReading') === 'true');
+  const [customColors, setCustomColors] = useState(() => localStorage.getItem('readerCustomColors') === 'true');
+  const [customBgColor, setCustomBgColor] = useState(() => localStorage.getItem('readerCustomBgColor') || '#2C2C2C');
+  const [customTextColor, setCustomTextColor] = useState(() => localStorage.getItem('readerCustomTextColor') || '#FFFFFF');
   
   const contentRef = useRef(null);
   const dropdownRef = useRef(null);
+
+  // Save settings to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('readerTheme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem('readerFontSize', fontSize.toString());
+  }, [fontSize]);
+
+  useEffect(() => {
+    localStorage.setItem('readerFontFamily', fontFamily);
+  }, [fontFamily]);
+
+  useEffect(() => {
+    localStorage.setItem('readerContinueReading', continueReading.toString());
+  }, [continueReading]);
+
+  useEffect(() => {
+    localStorage.setItem('readerCustomColors', customColors.toString());
+  }, [customColors]);
+
+  useEffect(() => {
+    localStorage.setItem('readerCustomBgColor', customBgColor);
+  }, [customBgColor]);
+
+  useEffect(() => {
+    localStorage.setItem('readerCustomTextColor', customTextColor);
+  }, [customTextColor]);
 
   // Pagination for Table of Contents
   const CHAPTERS_PER_PAGE = 100;
@@ -164,6 +202,42 @@ const ChapterReaderPage = () => {
     return words.slice(0, maxWords).join(' ') + '...';
   };
 
+  // Copy to clipboard function
+  const copyToClipboard = () => {
+    const currentUrl = window.location.href;
+    navigator.clipboard.writeText(currentUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  // Share URLs
+  const shareOnFacebook = () => {
+    const currentUrl = encodeURIComponent(window.location.href);
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${currentUrl}`;
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+  };
+
+  const shareOnTwitter = () => {
+    const currentUrl = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`قراءة ${chapter?.title || 'الفصل'} من ${novel?.title || ''}`);
+    const shareUrl = `https://twitter.com/intent/tweet?url=${currentUrl}&text=${text}`;
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+  };
+
+  // Follow/Unfollow handler
+  const handleFollowToggle = () => {
+    if (!currentUser) {
+      alert('يرجى تسجيل الدخول أولاً');
+      return;
+    }
+    
+    toggleFollowMutation.mutate({
+      isFollowed: novel?.author?.isFollowing,
+      userId: novel.author.id
+    });
+  };
+
   // Theme styles
   const themeStyles = {
     dark: {
@@ -183,16 +257,37 @@ const ChapterReaderPage = () => {
     }
   };
 
-  const currentTheme = themeStyles[theme];
+  // Use custom colors if enabled, otherwise use theme
+  const currentTheme = customColors 
+    ? {
+        bg: customBgColor,
+        text: customTextColor,
+        secondary: customTextColor + '99' // Add opacity to text color for secondary
+      }
+    : themeStyles[theme];
+
+  // Separate content color - uses custom text color only for content, not headers
+  const contentColor = customColors ? customTextColor : currentTheme.text;
+  const headerColor = customColors ? themeStyles[theme].text : currentTheme.text;
+
+  // Font family mapping
+  const fontFamilyMap = {
+    'noto': 'Noto Sans Arabic, sans-serif',
+    'amiri': 'Amiri, serif',
+    'tajawal': 'Tajawal, sans-serif',
+    'cairo': 'Cairo, sans-serif',
+    'scheherazade': 'Scheherazade New, serif'
+  };
+
 
   return (
-    <div className="min-h-screen relative" style={{ backgroundColor: currentTheme.bg }} dir="rtl">
+    <div className="relative" style={{ backgroundColor: currentTheme.bg }} dir="rtl">
       {/* Top Header Bar */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4" style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8'}` }}>
-        {/* Left: Library & User */}
-        <div className="flex items-center gap-6">
-          <Link to="/library" className="hidden md:block noto-sans-arabic-medium hover:opacity-80 transition-opacity" style={{ color: currentTheme.text }}>
-            المكتبة
+      <div className="fixed top-0 left-0 right-0 z-40 flex items-center px-6 py-4" style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8'}` }}>
+        {/* Left: SARD Logo + User + Library */}
+        <div className="flex items-center gap-6 flex-1">
+          <Link to="/home" className="noto-sans-arabic-extrabold text-[24px] leading-none hover:opacity-80 transition-opacity" style={{ color: currentTheme.text }}>
+            سَرْد
           </Link>
           
           {/* User Dropdown */}
@@ -236,31 +331,39 @@ const ChapterReaderPage = () => {
               </div>
             )}
           </div>
+          
+          <Link to="/library" className="hidden md:block noto-sans-arabic-medium hover:opacity-80 transition-opacity" style={{ color: currentTheme.text }}>
+            المكتبة
+          </Link>
         </div>
 
-        {/* Center: Book Icon + Title / Chapter */}
-        <div className="flex items-center gap-3 flex-1 justify-center">
-          <BookOpen size={24} style={{ color: currentTheme.text }} />
-          <div className="flex items-center gap-2 text-center" style={{ color: currentTheme.text }}>
-            {novel && (
-              <>
-                <Link 
-                  to={`/novel/${novelSlug}`}
-                  className="noto-sans-arabic-extrabold text-[16px] hover:opacity-70 transition-opacity"
-                >
-                  {truncateTitle(novel.title, 10)}
-                </Link>
-                <span className="hidden md:inline text-[16px]">/</span>
-                <span className="hidden md:inline noto-sans-arabic-medium text-[16px]">
-                  {chapter?.title || 'جاري التحميل...'}
-                </span>
-              </>
-            )}
-          </div>
+        {/* Center: Novel Cover + Title - Absolutely centered */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
+          {novel && (
+            <>
+              <Link 
+                to={`/novel/${novelSlug}`}
+                className="hover:opacity-80 transition-opacity"
+              >
+                <img 
+                  src={novel.coverImageUrl || '/default-cover.png'} 
+                  alt={novel.title}
+                  className="h-12 w-9 object-cover rounded"
+                />
+              </Link>
+              <Link 
+                to={`/novel/${novelSlug}`}
+                className="noto-sans-arabic-extrabold text-[16px] hover:opacity-70 transition-opacity"
+                style={{ color: currentTheme.text }}
+              >
+                {truncateTitle(novel.title, 10)}
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Right: Progress */}
-        <div className="flex items-center gap-2" style={{ color: currentTheme.secondary }}>
+        <div className="flex items-center gap-2 flex-1 justify-end" style={{ color: currentTheme.secondary }}>
           <span className="text-[14px]">|</span>
           <span className="noto-sans-arabic-medium text-[14px]">
             {scrollProgress.toFixed(0)}%
@@ -366,6 +469,87 @@ const ChapterReaderPage = () => {
         </button>
       </div>
 
+      {/* Desktop Right Sidebar - Author Info & Share */}
+      {novel?.author && (
+        <div 
+          className="hidden xl:flex fixed z-40 flex-col items-center gap-6 p-4 rounded-2xl w-[140px]" 
+          style={{ 
+            right: 'max(20px, calc(50% - 550px))',
+            top: '150px'
+          }}
+        >
+          {/* Author Section */}
+          <div className="flex flex-col items-center gap-4 pb-5 border-b border-gray-600 w-full">
+            {/* Author Avatar */}
+            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#4A9EFF]">
+              <img 
+                src={novel.author.profilePhoto || '/default-avatar.png'} 
+                alt={novel.author.username}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            {/* By Author Text */}
+            <div className="flex items-center gap-1.5">
+              <PenIcon className="w-4 h-4 text-[#4A9EFF]" />
+              <span className="text-white noto-sans-arabic-medium text-[13px]">بقلم</span>
+            </div>
+            <span className="text-white noto-sans-arabic-bold text-[14px] text-center px-2 break-words w-full leading-tight">
+              {novel.author.displayName || novel.author.username}
+            </span>
+            
+            {/* Follow Button */}
+            <button
+              onClick={handleFollowToggle}
+              disabled={toggleFollowMutation.isPending}
+              className={`w-full px-4 py-2 rounded-lg noto-sans-arabic-medium text-[13px] transition-all ${
+                novel.author.isFollowing
+                  ? 'bg-gray-600 text-white hover:bg-gray-500'
+                  : 'bg-[#4A9EFF] text-white hover:bg-[#6BB4FF]'
+              }`}
+            >
+              {novel.author.isFollowing ? 'متابَع' : 'متابعة'}
+            </button>
+          </div>
+
+          {/* Share Section */}
+          <div className="flex flex-col items-center gap-4 pt-2 w-full">
+            <span className="text-white noto-sans-arabic-medium text-[13px] mb-1">مشاركة</span>
+            
+            {/* Facebook Share */}
+            <button
+              onClick={shareOnFacebook}
+              className="w-12 h-12 rounded-full bg-[#3C3C3C] flex items-center justify-center transition-all hover:bg-[#1877F2] hover:scale-110"
+              aria-label="Share on Facebook"
+            >
+              <Facebook size={20} color="white" />
+            </button>
+
+            {/* Twitter/X Share */}
+            <button
+              onClick={shareOnTwitter}
+              className="w-12 h-12 rounded-full bg-[#3C3C3C] flex items-center justify-center transition-all hover:bg-[#1DA1F2] hover:scale-110"
+              aria-label="Share on Twitter"
+            >
+              <Twitter size={20} color="white" />
+            </button>
+
+            {/* Copy Link */}
+            <button
+              onClick={copyToClipboard}
+              className="w-12 h-12 rounded-full bg-[#3C3C3C] flex items-center justify-center transition-all hover:bg-[#4A9EFF] hover:scale-110"
+              aria-label="Copy link"
+            >
+              {copied ? (
+                <Check size={20} color="white" />
+              ) : (
+                <LinkIcon size={20} color="white" />
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Table of Contents Sidebar */}
       {showTOC && (
         <div className="fixed right-0 top-0 bottom-0 w-[400px] bg-[#3C3C3C] z-50 shadow-2xl overflow-hidden">
@@ -431,14 +615,14 @@ const ChapterReaderPage = () => {
 
       {/* Settings Sidebar */}
       {showSettings && (
-        <div className="fixed right-0 top-0 bottom-0 w-[350px] bg-[#3C3C3C] z-50 shadow-2xl overflow-hidden">
-          <div className="flex items-center justify-between p-6 border-b border-gray-600">
+        <div className="fixed right-0 top-0 bottom-0 w-[350px] bg-[#3C3C3C] z-50 shadow-2xl flex flex-col">
+          <div className="flex items-center justify-between p-6 border-b border-gray-600 flex-shrink-0">
             <h2 className="text-white noto-sans-arabic-extrabold text-[20px]">إعدادات القراءة</h2>
             <button onClick={() => setShowSettings(false)} className="text-white hover:text-gray-300 transition-colors">
               <X size={24} />
             </button>
           </div>
-          <div className="p-6 space-y-8">
+          <div className="p-6 space-y-8 overflow-y-auto flex-1 custom-scrollbar">
             {/* Theme Selection */}
             <div>
               <h3 className="text-white noto-sans-arabic-medium text-[16px] mb-4">الخلفية</h3>
@@ -485,29 +669,128 @@ const ChapterReaderPage = () => {
               </div>
             </div>
 
+            {/* Custom Colors Toggle */}
+            <div>
+              <h3 className="text-white noto-sans-arabic-medium text-[16px] mb-4">ألوان مخصصة</h3>
+              <button
+                onClick={() => setCustomColors(!customColors)}
+                className={`w-full px-4 py-3 rounded-xl border-2 transition-all flex items-center justify-between ${
+                  customColors
+                    ? 'border-[#4A9EFF] bg-[#4A9EFF]/10'
+                    : 'border-gray-600 bg-transparent'
+                }`}
+              >
+                <span className={`noto-sans-arabic-medium text-[15px] ${customColors ? 'text-[#4A9EFF]' : 'text-white'}`}>
+                  استخدام الألوان المخصصة
+                </span>
+                <div className={`w-12 h-6 rounded-full transition-all relative ${customColors ? 'bg-[#4A9EFF]' : 'bg-[#4A4A4A]'}`}>
+                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${customColors ? 'right-1' : 'right-7'}`} />
+                </div>
+              </button>
+              
+              {/* Color Pickers - Show when custom colors enabled */}
+              {customColors && (
+                <div className="mt-4 space-y-4 p-4 bg-[#2C2C2C] rounded-xl">
+                  {/* Background Color */}
+                  <div>
+                    <label className="text-white noto-sans-arabic-medium text-[14px] mb-2 block">
+                      لون الخلفية
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={customBgColor}
+                        onChange={(e) => setCustomBgColor(e.target.value)}
+                        className="w-12 h-12 rounded-lg cursor-pointer border-2 border-gray-600"
+                      />
+                      <input
+                        type="text"
+                        value={customBgColor}
+                        onChange={(e) => setCustomBgColor(e.target.value)}
+                        className="flex-1 px-3 py-2 bg-[#3C3C3C] text-white rounded-lg border border-gray-600 noto-sans-arabic-medium text-[14px]"
+                        placeholder="#2C2C2C"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Text Color */}
+                  <div>
+                    <label className="text-white noto-sans-arabic-medium text-[14px] mb-2 block">
+                      لون النص
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={customTextColor}
+                        onChange={(e) => setCustomTextColor(e.target.value)}
+                        className="w-12 h-12 rounded-lg cursor-pointer border-2 border-gray-600"
+                      />
+                      <input
+                        type="text"
+                        value={customTextColor}
+                        onChange={(e) => setCustomTextColor(e.target.value)}
+                        className="flex-1 px-3 py-2 bg-[#3C3C3C] text-white rounded-lg border border-gray-600 noto-sans-arabic-medium text-[14px]"
+                        placeholder="#FFFFFF"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Font Family Selection */}
             <div>
               <h3 className="text-white noto-sans-arabic-medium text-[16px] mb-4">الخط</h3>
-              <div className="flex gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setFontFamily('noto')}
-                  className={`flex-1 px-4 py-3 rounded-xl border-2 transition-all ${
+                  className={`px-3 py-3 rounded-xl border-2 transition-all ${
                     fontFamily === 'noto' 
                       ? 'border-[#4A9EFF] bg-[#4A9EFF]/10 text-[#4A9EFF]' 
                       : 'border-gray-600 text-white'
                   }`}
                 >
-                  <span className="noto-sans-arabic-medium text-[15px]">Noto Sans</span>
+                  <span className="noto-sans-arabic-medium text-[14px]">Noto Sans</span>
                 </button>
                 <button
                   onClick={() => setFontFamily('amiri')}
-                  className={`flex-1 px-4 py-3 rounded-xl border-2 transition-all ${
+                  className={`px-3 py-3 rounded-xl border-2 transition-all ${
                     fontFamily === 'amiri' 
                       ? 'border-[#4A9EFF] bg-[#4A9EFF]/10 text-[#4A9EFF]' 
                       : 'border-gray-600 text-white'
                   }`}
                 >
-                  <span className="text-[15px]" style={{ fontFamily: 'Amiri, serif' }}>أميري</span>
+                  <span className="text-[14px]" style={{ fontFamily: 'Amiri, serif' }}>أميري</span>
+                </button>
+                <button
+                  onClick={() => setFontFamily('tajawal')}
+                  className={`px-3 py-3 rounded-xl border-2 transition-all ${
+                    fontFamily === 'tajawal' 
+                      ? 'border-[#4A9EFF] bg-[#4A9EFF]/10 text-[#4A9EFF]' 
+                      : 'border-gray-600 text-white'
+                  }`}
+                >
+                  <span className="text-[14px]" style={{ fontFamily: 'Tajawal, sans-serif' }}>تجوال</span>
+                </button>
+                <button
+                  onClick={() => setFontFamily('cairo')}
+                  className={`px-3 py-3 rounded-xl border-2 transition-all ${
+                    fontFamily === 'cairo' 
+                      ? 'border-[#4A9EFF] bg-[#4A9EFF]/10 text-[#4A9EFF]' 
+                      : 'border-gray-600 text-white'
+                  }`}
+                >
+                  <span className="text-[14px]" style={{ fontFamily: 'Cairo, sans-serif' }}>القاهرة</span>
+                </button>
+                <button
+                  onClick={() => setFontFamily('scheherazade')}
+                  className={`px-3 py-3 rounded-xl border-2 transition-all col-span-2 ${
+                    fontFamily === 'scheherazade' 
+                      ? 'border-[#4A9EFF] bg-[#4A9EFF]/10 text-[#4A9EFF]' 
+                      : 'border-gray-600 text-white'
+                  }`}
+                >
+                  <span className="text-[14px]" style={{ fontFamily: 'Scheherazade New, serif' }}>شهرزاد</span>
                 </button>
               </div>
             </div>
@@ -563,10 +846,11 @@ const ChapterReaderPage = () => {
       {/* Main Content */}
       <div 
         ref={contentRef}
-        className="pt-24 pb-20 px-6 overflow-y-auto custom-scrollbar"
+        className="pt-4 pb-8 px-6 overflow-y-auto custom-scrollbar"
         style={{ 
-          maxHeight: '100vh',
-          fontFamily: fontFamily === 'noto' ? 'Noto Sans Arabic, sans-serif' : 'Amiri, serif'
+          height: 'calc(100vh - 72px)',
+          marginTop: '72px',
+          fontFamily: fontFamilyMap[fontFamily]
         }}
       >
         {chapterLoading || novelLoading ? (
@@ -589,7 +873,7 @@ const ChapterReaderPage = () => {
             <h1 
               className="noto-sans-arabic-extrabold mb-8 text-center"
               style={{ 
-                color: currentTheme.text,
+                color: headerColor,
                 fontSize: `${fontSize + 8}px`,
                 lineHeight: '1.6'
               }}
@@ -608,6 +892,7 @@ const ChapterReaderPage = () => {
                     onCommentClick={handleParagraphClick}
                     theme={theme}
                     fontSize={fontSize}
+                    textColor={contentColor}
                   />
                 ))
               ) : chapter.content ? (
@@ -615,7 +900,7 @@ const ChapterReaderPage = () => {
                 <div 
                   className="leading-[2] whitespace-pre-line py-4 px-4 md:px-6"
                   style={{ 
-                    color: currentTheme.text,
+                    color: contentColor,
                     fontSize: `${fontSize}px`
                   }}
                 >
@@ -631,7 +916,7 @@ const ChapterReaderPage = () => {
             </div>
 
             {/* Navigation Buttons - Always at bottom */}
-            <div className="flex justify-between items-center mt-auto pt-8 pb-4 border-t" style={{ borderColor: theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8' }}>
+            <div className="flex justify-between items-center mt-auto pt-8 pb-2 border-t" style={{ borderColor: theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8' }}>
               {prevChapterId ? (
                 <button 
                   onClick={() => navigate(`/novel/${novelSlug}/chapter/${prevChapterId}`)}

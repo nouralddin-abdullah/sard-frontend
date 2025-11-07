@@ -1,0 +1,55 @@
+/**
+ * سَرْد - Custom Docusaurus Styles
+ */
+
+:root {
+  --ifm-color-primary: #4A9EFF;
+  --ifm-color-primary-dark: #2a8eff;
+  --ifm-color-primary-darker: #1a7eff;
+  --ifm-color-primary-darkest: #0066dd;
+  --ifm-color-primary-light: #6aafff;
+  --ifm-color-primary-lighter: #7ab9ff;
+  --ifm-color-primary-lightest: #9acfff;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  
+  /* Arabic font */
+  --ifm-font-family-base: 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
+  --ifm-heading-font-family: 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #4A9EFF;
+  --ifm-color-primary-dark: #2a8eff;
+  --ifm-color-primary-darker: #1a7eff;
+  --ifm-color-primary-darkest: #6aafff;
+  --ifm-color-primary-light: #6aafff;
+  --ifm-color-primary-lighter: #7ab9ff;
+  --ifm-color-primary-lightest: #9acfff;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  
+  --ifm-background-color: #2C2C2C;
+  --ifm-navbar-background-color: #2C2C2C;
+}
+
+/* RTL Support */
+html[dir='rtl'] {
+  direction: rtl;
+}
+
+/* Custom styling */
+.navbar__brand {
+  font-family: 'Noto Sans Arabic', sans-serif;
+  font-weight: 800;
+}
+
+.menu__link {
+  font-family: 'Noto Sans Arabic', sans-serif;
+  font-weight: 600;
+}
+
+article h1, article h2, article h3, article h4 {
+  font-family: 'Noto Sans Arabic', sans-serif;
+  font-weight: 800;
+}

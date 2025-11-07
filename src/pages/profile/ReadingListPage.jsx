@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link, useNavigate } from "react-router";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Loader2, MoreVertical, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
 import StarRating from "../../components/common/StarRating";
