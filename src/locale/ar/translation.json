@@ -104,10 +104,8 @@
     },
     "aboutMe": {
       "joined": "انضم",
-      "red": "قرأ",
-      "chapter": "فصل",
-      "gave": "أعطى",
-      "rating": "تقييم",
+      "novelsInLibrary": "رواية في المكتبة",
+      "rating": "مراجعة",
       "commented": "قام بالتعليق",
       "times": "مرة",
       "followers": "المتابعين",

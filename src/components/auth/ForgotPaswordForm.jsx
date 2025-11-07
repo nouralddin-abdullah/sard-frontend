@@ -69,7 +69,7 @@ export default function ForgotPasswordForm() {
           <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
             <Mail className="h-8 w-8 text-green-600" />
           </div>
-          <h3 className="text-xl font-semibold text-white mb-2">
+          <h3 className="text-xl text-white mb-2 noto-sans-arabic-bold">
             {t("auth.forgotPassword.resetLinkSent")}
           </h3>
         </div>
@@ -84,7 +84,7 @@ export default function ForgotPasswordForm() {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-300 mb-2"
+            className="block text-sm text-gray-300 mb-2 noto-sans-arabic-bold"
           >
             {t("auth.forgotPassword.email")}
           </label>
@@ -98,22 +98,22 @@ export default function ForgotPasswordForm() {
               type="email"
               value={formFields.email}
               onChange={handleChange}
-              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 noto-sans-arabic-medium"
               placeholder={t("auth.forgotPassword.emailPlaceholder")}
             />
           </div>
-          {errors.email && <p className="text-red-600 my-3">{errors.email}</p>}
+          {errors.email && <p className="text-red-600 my-3 noto-sans-arabic-medium">{errors.email}</p>}
         </div>
 
         {forgotPassword.isError && (
-          <p className="text-red-600 my-3">{forgotPassword.error}</p>
+          <p className="text-red-600 my-3 noto-sans-arabic-medium">{forgotPassword.error}</p>
         )}
 
         {/* Submit Button */}
         <button
           type="submit"
           disabled={forgotPassword.isLoading}
-          className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 group"
+          className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 group noto-sans-arabic-bold"
           style={{
             backgroundColor: forgotPassword.isLoading ? "#4F46E5" : "#2563EB",
           }}

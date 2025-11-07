@@ -11,8 +11,10 @@ import mainPicture from "../../assets/mainPicture.jpg";
 import profilePicture from "../../assets/profilePicture.jpg";
 import { useGetUserByUsername } from "../../hooks/user/useGetUserByUsername";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
-import UpdateUserModal from "../../components/profile/UpdateUserModal";
 import FollowToggle from "../../components/common/FollowToggle";
+import { FaFacebook, FaDiscord } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import { toast } from "sonner";
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -22,7 +24,15 @@ const ProfilePage = () => {
   const { t } = useTranslation();
 
   const [selectedSubPage, setSelectedSubPage] = useState("about-me");
-  const [isUpdateMeOpen, setIsUpdateMeOpen] = useState(false);
+  const [showDiscordTooltip, setShowDiscordTooltip] = useState(false);
+
+  const handleDiscordClick = () => {
+    if (userData?.discordUrl) {
+      navigator.clipboard.writeText(userData.discordUrl);
+      toast.success("تم نسخ اسم المستخدم على Discord");
+      setShowDiscordTooltip(false);
+    }
+  };
 
   /* 
         in order to change the text written in the buttons that navigates between sections you have to use the t function in this array
@@ -98,11 +108,65 @@ const ProfilePage = () => {
       <div className="bg-zinc-800 min-h-screen">
         {/* profile image, username */}
         <div
-          className="w-full h-80 bg-cover bg-center flex justify-center"
+          className="w-full h-80 bg-cover bg-center flex justify-center relative"
           style={{
             backgroundImage: `url(${userData?.profileBanner || profilePicture})`,
           }}
         >
+          {/* Social Media Icons - Bottom Left Corner */}
+          {(userData?.facebookUrl || userData?.twitterUrl || userData?.discordUrl) && (
+            <div className="absolute bottom-4 left-4 flex gap-2">
+              {userData?.facebookUrl && (
+                <a
+                  href={userData.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-[#1877f2] transition-all duration-300 group"
+                  title="Facebook"
+                >
+                  <FaFacebook className="text-white text-xl group-hover:scale-110 transition-transform" />
+                </a>
+              )}
+              
+              {userData?.twitterUrl && (
+                <a
+                  href={userData.twitterUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black transition-all duration-300 group"
+                  title="X (Twitter)"
+                >
+                  <FaXTwitter className="text-white text-xl group-hover:scale-110 transition-transform" />
+                </a>
+              )}
+              
+              {userData?.discordUrl && (
+                <div className="relative">
+                  <button
+                    onClick={handleDiscordClick}
+                    onMouseEnter={() => setShowDiscordTooltip(true)}
+                    onMouseLeave={() => setShowDiscordTooltip(false)}
+                    className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-[#5865f2] transition-all duration-300 group"
+                    title="Discord"
+                  >
+                    <FaDiscord className="text-white text-xl group-hover:scale-110 transition-transform" />
+                  </button>
+                  
+                  {/* Discord Tooltip */}
+                  {showDiscordTooltip && (
+                    <div className="absolute bottom-12 left-0 bg-[#2C2C2C] text-white px-3 py-2 rounded-lg shadow-lg whitespace-nowrap z-10 noto-sans-arabic-medium text-sm">
+                      <div className="mb-1 text-gray-400">Discord:</div>
+                      <div className="font-bold" dir="ltr">{userData.discordUrl}</div>
+                      <div className="text-xs text-gray-400 mt-1">اضغط للنسخ</div>
+                      {/* Arrow */}
+                      <div className="absolute -bottom-2 left-4 w-0 h-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-[#2C2C2C]"></div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
         <div className=" flex justify-center items-center flex-col gap-4">
           <img
             src={userData?.profilePhoto || mainPicture}
@@ -139,15 +203,15 @@ const ProfilePage = () => {
         </div>
 
         {loggedInUser?.id === userData?.id ? (
-          <div
-            className="flex justify-between items-center gap-3 bg-neutral-700 py-1.5 px-2 md:py-2 md:px-3 rounded-md cursor-pointer"
-            onClick={() => setIsUpdateMeOpen(true)}
+          <Link
+            to="/settings"
+            className="flex justify-between items-center gap-3 bg-neutral-700 py-1.5 px-2 md:py-2 md:px-3 rounded-md cursor-pointer hover:bg-neutral-600 transition-colors"
           >
             <Settings className="w-[18px] h-[18px] md:w-[24px] md:h-[24px]"></Settings>
-            <button className="cursor-pointer text-shadow-sm text-shadow-gray-800 hidden md:block noto-sans-arabic-medium">
+            <span className="cursor-pointer text-shadow-sm text-shadow-gray-800 hidden md:block noto-sans-arabic-medium">
               {t("profilePage.profileNav.profileSettings")}
-            </button>
-          </div>
+            </span>
+          </Link>
         ) : (
           <FollowToggle
             isFollowed={userData?.isFollowing}
@@ -161,12 +225,6 @@ const ProfilePage = () => {
       {selectedSubPage === "my-novels" && <MyNovels />}
       {selectedSubPage === "library" && <Library username={username} />}
       {selectedSubPage === "badges" && <BadgesList />}
-
-      <UpdateUserModal
-        isOpen={isUpdateMeOpen}
-        onClose={() => setIsUpdateMeOpen(false)}
-        userData={userData}
-      />
       </div>
     </>
   );

@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Home, Library, Pen, User as UserIconLucide, LogOut, ChevronDown } from 'lucide-react';
+import { Search, Home, Library, Pen, User as UserIconLucide, LogOut, ChevronDown, X } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '../../store/authTokenStore';
+import SearchBar from './SearchBar';
 import Cookies from 'js-cookie';
 import { TOKEN_KEY } from '../../constants/token-key';
 
@@ -25,6 +26,7 @@ const Header = () => {
   const queryClient = useQueryClient();
   const { deleteToken } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -64,88 +66,83 @@ const Header = () => {
 
   // Show SVG icon if not logged in, loading, or image failed to load
   const showDefaultIcon = !currentUser || isLoading || !currentUser.profilePhoto || imageError;
+  
   return (
     <header className="bg-[#2C2C2C]" dir="rtl">
       {/* Desktop Header */}
       <div className="hidden md:block py-4 px-6">
         <div className="max-w-[1920px] mx-auto flex items-center gap-6">
-          {/* User Profile Dropdown */}
-          <div className="relative flex-shrink-0" ref={dropdownRef}>
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="hover:opacity-80 transition-opacity flex items-center gap-2 focus:outline-none"
-            >
-              {showDefaultIcon ? (
-                <UserIcon />
-              ) : (
-                <img
-                  src={currentUser.profilePhoto}
-                  alt={currentUser.displayName || 'User'}
-                  className="w-12 h-12 rounded-full object-cover"
-                  onError={() => setImageError(true)}
-                />
-              )}
-              <ChevronDown
-                className={`text-white transition-transform duration-300 ${
-                  isDropdownOpen ? 'rotate-180' : ''
-                }`}
-                size={20}
-              />
-            </button>
-
-            {/* Dropdown Menu */}
-            {isDropdownOpen && (
-              <div className="absolute top-full right-0 mt-2 w-48 bg-[#3C3C3C] rounded-lg shadow-lg overflow-hidden z-50">
-                {currentUser ? (
-                  // Logged in: Show Profile and Logout
-                  <>
-                    <Link
-                      to={`/profile/${currentUser.userName}`}
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
-                    >
-                      <UserIconLucide size={20} />
-                      <span className="text-[16px] noto-sans-arabic-extrabold">الملف الشخصي</span>
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
-                    >
-                      <LogOut size={20} />
-                      <span className="text-[16px] noto-sans-arabic-extrabold">تسجيل الخروج</span>
-                    </button>
-                  </>
-                ) : (
-                  // Not logged in: Show Login and Signup
-                  <>
-                    <Link
-                      to="/login"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
-                    >
-                      <UserIconLucide size={20} />
-                      <span className="text-[16px] noto-sans-arabic-extrabold">تسجيل الدخول</span>
-                    </Link>
-                    <Link
-                      to="/register"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
-                    >
-                      <UserIconLucide size={20} />
-                      <span className="text-[16px] noto-sans-arabic-extrabold">إنشاء حساب</span>
-                    </Link>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
             <h1 className="noto-sans-arabic-extrabold text-white text-[40px] leading-none">
               سَرْد
             </h1>
           </Link>
+
+          {/* User Profile Dropdown OR Login/Register Links */}
+          {currentUser ? (
+            // Logged In: Show User Profile Dropdown
+            <div className="relative flex-shrink-0" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="hover:opacity-80 transition-opacity flex items-center gap-2 focus:outline-none"
+              >
+                {showDefaultIcon ? (
+                  <UserIcon />
+                ) : (
+                  <img
+                    src={currentUser.profilePhoto}
+                    alt={currentUser.displayName || 'User'}
+                    className="w-12 h-12 rounded-full object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                )}
+                <ChevronDown
+                  className={`text-white transition-transform duration-300 ${
+                    isDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                  size={20}
+                />
+              </button>
+
+              {/* Dropdown Menu - Profile & Logout */}
+              {isDropdownOpen && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-[#3C3C3C] rounded-lg shadow-lg overflow-hidden z-50">
+                  <Link
+                    to={`/profile/${currentUser.userName}`}
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
+                  >
+                    <UserIconLucide size={20} />
+                    <span className="text-[16px] noto-sans-arabic-extrabold">الملف الشخصي</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
+                  >
+                    <LogOut size={20} />
+                    <span className="text-[16px] noto-sans-arabic-extrabold">تسجيل الخروج</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            // Not Logged In: Show Login / Register Links
+            <div className="flex items-center gap-8 flex-shrink-0">
+              <Link
+                to="/login"
+                className="noto-sans-arabic-extrabold text-white text-[20px] hover:opacity-80 transition-opacity"
+              >
+                تسجيل الدخول
+              </Link>
+              <Link
+                to="/register"
+                className="noto-sans-arabic-extrabold text-white text-[20px] hover:opacity-80 transition-opacity"
+              >
+                إنشاء حساب
+              </Link>
+            </div>
+          )}
 
           {/* Navigation Links */}
           <nav className="flex items-center gap-8">
@@ -172,100 +169,84 @@ const Header = () => {
           </Link>
 
           {/* Search Bar */}
-          <div className="flex-1 max-w-[400px]">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="ابحث بأسم الرواية"
-                className="noto-sans-arabic-extrabold w-full bg-white rounded-full px-6 py-3 pr-12 text-gray-800 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                dir="rtl"
-              />
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-            </div>
-          </div>
+          <SearchBar className="flex-1 max-w-[400px]" />
         </div>
       </div>
 
       {/* Mobile Header */}
       <div className="md:hidden">
         <div className="py-3 px-4 flex items-center justify-between">
-          {/* Right: User Profile Dropdown (smaller) */}
-          <div className="relative flex-shrink-0">
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="hover:opacity-80 transition-opacity flex items-center gap-1 focus:outline-none"
-            >
-              {showDefaultIcon ? (
-                <UserIconSmall />
-              ) : (
-                <img
-                  src={currentUser.profilePhoto}
-                  alt={currentUser.displayName || 'User'}
-                  className="w-8 h-8 rounded-full object-cover"
-                  onError={() => setImageError(true)}
-                />
-              )}
-              <ChevronDown
-                className={`text-white transition-transform duration-300 ${
-                  isDropdownOpen ? 'rotate-180' : ''
-                }`}
-                size={16}
-              />
-            </button>
-
-            {/* Dropdown Menu */}
-            {isDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-44 bg-[#3C3C3C] rounded-lg shadow-lg overflow-hidden z-50">
-                {currentUser ? (
-                  // Logged in: Show Profile and Logout
-                  <>
-                    <Link
-                      to={`/profile/${currentUser.userName}`}
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2.5 text-white hover:bg-[#4A4A4A] transition-colors"
-                    >
-                      <UserIconLucide size={18} />
-                      <span className="text-[14px] noto-sans-arabic-extrabold">الملف الشخصي</span>
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 text-white hover:bg-[#4A4A4A] transition-colors"
-                    >
-                      <LogOut size={18} />
-                      <span className="text-[14px] noto-sans-arabic-extrabold">تسجيل الخروج</span>
-                    </button>
-                  </>
-                ) : (
-                  // Not logged in: Show Login and Signup
-                  <>
-                    <Link
-                      to="/login"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2.5 text-white hover:bg-[#4A4A4A] transition-colors"
-                    >
-                      <UserIconLucide size={18} />
-                      <span className="text-[14px] noto-sans-arabic-extrabold">تسجيل الدخول</span>
-                    </Link>
-                    <Link
-                      to="/register"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2.5 text-white hover:bg-[#4A4A4A] transition-colors"
-                    >
-                      <UserIconLucide size={18} />
-                      <span className="text-[14px] noto-sans-arabic-extrabold">إنشاء حساب</span>
-                    </Link>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Logo */}
+          {/* Logo - First Position */}
           <Link to="/" className="flex-shrink-0">
             <h1 className="noto-sans-arabic-extrabold text-white text-[24px] leading-none">
               سَرْد
             </h1>
           </Link>
+
+          {/* Right: User Profile Dropdown OR Login/Register */}
+          {currentUser ? (
+            // Logged In: Show User Profile Dropdown
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="hover:opacity-80 transition-opacity flex items-center gap-1 focus:outline-none"
+              >
+                {showDefaultIcon ? (
+                  <UserIconSmall />
+                ) : (
+                  <img
+                    src={currentUser.profilePhoto}
+                    alt={currentUser.displayName || 'User'}
+                    className="w-8 h-8 rounded-full object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                )}
+                <ChevronDown
+                  className={`text-white transition-transform duration-300 ${
+                    isDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                  size={16}
+                />
+              </button>
+
+              {/* Dropdown Menu - Profile & Logout */}
+              {isDropdownOpen && (
+                <div className="absolute top-full left-0 mt-2 w-44 bg-[#3C3C3C] rounded-lg shadow-lg overflow-hidden z-50">
+                  <Link
+                    to={`/profile/${currentUser.userName}`}
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2.5 text-white hover:bg-[#4A4A4A] transition-colors"
+                  >
+                    <UserIconLucide size={18} />
+                    <span className="text-[14px] noto-sans-arabic-extrabold">الملف الشخصي</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 text-white hover:bg-[#4A4A4A] transition-colors"
+                  >
+                    <LogOut size={18} />
+                    <span className="text-[14px] noto-sans-arabic-extrabold">تسجيل الخروج</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            // Not Logged In: Show Login / Register Links
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <Link
+                to="/login"
+                className="noto-sans-arabic-extrabold text-white text-[16px] hover:opacity-80 transition-opacity"
+              >
+                تسجيل الدخول
+              </Link>
+              <Link
+                to="/register"
+                className="noto-sans-arabic-extrabold text-white text-[16px] hover:opacity-80 transition-opacity"
+              >
+                إنشاء حساب
+              </Link>
+            </div>
+          )}
 
           {/* Home Icon */}
           <Link 
@@ -276,32 +257,57 @@ const Header = () => {
             <Home size={24} />
           </Link>
 
-          {/* Library Icon */}
-          <Link 
-            to="/library" 
-            className="flex-shrink-0 text-white hover:opacity-80 transition-opacity"
-            aria-label="المكتبة"
-          >
-            <Library size={24} />
-          </Link>
+          {/* Library Icon - Only show when logged in */}
+          {currentUser && (
+            <Link 
+              to="/library" 
+              className="flex-shrink-0 text-white hover:opacity-80 transition-opacity"
+              aria-label="المكتبة"
+            >
+              <Library size={24} />
+            </Link>
+          )}
 
-          {/* Author Tools Icon */}
-          <Link 
-            to="/dashboard/works" 
-            className="flex-shrink-0 text-white hover:opacity-80 transition-opacity"
-            aria-label="أدوات المؤلف"
-          >
-            <Pen size={24} />
-          </Link>
+          {/* Author Tools Icon - Only show when logged in */}
+          {currentUser && (
+            <Link 
+              to="/dashboard/works" 
+              className="flex-shrink-0 text-white hover:opacity-80 transition-opacity"
+              aria-label="أدوات المؤلف"
+            >
+              <Pen size={24} />
+            </Link>
+          )}
 
           {/* Search Icon */}
           <button 
+            onClick={() => setIsMobileSearchOpen(true)}
             className="flex-shrink-0 text-white hover:opacity-80 transition-opacity"
             aria-label="بحث"
           >
             <Search size={24} />
           </button>
         </div>
+
+        {/* Mobile Search Modal */}
+        {isMobileSearchOpen && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center pt-4 px-4">
+            <div className="bg-white rounded-lg w-full max-w-lg">
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-gray-800 noto-sans-arabic-bold text-lg">البحث</h3>
+                  <button
+                    onClick={() => setIsMobileSearchOpen(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+                <SearchBar className="w-full" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

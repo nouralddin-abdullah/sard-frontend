@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 import { useLogin } from "../../hooks/auth/useLogin";
 import useAuthStore from "../../store/authTokenStore";
 import { useNavigate } from "react-router-dom";
@@ -150,12 +151,12 @@ export default function LoginForm() {
 
       {/* Forgot Password */}
       <div className="flex items-center justify-end">
-        <button
-          type="button"
+        <Link
+          to="/forgot-password"
           className="text-[14px] text-[#4A9EFF] hover:text-[#6BB4FF] transition-colors noto-sans-arabic-medium"
         >
           {t("auth.login.forgotPassword")}
-        </button>
+        </Link>
       </div>
 
       {/* Error Message */}

@@ -158,6 +158,34 @@ export const safeFormat = (dateString, formatter = formatDateTime) => {
   return formatter(dateString);
 };
 
+// Get time since date in Arabic (for joined date)
+export const getTimeSinceArabic = (dateString) => {
+  if (!dateString) return "غير محدد";
+  
+  const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+  const date = new Date(utcDateString);
+  
+  if (isNaN(date.getTime())) return "غير محدد";
+  
+  const now = new Date();
+  const diffMs = now - date;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffMonths = Math.floor(diffDays / 30);
+  const diffYears = Math.floor(diffDays / 365);
+  
+  if (diffYears >= 1) {
+    return `منذ ${diffYears} ${diffYears === 1 ? 'سنة' : diffYears === 2 ? 'سنتين' : 'سنوات'}`;
+  }
+  if (diffMonths >= 1) {
+    return `منذ ${diffMonths} ${diffMonths === 1 ? 'شهر' : diffMonths === 2 ? 'شهرين' : 'شهور'}`;
+  }
+  if (diffDays >= 1) {
+    return `منذ ${diffDays} ${diffDays === 1 ? 'يوم' : diffDays === 2 ? 'يومين' : 'أيام'}`;
+  }
+  
+  return "منذ اليوم";
+};
+
 // Example usage:
 /*
 const exampleDate = '2025-08-03T17:12:14.7334858';
@@ -171,4 +199,5 @@ console.log(formatTime12Hour(exampleDate));   // 5:12 PM
 console.log(formatTime24Hour(exampleDate));   // 17:12
 console.log(getTimeAgo(exampleDate));         // Will show relative time
 console.log(formatSmart(exampleDate));        // Context-aware formatting
+console.log(getTimeSinceArabic(exampleDate)); // منذ X سنوات/شهور/أيام
 */

@@ -11,7 +11,19 @@ const login = async (formData) => {
       },
     });
 
-    const data = await response.json();
+    // Handle 403 - Invalid credentials (before parsing JSON)
+    if (response.status === 403) {
+      throw new Error("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+    }
+
+    // Try to parse JSON response
+    let data;
+    try {
+      data = await response.json();
+    } catch (jsonError) {
+      // If JSON parsing fails, throw a generic error
+      throw new Error("حدث خطأ في الاتصال بالخادم");
+    }
 
     // Check if the HTTP request was successful
     if (!response.ok) {

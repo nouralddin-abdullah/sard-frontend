@@ -5,12 +5,15 @@ import ForgotPasswordPage from "../pages/auth/forgot-password";
 import LoginPage from "../pages/auth/login";
 import RegisterPage from "../pages/auth/register";
 import HomePage from "../pages/home/page";
+import LandingPage from "../pages/landing/page";
 import CreateNovelPage from "../pages/novel/create";
 import NovelPage from "../pages/novel/page";
 import ChapterReaderPage from "../pages/novel/chapter-reader";
 import ProfilePage from "../pages/profile/page";
+import SettingsPage from "../pages/profile/settings";
 import ReadingListPage from "../pages/profile/ReadingListPage";
 import LibraryPage from "../pages/profile/LibraryPage";
+import SearchPage from "../pages/search/page";
 import Test from "../pages/test";
 import EditWorkPage from "../pages/work/edit";
 import WorkDashboardPage from "../pages/work/dashboard";
@@ -32,7 +35,7 @@ const routes = [
     component: <ForgotPasswordPage />,
   },
   {
-    url: "/reset-password",
+    url: "/change-password",
     component: <ChangePasswordPage />,
   },
   {
@@ -47,6 +50,10 @@ const routes = [
   // pages
   {
     url: "/",
+    component: <LandingPage />,
+  },
+  {
+    url: "/home",
     component: <HomePage />,
   },
   {
@@ -58,8 +65,16 @@ const routes = [
     component: <LibraryPage />,
   },
   {
+    url: "/search",
+    component: <SearchPage />,
+  },
+  {
     url: "/profile/:username",
     component: <ProfilePage />,
+  },
+  {
+    url: "/settings",
+    component: <SettingsPage />,
   },
   {
     url: "/profile/:username/list/:listId",

@@ -1,10 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Eye, EyeOff, Lock, ArrowRight, CheckCircle } from "lucide-react";
-// import { useChangePassword } from "../../hooks/auth/useChangePassword"; // Uncomment when hook is available
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Eye, EyeOff, Lock, ArrowRight, CheckCircle, XCircle } from "lucide-react";
+import { useResetPassword } from "../../hooks/auth/useResetPassword";
+import { toast } from "sonner";
 
 export default function ChangePasswordForm() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const userId = searchParams.get("UserId");
+  const token = searchParams.get("token");
+
+  const { mutateAsync: resetPassword, isPending } = useResetPassword();
 
   const [formFields, setFormFields] = useState({
     newPassword: "",
@@ -19,6 +28,15 @@ export default function ChangePasswordForm() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [invalidLink, setInvalidLink] = useState(false);
+
+  useEffect(() => {
+    // Validate URL parameters
+    if (!userId || !token) {
+      setInvalidLink(true);
+      toast.error("رابط غير صالح. الرجاء طلب رابط جديد لإعادة تعيين كلمة المرور");
+    }
+  }, [userId, token]);
 
   const handleChange = (e) => {
     setFormFields({
@@ -34,21 +52,6 @@ export default function ChangePasswordForm() {
       }));
     }
   };
-
-  // Mock hook for demonstration - replace with actual hook when available
-  const changePassword = {
-    mutateAsync: async (data) => {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Change password request:", data);
-      setIsSuccess(true);
-    },
-    isLoading: false,
-    isError: false,
-    error: null,
-  };
-
-  // const { mutateAsync: changePassword, isLoading, isError, error } = useChangePassword(); // Use this when hook is available
 
   const validateFields = () => {
     let isValid = true;
@@ -88,15 +91,55 @@ export default function ChangePasswordForm() {
 
     if (!validateFields()) return;
 
+    if (!userId || !token) {
+      toast.error("رابط غير صالح");
+      return;
+    }
+
     try {
-      await changePassword.mutateAsync({
+      await resetPassword({
+        userId,
+        token,
         newPassword: formFields.newPassword,
-        confirmNewPassword: formFields.confirmNewPassword,
       });
+      
+      setIsSuccess(true);
+      toast.success("تم تغيير كلمة المرور بنجاح");
+
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     } catch (error) {
       console.error(error);
+      toast.error(error.message || "حدث خطأ أثناء تغيير كلمة المرور");
     }
   };
+
+  // Show error if missing parameters
+  if (invalidLink) {
+    return (
+      <div className="text-center py-8">
+        <div className="mb-6">
+          <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <XCircle className="h-8 w-8 text-red-600" />
+          </div>
+          <h3 className="text-xl text-white mb-2 noto-sans-arabic-bold">
+            رابط غير صالح
+          </h3>
+          <p className="text-gray-400 text-sm mb-4 noto-sans-arabic-medium">
+            هذا الرابط غير صالح أو منتهي الصلاحية
+          </p>
+          <button
+            onClick={() => navigate("/forgot-password")}
+            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors noto-sans-arabic-bold"
+          >
+            طلب رابط جديد
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (isSuccess) {
     return (
@@ -105,11 +148,14 @@ export default function ChangePasswordForm() {
           <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
             <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
-          <h3 className="text-xl font-semibold text-white mb-2">
+          <h3 className="text-xl text-white mb-2 noto-sans-arabic-bold">
             {t("auth.changePassword.passwordUpdated")}
           </h3>
-          <p className="text-gray-400 text-sm">
-            Your password has been successfully updated
+          <p className="text-gray-400 text-sm mb-4 noto-sans-arabic-medium">
+            يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة
+          </p>
+          <p className="text-sm text-gray-500 noto-sans-arabic-medium">
+            سيتم توجيهك إلى صفحة تسجيل الدخول خلال 3 ثوانٍ...
           </p>
         </div>
       </div>
@@ -123,7 +169,7 @@ export default function ChangePasswordForm() {
         <div>
           <label
             htmlFor="newPassword"
-            className="block text-sm font-medium text-gray-300 mb-2"
+            className="block text-sm text-gray-300 mb-2 noto-sans-arabic-bold"
           >
             {t("auth.changePassword.newPassword")}
           </label>
@@ -137,7 +183,7 @@ export default function ChangePasswordForm() {
               type={showNewPassword ? "text" : "password"}
               value={formFields.newPassword}
               onChange={handleChange}
-              className="w-full pl-10 pr-12 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full pl-10 pr-12 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 noto-sans-arabic-medium"
               placeholder={t("auth.changePassword.newPasswordPlaceholder")}
             />
             <button
@@ -161,7 +207,7 @@ export default function ChangePasswordForm() {
         <div>
           <label
             htmlFor="confirmNewPassword"
-            className="block text-sm font-medium text-gray-300 mb-2"
+            className="block text-sm text-gray-300 mb-2 noto-sans-arabic-bold"
           >
             {t("auth.changePassword.confirmNewPassword")}
           </label>
@@ -175,7 +221,7 @@ export default function ChangePasswordForm() {
               type={showConfirmNewPassword ? "text" : "password"}
               value={formFields.confirmNewPassword}
               onChange={handleChange}
-              className="w-full pl-10 pr-12 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full pl-10 pr-12 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 noto-sans-arabic-medium"
               placeholder={t(
                 "auth.changePassword.confirmNewPasswordPlaceholder"
               )}
@@ -197,20 +243,16 @@ export default function ChangePasswordForm() {
           )}
         </div>
 
-        {changePassword.isError && (
-          <p className="text-red-600 my-3">{changePassword.error}</p>
-        )}
-
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={changePassword.isLoading}
-          className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 group"
+          disabled={isPending}
+          className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 group noto-sans-arabic-bold"
           style={{
-            backgroundColor: changePassword.isLoading ? "#4F46E5" : "#2563EB",
+            backgroundColor: isPending ? "#4F46E5" : "#2563EB",
           }}
         >
-          {changePassword.isLoading ? (
+          {isPending ? (
             <div className="flex items-center">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
               {t("auth.changePassword.updatingPassword")}

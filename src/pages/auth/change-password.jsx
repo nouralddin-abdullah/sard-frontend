@@ -18,10 +18,10 @@ export default function ChangePasswordPage() {
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2">
+            <h2 className="text-3xl text-white mb-2 noto-sans-arabic-bold">
               {t("auth.changePassword.title")}
             </h2>
-            <p className="text-gray-400">{t("auth.changePassword.subtitle")}</p>
+            <p className="text-gray-400 noto-sans-arabic-medium">{t("auth.changePassword.subtitle")}</p>
           </div>
 
           {/* Form */}
@@ -31,7 +31,7 @@ export default function ChangePasswordPage() {
           <div className="mt-6">
             <Link
               to="/login"
-              className="flex items-center justify-center text-sm text-blue-400 hover:text-blue-300 transition-colors group"
+              className="flex items-center justify-center text-sm text-blue-400 hover:text-blue-300 transition-colors group noto-sans-arabic-medium"
             >
               <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
               {t("auth.changePassword.backToLogin")}
