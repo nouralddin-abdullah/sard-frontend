@@ -1,12 +1,19 @@
 import { BookCheckIcon, Calendar, MessageSquareText, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import FollowFrame from "../common/FollowFrame";
 import mainPicture from "../../assets/mainPicture.jpg";
 import AboutMePost from "../common/AboutMePost";
+import CreatePostModal from "./CreatePostModal";
 import { getTimeSinceArabic } from "../../utils/date";
+import { useGetUserPosts } from "../../hooks/post/useGetUserPosts";
 
-const AboutMe = ({ userData }) => {
+const AboutMe = ({ userData, isOwnProfile = false }) => {
   const { t } = useTranslation();
+  const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  
+  // Fetch user posts
+  const { data: postsData, isLoading: loadingPosts } = useGetUserPosts(userData?.id);
 
   const followers = userData?.recentFollowers;
   const totalFollowers = userData?.totalFollowers;
@@ -81,44 +88,66 @@ const AboutMe = ({ userData }) => {
 
         {/* profile writings */}
         <div className="w-full flex flex-col gap-10 md:gap-15">
-          <div className="bg-neutral-700 rounded-3xl p-3 flex items-center gap-5">
-            <img
-              src={mainPicture}
-              alt=""
-              className="w-12 md:w-16 rounded-full"
-            />
-            <textarea
-              placeholder={t("profilePage.aboutMe.writeSomething")}
-              className="bg-amber-50 w-full h-22 text-black p-6 rounded-3xl border-none outline-none resize-none noto-sans-arabic-medium"
-              onInput={(e) => {
-                e.target.style.height = "auto";
-                e.target.style.height = e.target.scrollHeight + "px";
-              }}
-            />
-          </div>
+          {/* Only show "write something" box if viewing own profile */}
+          {isOwnProfile && (
+            <div 
+              onClick={() => setIsCreatePostModalOpen(true)}
+              className="bg-neutral-700 rounded-3xl p-3 flex items-center gap-5 cursor-pointer hover:bg-neutral-600 transition-colors"
+            >
+              <img
+                src={userData?.profilePhoto || mainPicture}
+                alt=""
+                className="w-12 md:w-16 rounded-full"
+              />
+              <div className="bg-amber-50 w-full h-22 text-gray-500 p-6 rounded-3xl flex items-center noto-sans-arabic-medium">
+                {t("profilePage.aboutMe.writeSomething")}
+              </div>
+            </div>
+          )}
 
           <div>
-            <AboutMePost
-              postId="1"
-              content={
-                "أنا كقطٍّ مُشْمَشي، واجبٌ عليَّ أن أُحارب الشرَّ وأحمي الحيَّ ممَّا يهدِّده، فالعَدْلُ غريزتي، والمُغامرةُ طريقي."
-              }
-            />
-            <AboutMePost
-              postId="2"
-              content={
-                "That's testing for the posts in the about me page and it's done so far"
-              }
-            />
-            <AboutMePost
-              postId="3"
-              content={
-                "الحل معروف هما ٦ شهور بس يبن الناس هتغير حياتك فيهم هتبطل سكر هتبطل كارب هتبطل اكل هتبدأ بناء ضوئي هتضرب ابوك وامك هتروح الجيم تلعب باي بس هتصحي كل يوم ٤ الفجر تجري ورا الكلاب إللى تحت البيت"
-              }
-            />
+            {loadingPosts ? (
+              <div className="text-center py-8 text-[#B0B0B0] noto-sans-arabic-medium">
+                جاري تحميل المنشورات...
+              </div>
+            ) : postsData?.items && postsData.items.length > 0 ? (
+              postsData.items.map((post) => (
+                <AboutMePost
+                  key={post.id}
+                  postId={post.id}
+                  content={post.content}
+                  author={{
+                    userName: post.user?.userName || userData?.userName,
+                    displayName: post.user?.displayName || userData?.displayName,
+                    profilePhoto: post.user?.profilePhoto || userData?.profilePhoto,
+                  }}
+                  createdAt={post.createdAt}
+                  attachedImage={post.imageUrl}
+                  attachedNovel={post.novel}
+                  likesCount={post.likesCount}
+                  commentsCount={post.commentsCount}
+                  isLiked={post.isLikedByCurrentUser}
+                />
+              ))
+            ) : (
+              <div className="text-center py-8 text-[#B0B0B0] noto-sans-arabic-medium">
+                {isOwnProfile 
+                  ? "لا توجد منشورات بعد. ابدأ بكتابة أول منشور لك!" 
+                  : `لا توجد منشورات من ${userData?.displayName || "هذا المستخدم"} بعد`
+                }
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Create Post Modal - Only show if viewing own profile */}
+      {isOwnProfile && (
+        <CreatePostModal
+          isOpen={isCreatePostModalOpen}
+          onClose={() => setIsCreatePostModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

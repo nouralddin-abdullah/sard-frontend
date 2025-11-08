@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Home, Library, Pen, User as UserIconLucide, LogOut, ChevronDown, Trophy } from 'lucide-react';
+import { Search, Home, Library, Pen, User as UserIconLucide, LogOut, ChevronDown, Trophy, Bell } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '../../store/authTokenStore';
@@ -103,7 +103,7 @@ const Header = () => {
             {isDropdownOpen && (
               <div className="absolute top-full right-0 mt-2 w-48 bg-[#3C3C3C] rounded-lg shadow-lg overflow-hidden z-50">
                 {currentUser ? (
-                  // Logged in: Show Profile and Logout
+                  // Logged in: Show Profile, Notifications and Logout
                   <>
                     <Link
                       to={`/profile/${currentUser.userName}`}
@@ -112,6 +112,14 @@ const Header = () => {
                     >
                       <UserIconLucide size={20} />
                       <span className="text-[16px] noto-sans-arabic-extrabold">الملف الشخصي</span>
+                    </Link>
+                    <Link
+                      to="/notifications"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
+                    >
+                      <Bell size={20} />
+                      <span className="text-[16px] noto-sans-arabic-extrabold">الإشعارات</span>
                     </Link>
                     <button
                       onClick={handleLogout}

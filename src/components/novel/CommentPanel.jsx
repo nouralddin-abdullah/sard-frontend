@@ -37,6 +37,7 @@ const CommentPanel = ({
   const sortDropdownRef = useRef(null);
   const fileInputRef = useRef(null);
   const commentsEndRef = useRef(null);
+  const textareaRef = useRef(null);
 
   // Get current logged-in user
   const { data: currentUser } = useGetLoggedInUser();
@@ -141,6 +142,19 @@ const CommentPanel = ({
     }
   };
 
+  // Auto-resize textarea
+  const handleTextareaChange = (e) => {
+    setNewComment(e.target.value);
+    
+    // Reset height to auto to get the correct scrollHeight
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      // Set height based on scrollHeight, with max of 200px
+      const newHeight = Math.min(textareaRef.current.scrollHeight, 200);
+      textareaRef.current.style.height = `${newHeight}px`;
+    }
+  };
+
   // Handle delete comment
   const handleDelete = (commentId) => {
     setCommentToDelete(commentId);
@@ -214,6 +228,11 @@ const CommentPanel = ({
       setNewComment("");
       setReplyingTo(null);
       handleRemoveImage();
+      
+      // Reset textarea height
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     } catch (error) {
       toast.error(error.message || "فشل إضافة التعليق");
     }
@@ -569,12 +588,13 @@ const CommentPanel = ({
               )}
 
               <textarea
+                ref={textareaRef}
                 value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
+                onChange={handleTextareaChange}
                 placeholder="اكتب تعليقاً..."
-                className="w-full bg-[#5A5A5A] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#0077FF] placeholder-[#797979]"
+                className="w-full bg-[#5A5A5A] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#0077FF] placeholder-[#797979] overflow-hidden"
                 rows="2"
-                style={{ maxHeight: "120px" }}
+                style={{ minHeight: "60px", maxHeight: "200px" }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();

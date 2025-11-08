@@ -576,7 +576,7 @@ const SearchPage = () => {
                                   {/* Follow Button */}
                                   <div className="flex-shrink-0">
                                     <FollowToggle
-                                      isFollowed={false}
+                                      isFollowing={user.isFollowing || false}
                                       userId={user.id}
                                     />
                                   </div>

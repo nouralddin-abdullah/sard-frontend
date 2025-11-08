@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import { ThumbsUp, MessageCircle, Flag, Trash2, Loader2, X } from "lucide-react";
 import { useCommentReplies } from "../../hooks/comment/useCommentReplies";
 import { getTimeAgo } from "../../utils/date";
@@ -28,7 +28,6 @@ const CommentReplies = ({
   } = useCommentReplies(parentCommentId, sorting);
 
   const replies = repliesData?.pages.flatMap((page) => page.items) || [];
-  const repliesEndRef = useRef(null);
 
   // Scroll to load more
   const handleScroll = useCallback(
@@ -40,10 +39,6 @@ const CommentReplies = ({
     },
     [hasNextPage, isFetchingNextPage, fetchNextPage]
   );
-
-  useEffect(() => {
-    repliesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
 
   // Handle delete with modal
   const handleDelete = (replyId) => {
@@ -176,8 +171,6 @@ const CommentReplies = ({
             <Loader2 className="w-4 h-4 animate-spin text-[#0077FF]" />
           </div>
         )}
-
-        <div ref={repliesEndRef} />
       </div>
 
       {/* Delete Confirmation Modal */}

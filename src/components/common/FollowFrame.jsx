@@ -10,7 +10,7 @@ const FollowFrame = ({ followType, usersList, total }) => {
       <div className="text-md md:text-2xl font-semibold">{followType}</div>
       <div className="flex justify-center items-center">
         {usersList?.map((item) => (
-          <Link to={`/profile/${item?.userName}`}>
+          <Link key={item?.userName || item?.id} to={`/profile/${item?.userName}`}>
             <img
               src={item?.profilePhoto}
               alt=""

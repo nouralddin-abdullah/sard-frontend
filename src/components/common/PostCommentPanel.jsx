@@ -1,57 +1,56 @@
-import { useState, useRef, useEffect } from "react";
-import { X, ThumbsUp, MessageCircle, Flag, ChevronDown, Image as ImageIcon } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { X, ThumbsUp, MessageCircle, Flag, ChevronDown, Image as ImageIcon, Loader2, Trash2 } from "lucide-react";
+import { usePostComments } from "../../hooks/comment/usePostComments";
+import { useCreatePostComment } from "../../hooks/comment/useCreatePostComment";
+import { useLikeComment } from "../../hooks/comment/useLikeComment";
+import { useUnlikeComment } from "../../hooks/comment/useUnlikeComment";
+import { useDeleteComment } from "../../hooks/comment/useDeleteComment";
+import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
+import { getTimeAgo } from "../../utils/date";
+import { toast } from "sonner";
+import CommentReplies from "../novel/CommentReplies";
+import ConfirmModal from "./ConfirmModal";
 
 const PostCommentPanel = ({ isOpen, postId }) => {
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      userId: "user1",
-      username: "محارب_الأشرار",
-      displayName: "محارب الأشرار",
-      avatar: "/profilePicture.jpg",
-      content: "منشور رائع! معلومات قيمة ومفيدة جداً. شكراً على المشاركة",
-      likes: 12,
-      isLiked: false,
-      timestamp: "منذ ساعتين",
-      replies: [
-        {
-          id: 11,
-          userId: "user2",
-          username: "قارئ_نهم",
-          displayName: "قارئ نهم",
-          avatar: "/badge-2.png",
-          content: "أوافقك الرأي تماماً!",
-          likes: 5,
-          isLiked: true,
-          timestamp: "منذ ساعة"
-        }
-      ]
-    },
-    {
-      id: 2,
-      userId: "user3",
-      username: "عاشق_الروايات",
-      displayName: "عاشق الروايات",
-      avatar: "/badge-3.png",
-      content: "محتوى ممتاز! أتمنى المزيد من هذه المنشورات",
-      likes: 8,
-      isLiked: true,
-      timestamp: "منذ 3 ساعات",
-      replies: []
-    }
-  ]);
-
-  const [sortBy, setSortBy] = useState("newest");
+  const [expandedReplies, setExpandedReplies] = useState({});
+  const [sortBy, setSortBy] = useState("recent");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
+  const [likingCommentId, setLikingCommentId] = useState(null);
 
   const panelRef = useRef(null);
   const sortDropdownRef = useRef(null);
   const fileInputRef = useRef(null);
+  const textareaRef = useRef(null);
 
+  // Get current logged-in user
+  const { data: currentUser } = useGetLoggedInUser();
+  const currentUserId = currentUser?.id;
+
+  // API Hooks
+  const {
+    data: commentsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isLoadingComments,
+    refetch: refetchComments,
+  } = usePostComments(postId, sortBy, { enabled: isOpen });
+
+  const createCommentMutation = useCreatePostComment();
+  const likeCommentMutation = useLikeComment();
+  const unlikeCommentMutation = useUnlikeComment();
+  const deleteCommentMutation = useDeleteComment();
+
+  // Flatten comments from pages
+  const comments = commentsData?.pages.flatMap((page) => page.items) || [];
+
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
@@ -62,6 +61,40 @@ const PostCommentPanel = ({ isOpen, postId }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Handle infinite scroll
+  const handleScroll = useCallback((e) => {
+    const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop <= clientHeight * 1.5 && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Handle like/unlike toggle
+  const handleLike = async (commentId, isCurrentlyLiked) => {
+    if (!currentUserId) {
+      toast.error("يجب تسجيل الدخول للإعجاب بالتعليقات");
+      return;
+    }
+
+    if (likingCommentId === commentId) return; // Prevent double-click
+
+    setLikingCommentId(commentId);
+
+    try {
+      if (isCurrentlyLiked) {
+        await unlikeCommentMutation.mutateAsync(commentId);
+        toast.success("تم إلغاء الإعجاب");
+      } else {
+        await likeCommentMutation.mutateAsync(commentId);
+        toast.success("تم الإعجاب بالتعليق");
+      }
+    } catch (error) {
+      toast.error(error.message || "فشل تحديث الإعجاب");
+    } finally {
+      setLikingCommentId(null);
+    }
+  };
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -83,97 +116,88 @@ const PostCommentPanel = ({ isOpen, postId }) => {
     }
   };
 
-  const handleLike = (commentId, isReply = false, parentId = null) => {
-    if (isReply) {
-      setComments(comments.map(comment => {
-        if (comment.id === parentId) {
-          return {
-            ...comment,
-            replies: comment.replies.map(reply => {
-              if (reply.id === commentId) {
-                return {
-                  ...reply,
-                  isLiked: !reply.isLiked,
-                  likes: reply.isLiked ? reply.likes - 1 : reply.likes + 1
-                };
-              }
-              return reply;
-            })
-          };
-        }
-        return comment;
-      }));
-    } else {
-      setComments(comments.map(comment => {
-        if (comment.id === commentId) {
-          return {
-            ...comment,
-            isLiked: !comment.isLiked,
-            likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1
-          };
-        }
-        return comment;
-      }));
+  // Auto-resize textarea
+  const handleTextareaChange = (e) => {
+    setNewComment(e.target.value);
+    
+    // Reset height to auto to get the correct scrollHeight
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      // Set height based on scrollHeight, with max of 200px
+      const newHeight = Math.min(textareaRef.current.scrollHeight, 200);
+      textareaRef.current.style.height = `${newHeight}px`;
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!newComment.trim() && !selectedImage) return;
-
-    if (replyingTo) {
-      const newReply = {
-        id: Date.now(),
-        userId: "currentUser",
-        username: "أنت",
-        displayName: "أنت",
-        avatar: "/profilePicture.jpg",
-        content: newComment,
-        image: imagePreview,
-        likes: 0,
-        isLiked: false,
-        timestamp: "الآن"
-      };
-
-      setComments(comments.map(comment => {
-        if (comment.id === replyingTo) {
-          return {
-            ...comment,
-            replies: [...comment.replies, newReply]
-          };
-        }
-        return comment;
-      }));
-    } else {
-      const newCommentObj = {
-        id: Date.now(),
-        userId: "currentUser",
-        username: "أنت",
-        displayName: "أنت",
-        avatar: "/profilePicture.jpg",
-        content: newComment,
-        image: imagePreview,
-        likes: 0,
-        isLiked: false,
-        timestamp: "الآن",
-        replies: []
-      };
-
-      setComments([newCommentObj, ...comments]);
+    
+    if (!currentUser) {
+      toast.error("يجب تسجيل الدخول للتعليق");
+      return;
     }
 
-    setNewComment("");
-    setReplyingTo(null);
-    handleRemoveImage();
+    if (newComment.length > 2000) {
+      toast.error("التعليق يجب أن لا يتجاوز 2000 حرف");
+      return;
+    }
+
+    const parentCommentIdToExpand = replyingTo;
+
+    try {
+      await createCommentMutation.mutateAsync({
+        postId,
+        content: newComment,
+        attachedImage: selectedImage,
+        parentCommentId: replyingTo,
+        currentUser, // For optimistic update
+      });
+
+      toast.success(replyingTo ? "تمت إضافة الرد بنجاح" : "تم إضافة التعليق بنجاح");
+      
+      // Auto-expand replies if this was a reply
+      if (parentCommentIdToExpand) {
+        setExpandedReplies(prev => ({
+          ...prev,
+          [parentCommentIdToExpand]: true
+        }));
+      }
+
+      setNewComment("");
+      setReplyingTo(null);
+      handleRemoveImage();
+      
+      // Reset textarea height
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
+    } catch (error) {
+      toast.error(error.message || "فشل إضافة التعليق");
+    }
   };
 
-  const sortedComments = [...comments].sort((a, b) => {
-    if (sortBy === "popular") {
-      return b.likes - a.likes;
-    } else if (sortBy === "oldest") {
-      return a.id - b.id;
+  const handleDeleteComment = (commentId) => {
+    setCommentToDelete(commentId);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!commentToDelete) return;
+
+    try {
+      await deleteCommentMutation.mutateAsync(commentToDelete);
+      toast.success("تم حذف التعليق بنجاح");
+      setDeleteModalOpen(false);
+      setCommentToDelete(null);
+    } catch (error) {
+      toast.error(error.message || "فشل حذف التعليق");
     }
-    return b.id - a.id;
-  });
+  };
+
+  const cancelDelete = () => {
+    setDeleteModalOpen(false);
+    setCommentToDelete(null);
+  };
 
   if (!isOpen) return null;
 
@@ -184,7 +208,7 @@ const PostCommentPanel = ({ isOpen, postId }) => {
         <div className="flex items-center justify-between p-4 border-b border-[#5A5A5A]">
           <div className="flex items-center gap-3">
             <h2 className="text-white text-xl noto-sans-arabic-bold">
-              التعليقات ({comments.length})
+              التعليقات ({commentsData?.pages[0]?.totalItemsCount || 0})
             </h2>
           </div>
           
@@ -196,7 +220,7 @@ const PostCommentPanel = ({ isOpen, postId }) => {
                 className="flex items-center gap-1 px-3 py-2 bg-[#5A5A5A] rounded-lg text-white noto-sans-arabic-medium text-sm hover:bg-[#6A6A6A] transition-colors"
               >
                 <span>
-                  {sortBy === "newest" ? "الأحدث" : sortBy === "oldest" ? "الأقدم" : "الأكثر إعجاباً"}
+                  {sortBy === "recent" ? "الأحدث" : sortBy === "oldest" ? "الأقدم" : "الأكثر شعبية"}
                 </span>
                 <ChevronDown size={16} />
               </button>
@@ -205,7 +229,7 @@ const PostCommentPanel = ({ isOpen, postId }) => {
                 <div className="absolute left-0 top-full mt-2 w-40 bg-[#2C2C2C] rounded-lg shadow-lg overflow-hidden z-10">
                   <button
                     onClick={() => {
-                      setSortBy("newest");
+                      setSortBy("recent");
                       setShowSortDropdown(false);
                     }}
                     className="w-full px-4 py-2 text-right text-white noto-sans-arabic-medium text-sm hover:bg-[#3C3C3C] transition-colors"
@@ -228,7 +252,7 @@ const PostCommentPanel = ({ isOpen, postId }) => {
                     }}
                     className="w-full px-4 py-2 text-right text-white noto-sans-arabic-medium text-sm hover:bg-[#3C3C3C] transition-colors"
                   >
-                    الأكثر إعجاباً
+                    الأكثر شعبية
                   </button>
                 </div>
               )}
@@ -237,142 +261,147 @@ const PostCommentPanel = ({ isOpen, postId }) => {
         </div>
 
         {/* Comments List */}
-        <div className="overflow-y-auto custom-scrollbar p-4 space-y-4 max-h-[600px]">
-          {sortedComments.map((comment) => (
-            <div key={comment.id} className="space-y-3">
-              {/* Main Comment */}
-              <div className="hover:bg-[#2C2C2C] rounded-lg p-3 transition-colors">
-                {/* User Info */}
-                <div className="flex items-start gap-3 mb-2">
-                  <img
-                    src={comment.avatar}
-                    alt={comment.displayName}
-                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-white noto-sans-arabic-medium text-sm">
-                        {comment.displayName}
-                      </span>
-                      <span className="text-[#686868] noto-sans-arabic-medium text-xs">
-                        @{comment.username}
-                      </span>
-                    </div>
-                    <span className="text-[#686868] noto-sans-arabic-medium text-xs">
-                      {comment.timestamp}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Comment Content */}
-                <p className="text-white noto-sans-arabic-medium text-sm leading-relaxed mb-3 pr-13">
-                  {comment.content}
-                </p>
-
-                {/* Comment Image */}
-                {comment.image && (
-                  <div className="pr-13 mb-3">
-                    <img 
-                      src={comment.image} 
-                      alt="Comment attachment" 
-                      className="max-w-full h-auto rounded-lg max-h-80 object-cover"
-                    />
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex items-center gap-4 pr-13">
-                  <button
-                    onClick={() => handleLike(comment.id)}
-                    className={`flex items-center gap-1 transition-colors ${
-                      comment.isLiked ? "text-[#FF4444]" : "text-[#686868] hover:text-[#FF4444]"
-                    }`}
-                  >
-                    <ThumbsUp size={16} fill={comment.isLiked ? "#FF4444" : "none"} />
-                    <span className="noto-sans-arabic-medium text-xs">{comment.likes}</span>
-                  </button>
-
-                  <button
-                    onClick={() => setReplyingTo(comment.id)}
-                    className="flex items-center gap-1 text-[#686868] hover:text-[#0077FF] transition-colors"
-                  >
-                    <MessageCircle size={16} />
-                    <span className="noto-sans-arabic-medium text-xs">رد</span>
-                  </button>
-
-                  <button className="flex items-center gap-1 text-[#686868] hover:text-red-500 transition-colors">
-                    <Flag size={16} />
-                    <span className="noto-sans-arabic-medium text-xs">إبلاغ</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Replies */}
-              {comment.replies.length > 0 && (
-                <div className="pr-10 space-y-3">
-                  {comment.replies.map((reply) => (
-                    <div key={reply.id} className="hover:bg-[#2C2C2C] rounded-lg p-3 transition-colors">
-                      {/* Reply User Info */}
-                      <div className="flex items-start gap-3 mb-2">
-                        <img
-                          src={reply.avatar}
-                          alt={reply.displayName}
-                          className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-white noto-sans-arabic-medium text-sm">
-                              {reply.displayName}
-                            </span>
-                            <span className="text-[#686868] noto-sans-arabic-medium text-xs">
-                              @{reply.username}
-                            </span>
-                          </div>
+        <div 
+          className="overflow-y-auto custom-scrollbar p-4 space-y-4 max-h-[600px]"
+          onScroll={handleScroll}
+        >
+          {isLoadingComments ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-[#4A9EFF]" />
+            </div>
+          ) : comments.length === 0 ? (
+            <div className="text-center py-8 text-[#B0B0B0] noto-sans-arabic-medium">
+              لا توجد تعليقات بعد. كن أول من يعلق!
+            </div>
+          ) : (
+            <>
+              {comments.map((comment) => (
+                <div key={comment.id} className="space-y-3">
+                  {/* Main Comment */}
+                  <div className="hover:bg-[#2C2C2C] rounded-lg p-3 transition-colors">
+                    {/* User Info */}
+                    <div className="flex items-start gap-3 mb-2">
+                      <img
+                        src={comment.user?.profilePhoto || "/default-avatar.png"}
+                        alt={comment.user?.displayName}
+                        className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-white noto-sans-arabic-medium text-sm">
+                            {comment.user?.displayName || "مستخدم"}
+                          </span>
                           <span className="text-[#686868] noto-sans-arabic-medium text-xs">
-                            {reply.timestamp}
+                            @{comment.user?.userName || "user"}
                           </span>
                         </div>
-                      </div>
-
-                      {/* Reply Content */}
-                      <p className="text-white noto-sans-arabic-medium text-sm leading-relaxed mb-3 pr-11">
-                        {reply.content}
-                      </p>
-
-                      {/* Reply Image */}
-                      {reply.image && (
-                        <div className="pr-11 mb-3">
-                          <img 
-                            src={reply.image} 
-                            alt="Reply attachment" 
-                            className="max-w-full h-auto rounded-lg max-h-80 object-cover"
-                          />
-                        </div>
-                      )}
-
-                      {/* Reply Actions */}
-                      <div className="flex items-center gap-4 pr-11">
-                        <button
-                          onClick={() => handleLike(reply.id, true, comment.id)}
-                          className={`flex items-center gap-1 transition-colors ${
-                            reply.isLiked ? "text-[#FF4444]" : "text-[#686868] hover:text-[#FF4444]"
-                          }`}
-                        >
-                          <ThumbsUp size={14} fill={reply.isLiked ? "#FF4444" : "none"} />
-                          <span className="noto-sans-arabic-medium text-xs">{reply.likes}</span>
-                        </button>
-
-                        <button className="flex items-center gap-1 text-[#686868] hover:text-red-500 transition-colors">
-                          <Flag size={14} />
-                          <span className="noto-sans-arabic-medium text-xs">إبلاغ</span>
-                        </button>
+                        <span className="text-[#686868] noto-sans-arabic-medium text-xs">
+                          {getTimeAgo(comment.createdAt)}
+                        </span>
                       </div>
                     </div>
-                  ))}
+
+                    {/* Comment Content */}
+                    <p className="text-white noto-sans-arabic-medium text-sm leading-relaxed mb-3 pr-13">
+                      {comment.content}
+                    </p>
+
+                    {/* Comment Image */}
+                    {comment.attachedImageUrl && (
+                      <div className="pr-13 mb-3">
+                        <img 
+                          src={comment.attachedImageUrl} 
+                          alt="Comment attachment" 
+                          className="max-w-full h-auto rounded-lg max-h-80 object-cover"
+                        />
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-4 pr-13">
+                      {/* Only show like button if not own comment */}
+                      {comment.user?.id !== currentUserId && (
+                        <button
+                          onClick={() => handleLike(comment.id, comment.isLikedByCurrentUser)}
+                          disabled={likingCommentId === comment.id}
+                          className={`flex items-center gap-1 transition-colors disabled:opacity-50 ${
+                            comment.isLikedByCurrentUser ? "text-[#FF4444]" : "text-[#686868] hover:text-[#FF4444]"
+                          }`}
+                        >
+                          <ThumbsUp size={16} fill={comment.isLikedByCurrentUser ? "#FF4444" : "none"} />
+                          <span className="noto-sans-arabic-medium text-xs">{comment.likesCount || 0}</span>
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => setReplyingTo(comment.id)}
+                        className="flex items-center gap-1 text-[#686868] hover:text-[#0077FF] transition-colors"
+                      >
+                        <MessageCircle size={16} />
+                        <span className="noto-sans-arabic-medium text-xs">رد</span>
+                      </button>
+
+                      {comment.user?.id === currentUserId && (
+                        <button
+                          onClick={() => handleDeleteComment(comment.id)}
+                          disabled={deleteCommentMutation.isPending}
+                          className="flex items-center gap-1 text-[#686868] hover:text-red-500 transition-colors disabled:opacity-50"
+                        >
+                          <Trash2 size={16} />
+                          <span className="noto-sans-arabic-medium text-xs">حذف</span>
+                        </button>
+                      )}
+
+                      <button className="flex items-center gap-1 text-[#686868] hover:text-red-500 transition-colors">
+                        <Flag size={16} />
+                        <span className="noto-sans-arabic-medium text-xs">إبلاغ</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Replies */}
+                  {comment.totalRepliesCount > 0 && (
+                    <div className="pr-10">
+                      {!expandedReplies[comment.id] ? (
+                        <button
+                          onClick={() => setExpandedReplies(prev => ({ ...prev, [comment.id]: true }))}
+                          className="text-[#4A9EFF] text-sm noto-sans-arabic-medium hover:underline"
+                        >
+                          عرض {comment.totalRepliesCount} {comment.totalRepliesCount === 1 ? "رد" : "ردود"}
+                        </button>
+                      ) : (
+                        <>
+                          <CommentReplies
+                            parentCommentId={comment.id}
+                            currentUserId={currentUserId}
+                            onClose={() => setExpandedReplies(prev => ({ ...prev, [comment.id]: false }))}
+                            onLike={handleLike}
+                            onDelete={async (replyId) => {
+                              try {
+                                await deleteCommentMutation.mutateAsync(replyId);
+                                toast.success("تم حذف الرد بنجاح");
+                              } catch (error) {
+                                toast.error("فشل حذف الرد");
+                              }
+                            }}
+                            likeCommentMutation={likeCommentMutation}
+                            unlikeCommentMutation={unlikeCommentMutation}
+                            deleteCommentMutation={deleteCommentMutation}
+                          />
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {isFetchingNextPage && (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="w-6 h-6 animate-spin text-[#4A9EFF]" />
                 </div>
               )}
-            </div>
-          ))}
+            </>
+          )}
         </div>
 
         {/* Comment Input - Sticky at Bottom */}
@@ -380,7 +409,7 @@ const PostCommentPanel = ({ isOpen, postId }) => {
           {replyingTo && (
             <div className="flex items-center justify-between mb-2 px-3 py-2 bg-[#2C2C2C] rounded-lg">
               <span className="text-[#686868] noto-sans-arabic-medium text-sm">
-                الرد على {comments.find(c => c.id === replyingTo)?.displayName}
+                الرد على {comments.find(c => c.id === replyingTo)?.user?.displayName || "..."}
               </span>
               <button
                 onClick={() => setReplyingTo(null)}
@@ -393,7 +422,7 @@ const PostCommentPanel = ({ isOpen, postId }) => {
 
           <div className="flex items-end gap-2">
             <img
-              src="/profilePicture.jpg"
+              src={currentUser?.profilePhoto || "/profilePicture.jpg"}
               alt="أنت"
               className="w-10 h-10 rounded-full object-cover flex-shrink-0"
             />
@@ -416,12 +445,13 @@ const PostCommentPanel = ({ isOpen, postId }) => {
               )}
 
               <textarea
+                ref={textareaRef}
                 value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
+                onChange={handleTextareaChange}
                 placeholder="اكتب تعليقاً..."
-                className="w-full bg-[#5A5A5A] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#0077FF] placeholder-[#797979]"
+                className="w-full bg-[#5A5A5A] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#0077FF] placeholder-[#797979] overflow-hidden"
                 rows="2"
-                style={{ maxHeight: "120px" }}
+                style={{ minHeight: "60px", maxHeight: "200px" }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
@@ -462,6 +492,18 @@ const PostCommentPanel = ({ isOpen, postId }) => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        title="حذف التعليق"
+        message="هل أنت متأكد من حذف هذا التعليق؟ لن تتمكن من التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        isLoading={deleteCommentMutation.isPending}
+      />
     </div>
   );
 };

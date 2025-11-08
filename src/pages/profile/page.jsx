@@ -34,6 +34,9 @@ const ProfilePage = () => {
     }
   };
 
+  // Check if viewing own profile
+  const isOwnProfile = loggedInUser?.id === userData?.id;
+
   /* 
         in order to change the text written in the buttons that navigates between sections you have to use the t function in this array
         for example, if you want to translate the (About Me) text and you already changed the translation.json files to handle it
@@ -42,28 +45,44 @@ const ProfilePage = () => {
         before: title: "About Me"
         after: title: t("aboutMe")
     */
-  const subPages = [
+  const allSubPages = [
     {
-      title: t("profilePage.profileNav.aboutMe"),
+      // Show "About Me" for own profile, "About Him" for others
+      title: isOwnProfile 
+        ? t("profilePage.profileNav.aboutMe")
+        : "عنه",
       value: "about-me",
       isActive: true,
+      showForOthers: true, // Always visible
     },
     {
-      title: t("profilePage.profileNav.myNovels"),
+      // Show "My Novels" for own profile, "His Novels" for others
+      title: isOwnProfile 
+        ? t("profilePage.profileNav.myNovels")
+        : "رواياته",
       value: "my-novels",
       isActive: false,
+      showForOthers: true, // Always visible - everyone can see user's novels
     },
     {
       title: t("profilePage.profileNav.library"),
       value: "library",
       isActive: false,
+      showForOthers: true, // Always visible - Library component handles public/private lists internally
     },
-    {
-      title: t("profilePage.profileNav.badges"),
-      value: "badges",
-      isActive: false,
-    },
+    // Badges temporarily removed
+    // {
+    //   title: t("profilePage.profileNav.badges"),
+    //   value: "badges",
+    //   isActive: false,
+    //   showForOthers: true, // Always visible
+    // },
   ];
+
+  // Filter tabs based on whether viewing own profile
+  const subPages = isOwnProfile 
+    ? allSubPages 
+    : allSubPages.filter(page => page.showForOthers);
 
   const navigateSubPages = (val) => {
     setSelectedSubPage(val);
@@ -202,7 +221,7 @@ const ProfilePage = () => {
           ))}
         </div>
 
-        {loggedInUser?.id === userData?.id ? (
+        {isOwnProfile ? (
           <Link
             to="/settings"
             className="flex justify-between items-center gap-3 bg-neutral-700 py-1.5 px-2 md:py-2 md:px-3 rounded-md cursor-pointer hover:bg-neutral-600 transition-colors"
@@ -214,17 +233,25 @@ const ProfilePage = () => {
           </Link>
         ) : (
           <FollowToggle
-            isFollowed={userData?.isFollowing}
+            isFollowing={userData?.isFollowing}
             userId={userData?.id}
           />
         )}
       </div>
 
       {/* components of the sub sections */}
-      {selectedSubPage === "about-me" && <AboutMe userData={userData} />}
+      {selectedSubPage === "about-me" && (
+        <AboutMe 
+          userData={userData} 
+          isOwnProfile={isOwnProfile}
+        />
+      )}
+      {/* My Novels is visible to everyone */}
       {selectedSubPage === "my-novels" && <MyNovels />}
+      {/* Library component handles public/private reading lists internally */}
       {selectedSubPage === "library" && <Library username={username} />}
-      {selectedSubPage === "badges" && <BadgesList />}
+      {/* Badges temporarily removed */}
+      {/* {selectedSubPage === "badges" && <BadgesList />} */}
       </div>
     </>
   );
