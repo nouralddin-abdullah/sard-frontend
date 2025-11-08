@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Home, Library, Pen, User as UserIconLucide, LogOut, ChevronDown } from 'lucide-react';
+import { Search, Home, Library, Pen, User as UserIconLucide, LogOut, ChevronDown, Trophy } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '../../store/authTokenStore';
@@ -69,6 +69,12 @@ const Header = () => {
       {/* Desktop Header */}
       <div className="hidden md:block py-4 px-6">
         <div className="max-w-[1920px] mx-auto flex items-center gap-6">
+          {/* Logo */}
+          <Link to="/" className="flex-shrink-0">
+            <h1 className="noto-sans-arabic-extrabold text-white text-[40px] leading-none">
+              سَرْد
+            </h1>
+          </Link>
           {/* User Profile Dropdown */}
           <div className="relative flex-shrink-0" ref={dropdownRef}>
             <button
@@ -140,12 +146,6 @@ const Header = () => {
             )}
           </div>
 
-          {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
-            <h1 className="noto-sans-arabic-extrabold text-white text-[40px] leading-none">
-              سَرْد
-            </h1>
-          </Link>
 
           {/* Navigation Links */}
           <nav className="flex items-center gap-8">
@@ -160,6 +160,12 @@ const Header = () => {
               className="noto-sans-arabic-extrabold text-white text-[20px] hover:opacity-80 transition-opacity"
             >
               المكتبة
+            </Link>
+            <Link 
+              to="/leaderboard" 
+              className="noto-sans-arabic-extrabold text-white text-[20px] hover:opacity-80 transition-opacity"
+            >
+              المتصدرون
             </Link>
           </nav>
 
@@ -283,6 +289,15 @@ const Header = () => {
             aria-label="المكتبة"
           >
             <Library size={24} />
+          </Link>
+
+          {/* Leaderboard Icon */}
+          <Link 
+            to="/leaderboard" 
+            className="flex-shrink-0 text-white hover:opacity-80 transition-opacity"
+            aria-label="المتصدرون"
+          >
+            <Trophy size={24} />
           </Link>
 
           {/* Author Tools Icon */}

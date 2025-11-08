@@ -6,7 +6,7 @@ import { useNovelChapters } from "../../hooks/novel/useNovelChapters";
 import { useGetNovelReadingProgress } from "../../hooks/novel/useGetNovelReadingProgress";
 import { formatDateShort } from "../../utils/date";
 import { translateGenre } from "../../utils/translate-genre";
-import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen } from "lucide-react";
+import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift } from "lucide-react";
 import CustomStar from "../../components/common/CustomStar";
 import StarRating from "../../components/common/StarRating";
 import PenIcon from "../../components/common/PenIcon";
@@ -15,6 +15,7 @@ import Button from "../../components/ui/button";
 import ReviewModal from "../../components/novel/ReviewModal";
 import AuthRequiredModal from "../../components/common/AuthRequiredModal";
 import AddNovelToReadingListModal from "../../components/novel/AddNovelToReadingListModal";
+import SendGiftModal from "../../components/novel/SendGiftModal";
 import { useGetReviews } from "../../hooks/novel/useGetReviews";
 import { useLikeReview } from "../../hooks/novel/useLikeReview";
 import { useUnlikeReview } from "../../hooks/novel/useUnlikeReview";
@@ -44,6 +45,7 @@ const NovelPage = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalAction, setAuthModalAction] = useState("لتنفيذ هذا الإجراء");
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
+  const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
 
   // Reviews pagination and sorting
   const [reviewsPage, setReviewsPage] = useState(1);
@@ -265,6 +267,116 @@ const NovelPage = () => {
                   <p className="noto-sans-arabic-extrabold text-[17px] md:text-[22.5px]">
                     {formatDate(novel.createdAt)}
                   </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Show Your Support - Gift Section */}
+        <div className="rounded-2xl bg-[#3C3C3C] p-6 md:p-8 mb-[40px] shadow-[0px_4px_4px_rgba(0,0,0,0.25)]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+              <h2 className="text-white text-2xl font-bold noto-sans-arabic-extrabold mb-2">
+                أظهر دعمك
+              </h2>
+              <p className="text-[#B0B0B0] noto-sans-arabic-medium">
+                أهدِ الكاتب هدية لمساعدته على مواصلة عمله.
+              </p>
+            </div>
+            <Link
+              to={`/novel/${novelSlug}/leaderboard`}
+              className="text-[#4A9EFF] hover:text-[#3A8EEF] text-sm font-bold whitespace-nowrap noto-sans-arabic-extrabold transition-colors"
+            >
+              عرض لوحة المتصدرين الكاملة ←
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Gift Selection Column */}
+            <div className="lg:col-span-2 flex flex-col gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {/* Coffee Gift */}
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                  <div className="text-4xl">☕️</div>
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">قهوة</p>
+                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">100 نقطة</p>
+                </div>
+
+                {/* Rose Gift - Selected */}
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-[#4A9EFF] bg-[#4A9EFF]/10 cursor-pointer">
+                  <div className="text-4xl">🌹</div>
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">وردة</p>
+                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">500 نقطة</p>
+                </div>
+
+                {/* Diamond Gift */}
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                  <div className="text-4xl">💎</div>
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">ماسة</p>
+                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">1000 نقطة</p>
+                </div>
+
+                {/* Crown Gift */}
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                  <div className="text-4xl">👑</div>
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">تاج</p>
+                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">5000 نقطة</p>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setIsGiftModalOpen(true)}
+                className="flex w-full md:w-auto md:self-start min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#4A9EFF] hover:bg-[#3A8EEF] text-white text-base font-bold noto-sans-arabic-extrabold transition-colors"
+              >
+                <span>إرسال الهدية</span>
+              </button>
+            </div>
+
+            {/* Recent Gifts Column */}
+            <div className="flex flex-col gap-4">
+              <h3 className="text-white font-bold noto-sans-arabic-extrabold text-lg">الهدايا الأخيرة</h3>
+              <div className="flex flex-col gap-3">
+                {/* Recent Gift Entry 1 */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10 h-10 flex-shrink-0"
+                    style={{
+                      backgroundImage: `url("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop")`,
+                    }}
+                  ></div>
+                  <p className="text-[#E0E0E0] text-sm flex-1 noto-sans-arabic-medium">
+                    <span className="font-bold text-white noto-sans-arabic-extrabold">أحمد</span> أهدى 🌹
+                  </p>
+                  <span className="text-[#B0B0B0] text-xs noto-sans-arabic-medium whitespace-nowrap">منذ دقيقتين</span>
+                </div>
+
+                {/* Recent Gift Entry 2 */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10 h-10 flex-shrink-0"
+                    style={{
+                      backgroundImage: `url("https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop")`,
+                    }}
+                  ></div>
+                  <p className="text-[#E0E0E0] text-sm flex-1 noto-sans-arabic-medium">
+                    <span className="font-bold text-white noto-sans-arabic-extrabold">فاطمة</span> أهدت ☕️
+                  </p>
+                  <span className="text-[#B0B0B0] text-xs noto-sans-arabic-medium whitespace-nowrap">منذ 15 دقيقة</span>
+                </div>
+
+                {/* Recent Gift Entry 3 */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10 h-10 flex-shrink-0"
+                    style={{
+                      backgroundImage: `url("https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop")`,
+                    }}
+                  ></div>
+                  <p className="text-[#E0E0E0] text-sm flex-1 noto-sans-arabic-medium">
+                    <span className="font-bold text-white noto-sans-arabic-extrabold">محمد</span> أهدى 💎
+                  </p>
+                  <span className="text-[#B0B0B0] text-xs noto-sans-arabic-medium whitespace-nowrap">منذ ساعة</span>
                 </div>
               </div>
             </div>
@@ -816,6 +928,13 @@ const NovelPage = () => {
         isOpen={isAddToListModalOpen}
         onClose={() => setIsAddToListModalOpen(false)}
         novelId={novel?.id}
+        novelTitle={novel?.title}
+      />
+
+      {/* Send Gift Modal */}
+      <SendGiftModal
+        isOpen={isGiftModalOpen}
+        onClose={() => setIsGiftModalOpen(false)}
         novelTitle={novel?.title}
       />
     </>

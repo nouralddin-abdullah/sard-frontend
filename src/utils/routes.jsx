@@ -9,11 +9,13 @@ import LandingPage from "../pages/landing/page";
 import CreateNovelPage from "../pages/novel/create";
 import NovelPage from "../pages/novel/page";
 import ChapterReaderPage from "../pages/novel/chapter-reader";
+import NovelLeaderboardPage from "../pages/novel/leaderboard";
 import ProfilePage from "../pages/profile/page";
 import SettingsPage from "../pages/profile/settings";
 import ReadingListPage from "../pages/profile/ReadingListPage";
 import LibraryPage from "../pages/profile/LibraryPage";
 import SearchPage from "../pages/search/page";
+import LeaderboardPage from "../pages/leaderboard/page";
 import Test from "../pages/test";
 import EditWorkPage from "../pages/work/edit";
 import WorkDashboardPage from "../pages/work/dashboard";
@@ -66,6 +68,10 @@ const routes = [
     component: <LibraryPage />,
   },
   {
+    url: "/leaderboard",
+    component: <LeaderboardPage />,
+  },
+  {
     url: "/search",
     component: <SearchPage />,
   },
@@ -88,6 +94,10 @@ const routes = [
   {
     url: "/novel/:novelSlug",
     component: <NovelPage />,
+  },
+  {
+    url: "/novel/:novelSlug/leaderboard",
+    component: <NovelLeaderboardPage />,
   },
   {
     url: "/novel/:novelSlug/chapter/:chapterId",
