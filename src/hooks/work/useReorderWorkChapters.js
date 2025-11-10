@@ -25,7 +25,19 @@ const patchChapterOrder = async ({ workId, orderedChapterIds }) => {
 		throw new Error("Failed to reorder chapters");
 	}
 
-	return response.json();
+	// Handle 204 No Content or any empty response body
+	const contentType = response.headers.get("content-type");
+	if (response.status === 204 || !contentType || !contentType.includes("application/json")) {
+		return { success: true };
+	}
+
+	// Check if response has content before parsing
+	const text = await response.text();
+	if (!text) {
+		return { success: true };
+	}
+
+	return JSON.parse(text);
 };
 
 export const useReorderWorkChapters = () => {

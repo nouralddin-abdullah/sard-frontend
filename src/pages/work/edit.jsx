@@ -244,15 +244,15 @@ const EditWorkPage = () => {
     if (!workId) return;
 
     if (!detailsState.title.trim()) {
-      toast.error("Add a clear, energetic title.");
+      toast.error("أضف عنواناً واضحاً ومميزاً.");
       return;
     }
     if (!detailsState.summary.trim()) {
-      toast.error("Describe the arc before saving.");
+      toast.error("اكتب وصف القصة قبل الحفظ.");
       return;
     }
     if (detailsState.genreIds.length === 0) {
-      toast.error("Select at least one genre.");
+      toast.error("اختر نوعاً واحداً على الأقل.");
       return;
     }
 
@@ -266,21 +266,21 @@ const EditWorkPage = () => {
           genreIds: detailsState.genreIds,
         },
       });
-      toast.success("Story details updated");
+      toast.success("تم تحديث تفاصيل القصة");
       refetchWork();
     } catch (error) {
-      toast.error(error?.message || "Unable to save details");
+      toast.error(error?.message || "فشل حفظ التفاصيل");
     }
   };
 
   const handleCoverChange = (file) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("Upload an image (PNG, JPG, GIF)");
+      toast.error("ارفع صورة (PNG، JPG، GIF)");
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("Image must be under 10MB");
+      toast.error("يجب أن يكون حجم الصورة أقل من 10 ميجابايت");
       return;
     }
     setCoverFile(file);
@@ -289,17 +289,17 @@ const EditWorkPage = () => {
   const handleCoverSubmit = async (event) => {
     event.preventDefault();
     if (!workId || !coverFile) {
-      toast.error("Select a cover image before saving");
+      toast.error("اختر صورة غلاف قبل الحفظ");
       return;
     }
 
     try {
       await updateCover({ workId, coverFile });
-      toast.success("Cover refreshed");
+      toast.success("تم تحديث الغلاف");
       setCoverFile(null);
       refetchWork();
     } catch (error) {
-      toast.error(error?.message || "Unable to update cover");
+      toast.error(error?.message || "فشل تحديث الغلاف");
     }
   };
 
@@ -354,10 +354,10 @@ const EditWorkPage = () => {
         workId,
         orderedChapterIds: chapterOrder.map((chapter) => chapter.id),
       });
-      toast.success("Chapter order updated");
+      toast.success("تم تحديث ترتيب الفصول");
       refetchChapters();
     } catch (error) {
-      toast.error(error?.message || "Unable to reorder chapters");
+      toast.error(error?.message || "فشل إعادة ترتيب الفصول");
     }
   };
 
