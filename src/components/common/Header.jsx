@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Home, Library, Pen, User as UserIconLucide, LogOut, ChevronDown, Trophy, Bell } from 'lucide-react';
+import { Search, Home, Library, Pen, User as UserIconLucide, LogOut, ChevronDown, Trophy, Bell, X } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '../../store/authTokenStore';
+import SearchBar from './SearchBar';
 import Cookies from 'js-cookie';
 import { TOKEN_KEY } from '../../constants/token-key';
 
@@ -25,6 +26,7 @@ const Header = () => {
   const queryClient = useQueryClient();
   const { deleteToken } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -186,17 +188,7 @@ const Header = () => {
           </Link>
 
           {/* Search Bar */}
-          <div className="flex-1 max-w-[400px]">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="ابحث في سرد"
-                className="noto-sans-arabic-extrabold w-full bg-white rounded-full px-6 py-3 pr-12 text-gray-800 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                dir="rtl"
-              />
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-            </div>
-          </div>
+          <SearchBar className="flex-1 max-w-[400px]" />
         </div>
       </div>
 
@@ -317,13 +309,14 @@ const Header = () => {
             <Pen size={24} />
           </Link>
 
-          {/* Search Icon */}
-          <button 
+          {/* Search Icon - Navigate to search page on mobile */}
+          <Link 
+            to="/search"
             className="flex-shrink-0 text-white hover:opacity-80 transition-opacity"
             aria-label="بحث"
           >
             <Search size={24} />
-          </button>
+          </Link>
         </div>
       </div>
     </header>

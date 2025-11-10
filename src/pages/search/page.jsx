@@ -136,6 +136,26 @@ const SearchPage = () => {
         <Header />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Search Input Field - Visible on all screen sizes */}
+          <form onSubmit={handleSearch} className="mb-6">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="ابحث عن الروايات أو المستخدمين..."
+                className="w-full bg-[#2C2C2C] text-white rounded-lg px-4 py-3 pr-12 noto-sans-arabic-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]"
+                dir="rtl"
+              />
+              <button
+                type="submit"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+            </div>
+          </form>
+
           {/* Search Type Tabs */}
           <div className="mb-6 flex gap-2">
             <button
