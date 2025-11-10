@@ -741,8 +741,8 @@ const HomePage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {readingHistoryData.items.slice(0, 6).map((novel) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {readingHistoryData.items.slice(0, 3).map((novel) => (
                   <Link key={novel.novelId} to={`/novel/${novel.slug}/chapter/${novel.lastReadChapterId}`}>
                     <div className="group relative bg-[#2C2C2C] rounded-2xl overflow-hidden border border-gray-700 hover:border-[#4A9EFF] transition-all duration-300 shadow-lg hover:shadow-blue-500/20">
                       <div className="flex gap-4 p-4">

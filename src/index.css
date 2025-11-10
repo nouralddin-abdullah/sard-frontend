@@ -27,6 +27,25 @@
   font-variation-settings: "wdth" 100;
 }
 
+/* Tajawal Font Classes */
+.tajawal-regular {
+  font-family: "Tajawal", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.tajawal-medium {
+  font-family: "Tajawal", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.tajawal-bold {
+  font-family: "Tajawal", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
 /* Custom Animations */
 @keyframes shake {
   0%, 100% {

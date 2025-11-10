@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import Header from "../../components/common/Header";
 import Button from "../../components/ui/button";
 import { Modal } from "../../components/ui/modal";
+import RichTextEditor from "../../components/common/RichTextEditor";
 import { useGetWorkById } from "../../hooks/work/useGetWorkById";
 import { useGetChapterById } from "../../hooks/work/useGetChapterById";
 import { useCreateChapter } from "../../hooks/work/useCreateChapter";
@@ -150,8 +151,6 @@ const ChapterEditorPage = () => {
       }
     };
 
-    // Push current state to enable interception
-    window.history.pushState(null, '', window.location.href);
     window.addEventListener('popstate', handlePopState);
     document.addEventListener('click', handleLinkClick, true);
 
@@ -202,15 +201,26 @@ const ChapterEditorPage = () => {
   }, [normalizedChapterId, chapterData]);
 
   const wordCount = useMemo(() => {
-    return editorState.content.trim().length
-      ? editorState.content
+    // Strip HTML tags and get plain text
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = editorState.content || '';
+    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    
+    return plainText.trim().length
+      ? plainText
           .trim()
           .split(/\s+/)
           .filter(Boolean).length
       : 0;
   }, [editorState.content]);
 
-  const characterCount = editorState.content.length;
+  const characterCount = useMemo(() => {
+    // Strip HTML tags and get plain text
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = editorState.content || '';
+    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    return plainText.trim().length;
+  }, [editorState.content]);
 
   const visibilityMeta = useMemo(() => {
     const isPublished = editorState.status === "Published";
@@ -362,8 +372,10 @@ const ChapterEditorPage = () => {
       <Header />
       <div dir="rtl" className="min-h-screen text-white" style={{ backgroundColor: '#2C2C2C' }}>
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-10">
-        <header className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3">
+        
+        <main className="mx-auto w-full max-w-5xl">
+          {/* Header with Return and Save buttons - directly above the editor container */}
+          <header className="flex flex-wrap items-center justify-between gap-4 mb-8">
             <Button
               variant="ghost"
               className="noto-sans-arabic-bold border px-4 py-2"
@@ -373,62 +385,57 @@ const ChapterEditorPage = () => {
               <ArrowRight className="ml-2 h-4 w-4" />
               العودة لمساحة العمل
             </Button>
-            <span className="noto-sans-arabic-bold inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }}>
-              <Sparkles className="h-3.5 w-3.5" /> محرر الفصل المتقدم
-            </span>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            <div
-              className="noto-sans-arabic-bold inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs"
-              style={
-                hasUnsavedChanges
-                  ? { borderColor: '#FF4444', backgroundColor: 'rgba(255, 68, 68, 0.1)', color: '#FF4444' }
-                  : saveState.lastSavedAt
-                  ? { borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }
-                  : { borderColor: '#5A5A5A', backgroundColor: '#3C3C3C', color: '#B8B8B8' }
-              }
-              data-testid="save-status"
-            >
-              {hasUnsavedChanges ? (
-                <AlertCircle className="h-3.5 w-3.5" />
-              ) : saveState.lastSavedAt ? (
-                <CheckCircle2 className="h-3.5 w-3.5" />
-              ) : (
-                <PenSquare className="h-3.5 w-3.5" />
-              )}
-              <span>
-                {hasUnsavedChanges 
-                  ? "تغييرات غير محفوظة" 
-                  : saveState.lastSavedAt 
-                    ? `آخر حفظ ${formatSmart(saveState.lastSavedAt)}` 
-                    : "لا توجد تغييرات"
+            <div className="flex flex-wrap items-center gap-3 text-sm">
+              <div
+                className="noto-sans-arabic-bold inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs"
+                style={
+                  hasUnsavedChanges
+                    ? { borderColor: '#FF4444', backgroundColor: 'rgba(255, 68, 68, 0.1)', color: '#FF4444' }
+                    : saveState.lastSavedAt
+                    ? { borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }
+                    : { borderColor: '#5A5A5A', backgroundColor: '#3C3C3C', color: '#B8B8B8' }
                 }
-              </span>
+                data-testid="save-status"
+              >
+                {hasUnsavedChanges ? (
+                  <AlertCircle className="h-3.5 w-3.5" />
+                ) : saveState.lastSavedAt ? (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                ) : (
+                  <PenSquare className="h-3.5 w-3.5" />
+                )}
+                <span>
+                  {hasUnsavedChanges 
+                    ? "تغييرات غير محفوظة" 
+                    : saveState.lastSavedAt 
+                      ? `آخر حفظ ${formatSmart(saveState.lastSavedAt)}` 
+                      : "لا توجد تغييرات"
+                  }
+                </span>
+              </div>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleSave}
+                disabled={isSaving || !hasUnsavedChanges}
+                className="noto-sans-arabic-bold"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                    جاري الحفظ...
+                  </>
+                ) : (
+                  <>
+                    <Pencil className="ml-2 h-4 w-4" />
+                    احفظ التغييرات
+                  </>
+                )}
+              </Button>
             </div>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleSave}
-              disabled={isSaving || !hasUnsavedChanges}
-              className="noto-sans-arabic-bold"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                  جاري الحفظ...
-                </>
-              ) : (
-                <>
-                  <Pencil className="ml-2 h-4 w-4" />
-                  احفظ التغييرات
-                </>
-              )}
-            </Button>
-          </div>
-        </header>
+          </header>
 
-        <main className="mx-auto w-full max-w-5xl">
           <section className="rounded-2xl border px-10 py-12" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
             {shouldShowBlockingLoader ? (
               <div className="flex h-[28rem] items-center justify-center">
@@ -459,91 +466,6 @@ const ChapterEditorPage = () => {
                   />
                 </div>
 
-                <div className="rounded-xl border p-6" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
-                  <div className="flex flex-col gap-6">
-                    <div className="flex w-full max-w-md flex-col gap-4">
-                      <div className="space-y-2">
-                        <p className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>الظهور</p>
-                        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-                          {STATUS_OPTIONS.map((option) => {
-                            const isActive = editorState.status === option.value;
-                            const label = option.value === 'Draft' ? 'مسودة' : option.value === 'Published' ? 'منشور' : option.label;
-                            return (
-                              <button
-                                key={option.value}
-                                type="button"
-                                onClick={() => handleFieldChange("status", option.value)}
-                                className="noto-sans-arabic-bold rounded-full border px-4 py-2 text-sm transition"
-                                style={isActive ? {
-                                  borderColor: '#0077FF',
-                                  backgroundColor: 'rgba(0, 119, 255, 0.15)',
-                                  color: '#FFFFFF'
-                                } : {
-                                  borderColor: '#5A5A5A',
-                                  backgroundColor: '#2C2C2C',
-                                  color: '#B8B8B8'
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (!isActive) {
-                                    e.currentTarget.style.borderColor = '#797979';
-                                    e.currentTarget.style.color = '#FFFFFF';
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  if (!isActive) {
-                                    e.currentTarget.style.borderColor = '#5A5A5A';
-                                    e.currentTarget.style.color = '#B8B8B8';
-                                  }
-                                }}
-                              >
-                                {label}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      <div className="rounded-xl border px-4 py-4 text-sm" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }}>
-                        <div className="flex items-center gap-2">
-                          <Eye className="h-4 w-4" />
-                          <span className="noto-sans-arabic-bold text-[11px]">نظرة على الحالة</span>
-                        </div>
-                        <p className="noto-sans-arabic-medium mt-2 text-xs leading-relaxed" style={{ color: 'rgba(0, 119, 255, 0.9)' }}>
-                          {editorState.status === "Published" 
-                            ? "القراء يمكنهم رؤية هذا الفصل بمجرد اكتمال المزامنة."
-                            : "فقط أنت يمكنك رؤية هذا الفصل حتى تقوم بنشره."}
-                        </p>
-                      </div>
-                    </div>
-
-                    <dl className="grid w-full gap-3 sm:grid-cols-2" data-testid="chapter-metrics">
-                      <div
-                        className="rounded-xl border px-5 py-5"
-                        style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)' }}
-                        data-testid="chapter-metric-word-count"
-                      >
-                        <div className="flex flex-col items-center gap-2 text-center">
-                          <dt className="noto-sans-arabic-bold flex items-center gap-2 whitespace-nowrap text-[11px]" style={{ color: '#0077FF' }}>
-                            <BookOpen className="h-4 w-4" /> عدد الكلمات
-                          </dt>
-                          <dd className="noto-sans-arabic-extrabold whitespace-nowrap text-3xl text-white">{wordCount.toLocaleString()}</dd>
-                        </div>
-                      </div>
-                      <div
-                        className="rounded-xl border px-5 py-5"
-                        style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}
-                        data-testid="chapter-metric-characters"
-                      >
-                        <div className="flex flex-col items-center gap-2 text-center">
-                          <dt className="noto-sans-arabic-bold flex items-center gap-2 whitespace-nowrap text-[11px]" style={{ color: '#B8B8B8' }}>
-                            <Type className="h-4 w-4" /> الأحرف
-                          </dt>
-                          <dd className="noto-sans-arabic-extrabold whitespace-nowrap text-3xl text-white">{characterCount.toLocaleString()}</dd>
-                        </div>
-                      </div>
-                    </dl>
-                  </div>
-                </div>
-
                 <div className="space-y-3">
                   <div className="noto-sans-arabic-medium flex items-center justify-between text-xs" style={{ color: '#797979' }}>
                     <span>مخطوطة الفصل</span>
@@ -551,27 +473,16 @@ const ChapterEditorPage = () => {
                       {characterCount}/{MAX_CONTENT_LENGTH} حرف
                     </span>
                   </div>
-                  <textarea
-                    id="chapter-content"
-                    rows={24}
-                    value={editorState.content}
-                    onChange={(event) => {
-                      if (event.target.value.length <= MAX_CONTENT_LENGTH) {
-                        handleFieldChange("content", event.target.value);
-                      }
-                    }}
-                    placeholder="اكتب الفصل كاملاً هنا. اختصارات الماركداون، المعاينة المباشرة، والتعليقات المضمنة ستأتي لاحقاً هذا العام."
-                    className="noto-sans-arabic-medium h-[36rem] w-full rounded-xl border px-6 py-5 text-base leading-relaxed text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 transition"
-                    style={{ 
-                      borderColor: '#5A5A5A', 
-                      backgroundColor: '#2C2C2C',
-                      caretColor: '#0077FF'
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = '#0077FF';
-                      e.currentTarget.style.ringColor = 'rgba(0, 119, 255, 0.4)';
-                    }}
-                    onBlur={(e) => e.currentTarget.style.borderColor = '#5A5A5A'}
+                  <RichTextEditor
+                    content={editorState.content}
+                    onChange={(html) => handleFieldChange("content", html)}
+                    placeholder="اكتب الفصل كاملاً هنا. يمكنك تنسيق النص بالخط العريض، المائل، أو التسطير."
+                    maxLength={MAX_CONTENT_LENGTH}
+                    dir="rtl"
+                    status={editorState.status}
+                    onStatusChange={(newStatus) => handleFieldChange("status", newStatus)}
+                    wordCount={wordCount}
+                    characterCount={characterCount}
                   />
                 </div>
 

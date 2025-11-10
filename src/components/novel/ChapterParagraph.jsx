@@ -40,14 +40,13 @@ const ChapterParagraph = ({
     >
       {/* Paragraph Text - No hover effects, no background changes */}
       <p
-        className="leading-[2] whitespace-pre-line px-4 md:px-6"
+        className="leading-[2] whitespace-pre-line px-4 md:px-6 tajawal-regular"
         style={{
           color: paragraphColor,
           fontSize: `${fontSize}px`
         }}
-      >
-        {paragraph.content}
-      </p>
+        dangerouslySetInnerHTML={{ __html: paragraph.content }}
+      />
 
       {/* Simple Wattpad-style Comment Button - appears on hover or if has comments */}
       {(isHovered || hasComments) && (
