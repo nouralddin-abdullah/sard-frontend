@@ -5,14 +5,15 @@ const computeLastUpdated = (works) => {
     .map((work) => (work?.lastUpdatedAt ? new Date(work.lastUpdatedAt) : null))
     .filter((date) => date instanceof Date && !Number.isNaN(date?.getTime()));
 
-  if (timestamps.length === 0) return "No updates yet";
+  if (timestamps.length === 0) return "لا توجد تحديثات";
 
   const mostRecent = timestamps.sort((a, b) => b.getTime() - a.getTime())[0];
-  return mostRecent.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  const day = mostRecent.getDate();
+  const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  const month = months[mostRecent.getMonth()];
+  const year = mostRecent.getFullYear();
+  
+  return `${day} ${month} ${year}`;
 };
 
 const insightCards = [
@@ -73,24 +74,24 @@ const WorkSummary = ({ works = [], isLoading = false }) => {
 
         <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <StatBlock
-            label="Total works"
+            label="إجمالي الأعمال"
             value={isLoading ? "—" : totalWorks}
-            caption="All projects"
+            caption="جميع المشاريع"
           />
           <StatBlock
-            label="Ongoing"
+            label="جاري"
             value={isLoading ? "—" : ongoingCount}
-            caption="In production"
+            caption="قيد الإنتاج"
           />
           <StatBlock
-            label="Completed"
+            label="مكتمل"
             value={isLoading ? "—" : completedCount}
-            caption="Ready to binge"
+            caption="جاهز للقراءة"
           />
           <StatBlock
-            label="On pause"
+            label="متوقف"
             value={isLoading ? "—" : hiatusCount}
-            caption="Hiatus or planning"
+            caption="في فترة راحة"
           />
           <StatBlock
             label="Lifetime views"

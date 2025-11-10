@@ -25,6 +25,7 @@ import Select from "../../components/ui/select";
 import { Modal } from "../../components/ui/modal";
 import mainPicture from "../../assets/mainPicture.jpg";
 import { formatSmart } from "../../utils/date";
+import { translateGenre } from "../../utils/translate-genre";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
 import { useGetWorkById } from "../../hooks/work/useGetWorkById";
 import { useGetWorkChapters } from "../../hooks/work/useGetWorkChapters";
@@ -51,19 +52,19 @@ const SORT_OPTIONS = [
 
 const LAUNCH_CHECKLIST = [
   {
-    label: "Title and summary polished",
+    label: "العنوان والملخص جاهزان",
     isComplete: (state) => Boolean(state.title.trim() && state.summary.trim()),
   },
   {
-    label: "Primary genres locked",
+    label: "الأنواع الأساسية محددة",
     isComplete: (state) => state.genreIds.length > 0,
   },
   {
-    label: "Cover matches tone",
+    label: "الغلاف يتناسب مع النبرة",
     isComplete: (state, coverStatus) => Boolean(coverStatus.hasCover),
   },
   {
-    label: "Chapter order intentional",
+    label: "ترتيب الفصول منظم",
     isComplete: (_, __, chapters) => chapters.length > 0,
   },
 ];
@@ -595,7 +596,7 @@ const EditWorkPage = () => {
               <div className="rounded-xl border px-5 py-3" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
                 <p className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>الأنواع</p>
                 <p className="noto-sans-arabic-medium text-sm text-white">
-                  {selectedGenres.length > 0 ? selectedGenres.map((genre) => genre.name).join("، ") : "غير محدد"}
+                  {selectedGenres.length > 0 ? selectedGenres.map((genre) => translateGenre(genre.name)).join("، ") : "غير محدد"}
                 </p>
               </div>
             </div>
@@ -720,7 +721,7 @@ const EditWorkPage = () => {
                           <Select value="" onChange={handleGenreSelect} placeholder="اختر النوع">
                             {genres.map((genre) => (
                               <option key={genre.id} value={genre.id}>
-                                {genre.name}
+                                {translateGenre(genre.name)}
                               </option>
                             ))}
                           </Select>
@@ -735,7 +736,7 @@ const EditWorkPage = () => {
                               className="noto-sans-arabic-medium inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs"
                               style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }}
                             >
-                              {genre.name}
+                              {translateGenre(genre.name)}
                               <button
                                 type="button"
                                 onClick={() => removeGenre(genre.id)}
@@ -844,16 +845,10 @@ const EditWorkPage = () => {
                         <h2 className="noto-sans-arabic-extrabold text-lg" style={{ color: '#0077FF' }}>قائمة الإطلاق</h2>
                         <ul className="space-y-3">
                           {LAUNCH_CHECKLIST.map((item) => {
-                            const arabicLabels = {
-                              'Set a catchy title': 'ضع عنواناً جذاباً',
-                              'Add at least one genre': 'أضف نوعاً واحداً على الأقل',
-                              'Upload a polished cover': 'ارفع غلافاً احترافياً',
-                              'Write at least one chapter': 'اكتب فصلاً واحداً على الأقل'
-                            };
                             return (
                               <ChecklistItem
                                 key={item.label}
-                                label={arabicLabels[item.label] || item.label}
+                                label={item.label}
                                 complete={item.isComplete(
                                   detailsState,
                                   { hasCover: Boolean(work?.coverImageUrl) || Boolean(coverFile) },

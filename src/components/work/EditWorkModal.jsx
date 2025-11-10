@@ -7,8 +7,8 @@ import { useUpdateWork } from "../../hooks/work/useUpdateWork";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
 
 const STATUS_OPTIONS = [
-  { value: "Ongoing", label: "Ongoing" },
-  { value: "Completed", label: "Completed" },
+  { value: "Ongoing", label: "جاري" },
+  { value: "Completed", label: "مكتمل" },
 ];
 
 const EditWorkModal = ({ work, isOpen, onClose }) => {

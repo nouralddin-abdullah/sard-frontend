@@ -14,6 +14,16 @@ const STATUS_STYLES = {
 const WorkCard = ({ work }) => {
   const statusKey = work?.status?.toLowerCase?.() ?? "ongoing";
   const statusStyle = STATUS_STYLES[statusKey] ?? STATUS_STYLES.ongoing;
+  
+  // Translate status to Arabic
+  const statusLabels = {
+    ongoing: "مستمر",
+    completed: "مكتمل",
+    hiatus: "متوقف",
+    archived: "مؤرشف"
+  };
+  const statusLabel = statusLabels[statusKey] || statusLabels.ongoing;
+  
   const chapterCount = work?.chapterCount ?? work?.chaptersCount ?? 0;
   const averageScore = Number.isFinite(Number(work?.totalAverageScore))
     ? Number(work.totalAverageScore)
@@ -46,7 +56,7 @@ const WorkCard = ({ work }) => {
               className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs noto-sans-arabic-bold ${statusStyle}`}
             >
               <Sparkles className="h-3.5 w-3.5" />
-              {work?.status || "جاري"}
+              {statusLabel}
             </span>
             <span className="text-xs noto-sans-arabic-medium text-white/90">
               آخر تحديث {lastUpdatedLabel}

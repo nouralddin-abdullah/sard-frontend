@@ -119,31 +119,42 @@ export const formatForInput = (dateString) => {
   return date.toISOString().slice(0, 16); // Returns YYYY-MM-DDTHH:mm for datetime-local input
 };
 
-// Smart formatting based on context
+// Smart formatting based on context - Arabic
 export const formatSmart = (dateString) => {
-  if (!dateString) return "N/A";
+  if (!dateString) return "غير متوفر";
   
-  if (isToday(dateString)) {
-    return `Today at ${formatTime12Hour(dateString)}`;
-  }
-  if (isYesterday(dateString)) {
-    return `Yesterday at ${formatTime12Hour(dateString)}`;
-  }
-
   const date = new Date(ensureUTC(dateString));
   const now = new Date();
-  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-
-  if (diffDays < 7) {
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+  const diffMs = now - date;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  
+  // Get time in 12-hour format
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const hour12 = hours % 12 || 12;
+  const minuteStr = minutes.toString().padStart(2, '0');
+  const period = hours >= 12 ? 'م' : 'ص'; // م for PM (مساءً), ص for AM (صباحاً)
+  const timeStr = `${hour12}:${minuteStr} ${period}`;
+  
+  if (isToday(dateString)) {
+    return `اليوم ${timeStr}`;
+  }
+  if (isYesterday(dateString)) {
+    return `أمس ${timeStr}`;
   }
 
-  return formatDateShort(dateString);
+  if (diffDays < 7) {
+    const weekdays = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    return `${weekdays[date.getDay()]} ${timeStr}`;
+  }
+
+  // For older dates, show date
+  const day = date.getDate();
+  const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  
+  return `${day} ${month} ${year}`;
 };
 
 // Utility functions

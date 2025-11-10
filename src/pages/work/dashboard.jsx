@@ -18,14 +18,15 @@ const computeLastUpdatedLabel = (works) => {
     .map((work) => (work?.lastUpdatedAt ? new Date(work.lastUpdatedAt) : null))
     .filter((date) => date instanceof Date && !Number.isNaN(date?.getTime()));
 
-  if (timestamps.length === 0) return "No updates yet";
+  if (timestamps.length === 0) return "لا توجد تحديثات";
 
   const mostRecent = timestamps.sort((a, b) => b.getTime() - a.getTime())[0];
-  return mostRecent.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  const day = mostRecent.getDate();
+  const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  const month = months[mostRecent.getMonth()];
+  const year = mostRecent.getFullYear();
+  
+  return `${day} ${month} ${year}`;
 };
 
 const filterBySearch = (work, searchTerm) => {
