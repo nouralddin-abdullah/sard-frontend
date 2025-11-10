@@ -56,12 +56,12 @@ const EditWorkModal = ({ work, isOpen, onClose }) => {
     event.preventDefault();
 
     if (!formState.title.trim()) {
-      toast.error("Title is required");
+      toast.error("العنوان مطلوب");
       return;
     }
 
     if (!formState.summary.trim()) {
-      toast.error("Summary is required");
+      toast.error("الملخص مطلوب");
       return;
     }
 
@@ -75,10 +75,10 @@ const EditWorkModal = ({ work, isOpen, onClose }) => {
           genreIds: formState.genreIds,
         },
       });
-      toast.success("Work updated successfully");
+      toast.success("تم تحديث العمل بنجاح");
       onClose();
     } catch (error) {
-      toast.error(error?.message || "Failed to update work");
+      toast.error(error?.message || "فشل تحديث العمل");
     }
   };
 

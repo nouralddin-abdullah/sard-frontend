@@ -31,7 +31,7 @@ const FollowToggle = ({ isFollowing, userId }) => {
       await toggleFollow({ isFollowed: currentFollowState, userId });
     } catch (error) {
       console.error(error);
-      toast.error("something went wrong, please try again.");
+      toast.error("حدث خطأ ما، يرجى المحاولة مرة أخرى");
       // Revert on error
       setIsFollowedState((prev) => !prev);
     }

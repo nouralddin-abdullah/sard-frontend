@@ -23,12 +23,12 @@ const UpdateCoverModal = ({ work, isOpen, onClose }) => {
     if (!selectedFile) return;
 
     if (!selectedFile.type.startsWith("image/")) {
-      toast.error("Please upload an image file");
+      toast.error("يرجى رفع ملف صورة");
       return;
     }
 
     if (selectedFile.size > 10 * 1024 * 1024) {
-      toast.error("Image must be smaller than 10MB");
+      toast.error("يجب أن يكون حجم الصورة أقل من 10 ميجابايت");
       return;
     }
 
@@ -40,16 +40,16 @@ const UpdateCoverModal = ({ work, isOpen, onClose }) => {
     event.preventDefault();
 
     if (!file) {
-      toast.error("Select an image first");
+      toast.error("اختر صورة أولاً");
       return;
     }
 
     try {
       await updateCover({ workId: work.id, coverFile: file });
-      toast.success("Cover updated successfully");
+      toast.success("تم تحديث الغلاف بنجاح");
       onClose();
     } catch (error) {
-      toast.error(error?.message || "Failed to update cover");
+      toast.error(error?.message || "فشل تحديث الغلاف");
     }
   };
 

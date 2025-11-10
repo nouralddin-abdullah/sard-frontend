@@ -48,10 +48,10 @@ const ManageChaptersModal = ({ work, isOpen, onClose }) => {
         workId: work.id,
         orderedChapterIds: chapterOrder.map((chapter) => chapter.id),
       });
-      toast.success("Chapter order updated");
+      toast.success("تم تحديث ترتيب الفصول");
       onClose();
     } catch (error) {
-      toast.error(error?.message || "Failed to reorder chapters");
+      toast.error(error?.message || "فشل إعادة ترتيب الفصول");
     }
   };
 

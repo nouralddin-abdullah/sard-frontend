@@ -430,11 +430,11 @@ const EditWorkPage = () => {
     try {
       await deleteChapter({ workId, chapterId: pendingChapterDelete.id });
       setChapterOrder((prev) => prev.filter((item) => item.id !== pendingChapterDelete.id));
-      toast.success("Chapter deleted");
+      toast.success("تم حذف الفصل");
       setPendingChapterDelete(null);
       refetchChapters();
     } catch (error) {
-      toast.error(error?.message || "Unable to delete chapter");
+      toast.error(error?.message || "فشل حذف الفصل");
     }
   }, [deleteChapter, pendingChapterDelete, refetchChapters, workId]);
 
