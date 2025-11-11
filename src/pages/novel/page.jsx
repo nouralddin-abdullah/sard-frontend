@@ -106,7 +106,6 @@ const NovelPage = () => {
 
   const tabs = [
     { id: "chapters", label: "الفصول", count: 72 },
-    { id: "characters", label: "الشخصيات", count: 5 },
     { id: "reviews", label: "التقييمات", count: 89 },
   ];
 
@@ -289,6 +288,16 @@ const NovelPage = () => {
               className="text-[#4A9EFF] hover:text-[#3A8EEF] text-sm font-bold whitespace-nowrap noto-sans-arabic-extrabold transition-colors"
             >
               عرض لوحة المتصدرين الكاملة ←
+            </Link>
+          </div>
+
+          {/* Wikipedia Link */}
+          <div className="mt-6">
+            <Link
+              to={`/novel/${novel?.id}/wikipedia`}
+              className="text-[#4A9EFF] hover:text-[#3A8EEF] text-sm font-bold whitespace-nowrap noto-sans-arabic-extrabold transition-colors"
+            >
+              استكشف موسوعة الرواية ←
             </Link>
           </div>
 
@@ -778,12 +787,6 @@ const NovelPage = () => {
                     </div>
                   )}
               </div>
-            )}
-
-            {selectedSubPage === "characters" && (
-              <p className="text-white text-center noto-sans-arabic-extrabold">
-                قريباً - صفحة الشخصيات
-              </p>
             )}
           </div>
 

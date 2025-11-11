@@ -247,7 +247,12 @@ const ProfilePage = () => {
         />
       )}
       {/* My Novels is visible to everyone */}
-      {selectedSubPage === "my-novels" && <MyNovels />}
+      {selectedSubPage === "my-novels" && (
+        <MyNovels 
+          userId={userData?.id} 
+          isOwnProfile={isOwnProfile}
+        />
+      )}
       {/* Library component handles public/private reading lists internally */}
       {selectedSubPage === "library" && <Library username={username} />}
       {/* Badges temporarily removed */}

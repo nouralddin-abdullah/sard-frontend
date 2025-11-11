@@ -4,12 +4,18 @@ import NovelCardSkeleton from "../novel/NovelCardSkeleton";
 import { Book, Plus } from "lucide-react";
 import Button from "../ui/button";
 import { useGetMyWorks } from "../../hooks/work/useGetMyWorks";
+import { useGetUserWorks } from "../../hooks/work/useGetUserWorks";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-const MyNovels = () => {
+const MyNovels = ({ userId, isOwnProfile = false }) => {
   const { t } = useTranslation();
 
+  // Use different hooks based on whether viewing own profile or another user's
+  const ownWorksQuery = useGetMyWorks({ enabled: isOwnProfile });
+  const userWorksQuery = useGetUserWorks({ userId, enabled: !isOwnProfile && !!userId });
+
+  // Select the appropriate query based on profile type
   const {
     data,
     fetchNextPage,
@@ -17,7 +23,7 @@ const MyNovels = () => {
     isFetchingNextPage,
     isPending,
     error,
-  } = useGetMyWorks();
+  } = isOwnProfile ? ownWorksQuery : userWorksQuery;
 
   const novelsList = data?.pages.flatMap((page) => page.items) || [];
 
@@ -62,27 +68,29 @@ const MyNovels = () => {
 
   return (
     <section style={{ backgroundColor: '#2C2C2C' }} className="min-h-screen">
-      {/* Add Novel Section */}
-      <div className="p-6 border-b" style={{ borderColor: '#5A5A5A' }}>
-        <div className="rounded-2xl p-8 text-center border" style={{ backgroundColor: '#3C3C3C', borderColor: '#5A5A5A' }}>
-          <h3 className="text-white text-xl noto-sans-arabic-extrabold mb-3">
-            إدارة رواياتك
-          </h3>
-          <p className="text-sm mb-6 noto-sans-arabic-medium" style={{ color: '#B8B8B8' }}>
-            للتحكم الكامل في رواياتك وتعديلها، استخدم أدوات المؤلف المخصصة
-          </p>
-          <Link
-            to="/dashboard/works"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl noto-sans-arabic-bold text-white transition-colors duration-200"
-            style={{ backgroundColor: '#0077FF' }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0066DD'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0077FF'}
-          >
-            <Book className="h-5 w-5" />
-            انتقل إلى أدوات المؤلف
-          </Link>
+      {/* Add Novel Section - Only show for own profile */}
+      {isOwnProfile && (
+        <div className="p-6 border-b" style={{ borderColor: '#5A5A5A' }}>
+          <div className="rounded-2xl p-8 text-center border" style={{ backgroundColor: '#3C3C3C', borderColor: '#5A5A5A' }}>
+            <h3 className="text-white text-xl noto-sans-arabic-extrabold mb-3">
+              إدارة رواياتك
+            </h3>
+            <p className="text-sm mb-6 noto-sans-arabic-medium" style={{ color: '#B8B8B8' }}>
+              للتحكم الكامل في رواياتك وتعديلها، استخدم أدوات المؤلف المخصصة
+            </p>
+            <Link
+              to="/dashboard/works"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl noto-sans-arabic-bold text-white transition-colors duration-200"
+              style={{ backgroundColor: '#0077FF' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0066DD'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0077FF'}
+            >
+              <Book className="h-5 w-5" />
+              انتقل إلى أدوات المؤلف
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Loading state for initial load */}
       {isPending && (

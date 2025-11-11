@@ -5,6 +5,7 @@ import { Modal } from "../ui/modal";
 import Select from "../ui/select";
 import { useUpdateWork } from "../../hooks/work/useUpdateWork";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
+import { translateGenre } from "../../utils/translate-genre";
 
 const STATUS_OPTIONS = [
   { value: "Ongoing", label: "جاري" },

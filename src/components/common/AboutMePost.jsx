@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, MessageSquareText, Share2, MoreHorizontal, Bookmark, Star } from "lucide-react";
+import { Heart, MessageSquareText, Share2, MoreHorizontal, LibraryBig, Star } from "lucide-react";
 import PostCommentPanel from "./PostCommentPanel";
 import { useLikePost, useUnlikePost } from "../../hooks/post/useLikePost";
 import { usePostComments } from "../../hooks/comment/usePostComments";
+import AddNovelToReadingListModal from "../novel/AddNovelToReadingListModal";
 
 const AboutMePost = ({ 
   content, 
@@ -19,6 +20,7 @@ const AboutMePost = ({
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(initialLikesCount);
   const [showComments, setShowComments] = useState(false);
+  const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
 
   const { mutate: likePost } = useLikePost();
   const { mutate: unlikePost } = useUnlikePost();
@@ -142,11 +144,12 @@ const AboutMePost = ({
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  // TODO: Add to reading list
+                  setIsAddToListModalOpen(true);
                 }}
-                className="self-start text-[#B0B0B0] hover:text-white transition-colors"
+                className="self-start text-[#B0B0B0] hover:text-[#0077FF] transition-colors"
+                aria-label="إضافة إلى قائمة القراءة"
               >
-                <Bookmark className="w-5 h-5" />
+                <LibraryBig className="w-5 h-5" />
               </button>
             </Link>
           </div>
@@ -195,6 +198,16 @@ const AboutMePost = ({
 
       {/* Comment Panel - Inline */}
       <PostCommentPanel isOpen={showComments} postId={postId} />
+
+      {/* Add to Reading List Modal */}
+      {attachedNovel && (
+        <AddNovelToReadingListModal
+          isOpen={isAddToListModalOpen}
+          onClose={() => setIsAddToListModalOpen(false)}
+          novelId={attachedNovel.id}
+          novelTitle={attachedNovel.title}
+        />
+      )}
     </div>
   );
 };

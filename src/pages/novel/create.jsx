@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import Button from "../../components/ui/button";
 import { Image, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { translateGenre } from "../../utils/translate-genre";
 
 const SUMMARY_MAX = 2000;
 
@@ -215,7 +216,7 @@ export default function CreateNovel() {
                         className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-zinc-600 text-zinc-200 border border-zinc-500"
                         title={genre.description}
                       >
-                        {genre.name}
+                        {translateGenre(genre.name)}
                         <button
                           type="button"
                           onClick={() => removeGenre(genre.id)}
@@ -245,7 +246,7 @@ export default function CreateNovel() {
                         value={genre.id}
                         className="text-zinc-100"
                       >
-                        {genre.name}
+                        {translateGenre(genre.name)}
                       </option>
                     ))}
                 </select>

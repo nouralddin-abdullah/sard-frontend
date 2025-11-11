@@ -66,13 +66,17 @@ const Header = () => {
 
   // Show SVG icon if not logged in, loading, or image failed to load
   const showDefaultIcon = !currentUser || isLoading || !currentUser.profilePhoto || imageError;
+  
+  // Determine home link based on auth status
+  const homeLink = currentUser ? "/home" : "/";
+  
   return (
     <header className="bg-[#2C2C2C]" dir="rtl">
       {/* Desktop Header */}
       <div className="hidden md:block py-4 px-6">
         <div className="max-w-[1920px] mx-auto flex items-center gap-6">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
+          <Link to={homeLink} className="flex-shrink-0">
             <h1 className="noto-sans-arabic-extrabold text-white text-[40px] leading-none">
               سَرْد
             </h1>
@@ -160,7 +164,7 @@ const Header = () => {
           {/* Navigation Links */}
           <nav className="flex items-center gap-8">
             <Link 
-              to="/" 
+              to={homeLink}
               className="noto-sans-arabic-extrabold text-white text-[20px] hover:opacity-80 transition-opacity"
             >
               الرئيسية
@@ -267,7 +271,7 @@ const Header = () => {
           </div>
 
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
+          <Link to={homeLink} className="flex-shrink-0">
             <h1 className="noto-sans-arabic-extrabold text-white text-[24px] leading-none">
               سَرْد
             </h1>
@@ -275,7 +279,7 @@ const Header = () => {
 
           {/* Home Icon */}
           <Link 
-            to="/" 
+            to={homeLink}
             className="flex-shrink-0 text-white hover:opacity-80 transition-opacity"
             aria-label="الرئيسية"
           >

@@ -1,113 +1,180 @@
-import { BookOpen, Clock, Eye } from "lucide-react";
+import { BookOpen, Clock, Eye, Star, CheckCircle, BookMarked, LibraryBig } from "lucide-react";
 import { getTimeAgo } from "../../utils/date";
 import { Link } from "react-router-dom";
-import StarRating from "../common/StarRating";
-import GenreBadge from "../common/GenreBadge";
+import { translateGenre } from "../../utils/translate-genre";
+import { useState, useEffect, useRef } from "react";
+import AddNovelToReadingListModal from "./AddNovelToReadingListModal";
 
 const NovelCard = ({ novel }) => {
+  const [showFullSummary, setShowFullSummary] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
+  const summaryRef = useRef(null);
+  
+  // Check if summary is truncated
+  useEffect(() => {
+    if (summaryRef.current) {
+      const element = summaryRef.current;
+      setIsTruncated(element.scrollHeight > element.clientHeight);
+    }
+  }, [novel.summary]);
+  
+  // Get status label in Arabic
+  const getStatusLabel = (status) => {
+    const statusMap = {
+      'Ongoing': 'مستمرة',
+      'Completed': 'مكتملة',
+      'Hiatus': 'متوقفة',
+      'Archived': 'مؤرشفة'
+    };
+    return statusMap[status] || status;
+  };
+
+  const handleReadMoreClick = (e) => {
+    e.preventDefault();
+    setShowFullSummary(!showFullSummary);
+  };
+
   return (
-    <Link
-      to={`/novel/${novel.slug}`}
-      className="group flex gap-4 bg-[#2A2A2A] rounded-xl overflow-hidden transition-all duration-300 hover:transform hover:scale-[1.01] hover:shadow-2xl p-4"
-      style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)' }}
-    >
-      {/* Cover Image */}
-      <div className="relative w-32 sm:w-40 flex-shrink-0 aspect-[3/4] overflow-hidden bg-[#1A1A1A] rounded-lg">
+    <div className="relative flex flex-col items-stretch justify-between rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
+      {/* Background Cover Image */}
+      <div className="absolute inset-0 z-0">
         <img
           src={novel.coverImageUrl}
           alt={novel.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
         />
-        
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        {/* Status Badge */}
-        <div className="absolute top-2 right-2">
-          <span 
-            className={`px-2 py-1 rounded-full text-xs font-bold noto-sans-arabic-bold ${
-              novel.status === 'Completed' 
-                ? 'bg-green-500/90 text-white' 
-                : 'bg-blue-500/90 text-white'
-            }`}
-          >
-            {novel.status === 'Ongoing' ? 'مستمرة' : 'مكتملة'}
-          </span>
-        </div>
-
-        {/* Views Badge */}
-        {novel.totalViews > 0 && (
-          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1">
-            <Eye className="w-3 h-3 text-[#4A9EFF]" />
-            <span className="text-white text-xs font-medium noto-sans-arabic-medium">
-              {novel.totalViews >= 1000 
-                ? `${(novel.totalViews / 1000).toFixed(1)}k` 
-                : novel.totalViews}
-            </span>
-          </div>
-        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/95 via-[#2C2C2C]/85 to-[#2C2C2C]/75" />
       </div>
 
-      {/* Content Section */}
-      <div className="flex-1 flex flex-col justify-between min-w-0">
-        <div>
-          {/* Title */}
-          <h3 className="text-white text-lg font-bold noto-sans-arabic-extrabold line-clamp-2 mb-2 leading-tight">
+      <div className="relative z-10 flex flex-col p-6 md:p-8">
+        {/* Header - Title & Author */}
+        <div className="flex flex-col gap-1 mb-6">
+          <Link 
+            to={`/novel/${novel.slug}`}
+            className="text-white tracking-tight text-2xl md:text-3xl font-bold leading-tight noto-sans-arabic-extrabold hover:text-[#0077FF] transition-colors line-clamp-2"
+          >
             {novel.title}
-          </h3>
-
-          {/* Genres */}
-          {novel.genresList && novel.genresList.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {novel.genresList.slice(0, 3).map((genre) => (
-                <GenreBadge key={genre.id} genre={genre} size="sm" />
-              ))}
-            </div>
-          )}
-
-          {/* Rating */}
-          {novel.totalAverageScore > 0 && (
-            <div className="flex items-center gap-2 mb-3">
-              <StarRating rating={novel.totalAverageScore} className="w-4 h-4" />
-              <span className="text-white text-sm font-bold noto-sans-arabic-bold">
-                {novel.totalAverageScore.toFixed(1)}
-              </span>
-            </div>
-          )}
-
-          {/* Summary */}
-          {novel.summary && (
-            <p className="text-[#AAAAAA] text-sm noto-sans-arabic-regular leading-relaxed mb-3 line-clamp-3 overflow-hidden text-ellipsis">
-              {novel.summary}
+          </Link>
+          {novel.authorName && (
+            <p className="text-gray-300 text-base font-medium leading-normal noto-sans-arabic-medium">
+              بواسطة {novel.authorName}
             </p>
           )}
         </div>
 
-        {/* Footer Stats */}
-        <div className="pt-3 flex items-center justify-between text-xs">
-          {/* Author */}
-          {novel.authorName && (
-            <div className="flex items-center gap-1 text-[#888888]">
-              <span className="noto-sans-arabic-medium">بواسطة</span>
-              <span className="text-[#4A9EFF] noto-sans-arabic-bold truncate max-w-[150px]">
-                {novel.authorName}
-              </span>
+        {/* Chips - Genres, Status, Rating */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {/* Genre Chips */}
+          {novel.genresList && novel.genresList.slice(0, 2).map((genre) => (
+            <div 
+              key={genre.id} 
+              className="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#0077FF]/20 px-3 border border-[#0077FF]/30"
+            >
+              <BookOpen className="w-4 h-4 text-[#0077FF]" />
+              <p className="text-[#0077FF] text-sm font-medium leading-normal noto-sans-arabic-medium">
+                {translateGenre(genre.name)}
+              </p>
             </div>
-          )}
+          ))}
 
-          {/* Last Updated */}
-          {novel.lastUpdatedAt && (
-            <div className="flex items-center gap-1 text-[#888888]">
-              <Clock className="w-3.5 h-3.5" />
-              <span className="noto-sans-arabic-medium">
-                {getTimeAgo(novel.lastUpdatedAt)}
-              </span>
+          {/* Status Chip */}
+          <div className="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#0077FF]/20 px-3 border border-[#0077FF]/30">
+            <CheckCircle className="w-4 h-4 text-[#0077FF]" />
+            <p className="text-[#0077FF] text-sm font-medium leading-normal noto-sans-arabic-medium">
+              {getStatusLabel(novel.status)}
+            </p>
+          </div>
+
+          {/* Rating Chip */}
+          {novel.totalAverageScore > 0 && (
+            <div className="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#0077FF]/20 px-3 border border-[#0077FF]/30">
+              <Star className="w-4 h-4 text-[#0077FF] fill-[#0077FF]" />
+              <p className="text-[#0077FF] text-sm font-medium leading-normal noto-sans-arabic-medium">
+                {novel.totalAverageScore.toFixed(1)}/5
+              </p>
             </div>
           )}
         </div>
+
+        {/* Summary */}
+        {novel.summary && (
+          <div className="mb-4">
+            <p 
+              ref={summaryRef}
+              className={`text-gray-200 text-base font-normal leading-relaxed noto-sans-arabic-regular ${
+                showFullSummary ? '' : 'line-clamp-3'
+              }`}
+            >
+              {novel.summary}
+            </p>
+            {isTruncated && (
+              <button
+                onClick={handleReadMoreClick}
+                className="text-[#0077FF] text-sm font-semibold leading-normal pt-2 hover:underline cursor-pointer noto-sans-arabic-bold transition-colors"
+              >
+                {showFullSummary ? 'إخفاء' : 'اقرأ المزيد'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Stats - Views & Last Updated */}
+        {(novel.totalViews > 0 || novel.lastUpdatedAt) && (
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 noto-sans-arabic-regular">
+            {novel.totalViews > 0 && (
+              <div className="flex items-center gap-1.5">
+                <Eye className="w-4 h-4" />
+                <span>
+                  {novel.totalViews >= 1000 
+                    ? `${(novel.totalViews / 1000).toFixed(1)}k` 
+                    : novel.totalViews} مشاهدة
+                </span>
+              </div>
+            )}
+            {novel.lastUpdatedAt && (
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4" />
+                <span>{getTimeAgo(novel.lastUpdatedAt)}</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-    </Link>
+
+      {/* Footer - Action Buttons */}
+      <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 p-6 md:p-8 pt-4 md:pt-6 border-t border-white/10">
+        {/* Add to Library Button */}
+        <button 
+          onClick={(e) => {
+            e.preventDefault();
+            setIsAddToListModalOpen(true);
+          }}
+          aria-label="إضافة إلى المكتبة"
+          className="flex items-center justify-center h-10 w-10 rounded-full text-gray-300 hover:bg-white/10 hover:text-[#0077FF] transition-colors"
+        >
+          <LibraryBig className="w-5 h-5" />
+        </button>
+
+        {/* Start Reading Button */}
+        <Link
+          to={`/novel/${novel.slug}`}
+          className="flex w-full sm:w-auto min-w-[140px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#0077FF] text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#0066DD] transition-all transform hover:scale-105 noto-sans-arabic-bold"
+        >
+          <span className="truncate">عرض تفاصيل الرواية</span>
+        </Link>
+      </div>
+
+      {/* Add to Reading List Modal */}
+      <AddNovelToReadingListModal
+        isOpen={isAddToListModalOpen}
+        onClose={() => setIsAddToListModalOpen(false)}
+        novelId={novel.id}
+        novelTitle={novel.title}
+      />
+    </div>
   );
 };
 
