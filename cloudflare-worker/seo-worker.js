@@ -9,8 +9,8 @@ export default {
     const isNovelPage = url.pathname.match(/^\/novel\/[^\/]+$/);
     
     if (!isNovelPage) {
-      // Not a target page - serve React app normally
-      return env.ASSETS.fetch(request);
+      // Not a target page - proxy to Pages
+      return fetch(request);
     }
     
     // Check if request is from a search engine bot
@@ -18,8 +18,8 @@ export default {
     const isBot = /googlebot|bingbot|yandex|baiduspider|twitterbot|facebookexternalhit|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator/i.test(userAgent);
     
     if (!isBot) {
-      // Regular user - serve React app
-      return env.ASSETS.fetch(request);
+      // Regular user - proxy to Pages (React app)
+      return fetch(request);
     }
     
     // Bot detected - serve pre-rendered HTML
