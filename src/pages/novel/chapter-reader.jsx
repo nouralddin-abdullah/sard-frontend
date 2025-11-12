@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen, MessageCircle, Facebook, Twitter, Link as LinkIcon, Copy, Check } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useGetNovelChapters } from '../../hooks/novel/useGetNovelChapters';
@@ -282,6 +283,57 @@ const ChapterReaderPage = () => {
 
   return (
     <div className="relative" style={{ backgroundColor: currentTheme.bg }} dir="rtl">
+      <Helmet>
+        <title>{chapter?.title || 'الفصل'} - {novel?.title || 'رواية'} | سرد</title>
+        <meta 
+          name="description" 
+          content={`اقرأ ${chapter?.title || 'الفصل'} من رواية ${novel?.title || ''} بقلم ${novel?.author?.displayName || ''}. ${chapter?.content?.substring(0, 120) || ''}...`}
+        />
+        <meta name="keywords" content={`${novel?.title || ''}, ${chapter?.title || ''}, فصل, رواية, ${novel?.author?.displayName || ''}`} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={`${chapter?.title || 'الفصل'} - ${novel?.title || 'رواية'}`} />
+        <meta property="og:description" content={`اقرأ ${chapter?.title || 'الفصل'} من رواية ${novel?.title || ''}`} />
+        <meta property="og:image" content={novel?.coverImageUrl || ''} />
+        <meta property="og:url" content={`https://www.sardnovels.com/novel/${novelSlug}/chapter/${chapterId}`} />
+        <meta property="og:locale" content="ar_AR" />
+        <meta property="article:author" content={novel?.author?.displayName || ''} />
+        <meta property="article:published_time" content={chapter?.createdAt || ''} />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${chapter?.title || 'الفصل'} - ${novel?.title || 'رواية'}`} />
+        <meta name="twitter:description" content={`اقرأ ${chapter?.title || 'الفصل'} من رواية ${novel?.title || ''}`} />
+        <meta name="twitter:image" content={novel?.coverImageUrl || ''} />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href={`https://www.sardnovels.com/novel/${novelSlug}/chapter/${chapterId}`} />
+        
+        {/* Structured Data - Chapter as Article */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": chapter?.title || 'الفصل',
+            "description": `اقرأ ${chapter?.title || 'الفصل'} من رواية ${novel?.title || ''}`,
+            "image": novel?.coverImageUrl || '',
+            "author": {
+              "@type": "Person",
+              "name": novel?.author?.displayName || '',
+              "url": `https://www.sardnovels.com/profile/${novel?.author?.userName || ''}`
+            },
+            "datePublished": chapter?.createdAt || '',
+            "inLanguage": "ar",
+            "isPartOf": {
+              "@type": "Book",
+              "name": novel?.title || '',
+              "url": `https://www.sardnovels.com/novel/${novelSlug}`
+            },
+            "url": `https://www.sardnovels.com/novel/${novelSlug}/chapter/${chapterId}`
+          })}
+        </script>
+      </Helmet>
       {/* Top Header Bar */}
       <div className="fixed top-0 left-0 right-0 z-40 flex items-center px-6 py-4" style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8'}` }}>
         {/* Left: SARD Logo + User + Library */}

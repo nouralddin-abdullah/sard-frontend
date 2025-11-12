@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay, EffectCoverflow, EffectCards } from "swiper/modules";
 import { TrendingUp, Clock, Eye, Star, Sparkles, Crown, BookOpen } from "lucide-react";
@@ -391,6 +392,56 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-[#1C1C1C]">
+        <Helmet>
+          <title>سرد - منصة الروايات العربية | اكتشف وشارك قصصك المفضلة</title>
+          <meta 
+            name="description" 
+            content="سرد هي أكبر منصة عربية لقراءة ومشاركة الروايات. اكتشف آلاف الروايات في مختلف الأنواع الأدبية: فانتازيا، رومانسية، أكشن، مغامرات، خيال علمي وأكثر. انضم لمجتمع القراء والكتاب العرب."
+          />
+          <meta name="keywords" content="روايات عربية, قصص, فانتازيا, رومانسية, أكشن, خيال علمي, مغامرات, كتابة, قراءة, روايات مجانية, سرد" />
+          
+          {/* Open Graph / Facebook */}
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content="سرد - منصة الروايات العربية" />
+          <meta property="og:description" content="اكتشف آلاف الروايات العربية في مختلف الأنواع الأدبية. انضم لمجتمع القراء والكتاب العرب." />
+          <meta property="og:url" content="https://www.sardnovels.com" />
+          <meta property="og:locale" content="ar_AR" />
+          <meta property="og:site_name" content="سرد" />
+          
+          {/* Twitter */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="سرد - منصة الروايات العربية" />
+          <meta name="twitter:description" content="اكتشف آلاف الروايات العربية في مختلف الأنواع الأدبية" />
+          
+          {/* Canonical URL */}
+          <link rel="canonical" href="https://www.sardnovels.com/home" />
+          
+          {/* Structured Data - Organization & Website */}
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "سرد",
+              "description": "منصة الروايات العربية - اكتشف وشارك قصصك المفضلة",
+              "url": "https://www.sardnovels.com",
+              "inLanguage": "ar",
+              "publisher": {
+                "@type": "Organization",
+                "name": "سرد",
+                "url": "https://www.sardnovels.com",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://www.sardnovels.com/logo.png"
+                }
+              },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://www.sardnovels.com/search?q={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })}
+          </script>
+        </Helmet>
         <Header />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">

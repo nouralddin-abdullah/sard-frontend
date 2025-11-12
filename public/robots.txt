@@ -1,0 +1,16 @@
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow admin/private pages (if any)
+Disallow: /api/
+Disallow: /admin/
+
+# We don't need entity pages indexed (only novels and chapters)
+Disallow: /novel/*/wikipedia/
+
+# Sitemap location
+Sitemap: https://www.sardnovels.com/sitemap.xml
+
+# Crawl-delay for good bots (optional)
+Crawl-delay: 1

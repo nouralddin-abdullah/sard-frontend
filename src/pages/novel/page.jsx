@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { useNovelDetails } from "../../hooks/novel/useNovelDetails";
 import { useNovelChapters } from "../../hooks/novel/useNovelChapters";
 import { useGetNovelReadingProgress } from "../../hooks/novel/useGetNovelReadingProgress";
@@ -165,6 +166,62 @@ const NovelPage = () => {
 
   return (
     <>
+      <Helmet>
+        <title>{novel.title} - سرد | منصة الروايات العربية</title>
+        <meta 
+          name="description" 
+          content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? '...' : '')} 
+        />
+        <meta name="keywords" content={`${novel.title}, رواية, ${novel.genresList.map(g => translateGenre(g.name)).join(', ')}, ${novel.author.displayName}`} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="book" />
+        <meta property="og:title" content={`${novel.title} - ${novel.author.displayName}`} />
+        <meta property="og:description" content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? '...' : '')} />
+        <meta property="og:image" content={novel.coverImageUrl} />
+        <meta property="og:url" content={`https://www.sardnovels.com/novel/${novelSlug}`} />
+        <meta property="og:locale" content="ar_AR" />
+        <meta property="book:author" content={novel.author.displayName} />
+        <meta property="book:release_date" content={novel.createdAt} />
+        <meta property="book:tag" content={novel.genresList.map(g => translateGenre(g.name)).join(', ')} />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${novel.title} - ${novel.author.displayName}`} />
+        <meta name="twitter:description" content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? '...' : '')} />
+        <meta name="twitter:image" content={novel.coverImageUrl} />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href={`https://www.sardnovels.com/novel/${novelSlug}`} />
+        
+        {/* Structured Data - Book Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Book",
+            "name": novel.title,
+            "description": novel.summary,
+            "image": novel.coverImageUrl,
+            "author": {
+              "@type": "Person",
+              "name": novel.author.displayName,
+              "url": `https://www.sardnovels.com/profile/${novel.author.userName}`
+            },
+            "aggregateRating": novel.overallRating ? {
+              "@type": "AggregateRating",
+              "ratingValue": novel.overallRating,
+              "reviewCount": novel.reviewCount || 0,
+              "bestRating": 5,
+              "worstRating": 1
+            } : undefined,
+            "genre": novel.genresList.map(g => translateGenre(g.name)).join(', '),
+            "inLanguage": "ar",
+            "datePublished": novel.createdAt,
+            "numberOfPages": chapters?.length || 0,
+            "url": `https://www.sardnovels.com/novel/${novelSlug}`
+          })}
+        </script>
+      </Helmet>
       <Header />
       <div className="min-h-screen bg-[#2C2C2C] md:p-[40px] p-[10px]" dir="rtl">
         {/* Hero Section */}

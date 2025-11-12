@@ -1,0 +1,13 @@
+# Development robots.txt - BLOCKS ALL CRAWLERS
+# Use this until production launch
+# Then replace with the one in public/robots.txt
+
+User-agent: *
+Disallow: /
+
+# Uncomment when ready for production:
+# Allow: /
+# Disallow: /api/
+# Disallow: /admin/
+# Disallow: /novel/*/wikipedia/
+# Sitemap: https://www.sardnovels.com/sitemap.xml

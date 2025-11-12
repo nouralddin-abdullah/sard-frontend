@@ -1,0 +1,12 @@
+name = "sard-seo-worker"
+main = "seo-worker.js"
+compatibility_date = "2024-11-12"
+
+# Environment variables
+[vars]
+API_URL = "https://api-sareed.runasp.net"
+
+# Routes - These will intercept requests to novel pages
+[[routes]]
+pattern = "www.sardnovels.com/novel/*"
+zone_name = "sardnovels.com"
