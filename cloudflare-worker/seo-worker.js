@@ -74,12 +74,18 @@ async function generateNovelHTML(url, env) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(novel.title)} - سرد</title>
   <meta name="description" content="${escapeHtml(novel.summary?.substring(0, 160) || '')}">
-  <meta property="og:title" content="${escapeHtml(novel.title)} - ${escapeHtml(novel.author?.displayName || '')}">
-  <meta property="og:description" content="${escapeHtml(novel.summary?.substring(0, 160) || '')}">
-  <meta property="og:image" content="${novel.coverImageUrl || ''}">
+  <meta property="og:title" content="${escapeHtml(novel.title)}">
+  <meta property="og:description" content="بقلم: ${escapeHtml(novel.author?.displayName || '')}">
+  <meta property="og:image" content="https://www.sardnovels.com/logo.png">
+  <meta property="og:image:secure_url" content="https://www.sardnovels.com/logo.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="سرد - منصة الروايات العربية">
   <meta property="og:url" content="https://www.sardnovels.com/novel/${slug}">
   <meta property="og:type" content="book">
-  <link rel="canonical" content="https://www.sardnovels.com/novel/${slug}">
+  <meta property="og:locale" content="ar_AR">
+  <link rel="canonical" href="https://www.sardnovels.com/novel/${slug}">
   
   <!-- Structured Data -->
   <script type="application/ld+json">
