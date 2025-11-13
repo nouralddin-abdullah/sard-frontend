@@ -181,6 +181,11 @@ const NovelPage = () => {
         <meta property="og:title" content={`${novel.title} - ${novel.author.displayName}`} />
         <meta property="og:description" content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? '...' : '')} />
         <meta property="og:image" content={novel.coverImageUrl} />
+        <meta property="og:image:secure_url" content={novel.coverImageUrl} />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={`${novel.title} - غلاف الرواية`} />
         <meta property="og:url" content={`https://www.sardnovels.com/novel/${novelSlug}`} />
         <meta property="og:locale" content="ar_AR" />
         <meta property="book:author" content={novel.author.displayName} />
