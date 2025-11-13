@@ -22,7 +22,7 @@ const AboutMe = ({ userData, isOwnProfile = false }) => {
   const totalFollowing = userData?.totalFollowing;
 
   return (
-    <div className="bg-neutral-800 text-white">
+    <div className="bg-neutral-800 text-white min-h-screen">
       <div className="flex flex-col md:flex-row justify-between p-6 gap-10 md:gap-15 ">
         <div className="flex  items-center flex-col gap-5">
           {/* user about info */}
