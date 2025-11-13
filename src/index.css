@@ -1,5 +1,31 @@
 @import "tailwindcss";
 
+/* Global scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 158, 255, 0.5) rgba(60, 60, 60, 0.3);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(60, 60, 60, 0.3);
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(74, 158, 255, 0.5);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 158, 255, 0.8);
+}
+
 /* Noto Sans Arabic ExtraBold 800 */
 .noto-sans-arabic-extrabold {
   font-family: "Noto Sans Arabic", sans-serif;
