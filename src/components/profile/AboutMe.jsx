@@ -1,7 +1,6 @@
-import { BookCheckIcon, Calendar, MessageSquareText, Star } from "lucide-react";
+import { BookCheckIcon, Calendar, MessageSquareText, Star, Users, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import FollowFrame from "../common/FollowFrame";
 import mainPicture from "../../assets/mainPicture.jpg";
 import AboutMePost from "../common/AboutMePost";
 import CreatePostModal from "./CreatePostModal";
@@ -15,75 +14,127 @@ const AboutMe = ({ userData, isOwnProfile = false }) => {
   // Fetch user posts
   const { data: postsData, isLoading: loadingPosts } = useGetUserPosts(userData?.id);
 
-  const followers = userData?.recentFollowers;
-  const totalFollowers = userData?.totalFollowers;
-
-  const following = userData?.recentFollowing;
-  const totalFollowing = userData?.totalFollowing;
+  const totalFollowers = userData?.totalFollowers || 0;
+  const totalFollowing = userData?.totalFollowing || 0;
 
   return (
     <div className="bg-neutral-800 text-white min-h-screen">
-      <div className="flex flex-col md:flex-row justify-between p-6 gap-10 md:gap-15 ">
-        <div className="flex  items-center flex-col gap-5">
-          {/* user about info */}
-          <div className="flex flex-col gap-6 bg-neutral-700 p-3 rounded-3xl text-sm md:text-xl font-semibold max-w-[100%] w-full noto-sans-arabic-medium">
-            {/* Bio Section */}
-            {userData?.userBio && (
-              <p className="text-right leading-relaxed">
+      <div className="flex flex-col md:flex-row justify-between p-6 gap-6 md:gap-10">
+        {/* Left Sidebar - Stats */}
+        <div className="flex items-start flex-col gap-5 w-full md:max-w-sm">
+          {/* Bio Section */}
+          {userData?.userBio && (
+            <div className="w-full rounded-xl bg-white/5 backdrop-blur-lg border border-white/10 p-4 shadow-lg">
+              <p className="text-right leading-relaxed text-white/90 noto-sans-arabic-medium text-sm">
                 "{userData.userBio}"
               </p>
-            )}
-            
-            <div className="flex flex-wrap gap-y-5">
-              <div className="flex gap-2 basis-1/2">
-                <div>
-                  <Calendar></Calendar>
+            </div>
+          )}
+
+          {/* Social Stats Panel */}
+          <div className="w-full rounded-xl bg-white/5 backdrop-blur-lg border border-white/10 p-6 shadow-lg">
+            <div className="grid grid-cols-2 gap-4">
+              <a 
+                href="#" 
+                className="group flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10"
+              >
+                <div className="flex items-center gap-2">
+                  <UserPlus className="w-5 h-5 text-white/50 group-hover:text-white/80 transition-colors" />
+                  <p className="text-sm font-normal text-white/50 group-hover:text-white/80 transition-colors noto-sans-arabic-medium">
+                    متابَعون
+                  </p>
                 </div>
-                <div>
-                  انضم {getTimeSinceArabic(userData?.createdAt)}
+                <p className="text-2xl font-bold tracking-tight text-white noto-sans-arabic-bold">
+                  {totalFollowing.toLocaleString('ar-EG')}
+                </p>
+              </a>
+
+              <a 
+                href="#" 
+                className="group flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10"
+              >
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-white/50 group-hover:text-white/80 transition-colors" />
+                  <p className="text-sm font-normal text-white/50 group-hover:text-white/80 transition-colors noto-sans-arabic-medium">
+                    متابِعون
+                  </p>
+                </div>
+                <p className="text-2xl font-bold tracking-tight text-white noto-sans-arabic-bold">
+                  {totalFollowers.toLocaleString('ar-EG')}
+                </p>
+              </a>
+            </div>
+
+            {/* Divider */}
+            <div className="my-6 h-px w-full bg-white/10"></div>
+
+            {/* User Details List */}
+            <div className="flex flex-col gap-2">
+              <div className="flex min-h-14 items-center justify-between gap-4 px-2">
+                <div className="flex items-center gap-4">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <p className="flex-1 truncate text-base font-normal text-white/80 noto-sans-arabic-medium">
+                    انضم منذ
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <p className="text-base font-normal text-white noto-sans-arabic-medium">
+                    {getTimeSinceArabic(userData?.createdAt)}
+                  </p>
                 </div>
               </div>
 
-              <div className="flex gap-2 basis-1/2">
-                <div>
-                  <BookCheckIcon></BookCheckIcon>
+              <div className="flex min-h-14 items-center justify-between gap-4 px-2">
+                <div className="flex items-center gap-4">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400">
+                    <BookCheckIcon className="w-5 h-5" />
+                  </div>
+                  <p className="flex-1 truncate text-base font-normal text-white/80 noto-sans-arabic-medium">
+                    روايات في المكتبة
+                  </p>
                 </div>
-                <div>
-                  {userData?.libraryNovelsCount || 0} رواية في المكتبة
-                </div>
-              </div>
-
-              <div className="flex gap-2 basis-1/2">
-                <div>
-                  <Star></Star>
-                </div>
-                <div>
-                  {userData?.reviewsCount || 0} مراجعة
+                <div className="shrink-0">
+                  <p className="text-base font-normal text-white noto-sans-arabic-bold">
+                    {userData?.libraryNovelsCount || 0}
+                  </p>
                 </div>
               </div>
 
-              <div className="flex gap-2 basis-1/2">
-                <div>
-                  <MessageSquareText></MessageSquareText>
+              <div className="flex min-h-14 items-center justify-between gap-4 px-2">
+                <div className="flex items-center gap-4">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400">
+                    <Star className="w-5 h-5" />
+                  </div>
+                  <p className="flex-1 truncate text-base font-normal text-white/80 noto-sans-arabic-medium">
+                    مراجعات مكتوبة
+                  </p>
                 </div>
-                <div>
-                  {userData?.commentsCount || 0} تعليق
+                <div className="shrink-0">
+                  <p className="text-base font-normal text-white noto-sans-arabic-bold">
+                    {userData?.reviewsCount || 0}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex min-h-14 items-center justify-between gap-4 px-2">
+                <div className="flex items-center gap-4">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400">
+                    <MessageSquareText className="w-5 h-5" />
+                  </div>
+                  <p className="flex-1 truncate text-base font-normal text-white/80 noto-sans-arabic-medium">
+                    تعليقات
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <p className="text-base font-normal text-white noto-sans-arabic-bold">
+                    {userData?.commentsCount || 0}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* followers and following sections */}
-          <FollowFrame
-            followType={t("profilePage.aboutMe.followers")}
-            usersList={followers}
-            total={totalFollowers}
-          ></FollowFrame>
-          <FollowFrame
-            followType={t("profilePage.aboutMe.following")}
-            usersList={following}
-            total={totalFollowing}
-          ></FollowFrame>
         </div>
 
         {/* profile writings */}
