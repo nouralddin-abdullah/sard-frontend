@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 
-const FollowToggle = ({ isFollowing, userId }) => {
+const FollowToggle = ({ isFollowing, userId, compact = false }) => {
   const { t } = useTranslation();
 
   const [isFollowedState, setIsFollowedState] = useState(isFollowing ?? false);
@@ -36,6 +36,22 @@ const FollowToggle = ({ isFollowing, userId }) => {
       setIsFollowedState((prev) => !prev);
     }
   };
+
+  if (compact) {
+    return (
+      <button
+        onClick={handleFollow}
+        disabled={isPending}
+        className={`font-semibold px-4 py-1.5 rounded-full transition-opacity text-sm noto-sans-arabic-bold ${
+          isFollowedState
+            ? "bg-white/10 text-white hover:bg-white/20"
+            : "bg-blue-500 text-white hover:bg-blue-600"
+        } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
+      >
+        {isFollowedState ? t("common.followed") : t("common.follow")}
+      </button>
+    );
+  }
 
   return (
     <Button

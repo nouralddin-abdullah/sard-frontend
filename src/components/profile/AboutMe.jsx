@@ -4,18 +4,30 @@ import { useState } from "react";
 import mainPicture from "../../assets/mainPicture.jpg";
 import AboutMePost from "../common/AboutMePost";
 import CreatePostModal from "./CreatePostModal";
+import FollowersModal from "./FollowersModal";
 import { getTimeSinceArabic } from "../../utils/date";
 import { useGetUserPosts } from "../../hooks/post/useGetUserPosts";
 
 const AboutMe = ({ userData, isOwnProfile = false }) => {
   const { t } = useTranslation();
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false);
+  const [followersModalTab, setFollowersModalTab] = useState("followers");
   
   // Fetch user posts
   const { data: postsData, isLoading: loadingPosts } = useGetUserPosts(userData?.id);
 
   const totalFollowers = userData?.totalFollowers || 0;
   const totalFollowing = userData?.totalFollowing || 0;
+
+  const openFollowersModal = (tab) => {
+    if (isFollowersModalOpen && followersModalTab === tab) {
+      // If modal is already open with the same tab, just keep it open
+      return;
+    }
+    setFollowersModalTab(tab);
+    setIsFollowersModalOpen(true);
+  };
 
   return (
     <div className="bg-neutral-800 text-white min-h-screen">
@@ -34,35 +46,35 @@ const AboutMe = ({ userData, isOwnProfile = false }) => {
           {/* Social Stats Panel */}
           <div className="w-full rounded-xl bg-white/5 backdrop-blur-lg border border-white/10 p-6 shadow-lg">
             <div className="grid grid-cols-2 gap-4">
-              <a 
-                href="#" 
-                className="group flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10"
+              <button 
+                onClick={() => openFollowersModal("following")}
+                className="group flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10 cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <UserPlus className="w-5 h-5 text-white/50 group-hover:text-white/80 transition-colors" />
                   <p className="text-sm font-normal text-white/50 group-hover:text-white/80 transition-colors noto-sans-arabic-medium">
-                    متابَعون
+                    المتابَعين
                   </p>
                 </div>
                 <p className="text-2xl font-bold tracking-tight text-white noto-sans-arabic-bold">
                   {totalFollowing.toLocaleString('ar-EG')}
                 </p>
-              </a>
+              </button>
 
-              <a 
-                href="#" 
-                className="group flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10"
+              <button 
+                onClick={() => openFollowersModal("followers")}
+                className="group flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10 cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <Users className="w-5 h-5 text-white/50 group-hover:text-white/80 transition-colors" />
                   <p className="text-sm font-normal text-white/50 group-hover:text-white/80 transition-colors noto-sans-arabic-medium">
-                    متابِعون
+                    المتابِعون
                   </p>
                 </div>
                 <p className="text-2xl font-bold tracking-tight text-white noto-sans-arabic-bold">
                   {totalFollowers.toLocaleString('ar-EG')}
                 </p>
-              </a>
+              </button>
             </div>
 
             {/* Divider */}
@@ -143,14 +155,14 @@ const AboutMe = ({ userData, isOwnProfile = false }) => {
           {isOwnProfile && (
             <div 
               onClick={() => setIsCreatePostModalOpen(true)}
-              className="bg-neutral-700 rounded-3xl p-3 flex items-center gap-5 cursor-pointer hover:bg-neutral-600 transition-colors"
+              className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-4 flex items-center gap-5 cursor-pointer hover:bg-white/10 transition-colors"
             >
               <img
                 src={userData?.profilePhoto || mainPicture}
                 alt=""
                 className="w-12 md:w-16 rounded-full"
               />
-              <div className="bg-amber-50 w-full h-22 text-gray-500 p-6 rounded-3xl flex items-center noto-sans-arabic-medium">
+              <div className="bg-white/5 border border-white/10 w-full h-22 text-white/60 p-6 rounded-xl flex items-center noto-sans-arabic-medium">
                 {t("profilePage.aboutMe.writeSomething")}
               </div>
             </div>
@@ -199,6 +211,14 @@ const AboutMe = ({ userData, isOwnProfile = false }) => {
           onClose={() => setIsCreatePostModalOpen(false)}
         />
       )}
+
+      {/* Followers Modal */}
+      <FollowersModal
+        isOpen={isFollowersModalOpen}
+        onClose={() => setIsFollowersModalOpen(false)}
+        userId={userData?.id}
+        initialTab={followersModalTab}
+      />
     </div>
   );
 };
