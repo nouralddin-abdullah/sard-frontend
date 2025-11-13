@@ -180,6 +180,7 @@ const AboutMe = ({ userData, isOwnProfile = false }) => {
                   postId={post.id}
                   content={post.content}
                   author={{
+                    userId: post.user?.id || userData?.id,
                     userName: post.user?.userName || userData?.userName,
                     displayName: post.user?.displayName || userData?.displayName,
                     profilePhoto: post.user?.profilePhoto || userData?.profilePhoto,

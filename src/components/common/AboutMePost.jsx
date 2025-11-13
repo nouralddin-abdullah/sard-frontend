@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Heart, MessageSquareText, Share2, MoreHorizontal, LibraryBig, Star } from "lucide-react";
+import { Heart, MessageSquareText, Share2, MoreHorizontal, LibraryBig, Star, Trash2 } from "lucide-react";
 import PostCommentPanel from "./PostCommentPanel";
+import ConfirmModal from "./ConfirmModal";
 import { useLikePost, useUnlikePost } from "../../hooks/post/useLikePost";
+import { useDeletePost } from "../../hooks/post/useDeletePost";
 import { usePostComments } from "../../hooks/comment/usePostComments";
+import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import AddNovelToReadingListModal from "../novel/AddNovelToReadingListModal";
+import { toast } from "sonner";
 
 const AboutMePost = ({ 
   content, 
@@ -21,13 +25,53 @@ const AboutMePost = ({
   const [likesCount, setLikesCount] = useState(initialLikesCount);
   const [showComments, setShowComments] = useState(false);
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
+  const menuRef = useRef(null);
 
   const { mutate: likePost } = useLikePost();
   const { mutate: unlikePost } = useUnlikePost();
+  const { mutate: deletePost, isPending: isDeleting } = useDeletePost();
+  const { data: loggedInUser } = useGetLoggedInUser();
   
   // Fetch real-time comment count
   const { data: commentsData } = usePostComments(postId, "recent", { enabled: true });
   const actualCommentsCount = commentsData?.pages[0]?.totalItemsCount ?? initialCommentsCount;
+
+  // Check if current user is the post author
+  const isOwnPost = loggedInUser?.id === author?.userId || loggedInUser?.id === author?.id;
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showMenu]);
+
+  const handleDeleteClick = () => {
+    setShowMenu(false);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deletePost(postId, {
+      onSuccess: () => {
+        setShowDeleteModal(false);
+        toast.success("تم حذف المنشور بنجاح");
+      },
+      onError: () => {
+        toast.error("فشل حذف المنشور. حاول مرة أخرى.");
+      }
+    });
+  };
 
   const handleLike = () => {
     // Optimistic update
@@ -87,9 +131,27 @@ const AboutMePost = ({
                   {formatTime(createdAt)}
                 </p>
               </div>
-              <button className="text-[#B0B0B0] hover:text-white transition-colors">
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
+              {isOwnPost && (
+                <div className="relative" ref={menuRef}>
+                  <button 
+                    onClick={() => setShowMenu(!showMenu)}
+                    className="text-[#B0B0B0] hover:text-white transition-colors"
+                  >
+                    <MoreHorizontal className="w-5 h-5" />
+                  </button>
+                  {showMenu && (
+                    <div className="absolute left-0 mt-2 w-48 bg-[#3C3C3C] rounded-lg shadow-lg border border-white/10 z-10">
+                      <button
+                        onClick={handleDeleteClick}
+                        className="w-full px-4 py-3 text-right text-red-400 hover:bg-white/5 transition-colors flex items-center gap-2 rounded-lg noto-sans-arabic-medium"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>حذف المنشور</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -206,6 +268,20 @@ const AboutMePost = ({
           onClose={() => setIsAddToListModalOpen(false)}
           novelId={attachedNovel.id}
           novelTitle={attachedNovel.title}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <ConfirmModal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleConfirmDelete}
+          title="حذف المنشور"
+          message="هل أنت متأكد من حذف هذا المنشور؟ لا يمكن التراجع عن هذا الإجراء."
+          confirmText="حذف"
+          cancelText="إلغاء"
+          isLoading={isDeleting}
         />
       )}
     </div>
