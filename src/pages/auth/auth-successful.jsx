@@ -13,16 +13,17 @@ const AuthSuccess = () => {
   const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
-    // If we're on the wrong port (5173 when preview is on 4173), redirect to correct port
-    const currentPort = window.location.port;
-    const isDevPort = currentPort === '5173' || currentPort === '5174';
-    const expectedPort = import.meta.env.DEV ? '5173' : '4173';
-    
-    if (currentPort !== expectedPort && token) {
-      // Redirect to the correct port with the token
-      const correctUrl = `${window.location.protocol}//${window.location.hostname}:${expectedPort}/auth/success?token=${token}`;
-      window.location.href = correctUrl;
-      return;
+    // Only handle port redirect in development
+    if (import.meta.env.DEV) {
+      const currentPort = window.location.port;
+      const expectedPort = '5173';
+      
+      if (currentPort !== expectedPort && token) {
+        // Redirect to the correct dev port with the token
+        const correctUrl = `${window.location.protocol}//${window.location.hostname}:${expectedPort}/auth/success?token=${token}`;
+        window.location.href = correctUrl;
+        return;
+      }
     }
 
     if (token) {
