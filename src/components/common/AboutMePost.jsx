@@ -63,7 +63,7 @@ const AboutMePost = ({
   };
 
   return (
-    <div className="bg-[#3C3C3C] rounded-lg shadow-sm mb-6 overflow-hidden" dir="rtl">
+    <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg mb-6 overflow-hidden" dir="rtl">
       {/* Post Header */}
       <div className="p-6">
         <div className="flex items-start gap-4">
@@ -116,13 +116,13 @@ const AboutMePost = ({
       {/* Attached Novel */}
       {attachedNovel && (
         <div className="px-6 pb-2">
-          <div className="border-t border-[#4A4A4A] pt-4">
-            <h4 className="text-sm font-bold text-[#B0B0B0] noto-sans-arabic-extrabold mb-3">
+          <div className="border-t border-white/10 pt-4">
+            <h4 className="text-sm font-bold text-white/70 noto-sans-arabic-extrabold mb-3">
               رواية مرفقة
             </h4>
             <Link
               to={`/novel/${attachedNovel.slug}`}
-              className="flex items-center gap-4 bg-[#2C2C2C] p-4 rounded-lg hover:bg-[#333333] transition-colors"
+              className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-lg hover:bg-white/10 transition-colors"
             >
               <img
                 src={attachedNovel.coverImageUrl || "/default-cover.png"}
@@ -157,8 +157,8 @@ const AboutMePost = ({
       )}
 
       {/* Action Buttons */}
-      <div className="border-t border-[#4A4A4A] px-6 py-3">
-        <div className="flex justify-around items-center text-[#B0B0B0]">
+      <div className="border-t border-white/10 px-6 py-3">
+        <div className="flex justify-around items-center text-white/60">
           <button
             onClick={handleLike}
             className={`flex items-center gap-2 transition-colors duration-200 noto-sans-arabic-extrabold ${
@@ -174,7 +174,7 @@ const AboutMePost = ({
             )}
           </button>
 
-          <div className="h-6 w-px bg-[#4A4A4A]"></div>
+          <div className="h-6 w-px bg-white/10"></div>
 
           <button
             onClick={() => setShowComments(!showComments)}
@@ -187,7 +187,7 @@ const AboutMePost = ({
             )}
           </button>
 
-          <div className="h-6 w-px bg-[#4A4A4A]"></div>
+          <div className="h-6 w-px bg-white/10"></div>
 
           <button className="flex items-center gap-2 hover:text-white transition-colors duration-200 noto-sans-arabic-extrabold">
             <Share2 className="w-5 h-5" />
