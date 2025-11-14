@@ -5,6 +5,14 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     
+    // Handle static assets (images, icons, etc.) - pass through directly
+    const isStaticAsset = /\.(ico|png|jpg|jpeg|gif|svg|webp|css|js|woff|woff2|ttf|eot|json|xml|txt)$/i.test(url.pathname);
+    
+    if (isStaticAsset) {
+      // Pass through to Cloudflare Pages for all static assets including favicon.ico
+      return fetch(request);
+    }
+    
     // Only handle novel pages (NOT entities)
     const isNovelPage = url.pathname.match(/^\/novel\/[^\/]+$/);
     
@@ -53,7 +61,7 @@ export default {
       return responseToCache;
     } catch (error) {
       console.error('Error generating HTML:', error);
-      // On error, serve React app
+      // On error, fall back to React app
       return env.ASSETS.fetch(request);
     }
   }
@@ -76,15 +84,16 @@ async function generateNovelHTML(url, env) {
   <meta name="description" content="${escapeHtml(novel.summary?.substring(0, 160) || '')}">
   <meta property="og:title" content="${escapeHtml(novel.title)}">
   <meta property="og:description" content="بقلم: ${escapeHtml(novel.author?.displayName || '')}">
-  <meta property="og:image" content="https://www.sardnovels.com/logo.png">
-  <meta property="og:image:secure_url" content="https://www.sardnovels.com/logo.png">
-  <meta property="og:image:type" content="image/png">
+  <meta property="og:image" content="${cleanImageUrl(novel.coverImageUrl)}">
+  <meta property="og:image:secure_url" content="${cleanImageUrl(novel.coverImageUrl)}">
+  <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="سرد - منصة الروايات العربية">
   <meta property="og:url" content="https://www.sardnovels.com/novel/${slug}">
   <meta property="og:type" content="book">
   <meta property="og:locale" content="ar_AR">
+  <meta property="fb:app_id" content="966242223397117">
   <link rel="canonical" href="https://www.sardnovels.com/novel/${slug}">
   
   <!-- Structured Data -->
@@ -134,4 +143,34 @@ function escapeHtml(text) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+function cleanImageUrl(url) {
+  if (!url) return 'https://www.sardnovels.com/logo.png';
+  
+  try {
+    // Remove invisible Unicode characters (RTL marks, zero-width characters, etc.)
+    const cleanUrl = url
+      .replace(/[\u200B-\u200D\u202A-\u202E\uFEFF]/g, '') // Remove invisible Unicode
+      .trim();
+    
+    // Parse and properly encode the URL
+    const urlObj = new URL(cleanUrl);
+    
+    // Split pathname and encode each segment
+    const pathSegments = urlObj.pathname.split('/');
+    const encodedSegments = pathSegments.map(segment => {
+      if (!segment) return segment;
+      // Decode first (in case it's already encoded), then encode properly
+      return encodeURIComponent(decodeURIComponent(segment));
+    });
+    
+    urlObj.pathname = encodedSegments.join('/');
+    
+    return urlObj.toString();
+  } catch (e) {
+    console.error('Error cleaning image URL:', e);
+    // Fallback to logo if URL is invalid
+    return 'https://www.sardnovels.com/logo.png';
+  }
 }
