@@ -5,6 +5,14 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     
+    // Handle static assets (images, icons, etc.) - pass through directly
+    const isStaticAsset = /\.(ico|png|jpg|jpeg|gif|svg|webp|css|js|woff|woff2|ttf|eot|json|xml|txt)$/i.test(url.pathname);
+    
+    if (isStaticAsset) {
+      // Pass through to Cloudflare Pages for all static assets including favicon.ico
+      return fetch(request);
+    }
+    
     // Only handle novel pages (NOT entities)
     const isNovelPage = url.pathname.match(/^\/novel\/[^\/]+$/);
     
