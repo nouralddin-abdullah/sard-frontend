@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Search, SlidersHorizontal, X, Eye, Star } from "lucide-react";
-import ProtectedRoute from "../../components/auth/protected-route";
 import Header from "../../components/common/Header";
 import GenreBadge from "../../components/common/GenreBadge";
 import FollowToggle from "../../components/common/FollowToggle";
@@ -131,9 +130,8 @@ const SearchPage = () => {
   const isAnySelected = selectedChapterRanges.length === 0;
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-[#1C1C1C]">
-        <Header />
+    <div className="min-h-screen bg-[#1C1C1C]">
+      <Header />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Search Input Field - Visible on all screen sizes */}
@@ -680,7 +678,6 @@ const SearchPage = () => {
           </div>
         </main>
       </div>
-    </ProtectedRoute>
   );
 };
 
