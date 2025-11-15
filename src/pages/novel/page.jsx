@@ -350,16 +350,6 @@ const NovelPage = () => {
             </Link>
           </div>
 
-          {/* Wikipedia Link */}
-          <div className="mt-6">
-            <Link
-              to={`/novel/${novel?.id}/wikipedia`}
-              className="text-[#4A9EFF] hover:text-[#3A8EEF] text-sm font-bold whitespace-nowrap noto-sans-arabic-extrabold transition-colors"
-            >
-              استكشف موسوعة الرواية ←
-            </Link>
-          </div>
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Gift Selection Column */}
             <div className="lg:col-span-2 flex flex-col gap-4">
@@ -452,7 +442,7 @@ const NovelPage = () => {
         </div>
 
         {/* Tabs Navigation */}
-        <div className="flex justify-center text-white mb-[40px] gap-1 md:gap-6">
+        <div className="flex justify-center items-center text-white mb-[40px] gap-1 md:gap-6 flex-wrap">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -466,6 +456,14 @@ const NovelPage = () => {
               {tab.label}
             </button>
           ))}
+          
+          {/* Encyclopedia Link */}
+          <Link
+            to={`/novel/${novel?.id}/wikipedia`}
+            className="text-[#4A9EFF] hover:text-[#3A8EEF] text-sm md:text-base font-bold whitespace-nowrap noto-sans-arabic-extrabold transition-colors px-4 py-2"
+          >
+            استكشف موسوعة الرواية ←
+          </Link>
         </div>
 
         {/* Main Content Grid */}

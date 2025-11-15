@@ -6,6 +6,7 @@ import Button from "../../components/ui/button";
 import { Image, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { translateGenre } from "../../utils/translate-genre";
+import ProtectedRoute from "../../components/auth/protected-route";
 
 const SUMMARY_MAX = 2000;
 
@@ -158,6 +159,7 @@ export default function CreateNovel() {
   };
 
   return (
+    <ProtectedRoute>
     <div className="min-h-screen bg-zinc-900 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
@@ -370,5 +372,6 @@ export default function CreateNovel() {
         </form>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

@@ -12,6 +12,7 @@ import { useUnfollowReadingList } from "../../hooks/reading-list/useUnfollowRead
 import { useRemoveNovelFromReadingList } from "../../hooks/reading-list/useRemoveNovelFromReadingList";
 import { useDeleteReadingList } from "../../hooks/reading-list/useDeleteReadingList";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
+import AuthRequiredModal from "../../components/common/AuthRequiredModal";
 
 const ReadingListPage = () => {
   const { username, listId } = useParams();
@@ -22,6 +23,7 @@ const ReadingListPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [novelToDelete, setNovelToDelete] = useState(null);
   const [deleteListModalOpen, setDeleteListModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const menuRef = useRef(null);
 
   // Fetch reading list data
@@ -56,6 +58,11 @@ const ReadingListPage = () => {
 
   const handleFollowToggle = () => {
     if (!listData) return;
+    
+    if (!loggedInUser) {
+      setIsAuthModalOpen(true);
+      return;
+    }
     
     if (listData.isFollowing) {
       unfollowMutation.mutate(listId);
@@ -438,6 +445,13 @@ const ReadingListPage = () => {
         confirmText="حذف"
         cancelText="إلغاء"
         isLoading={deleteListMutation.isPending}
+      />
+
+      {/* Auth Required Modal */}
+      <AuthRequiredModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        action="لمتابعة قائمة القراءة"
       />
     </div>
   );

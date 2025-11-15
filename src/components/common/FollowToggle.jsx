@@ -4,11 +4,15 @@ import Button from "../ui/button";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
+import AuthRequiredModal from "./AuthRequiredModal";
+import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 
 const FollowToggle = ({ isFollowing, userId, compact = false }) => {
   const { t } = useTranslation();
 
   const [isFollowedState, setIsFollowedState] = useState(isFollowing ?? false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { data: currentUser } = useGetLoggedInUser();
 
   const { mutateAsync: toggleFollow, isPending } = useToggleFollow();
 
@@ -20,6 +24,11 @@ const FollowToggle = ({ isFollowing, userId, compact = false }) => {
   }, [isFollowing]);
 
   const handleFollow = async () => {
+    if (!currentUser) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
     try {
       // Save current state before changing it
       const currentFollowState = isFollowedState;
@@ -39,6 +48,7 @@ const FollowToggle = ({ isFollowing, userId, compact = false }) => {
 
   if (compact) {
     return (
+      <>
       <button
         onClick={handleFollow}
         disabled={isPending}
@@ -50,10 +60,19 @@ const FollowToggle = ({ isFollowing, userId, compact = false }) => {
       >
         {isFollowedState ? t("common.followed") : t("common.follow")}
       </button>
+      
+      {/* Auth Required Modal */}
+      <AuthRequiredModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        action="لمتابعة المستخدم"
+      />
+      </>
     );
   }
 
   return (
+    <>
     <Button
       variant={isFollowedState ? "secondary" : "primary"}
       onClick={handleFollow}
@@ -72,6 +91,14 @@ const FollowToggle = ({ isFollowing, userId, compact = false }) => {
         </p>
       )}
     </Button>
+    
+    {/* Auth Required Modal */}
+    <AuthRequiredModal
+      isOpen={isAuthModalOpen}
+      onClose={() => setIsAuthModalOpen(false)}
+      action="لمتابعة المستخدم"
+    />
+    </>
   );
 };
 

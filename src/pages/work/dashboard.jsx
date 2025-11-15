@@ -6,6 +6,7 @@ import WorkSkeletonGrid from "../../components/work/WorkSkeletonGrid";
 import WorkEmptyState from "../../components/work/WorkEmptyState";
 import WorkGrid from "../../components/work/WorkGrid";
 import { useGetMyWorks } from "../../hooks/work/useGetMyWorks";
+import ProtectedRoute from "../../components/auth/protected-route";
 
 const filterByStatus = (work, statusFilter) => {
   if (statusFilter === "all") return true;
@@ -79,6 +80,7 @@ const WorkDashboardPage = () => {
   const lastUpdatedLabel = useMemo(() => computeLastUpdatedLabel(works), [works]);
 
   return (
+    <ProtectedRoute>
     <>
       <Header />
       <main className="min-h-screen bg-[#2C2C2C] py-12 px-4 md:px-8 lg:px-16 space-y-10 text-white" dir="rtl">
@@ -130,6 +132,7 @@ const WorkDashboardPage = () => {
       )}
     </main>
     </>
+    </ProtectedRoute>
   );
 };
 

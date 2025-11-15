@@ -4,12 +4,16 @@ import { Link } from "react-router-dom";
 import { translateGenre } from "../../utils/translate-genre";
 import { useState, useEffect, useRef } from "react";
 import AddNovelToReadingListModal from "./AddNovelToReadingListModal";
+import AuthRequiredModal from "../common/AuthRequiredModal";
+import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 
 const NovelCard = ({ novel }) => {
   const [showFullSummary, setShowFullSummary] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const summaryRef = useRef(null);
+  const { data: currentUser } = useGetLoggedInUser();
   
   // Check if summary is truncated
   useEffect(() => {
@@ -150,6 +154,10 @@ const NovelCard = ({ novel }) => {
         <button 
           onClick={(e) => {
             e.preventDefault();
+            if (!currentUser) {
+              setIsAuthModalOpen(true);
+              return;
+            }
             setIsAddToListModalOpen(true);
           }}
           aria-label="إضافة إلى المكتبة"
@@ -173,6 +181,13 @@ const NovelCard = ({ novel }) => {
         onClose={() => setIsAddToListModalOpen(false)}
         novelId={novel.id}
         novelTitle={novel.title}
+      />
+
+      {/* Auth Required Modal */}
+      <AuthRequiredModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        action="لإضافة الرواية إلى المكتبة"
       />
     </div>
   );

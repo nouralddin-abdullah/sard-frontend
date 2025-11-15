@@ -12,6 +12,7 @@ import { getTimeAgo } from "../../utils/date";
 import { toast } from "sonner";
 import CommentReplies from "./CommentReplies";
 import ConfirmModal from "../common/ConfirmModal";
+import AuthRequiredModal from "../common/AuthRequiredModal";
 
 const CommentPanel = ({ 
   isOpen, 
@@ -32,6 +33,8 @@ const CommentPanel = ({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
   const [likingCommentId, setLikingCommentId] = useState(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalAction, setAuthModalAction] = useState("لتنفيذ هذا الإجراء");
 
   const panelRef = useRef(null);
   const sortDropdownRef = useRef(null);
@@ -100,7 +103,8 @@ const CommentPanel = ({
   // Handle like/unlike toggle
   const handleLike = async (commentId, isCurrentlyLiked) => {
     if (!currentUserId) {
-      toast.error("يجب تسجيل الدخول للإعجاب بالتعليقات");
+      setAuthModalAction("للإعجاب بالتعليقات");
+      setIsAuthModalOpen(true);
       return;
     }
 
@@ -184,7 +188,8 @@ const CommentPanel = ({
     if (!newComment.trim() && !selectedImage) return;
 
     if (!currentUserId) {
-      toast.error("يجب تسجيل الدخول لإضافة تعليق");
+      setAuthModalAction("لإضافة تعليق");
+      setIsAuthModalOpen(true);
       return;
     }
 
@@ -671,6 +676,13 @@ const CommentPanel = ({
         confirmText="حذف"
         cancelText="إلغاء"
         isLoading={deleteCommentMutation.isPending}
+      />
+
+      {/* Auth Required Modal */}
+      <AuthRequiredModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        action={authModalAction}
       />
     </>
   );
