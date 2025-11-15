@@ -15,7 +15,8 @@ const getNotificationIcon = (type) => {
     LikeOnPost: Heart,
     CommentOnPost: MessageCircle,
     NewFollower: UserPlus,
-    ChapterUpdate: BookOpen,
+    NewChapterInLibrary: BookOpen,
+    ReviewOnNovel: Heart,
     Gift: Gift,
     Announcement: Megaphone,
   };
@@ -55,11 +56,20 @@ const NotificationItem = ({ notification, onMarkRead }) => {
       {/* Avatar/Image Section */}
       <div className="flex-shrink-0">
         {notification.actorProfilePhoto ? (
-          <img
-            src={notification.actorProfilePhoto}
-            alt={notification.actorDisplayName}
-            className="w-10 h-10 rounded-full object-cover"
-          />
+          // Novel-related notifications show rectangular cover, others show circular avatar
+          notification.type === "NewChapterInLibrary" || notification.type === "ReviewOnNovel" ? (
+            <img
+              src={notification.actorProfilePhoto}
+              alt={notification.actorDisplayName}
+              className="w-10 h-14 rounded object-cover"
+            />
+          ) : (
+            <img
+              src={notification.actorProfilePhoto}
+              alt={notification.actorDisplayName}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          )
         ) : (
           <div className="w-10 h-10 rounded-full bg-[#4A9EFF]/20 flex items-center justify-center text-[#4A9EFF]">
             <Icon size={20} />
