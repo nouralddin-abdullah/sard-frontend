@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Home, Library, Pen, User as UserIconLucide, LogOut, ChevronDown, Trophy, Bell, X } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
+import { useGetUnreadCount } from '../../hooks/notification/useGetUnreadCount';
 import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '../../store/authTokenStore';
 import SearchBar from './SearchBar';
@@ -22,6 +23,7 @@ const UserIconSmall = () => (
 
 const Header = () => {
   const { data: currentUser, isLoading } = useGetLoggedInUser();
+  const { data: unreadData } = useGetUnreadCount();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { deleteToken } = useAuthStore();
@@ -29,6 +31,8 @@ const Header = () => {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
   const dropdownRef = useRef(null);
+
+  const unreadCount = unreadData?.unreadCount || 0;
 
   // Close dropdown when clicking outside (desktop only)
   useEffect(() => {
@@ -85,17 +89,31 @@ const Header = () => {
           <div className="relative flex-shrink-0" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="hover:opacity-80 transition-opacity flex items-center gap-2 focus:outline-none"
+              className="hover:opacity-80 transition-opacity flex items-center gap-2 focus:outline-none relative"
             >
               {showDefaultIcon ? (
-                <UserIcon />
+                <div className="relative">
+                  <UserIcon />
+                  {currentUser && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </div>
               ) : (
-                <img
-                  src={currentUser.profilePhoto}
-                  alt={currentUser.displayName || 'User'}
-                  className="w-12 h-12 rounded-full object-cover"
-                  onError={() => setImageError(true)}
-                />
+                <div className="relative">
+                  <img
+                    src={currentUser.profilePhoto}
+                    alt={currentUser.displayName || 'User'}
+                    className="w-12 h-12 rounded-full object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </div>
               )}
               <ChevronDown
                 className={`text-white transition-transform duration-300 ${
@@ -122,9 +140,16 @@ const Header = () => {
                     <Link
                       to="/notifications"
                       onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors relative"
                     >
-                      <Bell size={20} />
+                      <div className="relative">
+                        <Bell size={20} />
+                        {unreadCount > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                            {unreadCount > 99 ? '99+' : unreadCount}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-[16px] noto-sans-arabic-extrabold">الإشعارات</span>
                     </Link>
                     <button
@@ -203,17 +228,31 @@ const Header = () => {
           <div className="relative flex-shrink-0">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="hover:opacity-80 transition-opacity flex items-center gap-1 focus:outline-none"
+              className="hover:opacity-80 transition-opacity flex items-center gap-1 focus:outline-none relative"
             >
               {showDefaultIcon ? (
-                <UserIconSmall />
+                <div className="relative">
+                  <UserIconSmall />
+                  {currentUser && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </div>
               ) : (
-                <img
-                  src={currentUser.profilePhoto}
-                  alt={currentUser.displayName || 'User'}
-                  className="w-8 h-8 rounded-full object-cover"
-                  onError={() => setImageError(true)}
-                />
+                <div className="relative">
+                  <img
+                    src={currentUser.profilePhoto}
+                    alt={currentUser.displayName || 'User'}
+                    className="w-8 h-8 rounded-full object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </div>
               )}
               <ChevronDown
                 className={`text-white transition-transform duration-300 ${
