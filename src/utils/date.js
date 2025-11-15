@@ -81,11 +81,25 @@ export const getTimeAgo = (dateString) => {
   const diffMins = Math.floor(diffSecs / 60);
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
+  const diffWeeks = Math.floor(diffDays / 7);
+  const diffMonths = Math.floor(diffDays / 30);
 
-  if (diffSecs < 60) return "just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffSecs < 60) return "الآن";
+  if (diffMins === 1) return "منذ دقيقة";
+  if (diffMins === 2) return "منذ دقيقتين";
+  if (diffMins < 60) return `منذ ${diffMins} دقائق`;
+  if (diffHours === 1) return "منذ ساعة";
+  if (diffHours === 2) return "منذ ساعتين";
+  if (diffHours < 24) return `منذ ${diffHours} ساعات`;
+  if (diffDays === 1) return "منذ يوم";
+  if (diffDays === 2) return "منذ يومين";
+  if (diffDays < 7) return `منذ ${diffDays} أيام`;
+  if (diffWeeks === 1) return "منذ أسبوع";
+  if (diffWeeks === 2) return "منذ أسبوعين";
+  if (diffWeeks < 4) return `منذ ${diffWeeks} أسابيع`;
+  if (diffMonths === 1) return "منذ شهر";
+  if (diffMonths === 2) return "منذ شهرين";
+  if (diffMonths < 12) return `منذ ${diffMonths} شهور`;
 
   return formatDateShort(utcDateString);
 };

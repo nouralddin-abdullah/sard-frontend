@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useNovelDetails } from "../../hooks/novel/useNovelDetails";
-import { useNovelChapters } from "../../hooks/novel/useNovelChapters";
+import { useGetNovelChapters } from "../../hooks/novel/useGetNovelChapters";
 import { useGetNovelReadingProgress } from "../../hooks/novel/useGetNovelReadingProgress";
 import { formatDateShort } from "../../utils/date";
 import { translateGenre } from "../../utils/translate-genre";
@@ -28,15 +28,15 @@ const NovelPage = () => {
   const { novelSlug } = useParams();
 
   const {
-    novel,
-    loading: novelLoading,
+    data: novel,
+    isLoading: novelLoading,
     error: novelError,
   } = useNovelDetails(novelSlug);
   const {
-    chapters,
-    loading: chaptersLoading,
+    data: chapters = [],
+    isLoading: chaptersLoading,
     error: chaptersError,
-  } = useNovelChapters(novel?.id);
+  } = useGetNovelChapters(novel?.id);
   const { data: currentUser } = useGetLoggedInUser();
   
   // Get reading progress for this novel (only if user is logged in)

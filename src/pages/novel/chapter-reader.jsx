@@ -185,10 +185,15 @@ const ChapterReaderPage = () => {
   };
 
   const handleParagraphClick = (paragraph) => {
+    // Strip HTML tags from paragraph content
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = paragraph.content;
+    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    
     setCommentContext({
       type: "paragraph",
       targetId: paragraph.id,
-      preview: paragraph.content.substring(0, 100) + (paragraph.content.length > 100 ? '...' : '')
+      preview: plainText.substring(0, 100) + (plainText.length > 100 ? '...' : '')
     });
     setShowComments(true);
   };

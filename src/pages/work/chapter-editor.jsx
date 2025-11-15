@@ -42,7 +42,7 @@ const ChapterEditorPage = () => {
   const normalizedChapterId = chapterIdParam && chapterIdParam !== "new" ? chapterIdParam : null;
 
   const [chapterId, setChapterId] = useState(normalizedChapterId);
-  const [editorState, setEditorState] = useState({ title: "", status: STATUS_OPTIONS[0].value, content: "" });
+  const [editorState, setEditorState] = useState({ title: "", status: STATUS_OPTIONS[1].value, content: "" });
   const [saveState, setSaveState] = useState({ status: "idle", lastSavedAt: null, error: null });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -195,7 +195,7 @@ const ChapterEditorPage = () => {
 
   useEffect(() => {
     if (normalizedChapterId || chapterData) return;
-    const defaultState = { title: "", status: STATUS_OPTIONS[0].value, content: "" };
+    const defaultState = { title: "", status: STATUS_OPTIONS[1].value, content: "" };
     lastSavedSnapshotRef.current = defaultState;
     setEditorState(defaultState);
   }, [normalizedChapterId, chapterData]);
@@ -297,8 +297,18 @@ const ChapterEditorPage = () => {
           syncSnapshotWithState({ ...editorState, title: trimmedTitle || "فصل بدون عنوان", content: trimmedContent });
           setSaveState({ status: "saved", lastSavedAt: new Date(), error: null });
           navigate(`/dashboard/works/${workId}/chapters/${response.id}/edit`, { replace: true });
-          toast.success("تم حفظ المسودة بنجاح");
+          
+          // Toast message based on status
+          if (editorState.status === "Published") {
+            toast.success("تم نشر الفصل بنجاح");
+          } else {
+            toast.success("تم حفظ المسودة بنجاح");
+          }
         } else {
+          // Track if status changed
+          const previousStatus = lastSavedSnapshotRef.current.status;
+          const statusChanged = previousStatus !== editorState.status;
+          
           // Update existing chapter
           await updateChapter({
             workId,
@@ -314,7 +324,17 @@ const ChapterEditorPage = () => {
           
           syncSnapshotWithState({ ...editorState, title: trimmedTitle || "فصل بدون عنوان", content: trimmedContent });
           setSaveState({ status: "saved", lastSavedAt: new Date(), error: null });
-          toast.success("تم حفظ التغييرات بنجاح");
+          
+          // Toast message based on status change
+          if (statusChanged) {
+            if (editorState.status === "Published") {
+              toast.success("تم نشر الفصل بنجاح");
+            } else {
+              toast.success("تم تحويل الفصل إلى مسودة");
+            }
+          } else {
+            toast.success("تم حفظ التغييرات بنجاح");
+          }
         }
       } catch (error) {
         if (isUnmountedRef.current) return;
@@ -424,12 +444,21 @@ const ChapterEditorPage = () => {
                 {isSaving ? (
                   <>
                     <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                    جاري الحفظ...
+                    {isNewChapter ? "جاري النشر..." : "جاري الحفظ..."}
                   </>
                 ) : (
                   <>
-                    <Pencil className="ml-2 h-4 w-4" />
-                    احفظ التغييرات
+                    {isNewChapter ? (
+                      <>
+                        <BookOpen className="ml-2 h-4 w-4" />
+                        {editorState.status === "Published" ? "نشر الفصل" : "حفظ كمسودة"}
+                      </>
+                    ) : (
+                      <>
+                        <Pencil className="ml-2 h-4 w-4" />
+                        {editorState.status === "Published" ? "حفظ ونشر" : "حفظ كمسودة"}
+                      </>
+                    )}
                   </>
                 )}
               </Button>

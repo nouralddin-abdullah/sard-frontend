@@ -1,109 +1,52 @@
-import React from "react";
-import { Gift, BookOpen, UserPlus, Megaphone, MessageCircle, X } from "lucide-react";
+import React, { useMemo } from "react";
+import { Gift, BookOpen, UserPlus, Megaphone, MessageCircle, X, ThumbsUp, Heart, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../../components/common/Header";
+import { useGetNotifications } from "../../hooks/notification/useGetNotifications";
+import { useMarkNotificationRead } from "../../hooks/notification/useMarkNotificationRead";
+import { useMarkAllNotificationsRead } from "../../hooks/notification/useMarkAllNotificationsRead";
+import { getTimeAgo } from "../../utils/date";
+import { toast } from "sonner";
 
-// Static notification data
-const notificationsData = {
-  new: [
-    {
-      id: 1,
-      type: "gift",
-      icon: Gift,
-      avatarType: "user", // "user" or "novel" or "icon"
-      avatarUrl: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-      message: (
-        <>
-          <span className="font-bold">أحمد</span> أرسل لك 🌹 على روايتك{" "}
-          <span className="font-bold">صدى الظلال</span>.
-        </>
-      ),
-      time: "منذ دقيقتين",
-      isNew: true,
-    },
-    {
-      id: 2,
-      type: "chapter",
-      icon: BookOpen,
-      avatarType: "novel",
-      novelCover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop",
-      message: (
-        <>
-          تم نشر فصل جديد من <span className="font-bold">سجلات الفراغ</span>.
-        </>
-      ),
-      time: "منذ 15 دقيقة",
-      isNew: true,
-    },
-  ],
-  earlier: [
-    {
-      id: 3,
-      type: "follow",
-      icon: UserPlus,
-      avatarType: "user",
-      avatarUrl: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-      message: (
-        <>
-          <span className="font-bold">سارة</span> أرسلت لك طلب متابعة.
-        </>
-      ),
-      time: "منذ ساعة",
-      isNew: false,
-      hasActions: true,
-    },
-    {
-      id: 4,
-      type: "announcement",
-      icon: Megaphone,
-      avatarType: "icon",
-      message: (
-        <>
-          <span className="font-bold">إعلان النظام:</span> مكافآت جديدة في لوحة المتصدرين متاحة الآن. تحقق منها!
-        </>
-      ),
-      time: "أمس",
-      isNew: false,
-    },
-    {
-      id: 5,
-      type: "comment",
-      icon: MessageCircle,
-      avatarType: "user",
-      avatarUrl: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-      message: (
-        <>
-          <span className="font-bold">خالد</span> رد على تعليقك في الفصل 3 من{" "}
-          <span className="font-bold">صدى الظلال</span>.
-        </>
-      ),
-      time: "منذ يومين",
-      isNew: false,
-    },
-    {
-      id: 6,
-      type: "novel-update",
-      icon: BookOpen,
-      avatarType: "novel",
-      novelCover: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=600&fit=crop",
-      message: (
-        <>
-          <span className="font-bold">أساطير المملكة</span>، رواية في مكتبتك، تم تحديثها.
-        </>
-      ),
-      time: "منذ 3 أيام",
-      isNew: false,
-    },
-  ],
+// Map notification types to icons
+const getNotificationIcon = (type) => {
+  const iconMap = {
+    LikeOnComment: ThumbsUp,
+    LikeOnPost: Heart,
+    CommentOnPost: MessageCircle,
+    NewFollower: UserPlus,
+    NewChapterInLibrary: BookOpen,
+    ReviewOnNovel: Heart,
+    Gift: Gift,
+    Announcement: Megaphone,
+  };
+  return iconMap[type] || MessageCircle;
 };
 
-const NotificationItem = ({ notification }) => {
-  const Icon = notification.icon;
+const NotificationItem = ({ notification, onMarkRead }) => {
+  const Icon = getNotificationIcon(notification.type);
+  const navigate = useNavigate();
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    
+    if (!notification.isRead) {
+      onMarkRead(notification.id);
+    }
+    
+    // Navigate to the URL
+    navigate(notification.actionUrl);
+  };
 
   return (
-    <div className="flex items-start gap-4 p-4">
+    <Link
+      to={notification.actionUrl}
+      onClick={handleClick}
+      className="flex items-start gap-4 p-4 hover:bg-neutral-600/50 transition-colors"
+    >
       {/* Left side: New indicator dot */}
       <div className="flex-shrink-0 mt-1.5">
-        {notification.isNew ? (
+        {!notification.isRead ? (
           <div className="w-3 h-3 rounded-full bg-[#4A9EFF]"></div>
         ) : (
           <div className="w-3 h-3 rounded-full bg-transparent"></div>
@@ -112,21 +55,22 @@ const NotificationItem = ({ notification }) => {
 
       {/* Avatar/Image Section */}
       <div className="flex-shrink-0">
-        {notification.avatarType === "user" && notification.avatarUrl && (
-          <img
-            src={notification.avatarUrl}
-            alt="User avatar"
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        )}
-        {notification.avatarType === "novel" && notification.novelCover && (
-          <img
-            src={notification.novelCover}
-            alt="Novel cover"
-            className="w-10 h-[60px] object-cover rounded-sm"
-          />
-        )}
-        {notification.avatarType === "icon" && (
+        {notification.actorProfilePhoto ? (
+          // Novel-related notifications show rectangular cover, others show circular avatar
+          notification.type === "NewChapterInLibrary" || notification.type === "ReviewOnNovel" ? (
+            <img
+              src={notification.actorProfilePhoto}
+              alt={notification.actorDisplayName}
+              className="w-10 h-14 rounded object-cover"
+            />
+          ) : (
+            <img
+              src={notification.actorProfilePhoto}
+              alt={notification.actorDisplayName}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          )
+        ) : (
           <div className="w-10 h-10 rounded-full bg-[#4A9EFF]/20 flex items-center justify-center text-[#4A9EFF]">
             <Icon size={20} />
           </div>
@@ -138,32 +82,58 @@ const NotificationItem = ({ notification }) => {
         <p className="text-white text-base mb-2 noto-sans-arabic-medium">
           {notification.message}
         </p>
-        {notification.hasActions && (
-          <div className="flex gap-2 mb-2">
-            <button className="px-4 py-2 bg-[#4A9EFF] text-white rounded-lg text-sm font-bold hover:bg-[#3A8EEF] transition-colors noto-sans-arabic-bold">
-              قبول
-            </button>
-            <button className="px-4 py-2 bg-neutral-700 text-white rounded-lg text-sm font-bold hover:bg-neutral-600 transition-colors noto-sans-arabic-bold">
-              رفض
-            </button>
-          </div>
-        )}
         <p className="text-neutral-400 text-sm noto-sans-arabic-regular">
-          {notification.time}
+          {getTimeAgo(notification.createdAt)}
         </p>
       </div>
-
-      {/* Right side: Close button */}
-      <div className="flex-shrink-0">
-        <button className="text-neutral-400 hover:text-white transition-colors">
-          <X size={20} />
-        </button>
-      </div>
-    </div>
+    </Link>
   );
 };
 
 const NotificationsPage = () => {
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetNotifications();
+  const markNotificationRead = useMarkNotificationRead();
+  const markAllNotificationsRead = useMarkAllNotificationsRead();
+
+  // Flatten all notifications from all pages
+  const allNotifications = useMemo(() => {
+    if (!data?.pages) return [];
+    return data.pages.flatMap(page => page.notifications || []);
+  }, [data]);
+
+  const handleMarkRead = (notificationId) => {
+    markNotificationRead.mutate(notificationId);
+  };
+
+  const handleMarkAllRead = () => {
+    markAllNotificationsRead.mutate(undefined, {
+      onSuccess: () => {
+        toast.success("تم وضع علامة مقروء على جميع الإشعارات");
+      },
+      onError: () => {
+        toast.error("فشل في تحديث الإشعارات");
+      },
+    });
+  };
+
+  // Separate notifications into new and earlier
+  const { newNotifications, earlierNotifications } = useMemo(() => {
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const newOnes = allNotifications.filter(notif => {
+      const notifDate = new Date(notif.createdAt);
+      return notifDate > oneDayAgo;
+    });
+
+    const earlierOnes = allNotifications.filter(notif => {
+      const notifDate = new Date(notif.createdAt);
+      return notifDate <= oneDayAgo;
+    });
+
+    return { newNotifications: newOnes, earlierNotifications: earlierOnes };
+  }, [allNotifications]);
+
   return (
     <>
       <Header />
@@ -174,43 +144,100 @@ const NotificationsPage = () => {
             <h1 className="text-white text-3xl font-bold noto-sans-arabic-bold">
               الإشعارات
             </h1>
-            <button className="text-[#4A9EFF] text-sm font-medium hover:text-[#3A8EEF] transition-colors noto-sans-arabic-medium">
-              وضع علامة مقروء على الكل
+            <button 
+              onClick={handleMarkAllRead}
+              disabled={markAllNotificationsRead.isPending || allNotifications.length === 0}
+              className="text-[#4A9EFF] text-sm font-medium hover:text-[#3A8EEF] transition-colors noto-sans-arabic-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {markAllNotificationsRead.isPending ? "جاري التحديث..." : "وضع علامة مقروء على الكل"}
             </button>
           </div>
 
-          {/* Notifications List */}
-          <div className="flex flex-col gap-6">
-            {/* New Notifications Section */}
-            <div className="flex flex-col gap-3">
-              <h2 className="text-neutral-400 text-sm font-bold uppercase tracking-wider noto-sans-arabic-bold">
-                جديد
-              </h2>
-              <div className="flex flex-col rounded-xl bg-neutral-700 overflow-hidden divide-y divide-neutral-600">
-                {notificationsData.new.map((notification) => (
-                  <NotificationItem
-                    key={notification.id}
-                    notification={notification}
-                  />
-                ))}
-              </div>
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-[#4A9EFF]" />
             </div>
+          )}
 
-            {/* Earlier Notifications Section */}
-            <div className="flex flex-col gap-3">
-              <h2 className="text-neutral-400 text-sm font-bold uppercase tracking-wider noto-sans-arabic-bold">
-                سابقاً
-              </h2>
-              <div className="flex flex-col rounded-xl bg-neutral-700 overflow-hidden divide-y divide-neutral-600">
-                {notificationsData.earlier.map((notification) => (
-                  <NotificationItem
-                    key={notification.id}
-                    notification={notification}
-                  />
-                ))}
-              </div>
+          {/* Error State */}
+          {isError && (
+            <div className="text-center py-20">
+              <p className="text-neutral-400 text-lg noto-sans-arabic-regular">
+                حدث خطأ في تحميل الإشعارات. يرجى المحاولة مرة أخرى.
+              </p>
             </div>
-          </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && !isError && allNotifications.length === 0 && (
+            <div className="text-center py-20">
+              <p className="text-neutral-400 text-lg noto-sans-arabic-regular">
+                لا توجد إشعارات حتى الآن
+              </p>
+            </div>
+          )}
+
+          {/* Notifications List */}
+          {!isLoading && !isError && allNotifications.length > 0 && (
+            <div className="flex flex-col gap-6">
+              {/* New Notifications Section */}
+              {newNotifications.length > 0 && (
+                <div className="flex flex-col gap-3">
+                  <h2 className="text-neutral-400 text-sm font-bold uppercase tracking-wider noto-sans-arabic-bold">
+                    جديد
+                  </h2>
+                  <div className="flex flex-col rounded-xl bg-neutral-700 overflow-hidden divide-y divide-neutral-600">
+                    {newNotifications.map((notification) => (
+                      <NotificationItem
+                        key={notification.id}
+                        notification={notification}
+                        onMarkRead={handleMarkRead}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Earlier Notifications Section */}
+              {earlierNotifications.length > 0 && (
+                <div className="flex flex-col gap-3">
+                  <h2 className="text-neutral-400 text-sm font-bold uppercase tracking-wider noto-sans-arabic-bold">
+                    سابقاً
+                  </h2>
+                  <div className="flex flex-col rounded-xl bg-neutral-700 overflow-hidden divide-y divide-neutral-600">
+                    {earlierNotifications.map((notification) => (
+                      <NotificationItem
+                        key={notification.id}
+                        notification={notification}
+                        onMarkRead={handleMarkRead}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Load More Button */}
+              {hasNextPage && (
+                <div className="mt-4 flex justify-center">
+                  <button
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                    className="px-6 py-3 bg-[#4A9EFF] text-white rounded-lg font-bold hover:bg-[#3A8EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed noto-sans-arabic-bold flex items-center gap-2"
+                  >
+                    {isFetchingNextPage ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        يتم التحميل...
+                      </>
+                    ) : (
+                      "تحميل المزيد"
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </main>
       </div>
     </>
