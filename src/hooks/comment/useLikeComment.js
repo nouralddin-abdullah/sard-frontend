@@ -43,14 +43,36 @@ export const useLikeComment = () => {
     onMutate: async (commentId) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["chapterComments"] });
+      await queryClient.cancelQueries({ queryKey: ["postComments"] });
       await queryClient.cancelQueries({ queryKey: ["commentReplies"] });
 
       // Snapshot previous values
       const previousChapterComments = queryClient.getQueriesData({ queryKey: ["chapterComments"] });
+      const previousPostComments = queryClient.getQueriesData({ queryKey: ["postComments"] });
       const previousReplies = queryClient.getQueriesData({ queryKey: ["commentReplies"] });
 
-      // Optimistically update comments
+      // Optimistically update chapter comments
       queryClient.setQueriesData({ queryKey: ["chapterComments"] }, (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: page.items.map((comment) =>
+              comment.id === commentId
+                ? {
+                    ...comment,
+                    isLikedByCurrentUser: true,
+                    likesCount: comment.likesCount + 1,
+                  }
+                : comment
+            ),
+          })),
+        };
+      });
+
+      // Optimistically update post comments
+      queryClient.setQueriesData({ queryKey: ["postComments"] }, (old) => {
         if (!old) return old;
         return {
           ...old,
@@ -89,11 +111,14 @@ export const useLikeComment = () => {
         };
       });
 
-      return { previousChapterComments, previousReplies };
+      return { previousChapterComments, previousPostComments, previousReplies };
     },
     onError: (err, commentId, context) => {
       // Rollback on error
       context?.previousChapterComments.forEach(([queryKey, data]) => {
+        queryClient.setQueryData(queryKey, data);
+      });
+      context?.previousPostComments.forEach(([queryKey, data]) => {
         queryClient.setQueryData(queryKey, data);
       });
       context?.previousReplies.forEach(([queryKey, data]) => {
@@ -104,6 +129,9 @@ export const useLikeComment = () => {
       // Refetch to ensure data consistency
       queryClient.invalidateQueries({
         queryKey: ["chapterComments"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["postComments"],
       });
       queryClient.invalidateQueries({
         queryKey: ["commentReplies"],
