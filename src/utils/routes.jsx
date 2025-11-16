@@ -25,6 +25,8 @@ import EditWorkPage from "../pages/work/edit";
 import WorkDashboardPage from "../pages/work/dashboard";
 import ChapterEditorPage from "../pages/work/chapter-editor";
 import GenrePage from "../pages/genre/GenrePage";
+import HelpCenterPage from "../pages/help/page";
+import HelpArticlePage from "../pages/help/article";
 
 
 const routes = [
@@ -146,6 +148,14 @@ const routes = [
   {
     url: "/dashboard/works/:workId/chapters/new",
     component: <ChapterEditorPage />,
+  },
+  {
+    url: "/help",
+    component: <HelpCenterPage />,
+  },
+  {
+    url: "/help/article/:articleId",
+    component: <HelpArticlePage />,
   },
 ];
 
