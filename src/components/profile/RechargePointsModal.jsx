@@ -9,11 +9,18 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Price calculation (10 points = 1 EGP)
-  const pricePerPoint = 0.1;
-  const basePrice = (customPoints || 0) * pricePerPoint;
+  // Price calculation (10 points = 1 EGP or converted to USD for PayPal)
+  const pricePerPoint = 0.1; // EGP
+  const usdToEgp = 47;
+  
+  const basePrice = (customPoints || 0) * pricePerPoint; // Always in EGP first
   const transactionFee = basePrice * 0.1; // 10% fee
-  const totalPrice = basePrice + transactionFee;
+  const totalPriceEGP = basePrice + transactionFee;
+  
+  // Convert to USD if PayPal is selected
+  const isPayPal = paymentMethod === "paypal";
+  const displayPrice = isPayPal ? totalPriceEGP / usdToEgp : totalPriceEGP;
+  const currency = isPayPal ? "USD" : "جنيه";
 
   const handleQuickAmount = (amount) => {
     setCustomPoints(amount);
@@ -56,7 +63,8 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
     console.log({
       points: customPoints,
       paymentMethod,
-      totalPrice,
+      totalPrice: displayPrice,
+      currency: isPayPal ? "USD" : "EGP",
       proof: uploadedFile
     });
     // Close modal and show success message
@@ -302,7 +310,10 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                         السعر الأساسي
                       </p>
                       <p className="text-white text-sm font-medium leading-normal text-right noto-sans-arabic-medium">
-                        {basePrice.toFixed(2)} جنيه
+                        {isPayPal 
+                          ? `$${(basePrice / usdToEgp).toFixed(2)}`
+                          : `${basePrice.toFixed(2)} جنيه`
+                        }
                       </p>
                     </div>
                     <div className="flex justify-between gap-x-6 py-2">
@@ -311,7 +322,10 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                         <Info size={16} className="cursor-help text-[#686868]" title="هذه الرسوم تغطي تكاليف معالجة الدفع" />
                       </p>
                       <p className="text-white text-sm font-medium leading-normal text-right noto-sans-arabic-medium">
-                        {transactionFee.toFixed(2)} جنيه
+                        {isPayPal 
+                          ? `$${(transactionFee / usdToEgp).toFixed(2)}`
+                          : `${transactionFee.toFixed(2)} جنيه`
+                        }
                       </p>
                     </div>
                   </div>
@@ -321,7 +335,10 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                       الإجمالي
                     </p>
                     <p className="text-white text-xl font-bold leading-normal text-right noto-sans-arabic-bold">
-                      {totalPrice.toFixed(2)} جنيه
+                      {isPayPal 
+                        ? `$${displayPrice.toFixed(2)}`
+                        : `${displayPrice.toFixed(2)} جنيه`
+                      }
                     </p>
                   </div>
                   <button
@@ -384,7 +401,12 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                     </div>
                     <p className="text-[#9db9a6] text-xs noto-sans-arabic-regular">
                       <span className="text-[#B8B8B8]">المبلغ:</span>{" "}
-                      <span className="text-white font-bold noto-sans-arabic-bold">{totalPrice.toFixed(2)} جنيه</span>
+                      <span className="text-white font-bold noto-sans-arabic-bold">
+                        {isPayPal 
+                          ? `$${displayPrice.toFixed(2)}`
+                          : `${displayPrice.toFixed(2)} جنيه`
+                        }
+                      </span>
                     </p>
                   </div>
                 </div>
