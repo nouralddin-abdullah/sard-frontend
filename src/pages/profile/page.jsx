@@ -6,6 +6,7 @@ import AboutMe from "../../components/profile/AboutMe";
 import MyNovels from "../../components/profile/MyNovels";
 import Library from "../../components/profile/Library";
 import BadgesList from "../../components/profile/BadgesList";
+import PointsWallet from "../../components/profile/PointsWallet";
 import Header from "../../components/common/Header";
 import mainPicture from "../../assets/mainPicture.jpg";
 import profilePicture from "../../assets/profilePicture.jpg";
@@ -69,6 +70,12 @@ const ProfilePage = () => {
       value: "library",
       isActive: false,
       showForOthers: true, // Always visible - Library component handles public/private lists internally
+    },
+    {
+      title: "المحفظة",
+      value: "points",
+      isActive: false,
+      showForOthers: false, // Only visible to own profile
     },
     // Badges temporarily removed
     // {
@@ -211,7 +218,7 @@ const ProfilePage = () => {
           {subPages.map((subPage) => (
             <button
               key={subPage.value}
-              className={`cursor-pointer relative whitespace-nowrap text-[14px] md:text-3xl py-3 btn-underline noto-sans-arabic-medium ${
+              className={`cursor-pointer relative whitespace-nowrap text-[14px] md:text-xl py-2.5 btn-underline noto-sans-arabic-medium ${
                 subPage.value === selectedSubPage && "border-b-2 border-white"
               }`}
               onClick={() => navigateSubPages(subPage.value)}
@@ -255,6 +262,10 @@ const ProfilePage = () => {
       )}
       {/* Library component handles public/private reading lists internally */}
       {selectedSubPage === "library" && <Library username={username} />}
+      {/* Points/Wallet - Only for own profile */}
+      {selectedSubPage === "points" && isOwnProfile && (
+        <PointsWallet userId={userData?.id} />
+      )}
       {/* Badges temporarily removed */}
       {/* {selectedSubPage === "badges" && <BadgesList />} */}
       </div>
