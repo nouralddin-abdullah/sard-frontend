@@ -1,12 +1,20 @@
 import React, { useState, useRef } from "react";
 import { X, Upload, Image as ImageIcon, Info, ArrowRight, ArrowLeft, Copy } from "lucide-react";
+import vodafoneLogo from "../../assets/vodaphonecash.png";
+import instapayLogo from "../../assets/InstaPay_Logo.png";
+import paypalLogo from "../../assets/Paypal_2014_logo.png";
+import { BASE_URL } from "../../constants/base-url";
+import Cookies from "js-cookie";
+import { TOKEN_KEY } from "../../constants/token-key";
+import { toast } from "sonner";
 
-const RechargePointsModal = ({ isOpen, onClose }) => {
+const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
   const [step, setStep] = useState(1); // 1: Amount & Payment, 2: Upload Proof
   const [customPoints, setCustomPoints] = useState(500);
   const [paymentMethod, setPaymentMethod] = useState("vodafone");
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
 
   // Price calculation (10 points = 1 EGP or converted to USD for PayPal)
@@ -27,8 +35,18 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
   };
 
   const handleFileSelect = (file) => {
-    if (file && file.type.startsWith("image/")) {
+    // Accept images (PNG, JPG) and PDF files, max 5MB
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (file && validTypes.includes(file.type) && file.size <= maxSize) {
       setUploadedFile(file);
+    } else if (file.size > maxSize) {
+      // TODO: Show error toast
+      console.error('File size must be less than 5MB');
+    } else {
+      // TODO: Show error toast
+      console.error('File must be PNG, JPG, or PDF');
     }
   };
 
@@ -58,17 +76,50 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
     setStep(2);
   };
 
-  const handleSubmit = () => {
-    // TODO: Submit recharge request with proof
-    console.log({
-      points: customPoints,
-      paymentMethod,
-      totalPrice: displayPrice,
-      currency: isPayPal ? "USD" : "EGP",
-      proof: uploadedFile
-    });
-    // Close modal and show success message
-    onClose();
+  const handleSubmit = async () => {
+    if (!uploadedFile || isSubmitting) return;
+
+    setIsSubmitting(true);
+    const formData = new FormData();
+    formData.append('PointsRequested', customPoints);
+    
+    // Match API payment method names exactly
+    const paymentMethodMap = {
+      'vodafone': 'VodafoneCash',
+      'instapay': 'InstaPay',
+      'paypal': 'PayPal'
+    };
+    formData.append('PaymentMethod', paymentMethodMap[paymentMethod]);
+    formData.append('PaymentProof', uploadedFile);
+
+    try {
+      const token = Cookies.get(TOKEN_KEY);
+      const response = await fetch(`${BASE_URL}/api/wallet/recharge`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'accept': '*/*'
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        // Show success message in Arabic
+        const arabicMessage = `تم إرسال طلب الشحن بنجاح. الإجمالي: ${data.totalAmountEGP || totalPriceEGP.toFixed(3)} جنيه. يرجى الانتظار 12-24 ساعة للموافقة.`;
+        toast.success(arabicMessage);
+        if (onSuccess) onSuccess();
+        handleCancel();
+      } else {
+        toast.error(data.message || 'فشل إرسال طلب الشحن. حاول مرة أخرى.');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      toast.error('حدث خطأ في الاتصال. تحقق من اتصالك بالإنترنت.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -76,6 +127,7 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
     setCustomPoints(500);
     setPaymentMethod("vodafone");
     setUploadedFile(null);
+    setIsSubmitting(false);
     onClose();
   };
 
@@ -232,7 +284,7 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                       <img
                         className="h-8 mb-2"
                         alt="Vodafone Cash Logo"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmUHToZUa7DzvuD7I-T9UDpE4fWjU4LmAr99AjEA5rZWug1w-g_f-fLpaJ6XnvRJyFFOXcoq_1eb0OG5aL2V83JHyetLXU9ZYk82oyhsSpdT8L_TEjZoqzeRX2VpAo4e2Hfh63jXMv9CVlUO8jrOLNjxALGHjcOF7LP6tqSz2hq3dSAzw6nN2Nv-0kX8YOi4GWjd-TAWo6Rj4XiEd6Aq4eT8N1Ngq8bz759k-lrqxeG4yC10anokgpqNsIi_48SHp1V35vjQRwDNDV"
+                        src={vodafoneLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
                         Vodafone Cash
@@ -256,7 +308,7 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                       <img
                         className="h-8 mb-2"
                         alt="InstaPay Logo"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhXkCvlTATtfyR1dWEuybgYjaZt3Xwc2Nk-R8YiLXVgsTwOc-oCfHmv2hxREQKhm_PdFvAkJUfmE9srv6Utj8h7ZuPiH7Qn3IDBoACrNIQsewPkLOmMglAUlAu0FVTS6hSJwPxn0Bo2sCcIJLbLXnhsdrso4LgMJcUWudRABFsSmR7LoBm5oJH-fEbxlMcs6hljHFsCOGLsJdUxTM5A1SJJoui2KFJ5c3pq2bjhSZag0K1XLitoaL2fgFi9TlOEy9sBzjBKfste8vl"
+                        src={instapayLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
                         InstaPay
@@ -280,7 +332,7 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                       <img
                         className="h-6 mb-2"
                         alt="PayPal Logo"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuArl0clRxwKXlaJP81PsWzUvB798WEUmKkCIpRQXhe85Tpyog1bCGl33zNSUtpBvAIThjOE25_5amTlxfzhqVhdhVqi5boogfLDTaads1aRa8wOcGyorHL3cSV46TJedo-zuwdQdg8QjJctCUuYSbZuxrWFFrF0F_SW_5faoATHDC3qIs5sL3Nat3XsJ9nTy_1NOeWsP4S8xp5MfOCF34OMF1hgjx2mOoV_cfmgJYFKX2Y_KR1FiWGf7klBypp-WKHfes1BNILGUTtW"
+                        src={paypalLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
                         PayPal
@@ -439,7 +491,7 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/png,image/jpeg,image/jpg,application/pdf"
                     className="hidden"
                     onChange={handleFileInputChange}
                   />
@@ -478,10 +530,10 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={!uploadedFile}
+                disabled={!uploadedFile || isSubmitting}
                 className="flex flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 bg-[#4A9EFF] text-white text-base font-bold leading-normal transition-colors hover:bg-[#3A8EEF] disabled:cursor-not-allowed disabled:opacity-50 noto-sans-arabic-bold"
               >
-                <span>إرسال للتحقق</span>
+                <span>{isSubmitting ? "جاري الإرسال..." : "إرسال للتحقق"}</span>
               </button>
             </div>
           </div>
