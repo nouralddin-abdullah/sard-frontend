@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Loader2, Search, CreditCard } from "lucide-react";
+import { Loader2, Search, CreditCard, ArrowDownToLine } from "lucide-react";
 import RechargePointsModal from "./RechargePointsModal";
+import WithdrawPointsModal from "./WithdrawPointsModal";
 
 const PointsWallet = ({ userId }) => {
   // TODO: Add hook to fetch user points balance and transactions
@@ -8,8 +9,9 @@ const PointsWallet = ({ userId }) => {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [activeTab, setActiveTab] = useState("recharge"); // "recharge" or "transactions"
+  const [activeTab, setActiveTab] = useState("recharge"); // "recharge", "transactions", or "withdraw"
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   
   // Dummy data for now
   const balance = 1250;
@@ -90,6 +92,38 @@ const PointsWallet = ({ userId }) => {
     },
   ];
 
+  // Withdraw History Data
+  const withdrawHistory = [
+    {
+      id: "#W1A2B3C4",
+      date: "2023-10-26T10:30:00Z",
+      points: 1000,
+      amount: 10.00,
+      status: "approved"
+    },
+    {
+      id: "#W5D6E7F8",
+      date: "2023-10-24T20:15:00Z",
+      points: 500,
+      amount: 5.00,
+      status: "approved"
+    },
+    {
+      id: "#W9G0H1I2",
+      date: "2023-10-22T11:00:00Z",
+      points: 2000,
+      amount: 20.00,
+      status: "rejected"
+    },
+    {
+      id: "#W3J4K5L6",
+      date: "2023-10-21T15:45:00Z",
+      points: 1500,
+      amount: 15.00,
+      status: "pending"
+    },
+  ];
+
   const isLoading = false;
 
   const formatDate = (dateString) => {
@@ -153,7 +187,7 @@ const PointsWallet = ({ userId }) => {
     }
   };
 
-  const currentData = activeTab === "recharge" ? rechargeHistory : transactionHistory;
+  const currentData = activeTab === "recharge" ? rechargeHistory : activeTab === "withdraw" ? withdrawHistory : transactionHistory;
   
   const filteredData = currentData.filter(item => {
     const matchesSearch = searchQuery === "" || 
@@ -187,17 +221,28 @@ const PointsWallet = ({ userId }) => {
             <p className="text-[#9db9a6] text-base font-normal leading-normal noto-sans-arabic-regular">
               {activeTab === "recharge" 
                 ? "عرض حالة جميع طلبات شحن النقاط السابقة"
+                : activeTab === "withdraw"
+                ? "عرض حالة جميع طلبات سحب النقاط السابقة"
                 : "عرض جميع المعاملات والنفقات الخاصة بالنقاط"
               }
             </p>
           </div>
-          <button 
-            className="flex items-center justify-center gap-2 h-10 px-5 bg-[#4A9EFF] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#3A8EEF] transition-colors noto-sans-arabic-bold"
-            onClick={() => setIsRechargeModalOpen(true)}
-          >
-            <CreditCard size={20} />
-            <span>شحن النقاط</span>
-          </button>
+          <div className="flex gap-2">
+            <button 
+              className="flex items-center justify-center gap-2 h-10 px-5 bg-[#4A9EFF] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#3A8EEF] transition-colors noto-sans-arabic-bold"
+              onClick={() => setIsRechargeModalOpen(true)}
+            >
+              <CreditCard size={20} />
+              <span>شحن النقاط</span>
+            </button>
+            <button 
+              className="flex items-center justify-center gap-2 h-10 px-5 bg-[#16a34a] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#15803d] transition-colors noto-sans-arabic-bold"
+              onClick={() => setIsWithdrawModalOpen(true)}
+            >
+              <ArrowDownToLine size={20} />
+              <span>سحب النقاط</span>
+            </button>
+          </div>
         </header>
 
         {/* Tabs */}
@@ -215,6 +260,20 @@ const PointsWallet = ({ userId }) => {
             }}
           >
             سجل الشحن
+          </button>
+          <button
+            className={`px-6 py-3 text-base font-medium transition-colors noto-sans-arabic-medium relative ${
+              activeTab === "withdraw"
+                ? "text-[#4A9EFF] border-b-2 border-[#4A9EFF]"
+                : "text-[#B8B8B8] hover:text-white"
+            }`}
+            onClick={() => {
+              setActiveTab("withdraw");
+              setFilterStatus("all");
+              setSearchQuery("");
+            }}
+          >
+            سجل السحب
           </button>
           <button
             className={`px-6 py-3 text-base font-medium transition-colors noto-sans-arabic-medium relative ${
@@ -274,17 +333,17 @@ const PointsWallet = ({ userId }) => {
             </button>
             <button
               className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-md px-4 transition-colors noto-sans-arabic-medium ${
-                filterStatus === (activeTab === "recharge" ? "approved" : "completed")
+                filterStatus === (activeTab === "recharge" || activeTab === "withdraw" ? "approved" : "completed")
                   ? "bg-[#4A9EFF]/20 text-[#4A9EFF]"
                   : "text-[#B8B8B8] hover:bg-[#3A3A3A]"
               }`}
-              onClick={() => setFilterStatus(activeTab === "recharge" ? "approved" : "completed")}
+              onClick={() => setFilterStatus(activeTab === "recharge" || activeTab === "withdraw" ? "approved" : "completed")}
             >
               <p className="text-sm font-medium leading-normal">
-                {activeTab === "recharge" ? "مقبول" : "مكتمل"}
+                {activeTab === "recharge" || activeTab === "withdraw" ? "مقبول" : "مكتمل"}
               </p>
             </button>
-            {activeTab === "recharge" && (
+            {(activeTab === "recharge" || activeTab === "withdraw") && (
               <button
                 className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-md px-4 transition-colors noto-sans-arabic-medium ${
                   filterStatus === "rejected"
@@ -320,7 +379,7 @@ const PointsWallet = ({ userId }) => {
                     <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-[#B8B8B8] uppercase tracking-wider noto-sans-arabic-medium">
                       النقاط
                     </th>
-                    {activeTab === "recharge" && (
+                    {(activeTab === "recharge" || activeTab === "withdraw") && (
                       <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-[#B8B8B8] uppercase tracking-wider noto-sans-arabic-medium">
                         المبلغ
                       </th>
@@ -358,13 +417,13 @@ const PointsWallet = ({ userId }) => {
                         )}
                         <td className="whitespace-nowrap px-6 py-5 text-sm font-medium noto-sans-arabic-medium">
                           <span className={activeTab === "transactions" ? "text-[#FF4444]" : "text-white"}>
-                            {activeTab === "recharge" 
+                            {activeTab === "recharge" || activeTab === "withdraw"
                               ? `${item.points.toLocaleString("ar-EG")} نقطة`
                               : `${item.points.toLocaleString("ar-EG")} نقطة`
                             }
                           </span>
                         </td>
-                        {activeTab === "recharge" && (
+                        {(activeTab === "recharge" || activeTab === "withdraw") && (
                           <td className="whitespace-nowrap px-6 py-5 text-sm font-medium text-white noto-sans-arabic-medium">
                             ${item.amount.toFixed(2)}
                           </td>
@@ -404,6 +463,12 @@ const PointsWallet = ({ userId }) => {
         <RechargePointsModal 
           isOpen={isRechargeModalOpen}
           onClose={() => setIsRechargeModalOpen(false)}
+        />
+
+        {/* Withdraw Modal */}
+        <WithdrawPointsModal 
+          isOpen={isWithdrawModalOpen}
+          onClose={() => setIsWithdrawModalOpen(false)}
         />
       </div>
     </div>

@@ -1,5 +1,8 @@
 import React, { useState, useRef } from "react";
 import { X, Upload, Image as ImageIcon, Info, ArrowRight, ArrowLeft, Copy } from "lucide-react";
+import vodafoneLogo from "../../assets/vodaphonecash.png";
+import instapayLogo from "../../assets/InstaPay_Logo.png";
+import paypalLogo from "../../assets/Paypal_2014_logo.png";
 
 const RechargePointsModal = ({ isOpen, onClose }) => {
   const [step, setStep] = useState(1); // 1: Amount & Payment, 2: Upload Proof
@@ -232,7 +235,7 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                       <img
                         className="h-8 mb-2"
                         alt="Vodafone Cash Logo"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmUHToZUa7DzvuD7I-T9UDpE4fWjU4LmAr99AjEA5rZWug1w-g_f-fLpaJ6XnvRJyFFOXcoq_1eb0OG5aL2V83JHyetLXU9ZYk82oyhsSpdT8L_TEjZoqzeRX2VpAo4e2Hfh63jXMv9CVlUO8jrOLNjxALGHjcOF7LP6tqSz2hq3dSAzw6nN2Nv-0kX8YOi4GWjd-TAWo6Rj4XiEd6Aq4eT8N1Ngq8bz759k-lrqxeG4yC10anokgpqNsIi_48SHp1V35vjQRwDNDV"
+                        src={vodafoneLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
                         Vodafone Cash
@@ -256,7 +259,7 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                       <img
                         className="h-8 mb-2"
                         alt="InstaPay Logo"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhXkCvlTATtfyR1dWEuybgYjaZt3Xwc2Nk-R8YiLXVgsTwOc-oCfHmv2hxREQKhm_PdFvAkJUfmE9srv6Utj8h7ZuPiH7Qn3IDBoACrNIQsewPkLOmMglAUlAu0FVTS6hSJwPxn0Bo2sCcIJLbLXnhsdrso4LgMJcUWudRABFsSmR7LoBm5oJH-fEbxlMcs6hljHFsCOGLsJdUxTM5A1SJJoui2KFJ5c3pq2bjhSZag0K1XLitoaL2fgFi9TlOEy9sBzjBKfste8vl"
+                        src={instapayLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
                         InstaPay
@@ -280,7 +283,7 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                       <img
                         className="h-6 mb-2"
                         alt="PayPal Logo"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuArl0clRxwKXlaJP81PsWzUvB798WEUmKkCIpRQXhe85Tpyog1bCGl33zNSUtpBvAIThjOE25_5amTlxfzhqVhdhVqi5boogfLDTaads1aRa8wOcGyorHL3cSV46TJedo-zuwdQdg8QjJctCUuYSbZuxrWFFrF0F_SW_5faoATHDC3qIs5sL3Nat3XsJ9nTy_1NOeWsP4S8xp5MfOCF34OMF1hgjx2mOoV_cfmgJYFKX2Y_KR1FiWGf7klBypp-WKHfes1BNILGUTtW"
+                        src={paypalLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
                         PayPal
