@@ -7,7 +7,7 @@ const HelpCenterPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  // Help categories (like Discord's sections)
+  // Help categories - articles map to actual markdown files
   const categories = [
     {
       id: 1,
@@ -15,11 +15,11 @@ const HelpCenterPage = () => {
       description: "كل ما تحتاج معرفته للبدء",
       color: "bg-[#5865f2]",
       articles: [
-        { id: 1, title: "كيفية إنشاء حساب جديد" },
-        { id: 2, title: "إعداد ملفك الشخصي" },
-        { id: 3, title: "نشر روايتك الأولى" },
-        { id: 4, title: "كيفية متابعة الكتّاب المفضلين" },
-        { id: 5, title: "استكشاف الروايات والأنواع" },
+        { id: "create-account", title: "كيفية إنشاء حساب جديد", file: "getting-started/create-account.md" },
+        { id: "setup-profile", title: "إعداد ملفك الشخصي", file: "getting-started/setup-profile.md" },
+        { id: "publish-first-novel", title: "نشر روايتك الأولى", file: "getting-started/publish-first-novel.md" },
+        { id: "follow-writers", title: "كيفية متابعة الكتّاب المفضلين", file: "getting-started/follow-writers.md" },
+        { id: "explore-novels", title: "استكشاف الروايات والأنواع", file: "getting-started/explore-novels.md" },
       ]
     },
     {
@@ -28,11 +28,11 @@ const HelpCenterPage = () => {
       description: "إدارة نقاطك والمدفوعات",
       color: "bg-[#57f287]",
       articles: [
-        { id: 6, title: "كيفية شحن النقاط" },
-        { id: 7, title: "استخدام النقاط لفتح الفصول المميزة" },
-        { id: 8, title: "إهداء النقاط للكتّاب" },
-        { id: 9, title: "سياسة الاسترجاع والإلغاء" },
-        { id: 10, title: "طرق الدفع المتاحة" },
+        { id: "recharge-points", title: "كيفية شحن النقاط", file: "wallet/recharge-points.md" },
+        { id: "use-points", title: "استخدام النقاط لفتح الفصول المميزة", file: "wallet/use-points.md" },
+        { id: "gift-points", title: "إهداء النقاط للكتّاب", file: "wallet/gift-points.md" },
+        { id: "refund-policy", title: "سياسة الاسترجاع والإلغاء", file: "wallet/refund-policy.md" },
+        { id: "payment-methods", title: "طرق الدفع المتاحة", file: "wallet/payment-methods.md" },
       ]
     },
     {
@@ -41,11 +41,11 @@ const HelpCenterPage = () => {
       description: "حماية حسابك وخصوصيتك",
       color: "bg-[#ed4245]",
       articles: [
-        { id: 11, title: "تغيير كلمة المرور" },
-        { id: 12, title: "تفعيل المصادقة الثنائية" },
-        { id: 13, title: "استعادة حساب محذوف" },
-        { id: 14, title: "إدارة إعدادات الخصوصية" },
-        { id: 15, title: "الإبلاغ عن مشكلة أمنية" },
+        { id: "change-password", title: "تغيير كلمة المرور", file: "security/change-password.md" },
+        { id: "two-factor-auth", title: "تفعيل المصادقة الثنائية", file: "security/two-factor-auth.md" },
+        { id: "recover-account", title: "استعادة حساب محذوف", file: "security/recover-account.md" },
+        { id: "privacy-settings", title: "إدارة إعدادات الخصوصية", file: "security/privacy-settings.md" },
+        { id: "report-security", title: "الإبلاغ عن مشكلة أمنية", file: "security/report-security.md" },
       ]
     },
     {
@@ -54,11 +54,11 @@ const HelpCenterPage = () => {
       description: "أدوات وإرشادات للكتّاب",
       color: "bg-[#fee75c]",
       articles: [
-        { id: 16, title: "استخدام محرر النصوص المتقدم" },
-        { id: 17, title: "إضافة فصول جديدة لروايتك" },
-        { id: 18, title: "إدارة التعليقات والمراجعات" },
-        { id: 19, title: "نصائح لزيادة القراء" },
-        { id: 20, title: "فهم إحصائيات روايتك" },
+        { id: "rich-text-editor", title: "استخدام محرر النصوص المتقدم", file: "writing/rich-text-editor.md" },
+        { id: "add-chapters", title: "إضافة فصول جديدة لروايتك", file: "writing/add-chapters.md" },
+        { id: "manage-comments", title: "إدارة التعليقات والمراجعات", file: "writing/manage-comments.md" },
+        { id: "increase-readers", title: "نصائح لزيادة القراء", file: "writing/increase-readers.md" },
+        { id: "novel-statistics", title: "فهم إحصائيات روايتك", file: "writing/novel-statistics.md" },
       ]
     },
     {
@@ -67,11 +67,11 @@ const HelpCenterPage = () => {
       description: "تنظيم رواياتك المفضلة",
       color: "bg-[#eb459e]",
       articles: [
-        { id: 21, title: "إنشاء قوائم قراءة جديدة" },
-        { id: 22, title: "إضافة روايات إلى قوائمك" },
-        { id: 23, title: "مشاركة قوائم القراءة" },
-        { id: 24, title: "إدارة المكتبة الشخصية" },
-        { id: 25, title: "استخدام الإشارات المرجعية" },
+        { id: "create-reading-lists", title: "إنشاء قوائم قراءة جديدة", file: "reading/create-reading-lists.md" },
+        { id: "add-to-lists", title: "إضافة روايات إلى قوائمك", file: "reading/add-to-lists.md" },
+        { id: "follow-lists", title: "متابعة قوائم القراءة", file: "reading/follow-lists.md" },
+        { id: "manage-library", title: "إدارة المكتبة الشخصية", file: "reading/manage-library.md" },
+        { id: "bookmarks", title: "استخدام الإشارات المرجعية", file: "reading/bookmarks.md" },
       ]
     },
     {
@@ -80,11 +80,11 @@ const HelpCenterPage = () => {
       description: "حلول سريعة للمشاكل الشائعة",
       color: "bg-[#f26522]",
       articles: [
-        { id: 26, title: "لا أستطيع تسجيل الدخول" },
-        { id: 27, title: "مشكلة في تحميل الصفحات" },
-        { id: 28, title: "الصور لا تظهر بشكل صحيح" },
-        { id: 29, title: "رسالة خطأ عند الدفع" },
-        { id: 30, title: "مشاكل في التنسيق والعرض" },
+        { id: "cant-login", title: "لا أستطيع تسجيل الدخول", file: "troubleshooting/cant-login.md" },
+        { id: "page-loading", title: "مشكلة في تحميل الصفحات", file: "troubleshooting/page-loading.md" },
+        { id: "images-not-showing", title: "الصور لا تظهر بشكل صحيح", file: "troubleshooting/images-not-showing.md" },
+        { id: "payment-error", title: "رسالة خطأ عند الدفع", file: "troubleshooting/payment-error.md" },
+        { id: "formatting-issues", title: "مشاكل في التنسيق والعرض", file: "troubleshooting/formatting-issues.md" },
       ]
     }
   ];
