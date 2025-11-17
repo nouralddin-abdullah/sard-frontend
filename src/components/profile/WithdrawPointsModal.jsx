@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { X, ArrowRight, ArrowLeft, Wallet, TrendingDown } from "lucide-react";
+import { X, ArrowLeft } from "lucide-react";
 import vodafoneLogo from "../../assets/vodaphonecash.png";
 import instapayLogo from "../../assets/InstaPay_Logo.png";
 import paypalLogo from "../../assets/Paypal_2014_logo.png";
 
 const WithdrawPointsModal = ({ isOpen, onClose }) => {
-  const [step, setStep] = useState(1); // 1: Amount & Payment Method, 2: Payment Details
+  const [step, setStep] = useState(1); // 1: Amount & Payment, 2: Payment Details
   const [withdrawPoints, setWithdrawPoints] = useState(1000);
   const [paymentMethod, setPaymentMethod] = useState("vodafone");
   const [paymentDetails, setPaymentDetails] = useState("");
@@ -42,11 +42,6 @@ const WithdrawPointsModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleBack = () => {
-    setStep(1);
-    setPaymentDetails("");
-  };
-
   const handleSubmit = () => {
     // TODO: Submit withdrawal request
     console.log({
@@ -56,7 +51,6 @@ const WithdrawPointsModal = ({ isOpen, onClose }) => {
       currency: isPayPal ? "USD" : "EGP",
       paymentDetails
     });
-    // Close modal and show success message
     handleCancel();
   };
 
@@ -97,310 +91,341 @@ const WithdrawPointsModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#2C2C2C] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-[#3A3A3A] scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-[#3A3A3A]">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-[#16a34a]/20 rounded-lg">
-              <TrendingDown className="w-6 h-6 text-[#16a34a]" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="relative z-10 w-full max-w-4xl mx-4 bg-[#2C2C2C] rounded-xl border border-[#3A3A3A] shadow-2xl max-h-[90vh] overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {step === 1 ? (
+          /* Step 1: Amount & Payment Method */
+          <div className="px-8 py-6">
+            {/* Header with Close Button */}
+            <div className="flex justify-between items-start mb-6">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-white text-4xl font-black leading-tight tracking-tight noto-sans-arabic-bold">
+                  سحب النقاط
+                </h2>
+                <p className="text-[#9db9a6] text-base font-normal leading-normal noto-sans-arabic-regular">
+                  اسحب نقاطك واستلم المبلغ بطريقتك المفضلة
+                </p>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-2 text-[#B8B8B8] hover:text-white transition-colors flex-shrink-0"
+              >
+                <X size={24} />
+              </button>
             </div>
-            <div>
-              <h2 className="text-white text-xl font-bold noto-sans-arabic-bold">
-                سحب النقاط
-              </h2>
-              <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">
-                {step === 1 ? "اختر المبلغ وطريقة الاستلام" : "أدخل بياناتك لاستلام المبلغ"}
-              </p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column: Amount & Payment */}
+              <div className="lg:col-span-2 flex flex-col gap-8">
+                {/* Current Balance Banner */}
+                <div className="bg-gradient-to-br from-[#16a34a]/20 to-[#15803d]/20 border border-[#16a34a]/30 rounded-xl p-5">
+                  <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular mb-1">رصيدك الحالي</p>
+                  <p className="text-white text-3xl font-bold noto-sans-arabic-bold">{currentBalance.toLocaleString("ar-EG")} نقطة</p>
+                </div>
+
+                {/* Enter Amount */}
+                <div>
+                  <h3 className="text-white text-[22px] font-bold leading-tight tracking-tight pb-4 noto-sans-arabic-bold">
+                    أدخل الكمية
+                  </h3>
+                  <div className="bg-transparent rounded-xl border border-[#3A3A3A] p-6">
+                    <label 
+                      className="text-[#9db9a6] text-sm font-medium noto-sans-arabic-medium" 
+                      htmlFor="custom-points"
+                    >
+                      أدخل عدد النقاط المخصص (الحد الأدنى: {minWithdraw.toLocaleString("ar-EG")})
+                    </label>
+                    <div className="relative mt-3">
+                      <input
+                        className="w-full text-center text-5xl font-bold bg-transparent border-0 border-b-2 border-[#3A3A3A] focus:ring-0 focus:border-[#16a34a] text-white transition-colors duration-200 pb-2 noto-sans-arabic-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        id="custom-points"
+                        placeholder="1000"
+                        type="number"
+                        min={minWithdraw}
+                        max={currentBalance}
+                        value={withdrawPoints}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "") {
+                            setWithdrawPoints("");
+                          } else {
+                            const numValue = parseInt(value);
+                            if (!isNaN(numValue) && numValue >= 0) {
+                              setWithdrawPoints(numValue);
+                            }
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const value = e.target.value;
+                          if (value === "" || parseInt(value) < minWithdraw) {
+                            setWithdrawPoints(minWithdraw);
+                          }
+                        }}
+                      />
+                      <span className="absolute left-0 bottom-2 text-[#686868] text-lg font-medium noto-sans-arabic-medium pointer-events-none">
+                        نقطة
+                      </span>
+                    </div>
+                    {!isValidAmount && withdrawPoints > 0 && (
+                      <p className="text-red-400 text-sm mt-3 noto-sans-arabic-regular">
+                        {withdrawPoints < minWithdraw 
+                          ? `الحد الأدنى للسحب هو ${minWithdraw.toLocaleString("ar-EG")} نقطة`
+                          : "الرصيد غير كافٍ"
+                        }
+                      </p>
+                    )}
+                    <div className="mt-6 flex justify-center items-center gap-4 flex-wrap">
+                      {[1000, 2000, 3000, 5000].map((amount) => (
+                        <button
+                          key={amount}
+                          onClick={() => handleQuickAmount(amount)}
+                          disabled={amount > currentBalance}
+                          className={`px-5 py-2 rounded-lg font-semibold text-sm transition-colors duration-200 noto-sans-arabic-medium ${
+                            withdrawPoints === amount
+                              ? "bg-[#16a34a]/20 text-[#16a34a] border-2 border-[#16a34a]"
+                              : amount > currentBalance
+                              ? "bg-[#3A3A3A] text-[#686868] cursor-not-allowed"
+                              : "bg-[#3A3A3A] text-white hover:bg-[#4A4A4A]"
+                          }`}
+                        >
+                          {amount.toLocaleString("ar-EG")}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Method */}
+                <div>
+                  <h3 className="text-white text-[22px] font-bold leading-tight tracking-tight pb-4 noto-sans-arabic-bold">
+                    اختر طريقة الاستلام
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* Vodafone Cash */}
+                    <label className={`relative group cursor-pointer p-4 rounded-xl border flex-1 bg-transparent text-center transition-all duration-200 flex flex-col items-center justify-center h-28 ${
+                      paymentMethod === "vodafone"
+                        ? "ring-2 ring-[#16a34a]/80 border-[#16a34a]"
+                        : "border-[#3A3A3A] hover:border-[#16a34a]/50"
+                    }`}>
+                      <input
+                        className="sr-only"
+                        name="payment_method"
+                        type="radio"
+                        value="vodafone"
+                        checked={paymentMethod === "vodafone"}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                      />
+                      <img
+                        className="h-8 mb-2"
+                        alt="Vodafone Cash Logo"
+                        src={vodafoneLogo}
+                      />
+                      <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
+                        Vodafone Cash
+                      </p>
+                    </label>
+
+                    {/* InstaPay */}
+                    <label className={`relative group cursor-pointer p-4 rounded-xl border flex-1 bg-transparent text-center transition-all duration-200 flex flex-col items-center justify-center h-28 ${
+                      paymentMethod === "instapay"
+                        ? "ring-2 ring-[#16a34a]/80 border-[#16a34a]"
+                        : "border-[#3A3A3A] hover:border-[#16a34a]/50"
+                    }`}>
+                      <input
+                        className="sr-only"
+                        name="payment_method"
+                        type="radio"
+                        value="instapay"
+                        checked={paymentMethod === "instapay"}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                      />
+                      <img
+                        className="h-8 mb-2"
+                        alt="InstaPay Logo"
+                        src={instapayLogo}
+                      />
+                      <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
+                        InstaPay
+                      </p>
+                    </label>
+
+                    {/* PayPal */}
+                    <label className={`relative group cursor-pointer p-4 rounded-xl border flex-1 bg-transparent text-center transition-all duration-200 flex flex-col items-center justify-center h-28 ${
+                      paymentMethod === "paypal"
+                        ? "ring-2 ring-[#16a34a]/80 border-[#16a34a]"
+                        : "border-[#3A3A3A] hover:border-[#16a34a]/50"
+                    }`}>
+                      <input
+                        className="sr-only"
+                        name="payment_method"
+                        type="radio"
+                        value="paypal"
+                        checked={paymentMethod === "paypal"}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                      />
+                      <img
+                        className="h-6 mb-2"
+                        alt="PayPal Logo"
+                        src={paypalLogo}
+                      />
+                      <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
+                        PayPal
+                      </p>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Withdrawal Summary */}
+              <div className="lg:col-span-1">
+                <div className="bg-transparent border border-[#3A3A3A] rounded-xl p-6 sticky top-4">
+                  <h3 className="text-white text-[22px] font-bold leading-tight tracking-tight pb-3 noto-sans-arabic-bold">
+                    ملخص السحب
+                  </h3>
+                  <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-4 pb-4 border-b border-[#3A3A3A]">
+                      <div className="flex justify-between items-center">
+                        <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">النقاط</p>
+                        <p className="text-white font-semibold noto-sans-arabic-medium">{(withdrawPoints || 0).toLocaleString("ar-EG")}</p>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">المبلغ الأساسي</p>
+                        <p className="text-white font-semibold noto-sans-arabic-medium">
+                          {isPayPal 
+                            ? `$${(baseAmount / usdToEgp).toFixed(2)}`
+                            : `${baseAmount.toFixed(2)} جنيه`
+                          }
+                        </p>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">ضريبة (10%)</p>
+                        <p className="text-red-400 font-semibold noto-sans-arabic-medium">
+                          - {isPayPal 
+                            ? `$${(taxAmount / usdToEgp).toFixed(2)}`
+                            : `${taxAmount.toFixed(2)} جنيه`
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <p className="text-white font-bold text-lg noto-sans-arabic-bold">المبلغ المستلم</p>
+                      <p className="text-[#16a34a] font-bold text-2xl noto-sans-arabic-bold">
+                        {isPayPal ? "$" : ""}{displayAmount.toFixed(2)}{!isPayPal ? " جنيه" : ""}
+                      </p>
+                    </div>
+                    <button 
+                      onClick={handleNext}
+                      disabled={!isValidAmount}
+                      className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 font-bold transition-colors noto-sans-arabic-bold ${
+                        isValidAmount
+                          ? "bg-[#16a34a] text-white hover:bg-[#15803d]"
+                          : "bg-[#3A3A3A] text-[#686868] cursor-not-allowed"
+                      }`}
+                    >
+                      <span>متابعة</span>
+                      <ArrowLeft size={20} />
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <button
-            onClick={handleCancel}
-            className="p-2 hover:bg-[#3A3A3A] rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-[#B8B8B8]" />
-          </button>
-        </div>
+        ) : (
+          /* Step 2: Payment Details */
+          <div className="px-8 py-6">
+            {/* Header */}
+            <div className="flex justify-between items-start mb-8">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-white text-4xl font-black leading-tight tracking-tight noto-sans-arabic-bold">
+                  بيانات الاستلام
+                </h2>
+                <p className="text-[#9db9a6] text-base font-normal leading-normal noto-sans-arabic-regular">
+                  أدخل بياناتك لاستلام المبلغ
+                </p>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-2 text-[#B8B8B8] hover:text-white transition-colors flex-shrink-0"
+              >
+                <X size={24} />
+              </button>
+            </div>
 
-        {/* Step 1: Amount & Payment Method */}
-        {step === 1 && (
-          <div className="p-6 space-y-6">
-            {/* Current Balance */}
-            <div className="bg-gradient-to-br from-[#16a34a]/20 to-[#15803d]/20 border border-[#16a34a]/30 rounded-xl p-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-[#16a34a]/20 rounded-lg">
-                    <Wallet className="w-5 h-5 text-[#16a34a]" />
+            <div className="max-w-2xl mx-auto space-y-6">
+              {/* Summary Card */}
+              <div className="bg-[#1A1A1A] border border-[#3A3A3A] rounded-xl p-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-[#B8B8B8] text-sm mb-2 noto-sans-arabic-regular">النقاط المسحوبة</p>
+                    <p className="text-white text-2xl font-bold noto-sans-arabic-bold">{withdrawPoints.toLocaleString("ar-EG")}</p>
                   </div>
                   <div>
-                    <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">رصيدك الحالي</p>
-                    <p className="text-white text-2xl font-bold noto-sans-arabic-bold">{currentBalance.toLocaleString("ar-EG")} نقطة</p>
+                    <p className="text-[#B8B8B8] text-sm mb-2 noto-sans-arabic-regular">المبلغ المستلم</p>
+                    <p className="text-[#16a34a] text-2xl font-bold noto-sans-arabic-bold">
+                      {isPayPal ? "$" : ""}{displayAmount.toFixed(2)}{!isPayPal ? " جنيه" : ""}
+                    </p>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Custom Amount Input */}
-            <div>
-              <label className="block text-white text-sm font-medium mb-3 noto-sans-arabic-medium">
-                عدد النقاط المراد سحبها (الحد الأدنى: {minWithdraw.toLocaleString("ar-EG")} نقطة)
-              </label>
-              <input
-                type="number"
-                value={withdrawPoints}
-                onChange={(e) => setWithdrawPoints(parseInt(e.target.value) || 0)}
-                className="w-full bg-[#1A1A1A] border border-[#3A3A3A] text-white text-lg px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16a34a] noto-sans-arabic-medium"
-                placeholder="أدخل عدد النقاط"
-                min={minWithdraw}
-                max={currentBalance}
-              />
-              {!isValidAmount && withdrawPoints > 0 && (
-                <p className="text-red-400 text-sm mt-2 noto-sans-arabic-regular">
-                  {withdrawPoints < minWithdraw 
-                    ? `الحد الأدنى للسحب هو ${minWithdraw.toLocaleString("ar-EG")} نقطة`
-                    : "الرصيد غير كافٍ"
-                  }
+              {/* Payment Details Input */}
+              <div>
+                <label className="block text-white text-base font-bold mb-3 noto-sans-arabic-bold">
+                  {getPaymentMethodLabel()}
+                </label>
+                <input
+                  type="text"
+                  value={paymentDetails}
+                  onChange={(e) => setPaymentDetails(e.target.value)}
+                  className="w-full bg-[#1A1A1A] border border-[#3A3A3A] text-white text-lg px-4 py-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16a34a] noto-sans-arabic-regular"
+                  placeholder={getPaymentMethodPlaceholder()}
+                  dir={paymentMethod === "paypal" ? "ltr" : "rtl"}
+                />
+                <p className="text-[#B8B8B8] text-sm mt-2 noto-sans-arabic-regular">
+                  تأكد من إدخال البيانات بشكل صحيح لتجنب أي تأخير في استلام المبلغ
                 </p>
-              )}
-            </div>
+              </div>
 
-            {/* Quick Amount Buttons */}
-            <div className="grid grid-cols-4 gap-3">
-              {[1000, 2000, 3000, 5000].map((amount) => (
+              {/* Important Note */}
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-5">
+                <div className="flex gap-3">
+                  <div className="text-yellow-500 text-2xl flex-shrink-0">⚠️</div>
+                  <div className="flex-1">
+                    <p className="text-yellow-500 font-bold text-base mb-2 noto-sans-arabic-bold">ملاحظة هامة</p>
+                    <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">
+                      سيتم مراجعة طلب السحب خلال 12-24 ساعة. سيتم تحويل المبلغ بعد الموافقة على الطلب.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4 pt-4">
                 <button
-                  key={amount}
-                  onClick={() => handleQuickAmount(amount)}
-                  disabled={amount > currentBalance}
-                  className={`py-3 px-2 rounded-lg border-2 transition-all noto-sans-arabic-medium ${
-                    withdrawPoints === amount
-                      ? "border-[#16a34a] bg-[#16a34a]/20 text-[#16a34a]"
-                      : amount > currentBalance
-                      ? "border-[#3A3A3A] bg-[#1A1A1A] text-[#686868] cursor-not-allowed"
-                      : "border-[#3A3A3A] bg-[#1A1A1A] text-white hover:border-[#16a34a] hover:bg-[#16a34a]/10"
+                  onClick={() => setStep(1)}
+                  className="flex-1 py-4 px-6 bg-[#1A1A1A] text-white rounded-xl hover:bg-[#3A3A3A] transition-colors font-bold noto-sans-arabic-bold"
+                >
+                  رجوع
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={!paymentDetails.trim()}
+                  className={`flex-1 py-4 px-6 rounded-xl transition-colors font-bold noto-sans-arabic-bold ${
+                    paymentDetails.trim()
+                      ? "bg-[#16a34a] text-white hover:bg-[#15803d]"
+                      : "bg-[#3A3A3A] text-[#686868] cursor-not-allowed"
                   }`}
                 >
-                  {amount.toLocaleString("ar-EG")}
+                  تأكيد طلب السحب
                 </button>
-              ))}
-            </div>
-
-            {/* Price Breakdown */}
-            <div className="bg-[#1A1A1A] rounded-xl p-5 border border-[#3A3A3A]">
-              <h3 className="text-white text-base font-semibold mb-4 noto-sans-arabic-bold">
-                تفاصيل المبلغ
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-[#B8B8B8] noto-sans-arabic-regular">المبلغ الأساسي</span>
-                  <span className="text-white noto-sans-arabic-medium">
-                    {isPayPal 
-                      ? `${(baseAmount / usdToEgp).toFixed(2)} USD`
-                      : `${baseAmount.toFixed(2)} جنيه`
-                    }
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#B8B8B8] noto-sans-arabic-regular">ضريبة (10%)</span>
-                  <span className="text-red-400 noto-sans-arabic-medium">
-                    - {isPayPal 
-                      ? `${(taxAmount / usdToEgp).toFixed(2)} USD`
-                      : `${taxAmount.toFixed(2)} جنيه`
-                    }
-                  </span>
-                </div>
-                <div className="border-t border-[#3A3A3A] pt-3 flex justify-between items-center">
-                  <span className="text-white font-semibold noto-sans-arabic-bold">المبلغ النهائي</span>
-                  <span className="text-[#16a34a] text-xl font-bold noto-sans-arabic-bold">
-                    {displayAmount.toFixed(2)} {currency}
-                  </span>
-                </div>
               </div>
-            </div>
-
-            {/* Payment Method Selection */}
-            <div>
-              <label className="block text-white text-sm font-medium mb-3 noto-sans-arabic-medium">
-                طريقة استلام المبلغ
-              </label>
-              <div className="grid grid-cols-1 gap-3">
-                {/* Vodafone Cash */}
-                <label className={`relative flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                  paymentMethod === "vodafone"
-                    ? "border-[#16a34a] bg-[#16a34a]/10"
-                    : "border-[#3A3A3A] bg-[#1A1A1A] hover:border-[#16a34a]/50"
-                }`}>
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="vodafone"
-                    checked={paymentMethod === "vodafone"}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="hidden"
-                  />
-                  <div className="flex items-center gap-3 flex-1">
-                    <img src={vodafoneLogo} alt="Vodafone Cash" className="w-12 h-12 object-contain" />
-                    <div>
-                      <p className="text-white font-medium noto-sans-arabic-medium">فودافون كاش</p>
-                      <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">استلام بالجنيه المصري</p>
-                    </div>
-                  </div>
-                  {paymentMethod === "vodafone" && (
-                    <div className="w-5 h-5 bg-[#16a34a] rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                  )}
-                </label>
-
-                {/* InstaPay */}
-                <label className={`relative flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                  paymentMethod === "instapay"
-                    ? "border-[#16a34a] bg-[#16a34a]/10"
-                    : "border-[#3A3A3A] bg-[#1A1A1A] hover:border-[#16a34a]/50"
-                }`}>
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="instapay"
-                    checked={paymentMethod === "instapay"}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="hidden"
-                  />
-                  <div className="flex items-center gap-3 flex-1">
-                    <img src={instapayLogo} alt="InstaPay" className="w-12 h-12 object-contain" />
-                    <div>
-                      <p className="text-white font-medium noto-sans-arabic-medium">إنستاباي</p>
-                      <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">استلام بالجنيه المصري</p>
-                    </div>
-                  </div>
-                  {paymentMethod === "instapay" && (
-                    <div className="w-5 h-5 bg-[#16a34a] rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                  )}
-                </label>
-
-                {/* PayPal */}
-                <label className={`relative flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                  paymentMethod === "paypal"
-                    ? "border-[#16a34a] bg-[#16a34a]/10"
-                    : "border-[#3A3A3A] bg-[#1A1A1A] hover:border-[#16a34a]/50"
-                }`}>
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="paypal"
-                    checked={paymentMethod === "paypal"}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="hidden"
-                  />
-                  <div className="flex items-center gap-3 flex-1">
-                    <img src={paypalLogo} alt="PayPal" className="w-12 h-12 object-contain" />
-                    <div>
-                      <p className="text-white font-medium noto-sans-arabic-medium">باي بال</p>
-                      <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">استلام بالدولار الأمريكي</p>
-                    </div>
-                  </div>
-                  {paymentMethod === "paypal" && (
-                    <div className="w-5 h-5 bg-[#16a34a] rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                  )}
-                </label>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
-              <button
-                onClick={handleCancel}
-                className="flex-1 py-3 px-4 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#3A3A3A] transition-colors noto-sans-arabic-medium"
-              >
-                إلغاء
-              </button>
-              <button
-                onClick={handleNext}
-                disabled={!isValidAmount}
-                className={`flex-1 py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 noto-sans-arabic-bold ${
-                  isValidAmount
-                    ? "bg-[#16a34a] text-white hover:bg-[#15803d]"
-                    : "bg-[#3A3A3A] text-[#686868] cursor-not-allowed"
-                }`}
-              >
-                <span>التالي</span>
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Payment Details */}
-        {step === 2 && (
-          <div className="p-6 space-y-6">
-            {/* Summary Card */}
-            <div className="bg-[#1A1A1A] rounded-xl p-5 border border-[#3A3A3A]">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">النقاط المسحوبة</p>
-                  <p className="text-white text-lg font-bold noto-sans-arabic-bold">{withdrawPoints.toLocaleString("ar-EG")} نقطة</p>
-                </div>
-                <div>
-                  <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">المبلغ المستلم</p>
-                  <p className="text-[#16a34a] text-lg font-bold noto-sans-arabic-bold">{displayAmount.toFixed(2)} {currency}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment Details Input */}
-            <div>
-              <label className="block text-white text-sm font-medium mb-3 noto-sans-arabic-medium">
-                {getPaymentMethodLabel()}
-              </label>
-              <input
-                type="text"
-                value={paymentDetails}
-                onChange={(e) => setPaymentDetails(e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#3A3A3A] text-white text-base px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#16a34a] noto-sans-arabic-regular"
-                placeholder={getPaymentMethodPlaceholder()}
-                dir={paymentMethod === "paypal" ? "ltr" : "rtl"}
-              />
-              <p className="text-[#B8B8B8] text-sm mt-2 noto-sans-arabic-regular">
-                تأكد من إدخال البيانات بشكل صحيح لتجنب أي تأخير في استلام المبلغ
-              </p>
-            </div>
-
-            {/* Important Note */}
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-              <div className="flex gap-3">
-                <div className="text-yellow-500 text-xl">⚠️</div>
-                <div className="flex-1">
-                  <p className="text-yellow-500 font-medium mb-1 noto-sans-arabic-medium">ملاحظة هامة</p>
-                  <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">
-                    سيتم مراجعة طلب السحب خلال 12-24 ساعة. سيتم تحويل المبلغ بعد الموافقة على الطلب.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
-              <button
-                onClick={handleBack}
-                className="flex-1 py-3 px-4 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#3A3A3A] transition-colors flex items-center justify-center gap-2 noto-sans-arabic-medium"
-              >
-                <ArrowRight className="w-5 h-5" />
-                <span>رجوع</span>
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={!paymentDetails.trim()}
-                className={`flex-1 py-3 px-4 rounded-lg transition-colors noto-sans-arabic-bold ${
-                  paymentDetails.trim()
-                    ? "bg-[#16a34a] text-white hover:bg-[#15803d]"
-                    : "bg-[#3A3A3A] text-[#686868] cursor-not-allowed"
-                }`}
-              >
-                تأكيد طلب السحب
-              </button>
             </div>
           </div>
         )}
