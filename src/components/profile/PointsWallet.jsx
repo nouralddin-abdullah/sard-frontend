@@ -4,11 +4,10 @@ import RechargePointsModal from "./RechargePointsModal";
 import WithdrawPointsModal from "./WithdrawPointsModal";
 import { useGetWithdrawHistory } from "../../hooks/wallet/useGetWithdrawHistory";
 import { useGetRechargeHistory } from "../../hooks/wallet/useGetRechargeHistory";
+import { useGetTransactionHistory } from "../../hooks/wallet/useGetTransactionHistory";
+import { useGetWalletBalance } from "../../hooks/wallet/useGetWalletBalance";
 
 const PointsWallet = ({ userId }) => {
-  // TODO: Add hook to fetch user points balance and transactions
-  // const { data: pointsData, isLoading } = useGetUserPoints(userId);
-  
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [activeTab, setActiveTab] = useState("recharge"); // "recharge", "transactions", or "withdraw"
@@ -16,6 +15,15 @@ const PointsWallet = ({ userId }) => {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
+
+  // Fetch wallet balance
+  const { 
+    data: walletData, 
+    isLoading: isLoadingBalance,
+    refetch: refetchBalance 
+  } = useGetWalletBalance();
+
+  const currentBalance = walletData?.currentBalance || 0;
 
   // Fetch withdrawal history
   const { 
@@ -38,9 +46,16 @@ const PointsWallet = ({ userId }) => {
     pageSize, 
     filterStatus !== "all" ? filterStatus : null
   );
-  
-  // Dummy data for now
-  const balance = 1250;
+
+  // Fetch transaction history
+  const { 
+    data: transactionData, 
+    isLoading: isLoadingTransactions,
+    refetch: refetchTransactions 
+  } = useGetTransactionHistory(
+    currentPage, 
+    pageSize
+  );
   
   // Map API recharge data to component format
   const rechargeHistory = rechargeData?.requests?.map((request) => ({
@@ -57,49 +72,16 @@ const PointsWallet = ({ userId }) => {
     rejectionReason: request.rejectionReason
   })) || [];
 
-  // Transaction History Data (Spending)
-  const transactionHistory = [
-    {
-      id: "#TX001",
-      date: "2023-10-28T14:20:00Z",
-      type: "premium_pass",
-      description: "شراء باقة مميزة للرواية 'قصة البطل'",
-      points: -200,
-      status: "completed"
-    },
-    {
-      id: "#TX002",
-      date: "2023-10-27T09:15:00Z",
-      type: "unlock_chapter",
-      description: "فتح الفصل المميز 'الفصل 42'",
-      points: -50,
-      status: "completed"
-    },
-    {
-      id: "#TX003",
-      date: "2023-10-26T16:30:00Z",
-      type: "gift",
-      description: "إهداء نقاط لـ @أحمد123",
-      points: -100,
-      status: "completed"
-    },
-    {
-      id: "#TX004",
-      date: "2023-10-25T11:45:00Z",
-      type: "withdraw",
-      description: "سحب نقاط إلى حساب بنكي",
-      points: -500,
-      status: "pending"
-    },
-    {
-      id: "#TX005",
-      date: "2023-10-24T08:00:00Z",
-      type: "premium_pass",
-      description: "شراء باقة مميزة للرواية 'عالم الخيال'",
-      points: -200,
-      status: "completed"
-    },
-  ];
+  // Map API transaction data to component format
+  const transactionHistory = transactionData?.transactions?.map((transaction) => ({
+    id: `#${transaction.id.split('-')[0]}`,
+    date: transaction.createdAt,
+    type: transaction.type.toLowerCase(), // "recharge", "withdrawal", etc.
+    description: transaction.description,
+    points: transaction.amount, // Already includes sign (+ or -)
+    balanceAfter: transaction.balanceAfter,
+    status: "completed" // All transactions in history are completed
+  })) || [];
 
   // Map API withdrawal data to component format
   const withdrawHistory = withdrawData?.requests?.map((request) => ({
@@ -116,7 +98,7 @@ const PointsWallet = ({ userId }) => {
     rejectionReason: request.rejectionReason
   })) || [];
 
-  const isLoading = activeTab === "recharge" ? isLoadingRecharge : activeTab === "withdraw" ? isLoadingWithdraw : false;
+  const isLoading = activeTab === "recharge" ? isLoadingRecharge : activeTab === "withdraw" ? isLoadingWithdraw : isLoadingTransactions;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -173,7 +155,7 @@ const PointsWallet = ({ userId }) => {
                 clipRule="evenodd" 
               />
             </svg>
-            <span className="absolute bottom-full right-0 mb-2 hidden group-hover:block w-48 bg-zinc-900 text-white text-xs rounded-lg p-2 shadow-lg border border-zinc-700 z-10">
+            <span className="absolute bottom-full right-0 mb-2 hidden group-hover:block w-max max-w-xs bg-zinc-900 text-white text-xs rounded-lg p-2 shadow-lg border border-zinc-700 z-10">
               <span className="block text-right noto-sans-arabic-regular">{rejectionReason}</span>
               <span className="absolute top-full right-4 -mt-1 border-4 border-transparent border-t-zinc-900"></span>
             </span>
@@ -184,18 +166,7 @@ const PointsWallet = ({ userId }) => {
   };
 
   const getTransactionTypeIcon = (type) => {
-    switch (type) {
-      case "premium_pass":
-        return "👑";
-      case "unlock_chapter":
-        return "🔓";
-      case "gift":
-        return "🎁";
-      case "withdraw":
-        return "💰";
-      default:
-        return "📝";
-    }
+    return "";
   };
 
   const currentData = activeTab === "recharge" ? rechargeHistory : activeTab === "withdraw" ? withdrawHistory : transactionHistory;
@@ -238,7 +209,18 @@ const PointsWallet = ({ userId }) => {
               }
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-4">
+            {/* Balance Display */}
+            <div className="flex items-center gap-2 bg-[#2C2C2C] px-4 py-2 rounded-lg">
+              <svg className="w-5 h-5 text-[#4A9EFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {isLoadingBalance ? (
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+              ) : (
+                <span className="text-white font-bold noto-sans-arabic-bold">{currentBalance.toLocaleString("ar-EG")} نقطة</span>
+              )}
+            </div>
             <button 
               className="flex items-center justify-center gap-2 h-10 px-5 bg-[#4A9EFF] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#3A8EEF] transition-colors noto-sans-arabic-bold"
               onClick={() => setIsRechargeModalOpen(true)}
@@ -427,10 +409,13 @@ const PointsWallet = ({ userId }) => {
                           </td>
                         )}
                         <td className="whitespace-nowrap px-6 py-5 text-sm font-medium noto-sans-arabic-medium">
-                          <span className={activeTab === "transactions" ? "text-[#FF4444]" : "text-white"}>
+                          <span className={activeTab === "transactions" 
+                            ? (item.points > 0 ? "text-green-400" : "text-[#FF4444]") 
+                            : "text-white"
+                          }>
                             {activeTab === "recharge" || activeTab === "withdraw"
                               ? `${item.points.toLocaleString("ar-EG")} نقطة`
-                              : `${item.points.toLocaleString("ar-EG")} نقطة`
+                              : `${item.points > 0 ? '+' : ''}${item.points.toLocaleString("ar-EG")} نقطة`
                             }
                           </span>
                         </td>
@@ -476,6 +461,7 @@ const PointsWallet = ({ userId }) => {
           onClose={() => setIsRechargeModalOpen(false)}
           onSuccess={() => {
             refetchRecharge();
+            refetchBalance();
             setCurrentPage(1);
           }}
         />
@@ -484,8 +470,10 @@ const PointsWallet = ({ userId }) => {
         <WithdrawPointsModal 
           isOpen={isWithdrawModalOpen}
           onClose={() => setIsWithdrawModalOpen(false)}
+          currentBalance={currentBalance}
           onSuccess={() => {
             refetchWithdraw();
+            refetchBalance();
             setCurrentPage(1);
           }}
         />

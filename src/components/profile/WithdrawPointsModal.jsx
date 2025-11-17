@@ -8,15 +8,12 @@ import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
 import { toast } from "sonner";
 
-const WithdrawPointsModal = ({ isOpen, onClose, onSuccess }) => {
+const WithdrawPointsModal = ({ isOpen, onClose, onSuccess, currentBalance = 0 }) => {
   const [step, setStep] = useState(1); // 1: Amount & Payment, 2: Payment Details
   const [withdrawPoints, setWithdrawPoints] = useState(1000);
   const [paymentMethod, setPaymentMethod] = useState("vodafone");
   const [paymentDetails, setPaymentDetails] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // User's current balance (TODO: fetch from API)
-  const currentBalance = 5000;
 
   // Withdrawal calculation (10 points = 1 EGP, 10% tax deducted)
   const pricePerPoint = 0.1; // EGP
