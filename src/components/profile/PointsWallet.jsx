@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Loader2, Search, CreditCard, ArrowDownToLine } from "lucide-react";
 import RechargePointsModal from "./RechargePointsModal";
 import WithdrawPointsModal from "./WithdrawPointsModal";
+import { useGetWithdrawHistory } from "../../hooks/wallet/useGetWithdrawHistory";
+import { useGetRechargeHistory } from "../../hooks/wallet/useGetRechargeHistory";
 
 const PointsWallet = ({ userId }) => {
   // TODO: Add hook to fetch user points balance and transactions
@@ -12,41 +14,48 @@ const PointsWallet = ({ userId }) => {
   const [activeTab, setActiveTab] = useState("recharge"); // "recharge", "transactions", or "withdraw"
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  // Fetch withdrawal history
+  const { 
+    data: withdrawData, 
+    isLoading: isLoadingWithdraw,
+    refetch: refetchWithdraw 
+  } = useGetWithdrawHistory(
+    currentPage, 
+    pageSize, 
+    filterStatus !== "all" ? filterStatus : null
+  );
+
+  // Fetch recharge history
+  const { 
+    data: rechargeData, 
+    isLoading: isLoadingRecharge,
+    refetch: refetchRecharge 
+  } = useGetRechargeHistory(
+    currentPage, 
+    pageSize, 
+    filterStatus !== "all" ? filterStatus : null
+  );
   
   // Dummy data for now
   const balance = 1250;
   
-  // Recharge History Data
-  const rechargeHistory = [
-    {
-      id: "#A1B2C3D4",
-      date: "2023-10-26T10:30:00Z",
-      points: 1000,
-      amount: 10.00,
-      status: "approved"
-    },
-    {
-      id: "#E5F6G7H8",
-      date: "2023-10-24T20:15:00Z",
-      points: 500,
-      amount: 5.00,
-      status: "approved"
-    },
-    {
-      id: "#I9J0K1L2",
-      date: "2023-10-22T11:00:00Z",
-      points: 2000,
-      amount: 20.00,
-      status: "rejected"
-    },
-    {
-      id: "#M3N4O5P6",
-      date: "2023-10-21T15:45:00Z",
-      points: 1500,
-      amount: 15.00,
-      status: "pending"
-    },
-  ];
+  // Map API recharge data to component format
+  const rechargeHistory = rechargeData?.requests?.map((request) => ({
+    id: `#${request.id.split('-')[0]}`,
+    date: request.requestedAt,
+    points: request.pointsRequested,
+    amount: request.totalAmountEGP, // Total including fee
+    baseAmount: request.baseAmountEGP,
+    fee: request.transactionFee,
+    paymentMethod: request.paymentMethod,
+    paymentProofUrl: request.paymentProofUrl,
+    status: request.status.toLowerCase(), // "pending", "approved", "rejected"
+    processedAt: request.processedAt,
+    rejectionReason: request.rejectionReason
+  })) || [];
 
   // Transaction History Data (Spending)
   const transactionHistory = [
@@ -92,39 +101,22 @@ const PointsWallet = ({ userId }) => {
     },
   ];
 
-  // Withdraw History Data
-  const withdrawHistory = [
-    {
-      id: "#W1A2B3C4",
-      date: "2023-10-26T10:30:00Z",
-      points: 1000,
-      amount: 10.00,
-      status: "approved"
-    },
-    {
-      id: "#W5D6E7F8",
-      date: "2023-10-24T20:15:00Z",
-      points: 500,
-      amount: 5.00,
-      status: "approved"
-    },
-    {
-      id: "#W9G0H1I2",
-      date: "2023-10-22T11:00:00Z",
-      points: 2000,
-      amount: 20.00,
-      status: "rejected"
-    },
-    {
-      id: "#W3J4K5L6",
-      date: "2023-10-21T15:45:00Z",
-      points: 1500,
-      amount: 15.00,
-      status: "pending"
-    },
-  ];
+  // Map API withdrawal data to component format
+  const withdrawHistory = withdrawData?.requests?.map((request) => ({
+    id: `#${request.id.split('-')[0]}`,
+    date: request.requestedAt,
+    points: request.pointsRequested,
+    amount: request.netAmountEGP, // Amount after tax
+    baseAmount: request.baseAmountEGP,
+    tax: request.taxDeducted,
+    withdrawalMethod: request.withdrawalMethod,
+    paymentDetails: request.paymentDetails,
+    status: request.status.toLowerCase(), // "pending", "approved", "rejected"
+    processedAt: request.processedAt,
+    rejectionReason: request.rejectionReason
+  })) || [];
 
-  const isLoading = false;
+  const isLoading = activeTab === "recharge" ? isLoadingRecharge : activeTab === "withdraw" ? isLoadingWithdraw : false;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -137,7 +129,7 @@ const PointsWallet = ({ userId }) => {
     });
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status, rejectionReason = null) => {
     const statusConfig = {
       approved: {
         bg: "bg-green-500/20",
@@ -168,6 +160,25 @@ const PointsWallet = ({ userId }) => {
           <circle cx="3" cy="3" r="3" />
         </svg>
         {config.label}
+        {status === "rejected" && rejectionReason && (
+          <span className="relative group">
+            <svg 
+              className="h-3.5 w-3.5 cursor-help" 
+              fill="currentColor" 
+              viewBox="0 0 20 20"
+            >
+              <path 
+                fillRule="evenodd" 
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" 
+                clipRule="evenodd" 
+              />
+            </svg>
+            <span className="absolute bottom-full right-0 mb-2 hidden group-hover:block w-48 bg-zinc-900 text-white text-xs rounded-lg p-2 shadow-lg border border-zinc-700 z-10">
+              <span className="block text-right noto-sans-arabic-regular">{rejectionReason}</span>
+              <span className="absolute top-full right-4 -mt-1 border-4 border-transparent border-t-zinc-900"></span>
+            </span>
+          </span>
+        )}
       </span>
     );
   };
@@ -429,7 +440,7 @@ const PointsWallet = ({ userId }) => {
                           </td>
                         )}
                         <td className="whitespace-nowrap px-6 py-5 text-sm">
-                          {getStatusBadge(item.status)}
+                          {getStatusBadge(item.status, item.rejectionReason)}
                         </td>
                       </tr>
                     ))
@@ -463,12 +474,20 @@ const PointsWallet = ({ userId }) => {
         <RechargePointsModal 
           isOpen={isRechargeModalOpen}
           onClose={() => setIsRechargeModalOpen(false)}
+          onSuccess={() => {
+            refetchRecharge();
+            setCurrentPage(1);
+          }}
         />
 
         {/* Withdraw Modal */}
         <WithdrawPointsModal 
           isOpen={isWithdrawModalOpen}
           onClose={() => setIsWithdrawModalOpen(false)}
+          onSuccess={() => {
+            refetchWithdraw();
+            setCurrentPage(1);
+          }}
         />
       </div>
     </div>

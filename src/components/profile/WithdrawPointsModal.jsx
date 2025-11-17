@@ -3,12 +3,17 @@ import { X, ArrowLeft } from "lucide-react";
 import vodafoneLogo from "../../assets/vodaphonecash.png";
 import instapayLogo from "../../assets/InstaPay_Logo.png";
 import paypalLogo from "../../assets/Paypal_2014_logo.png";
+import { BASE_URL } from "../../constants/base-url";
+import Cookies from "js-cookie";
+import { TOKEN_KEY } from "../../constants/token-key";
+import { toast } from "sonner";
 
-const WithdrawPointsModal = ({ isOpen, onClose }) => {
+const WithdrawPointsModal = ({ isOpen, onClose, onSuccess }) => {
   const [step, setStep] = useState(1); // 1: Amount & Payment, 2: Payment Details
   const [withdrawPoints, setWithdrawPoints] = useState(1000);
   const [paymentMethod, setPaymentMethod] = useState("vodafone");
   const [paymentDetails, setPaymentDetails] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // User's current balance (TODO: fetch from API)
   const currentBalance = 5000;
@@ -42,16 +47,56 @@ const WithdrawPointsModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleSubmit = () => {
-    // TODO: Submit withdrawal request
-    console.log({
-      points: withdrawPoints,
-      paymentMethod,
-      finalAmount: displayAmount,
-      currency: isPayPal ? "USD" : "EGP",
-      paymentDetails
-    });
-    handleCancel();
+  const handleSubmit = async () => {
+    if (!paymentDetails.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    // Match API withdrawal method names exactly
+    const withdrawalMethodMap = {
+      'vodafone': 'VodafoneCash',
+      'instapay': 'InstaPay',
+      'paypal': 'PayPal'
+    };
+
+    const requestBody = {
+      pointsRequested: withdrawPoints,
+      withdrawalMethod: withdrawalMethodMap[paymentMethod],
+      paymentDetails: paymentDetails.trim()
+    };
+
+    try {
+      const token = Cookies.get(TOKEN_KEY);
+      const response = await fetch(`${BASE_URL}/api/wallet/withdraw`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'accept': '*/*'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Show success message in Arabic
+          const arabicMessage = `تم إرسال طلب السحب بنجاح. المبلغ الصافي: ${data.netAmountEGP || finalAmountEGP.toFixed(3)} جنيه. سيتم معالجته قريباً.`;
+          toast.success(arabicMessage);
+          if (onSuccess) onSuccess();
+          handleCancel();
+        } else {
+          toast.error(data.message || 'فشل إرسال طلب السحب. حاول مرة أخرى.');
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({ message: 'فشل إرسال طلب السحب' }));
+        toast.error(errorData.message || 'فشل إرسال طلب السحب. حاول مرة أخرى.');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      toast.error('حدث خطأ في الاتصال. تحقق من اتصالك بالإنترنت.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -59,6 +104,7 @@ const WithdrawPointsModal = ({ isOpen, onClose }) => {
     setWithdrawPoints(1000);
     setPaymentMethod("vodafone");
     setPaymentDetails("");
+    setIsSubmitting(false);
     onClose();
   };
 
@@ -416,14 +462,14 @@ const WithdrawPointsModal = ({ isOpen, onClose }) => {
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={!paymentDetails.trim()}
+                  disabled={!paymentDetails.trim() || isSubmitting}
                   className={`flex-1 py-4 px-6 rounded-xl transition-colors font-bold noto-sans-arabic-bold ${
-                    paymentDetails.trim()
+                    paymentDetails.trim() && !isSubmitting
                       ? "bg-[#16a34a] text-white hover:bg-[#15803d]"
                       : "bg-[#3A3A3A] text-[#686868] cursor-not-allowed"
                   }`}
                 >
-                  تأكيد طلب السحب
+                  {isSubmitting ? "جاري الإرسال..." : "تأكيد طلب السحب"}
                 </button>
               </div>
             </div>

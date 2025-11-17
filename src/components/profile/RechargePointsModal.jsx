@@ -3,13 +3,18 @@ import { X, Upload, Image as ImageIcon, Info, ArrowRight, ArrowLeft, Copy } from
 import vodafoneLogo from "../../assets/vodaphonecash.png";
 import instapayLogo from "../../assets/InstaPay_Logo.png";
 import paypalLogo from "../../assets/Paypal_2014_logo.png";
+import { BASE_URL } from "../../constants/base-url";
+import Cookies from "js-cookie";
+import { TOKEN_KEY } from "../../constants/token-key";
+import { toast } from "sonner";
 
-const RechargePointsModal = ({ isOpen, onClose }) => {
+const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
   const [step, setStep] = useState(1); // 1: Amount & Payment, 2: Upload Proof
   const [customPoints, setCustomPoints] = useState(500);
   const [paymentMethod, setPaymentMethod] = useState("vodafone");
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
 
   // Price calculation (10 points = 1 EGP or converted to USD for PayPal)
@@ -30,8 +35,18 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
   };
 
   const handleFileSelect = (file) => {
-    if (file && file.type.startsWith("image/")) {
+    // Accept images (PNG, JPG) and PDF files, max 5MB
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (file && validTypes.includes(file.type) && file.size <= maxSize) {
       setUploadedFile(file);
+    } else if (file.size > maxSize) {
+      // TODO: Show error toast
+      console.error('File size must be less than 5MB');
+    } else {
+      // TODO: Show error toast
+      console.error('File must be PNG, JPG, or PDF');
     }
   };
 
@@ -61,17 +76,50 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
     setStep(2);
   };
 
-  const handleSubmit = () => {
-    // TODO: Submit recharge request with proof
-    console.log({
-      points: customPoints,
-      paymentMethod,
-      totalPrice: displayPrice,
-      currency: isPayPal ? "USD" : "EGP",
-      proof: uploadedFile
-    });
-    // Close modal and show success message
-    onClose();
+  const handleSubmit = async () => {
+    if (!uploadedFile || isSubmitting) return;
+
+    setIsSubmitting(true);
+    const formData = new FormData();
+    formData.append('PointsRequested', customPoints);
+    
+    // Match API payment method names exactly
+    const paymentMethodMap = {
+      'vodafone': 'VodafoneCash',
+      'instapay': 'InstaPay',
+      'paypal': 'PayPal'
+    };
+    formData.append('PaymentMethod', paymentMethodMap[paymentMethod]);
+    formData.append('PaymentProof', uploadedFile);
+
+    try {
+      const token = Cookies.get(TOKEN_KEY);
+      const response = await fetch(`${BASE_URL}/api/wallet/recharge`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'accept': '*/*'
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        // Show success message in Arabic
+        const arabicMessage = `تم إرسال طلب الشحن بنجاح. الإجمالي: ${data.totalAmountEGP || totalPriceEGP.toFixed(3)} جنيه. يرجى الانتظار 12-24 ساعة للموافقة.`;
+        toast.success(arabicMessage);
+        if (onSuccess) onSuccess();
+        handleCancel();
+      } else {
+        toast.error(data.message || 'فشل إرسال طلب الشحن. حاول مرة أخرى.');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      toast.error('حدث خطأ في الاتصال. تحقق من اتصالك بالإنترنت.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -79,6 +127,7 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
     setCustomPoints(500);
     setPaymentMethod("vodafone");
     setUploadedFile(null);
+    setIsSubmitting(false);
     onClose();
   };
 
@@ -442,7 +491,7 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/png,image/jpeg,image/jpg,application/pdf"
                     className="hidden"
                     onChange={handleFileInputChange}
                   />
@@ -481,10 +530,10 @@ const RechargePointsModal = ({ isOpen, onClose }) => {
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={!uploadedFile}
+                disabled={!uploadedFile || isSubmitting}
                 className="flex flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 bg-[#4A9EFF] text-white text-base font-bold leading-normal transition-colors hover:bg-[#3A8EEF] disabled:cursor-not-allowed disabled:opacity-50 noto-sans-arabic-bold"
               >
-                <span>إرسال للتحقق</span>
+                <span>{isSubmitting ? "جاري الإرسال..." : "إرسال للتحقق"}</span>
               </button>
             </div>
           </div>
