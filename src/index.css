@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Global Default Font - Tajawal */
+body {
+  font-family: "Tajawal", sans-serif;
+}
+
 /* Noto Sans Arabic ExtraBold 800 */
 .noto-sans-arabic-extrabold {
   font-family: "Noto Sans Arabic", sans-serif;

@@ -6,6 +6,7 @@ import LoginPage from "../pages/auth/login";
 import RegisterPage from "../pages/auth/register";
 import HomePage from "../pages/home/page";
 import LandingPage from "../pages/landing/page";
+import MetsardPage from "../pages/authorsbenefits/page";
 import CreateNovelPage from "../pages/novel/create";
 import NovelPage from "../pages/novel/page";
 import ChapterReaderPage from "../pages/novel/chapter-reader";
@@ -27,6 +28,8 @@ import ChapterEditorPage from "../pages/work/chapter-editor";
 import GenrePage from "../pages/genre/GenrePage";
 import HelpCenterPage from "../pages/help/page";
 import HelpArticlePage from "../pages/help/article";
+import EarningsPage from "../pages/earnings/page";
+import WekipeidaTutorial from "../pages/wekipeida/page";
 
 
 const routes = [
@@ -64,6 +67,10 @@ const routes = [
   {
     url: "/home",
     component: <HomePage />,
+  },
+  {
+    url: "/authorsbenefits",
+    component: <MetsardPage />,
   },
   {
     url: "/test",
@@ -156,6 +163,14 @@ const routes = [
   {
     url: "/help/article/:articleId",
     component: <HelpArticlePage />,
+  },
+  {
+    url: "/earnings",
+    component: <EarningsPage />,
+  },
+  {
+    url: "/metwekpeida",
+    component: <WekipeidaTutorial />,
   },
 ];
 

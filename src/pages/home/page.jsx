@@ -18,6 +18,9 @@ import { formatViews } from "../../utils/format-views";
 import { translateGenre } from "../../utils/translate-genre";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
+import screenshot8 from "../../assets/Screenshot_8.png";
+import earningsRoute from "../../assets/earningsRoute.png";
+import metwekpediaImage from "../../assets/metwekpedia.png";
 
 // Import Swiper styles
 import "swiper/css";
@@ -334,6 +337,76 @@ const placeholderData = {
   ],
 };
 
+// Static featured novels data
+const featuredNovelsData = [
+  {
+    id: "featured-1",
+    title: "أسطورة السيف الإلهي",
+    slug: "divine-sword-legend",
+    author: "محمد أحمد",
+    summary: "رحلة ملحمية في عالم الفنون القتالية حيث يسعى البطل لإتقان فن السيف الإلهي. في عالم تحكمه قوانين القوة، يبدأ بطلنا رحلته من الحضيض ليصبح أقوى محارب في التاريخ.",
+    coverImageUrl: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop",
+    genres: ["أكشن", "فانتازيا", "مغامرات"],
+    rating: 4.9,
+    views: 2500000,
+  },
+  {
+    id: "featured-2",
+    title: "إمبراطور العوالم التسعة",
+    slug: "nine-realms-emperor",
+    author: "سارة علي",
+    summary: "في عالم تحكمه قوانين الزراعة، يصعد بطلنا من الحضيض ليصبح إمبراطور العوالم التسعة. قصة ملحمية عن القوة والطموح والانتقام.",
+    coverImageUrl: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=600&fit=crop",
+    genres: ["فانتازيا", "أكشن", "دراما"],
+    rating: 4.8,
+    views: 3100000,
+  },
+  {
+    id: "featured-3",
+    title: "سيد الظلال",
+    slug: "shadow-master",
+    author: "خالد حسن",
+    summary: "قصة غامضة عن سيد يتحكم في ظلال العالم ويحميه من الشر الخفي. في ظلام الليل، يقف حارساً وحيداً ضد قوى الظلام التي تهدد بابتلاع العالم.",
+    coverImageUrl: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=400&h=600&fit=crop",
+    genres: ["غموض", "إثارة", "خيال مظلم"],
+    rating: 4.7,
+    views: 1800000,
+  },
+  {
+    id: "featured-4",
+    title: "نجم السماء الأزرق",
+    slug: "blue-sky-star",
+    author: "فاطمة محمود",
+    summary: "في عالم السحر والخيال، تبدأ رحلة فتاة لتصبح أقوى ساحرة في التاريخ. مواجهات سحرية ملحمية ومغامرات لا تنسى في عالم مليء بالأسرار.",
+    coverImageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=600&fit=crop",
+    genres: ["فانتازيا", "سحر", "مغامرات"],
+    rating: 4.6,
+    views: 2200000,
+  },
+  {
+    id: "featured-5",
+    title: "حارس البوابة الأبدية",
+    slug: "eternal-gate-guardian",
+    author: "عمر يوسف",
+    summary: "حارس وحيد يقف بين العالمين، يمنع قوى الشر من اختراق بوابة الأبدية. معركة لا تنتهي ضد الظلام في رحلة ملحمية لحماية البشرية.",
+    coverImageUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=600&fit=crop",
+    genres: ["أكشن", "فانتازيا", "ملحمي"],
+    rating: 4.9,
+    views: 2800000,
+  },
+  {
+    id: "featured-6",
+    title: "عودة الإمبراطور الخالد",
+    slug: "immortal-emperor-return",
+    author: "أحمد صالح",
+    summary: "بعد ألف عام من الموت، يعود الإمبراطور الخالد ليستعيد عرشه ويواجه الأعداء الذين خانوه. انتقام دموي وصراع على السلطة في عالم القوة المطلقة.",
+    coverImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop",
+    genres: ["فانتازيا", "أكشن", "انتقام"],
+    rating: 4.8,
+    views: 1500000,
+  },
+];
+
 const HomePage = () => {
   const [mounted, setMounted] = useState(false);
   const [selectedArrival, setSelectedArrival] = useState(null);
@@ -341,6 +414,7 @@ const HomePage = () => {
   const [selectedNovelForList, setSelectedNovelForList] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalAction, setAuthModalAction] = useState("");
+  const [currentFeaturedIndex, setCurrentFeaturedIndex] = useState(0);
 
   // Get current user and reading history
   const token = Cookies.get(TOKEN_KEY);
@@ -445,111 +519,119 @@ const HomePage = () => {
         <Header />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
-          {/* Top 10 Greatest Novels - Coverflow Effect */}
+          {/* This Week's Featured Read & More to Discover */}
           <section>
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-[#4A9EFF] rounded-xl flex items-center justify-center shadow-lg">
-                <Crown className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-3xl font-bold text-white noto-sans-arabic-extrabold">أفضل 10 روايات</h2>
-                <p className="text-gray-400 noto-sans-arabic-regular text-sm">الروايات الأكثر تقييماً على الإطلاق</p>
-              </div>
-            </div>
-
-            <Swiper
-              modules={[Navigation, Pagination, EffectCoverflow]}
-              effect="coverflow"
-              centeredSlides={true}
-              slidesPerView="auto"
-              initialSlide={2}
-              coverflowEffect={{
-                rotate: 50,
-                stretch: 0,
-                depth: 100,
-                modifier: 1,
-                slideShadows: false,
-              }}
-              pagination={{ clickable: true }}
-              className="top-novels-swiper"
-              style={{
-                paddingBottom: "60px",
-                paddingTop: "20px",
-              }}
-            >
-              {placeholderData.topGreatestNovels.map((novel) => (
-                <SwiperSlide key={novel.id} className="!w-[280px] sm:!w-[320px] md:!w-[400px]">
-                  <Link to={`/novel/${novel.slug}`} className="block">
-                    <div className="group relative bg-[#2C2C2C] rounded-3xl overflow-hidden border border-gray-700 hover:border-[#4A9EFF] transition-all duration-500 shadow-2xl hover:shadow-blue-500/20 transform hover:scale-105 cursor-pointer">
-                      <div className="aspect-[3/4] relative overflow-hidden rounded-t-3xl">
-                        <img
-                          src={novel.coverImage}
-                          alt={novel.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1C] via-[#1C1C1C]/40 to-transparent opacity-90 rounded-t-3xl transition-transform duration-500 group-hover:scale-105" />
-                        
-                        {/* Rank Badge */}
-                        <div className="absolute top-4 left-4 w-16 h-16 bg-[#4A9EFF] rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/50 border-2 border-blue-300/30">
-                          <span className="text-2xl font-bold text-white noto-sans-arabic-extrabold">
-                            {placeholderData.topGreatestNovels.indexOf(novel) + 1}
-                          </span>
-                        </div>
-
-                        {/* Status Badge */}
-                        <div className={`absolute top-4 right-4 px-3 py-1 backdrop-blur-sm rounded-full text-xs font-semibold text-white noto-sans-arabic-bold ${
-                          novel.status === "مستمرة" ? "bg-green-500/90" : "bg-blue-500/90"
-                        }`}>
-                          {novel.status}
-                        </div>
-                      </div>
-
-                      <div className="p-6 space-y-4">
-                        <div>
-                          <h3 className="text-2xl font-bold text-white noto-sans-arabic-bold group-hover:text-[#4A9EFF] transition-colors line-clamp-2">
-                            {novel.title}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Left Section: Featured Novel */}
+              <div className="lg:col-span-7">
+                <h2 className="text-3xl font-bold text-white noto-sans-arabic-extrabold mb-6 px-4">رواية الأسبوع المميزة</h2>
+                
+                <div className="bg-[#2C2C2C] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-stretch gap-8 border border-gray-700 shadow-lg relative overflow-hidden">
+                  {/* Blurred Background Image */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-50 blur-lg scale-110"
+                    style={{ backgroundImage: `url("${featuredNovelsData[currentFeaturedIndex].coverImageUrl}")` }}
+                  />
+                  
+                  {/* Content */}
+                  <div className="relative z-10 flex flex-col md:flex-row items-stretch gap-8 w-full">
+                    <Link to={`/novel/${featuredNovelsData[currentFeaturedIndex].slug}`} className="w-32 md:w-40 flex-shrink-0">
+                      <img 
+                        src={featuredNovelsData[currentFeaturedIndex].coverImageUrl}
+                        alt={featuredNovelsData[currentFeaturedIndex].title}
+                        className="w-full h-auto rounded-xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
+                      />
+                    </Link>
+                    
+                    <div className="text-white flex flex-col flex-1">
+                      <div className="flex-1">
+                        <Link to={`/novel/${featuredNovelsData[currentFeaturedIndex].slug}`}>
+                          <h3 className="text-3xl font-bold mb-4 noto-sans-arabic-extrabold hover:text-[#4A9EFF] transition-colors cursor-pointer">
+                            {featuredNovelsData[currentFeaturedIndex].title}
                           </h3>
-                          <span className="inline-block mt-2 px-3 py-1 bg-[#4A9EFF]/20 text-[#4A9EFF] rounded-full text-xs font-semibold noto-sans-arabic-bold">
-                            {novel.genre}
-                          </span>
-                        </div>
-                        
-                        <p 
-                          className="text-gray-400 noto-sans-arabic-medium hover:text-[#4A9EFF] transition-colors cursor-pointer"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            window.location.href = `/author/${novel.authorSlug}`;
-                          }}
-                        >
-                          بواسطة: {novel.author}
+                        </Link>
+                        <p className="text-gray-300 leading-relaxed mb-6 noto-sans-arabic-regular">
+                          {featuredNovelsData[currentFeaturedIndex].summary}
                         </p>
-
-                        <p className="text-gray-300 noto-sans-arabic-regular text-sm line-clamp-2 whitespace-pre-line">
-                          {novel.summary && novel.summary.length > 100 
-                            ? `${novel.summary.substring(0, 100)}...` 
-                            : novel.summary}
-                        </p>
-
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-700">
-                          <div className="flex items-center gap-2">
-                            <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                            <span className="text-white font-bold">{novel.rating}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-400">
-                            <Eye className="w-4 h-4" />
-                            <span className="text-sm noto-sans-arabic-regular">{novel.views}</span>
-                          </div>
-                          <div className="text-gray-400 text-sm noto-sans-arabic-regular">
-                            {novel.chapters} فصل
-                          </div>
-                        </div>
+                      </div>
+                      
+                      {/* Navigation Dots */}
+                      <div className="flex items-center gap-2 mt-auto">
+                        {featuredNovelsData.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setCurrentFeaturedIndex(index)}
+                            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                              index === currentFeaturedIndex 
+                                ? 'bg-white opacity-100' 
+                                : 'bg-white opacity-50 hover:opacity-75'
+                            }`}
+                            aria-label={`اذهب إلى الرواية ${index + 1}`}
+                          />
+                        ))}
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Section: Meet Sard */}
+              <div className="lg:col-span-5">
+                <h2 className="text-3xl font-bold text-white noto-sans-arabic-extrabold mb-6 px-4">تعرف على سرد</h2>
+                <div className="space-y-4">
+                  <Link 
+                    to="/earnings"
+                    className="block hover:bg-[#2C2C2C]/50 p-1 rounded-lg transition-all"
+                  >
+                    <div className="flex items-center justify-between border-b border-gray-700 pb-4">
+                      <div className="flex-1 min-w-0 pl-4">
+                        <h4 className="font-bold text-white noto-sans-arabic-bold">نظام الأرباح للكتّاب</h4>
+                        <p className="text-sm text-gray-400 noto-sans-arabic-regular mt-1">حوّل كلماتك إلى مصدر دخل على سرد</p>
+                      </div>
+                      <img 
+                        alt="نظام الأرباح" 
+                        className="w-24 h-16 object-cover rounded flex-shrink-0" 
+                        src={earningsRoute}
+                      />
+                    </div>
                   </Link>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+
+                  <Link 
+                    to="/authorsbenefits"
+                    className="block hover:bg-[#2C2C2C]/50 p-1 rounded-lg transition-all"
+                  >
+                    <div className="flex items-center justify-between border-b border-gray-700 pb-4">
+                      <div className="flex-1 min-w-0 pl-4">
+                        <h4 className="font-bold text-white noto-sans-arabic-bold">مميزات الكتّاب في سرد</h4>
+                        <p className="text-sm text-gray-400 noto-sans-arabic-regular mt-1">لماذا يجب أن تبدأ رحلة الكتابة هنا في سرد؟</p>
+                      </div>
+                      <img 
+                        alt="مميزات الكتّاب" 
+                        className="w-24 h-16 object-cover rounded flex-shrink-0" 
+                        src={screenshot8}
+                      />
+                    </div>
+                  </Link>
+
+                  <Link 
+                    to="/metwekpeida"
+                    className="block hover:bg-[#2C2C2C]/50 p-1 rounded-lg transition-all"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0 pl-4">
+                        <h4 className="font-bold text-white noto-sans-arabic-bold">موسوعة ويكبيديا</h4>
+                        <p className="text-sm text-gray-400 noto-sans-arabic-regular mt-1">ابدع موسوعة روايتك وأحيِ عالمك الخاص</p>
+                      </div>
+                      <img 
+                        alt="موسوعة ويكبيديا" 
+                        className="w-24 h-16 object-cover rounded flex-shrink-0" 
+                        src={metwekpediaImage}
+                      />
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* Trending Now - Grid Cards */}
@@ -590,15 +672,6 @@ const HomePage = () => {
                     <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 mb-2 text-center">
                       {novel.title}
                     </h3>
-
-                    {/* Genres */}
-                    {novel.genresList && novel.genresList.length > 0 && (
-                      <div className="flex flex-wrap gap-1 justify-center">
-                        {novel.genresList.slice(0, 2).map((genre) => (
-                          <GenreBadge key={genre.id} genre={genre} size="xs" />
-                        ))}
-                      </div>
-                    )}
                   </Link>
                 ))}
               </div>
@@ -639,15 +712,6 @@ const HomePage = () => {
                     <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 mb-2 text-center">
                       {novel.title}
                     </h3>
-
-                    {/* Genres */}
-                    {novel.genresList && novel.genresList.length > 0 && (
-                      <div className="flex flex-wrap gap-1 justify-center">
-                        {novel.genresList.slice(0, 2).map((genre) => (
-                          <GenreBadge key={genre.id} genre={genre} size="xs" />
-                        ))}
-                      </div>
-                    )}
                   </Link>
                 ))}
               </div>
