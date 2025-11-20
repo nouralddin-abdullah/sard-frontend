@@ -6,6 +6,7 @@ import LoginPage from "../pages/auth/login";
 import RegisterPage from "../pages/auth/register";
 import HomePage from "../pages/home/page";
 import LandingPage from "../pages/landing/page";
+import MetsardPage from "../pages/metsard/page";
 import CreateNovelPage from "../pages/novel/create";
 import NovelPage from "../pages/novel/page";
 import ChapterReaderPage from "../pages/novel/chapter-reader";
@@ -64,6 +65,10 @@ const routes = [
   {
     url: "/home",
     component: <HomePage />,
+  },
+  {
+    url: "/metsard",
+    component: <MetsardPage />,
   },
   {
     url: "/test",
