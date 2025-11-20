@@ -18,6 +18,9 @@ import { formatViews } from "../../utils/format-views";
 import { translateGenre } from "../../utils/translate-genre";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
+import screenshot8 from "../../assets/Screenshot_8.png";
+import earningsRoute from "../../assets/earningsRoute.png";
+import metwekpediaImage from "../../assets/metwekpedia.png";
 
 // Import Swiper styles
 import "swiper/css";
@@ -576,25 +579,25 @@ const HomePage = () => {
               <div className="lg:col-span-5">
                 <h2 className="text-3xl font-bold text-white noto-sans-arabic-extrabold mb-6 px-4">تعرف على سرد</h2>
                 <div className="space-y-4">
-                  <a 
-                    href="#"
+                  <Link 
+                    to="/earnings"
                     className="block hover:bg-[#2C2C2C]/50 p-1 rounded-lg transition-all"
                   >
                     <div className="flex items-center justify-between border-b border-gray-700 pb-4">
                       <div className="flex-1 min-w-0 pl-4">
-                        <h4 className="font-bold text-white noto-sans-arabic-bold">جوائز سرد 2025</h4>
-                        <p className="text-sm text-gray-400 noto-sans-arabic-regular mt-1">كن مؤلفاً واربح جوائز قيمة!</p>
+                        <h4 className="font-bold text-white noto-sans-arabic-bold">نظام الأرباح للكتّاب</h4>
+                        <p className="text-sm text-gray-400 noto-sans-arabic-regular mt-1">حوّل كلماتك إلى مصدر دخل على سرد</p>
                       </div>
                       <img 
-                        alt="جوائز سرد 2025" 
-                        className="w-24 h-16 object-contain rounded flex-shrink-0" 
-                        src="https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=200&h=150&fit=crop"
+                        alt="نظام الأرباح" 
+                        className="w-24 h-16 object-cover rounded flex-shrink-0" 
+                        src={earningsRoute}
                       />
                     </div>
-                  </a>
+                  </Link>
 
                   <Link 
-                    to="/metsard"
+                    to="/authorsbenefits"
                     className="block hover:bg-[#2C2C2C]/50 p-1 rounded-lg transition-all"
                   >
                     <div className="flex items-center justify-between border-b border-gray-700 pb-4">
@@ -605,27 +608,27 @@ const HomePage = () => {
                       <img 
                         alt="مميزات الكتّاب" 
                         className="w-24 h-16 object-cover rounded flex-shrink-0" 
-                        src="https://images.unsplash.com/photo-1455390582262-044cdead277a?w=200&h=150&fit=crop"
+                        src={screenshot8}
                       />
                     </div>
                   </Link>
 
-                  <a 
-                    href="#"
+                  <Link 
+                    to="/metwekpeida"
                     className="block hover:bg-[#2C2C2C]/50 p-1 rounded-lg transition-all"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0 pl-4">
-                        <h4 className="font-bold text-white noto-sans-arabic-bold">المزيد من الروايات والمكافآت!</h4>
-                        <p className="text-sm text-gray-400 noto-sans-arabic-regular mt-1">حمل التطبيق للحصول على العملات والشارات والإطارات!</p>
+                        <h4 className="font-bold text-white noto-sans-arabic-bold">موسوعة ويكبيديا</h4>
+                        <p className="text-sm text-gray-400 noto-sans-arabic-regular mt-1">ابدع موسوعة روايتك وأحيِ عالمك الخاص</p>
                       </div>
                       <img 
-                        alt="تطبيق سرد" 
+                        alt="موسوعة ويكبيديا" 
                         className="w-24 h-16 object-cover rounded flex-shrink-0" 
-                        src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=200&h=150&fit=crop"
+                        src={metwekpediaImage}
                       />
                     </div>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
