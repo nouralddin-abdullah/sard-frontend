@@ -1,19 +1,30 @@
 import React, { useState } from "react";
 import { X, Coins } from "lucide-react";
+import flowerGift from "../../assets/gifts/flower-100.png";
+import pizzaGift from "../../assets/gifts/pizza-300.png";
+import bookGift from "../../assets/gifts/book-500.png";
+import crownGift from "../../assets/gifts/Crown-1000.png";
+import scepterGift from "../../assets/gifts/Scepter-1500.png";
+import castleGift from "../../assets/gifts/Castle-2000.png";
+import dragonGift from "../../assets/gifts/Dragon-5000.png";
+import universeGift from "../../assets/gifts/Universe-10000.png";
 
 const SendGiftModal = ({ isOpen, onClose, novelTitle }) => {
   const [selectedGift, setSelectedGift] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [message, setMessage] = useState("");
 
   // Static user coins balance
   const userCoins = 15000;
 
   const gifts = [
-    { id: "diamond", emoji: "💎", name: "ماسة", nameEn: "Diamond", cost: 1000 },
-    { id: "rose", emoji: "🌹", name: "وردة", nameEn: "Rose", cost: 500 },
-    { id: "coffee", emoji: "☕", name: "قهوة", nameEn: "Coffee", cost: 100 },
-    { id: "like", emoji: "👍", name: "إعجاب", nameEn: "Like", cost: 10 },
+    { id: "flower", image: flowerGift, name: "زهرة", nameEn: "Flower", cost: 100 },
+    { id: "pizza", image: pizzaGift, name: "بيتزا", nameEn: "Pizza", cost: 300 },
+    { id: "book", image: bookGift, name: "كتاب", nameEn: "Book", cost: 500 },
+    { id: "crown", image: crownGift, name: "تاج", nameEn: "Crown", cost: 1000 },
+    { id: "scepter", image: scepterGift, name: "صولجان", nameEn: "Scepter", cost: 1500 },
+    { id: "castle", image: castleGift, name: "قلعة", nameEn: "Castle", cost: 2000 },
+    { id: "dragon", image: dragonGift, name: "تنين", nameEn: "Dragon", cost: 5000 },
+    { id: "universe", image: universeGift, name: "كون", nameEn: "Universe", cost: 10000 },
   ];
 
   const handleGiftSelect = (giftId) => {
@@ -31,7 +42,6 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle }) => {
     console.log("Sending gift:", {
       giftId: selectedGift,
       quantity,
-      message,
       totalCost: getTotalCost(),
     });
     onClose();
@@ -94,7 +104,7 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle }) => {
                         : "border-transparent bg-[#2C2C2C] hover:border-[#4A9EFF]/50"
                     }`}
                   >
-                    <div className="text-4xl">{gift.emoji}</div>
+                    <img src={gift.image} alt={gift.name} className="w-12 h-12 object-contain mx-auto" />
                     <div className="mt-1 font-bold text-white noto-sans-arabic-extrabold text-sm">
                       {gift.name}
                     </div>
@@ -122,24 +132,6 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle }) => {
                 onChange={handleQuantityChange}
                 className="w-full rounded-lg border border-[#3C3C3C] bg-[#2C2C2C] p-3 text-white placeholder:text-[#B0B0B0] focus:border-[#4A9EFF] focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]/20 noto-sans-arabic-medium"
               />
-            </div>
-
-            {/* Message */}
-            <div>
-              <label
-                htmlFor="message"
-                className="mb-2 block text-sm font-medium text-white noto-sans-arabic-extrabold"
-              >
-                أضف رسالة (اختياري)
-              </label>
-              <textarea
-                id="message"
-                rows="3"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="شجع الكاتب!"
-                className="w-full rounded-lg border border-[#3C3C3C] bg-[#2C2C2C] p-3 text-white placeholder:text-[#B0B0B0] focus:border-[#4A9EFF] focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]/20 resize-none noto-sans-arabic-medium"
-              ></textarea>
             </div>
 
             {/* Total Cost */}

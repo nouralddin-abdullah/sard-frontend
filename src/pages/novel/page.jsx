@@ -8,6 +8,14 @@ import { useGetNovelReadingProgress } from "../../hooks/novel/useGetNovelReading
 import { formatDateShort } from "../../utils/date";
 import { translateGenre } from "../../utils/translate-genre";
 import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift } from "lucide-react";
+import flowerGift from "../../assets/gifts/flower-100.png";
+import pizzaGift from "../../assets/gifts/pizza-300.png";
+import bookGift from "../../assets/gifts/book-500.png";
+import crownGift from "../../assets/gifts/Crown-1000.png";
+import scepterGift from "../../assets/gifts/Scepter-1500.png";
+import castleGift from "../../assets/gifts/Castle-2000.png";
+import dragonGift from "../../assets/gifts/Dragon-5000.png";
+import universeGift from "../../assets/gifts/Universe-10000.png";
 import CustomStar from "../../components/common/CustomStar";
 import StarRating from "../../components/common/StarRating";
 import PenIcon from "../../components/common/PenIcon";
@@ -354,32 +362,60 @@ const NovelPage = () => {
             {/* Gift Selection Column */}
             <div className="lg:col-span-2 flex flex-col gap-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {/* Coffee Gift */}
+                {/* Flower Gift */}
                 <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
-                  <div className="text-4xl">☕️</div>
-                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">قهوة</p>
+                  <img src={flowerGift} alt="زهرة" className="w-12 h-12 object-contain" />
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">زهرة</p>
                   <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">100 نقطة</p>
                 </div>
 
-                {/* Rose Gift - Selected */}
-                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-[#4A9EFF] bg-[#4A9EFF]/10 cursor-pointer">
-                  <div className="text-4xl">🌹</div>
-                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">وردة</p>
-                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">500 نقطة</p>
+                {/* Pizza Gift */}
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                  <img src={pizzaGift} alt="بيتزا" className="w-12 h-12 object-contain" />
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">بيتزا</p>
+                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">300 نقطة</p>
                 </div>
 
-                {/* Diamond Gift */}
-                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
-                  <div className="text-4xl">💎</div>
-                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">ماسة</p>
-                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">1000 نقطة</p>
+                {/* Book Gift - Selected */}
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-[#4A9EFF] bg-[#4A9EFF]/10 cursor-pointer">
+                  <img src={bookGift} alt="كتاب" className="w-12 h-12 object-contain" />
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">كتاب</p>
+                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">500 نقطة</p>
                 </div>
 
                 {/* Crown Gift */}
                 <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
-                  <div className="text-4xl">👑</div>
+                  <img src={crownGift} alt="تاج" className="w-12 h-12 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">تاج</p>
+                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">1000 نقطة</p>
+                </div>
+
+                {/* Scepter Gift */}
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                  <img src={scepterGift} alt="صولجان" className="w-12 h-12 object-contain" />
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">صولجان</p>
+                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">1500 نقطة</p>
+                </div>
+
+                {/* Castle Gift */}
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                  <img src={castleGift} alt="قلعة" className="w-12 h-12 object-contain" />
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">قلعة</p>
+                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">2000 نقطة</p>
+                </div>
+
+                {/* Dragon Gift */}
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                  <img src={dragonGift} alt="تنين" className="w-12 h-12 object-contain" />
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">تنين</p>
                   <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">5000 نقطة</p>
+                </div>
+
+                {/* Universe Gift */}
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                  <img src={universeGift} alt="كون" className="w-12 h-12 object-contain" />
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">كون</p>
+                  <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">10000 نقطة</p>
                 </div>
               </div>
 
