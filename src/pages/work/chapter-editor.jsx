@@ -28,6 +28,27 @@ import { useDeleteChapter } from "../../hooks/work/useDeleteChapter";
 import mainPicture from "../../assets/mainPicture.jpg";
 import { formatSmart } from "../../utils/date";
 
+// Utility function to remove empty paragraphs from HTML content
+const cleanEmptyParagraphs = (html) => {
+  if (!html) return html;
+  
+  // Parse HTML and remove paragraphs that are empty or only contain whitespace/class attributes
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+  
+  // Get all paragraph elements
+  const paragraphs = tempDiv.querySelectorAll('p');
+  paragraphs.forEach(p => {
+    // Remove paragraph if it's empty or only contains whitespace
+    const textContent = p.textContent.trim();
+    if (!textContent) {
+      p.remove();
+    }
+  });
+  
+  return tempDiv.innerHTML;
+};
+
 const AUTOSAVE_DELAY = 2000;
 const MAX_CONTENT_LENGTH = 20000;
 const STATUS_OPTIONS = [
@@ -267,8 +288,9 @@ const ChapterEditorPage = () => {
 
       const trimmedTitle = editorState.title.trim();
       const trimmedContent = editorState.content.trim();
+      const cleanedContent = cleanEmptyParagraphs(trimmedContent);
       
-      if (!trimmedTitle && !trimmedContent) {
+      if (!trimmedTitle && !cleanedContent) {
         toast.error("يجب إدخال عنوان أو محتوى على الأقل");
         return;
       }
@@ -283,7 +305,7 @@ const ChapterEditorPage = () => {
             payload: {
               title: trimmedTitle || "فصل بدون عنوان",
               status: editorState.status,
-              content: trimmedContent,
+              content: cleanedContent,
             },
           });
 
@@ -294,7 +316,7 @@ const ChapterEditorPage = () => {
           if (isUnmountedRef.current) return;
 
           setChapterId(response.id);
-          syncSnapshotWithState({ ...editorState, title: trimmedTitle || "فصل بدون عنوان", content: trimmedContent });
+          syncSnapshotWithState({ ...editorState, title: trimmedTitle || "فصل بدون عنوان", content: cleanedContent });
           setSaveState({ status: "saved", lastSavedAt: new Date(), error: null });
           navigate(`/dashboard/works/${workId}/chapters/${response.id}/edit`, { replace: true });
           
@@ -316,13 +338,13 @@ const ChapterEditorPage = () => {
             payload: {
               title: trimmedTitle || "فصل بدون عنوان",
               status: editorState.status,
-              content: trimmedContent,
+              content: cleanedContent,
             },
           });
           
           if (isUnmountedRef.current) return;
           
-          syncSnapshotWithState({ ...editorState, title: trimmedTitle || "فصل بدون عنوان", content: trimmedContent });
+          syncSnapshotWithState({ ...editorState, title: trimmedTitle || "فصل بدون عنوان", content: cleanedContent });
           setSaveState({ status: "saved", lastSavedAt: new Date(), error: null });
           
           // Toast message based on status change
