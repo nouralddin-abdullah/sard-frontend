@@ -11,6 +11,7 @@ import CreateNovelPage from "../pages/novel/create";
 import NovelPage from "../pages/novel/page";
 import ChapterReaderPage from "../pages/novel/chapter-reader";
 import NovelLeaderboardPage from "../pages/novel/leaderboard";
+import NovelSupportersPage from "../pages/novel/supporters";
 import NovelWikipediaPage from "../pages/novel/wikipedia";
 import EntityDetailsPage from "../pages/novel/entity-details";
 import EntityEditPage from "../pages/novel/entity-edit";
@@ -115,6 +116,10 @@ const routes = [
   {
     url: "/novel/:novelSlug/leaderboard",
     component: <NovelLeaderboardPage />,
+  },
+  {
+    url: "/novel/:novelSlug/supporters",
+    component: <NovelSupportersPage />,
   },
   {
     url: "/novel/:novelId/wikipedia",

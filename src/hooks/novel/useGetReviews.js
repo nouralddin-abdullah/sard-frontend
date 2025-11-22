@@ -32,11 +32,11 @@ const fetchReviews = async (novelId, pageSize = 10, pageNumber = 1, sorting = "l
 	return response.json();
 };
 
-export const useGetReviews = (novelId, pageSize = 10, pageNumber = 1, sorting = "likes") => {
+export const useGetReviews = (novelId, pageSize = 10, pageNumber = 1, sorting = "likes", enabled = true) => {
 	return useQuery({
 		queryKey: ["novel-reviews", novelId, pageSize, pageNumber, sorting],
 		queryFn: () => fetchReviews(novelId, pageSize, pageNumber, sorting),
-		enabled: !!novelId,
+		enabled: !!novelId && enabled, // Only fetch when novelId exists AND enabled is true
 		staleTime: 1000 * 60 * 5, // 5 minutes
 	});
 };

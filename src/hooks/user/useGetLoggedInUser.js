@@ -33,7 +33,7 @@ export const useGetLoggedInUser = () => {
     queryFn: getLoggedInUser,
     enabled: !!accessToken, // Only run query if token exists
     retry: false, // Don't retry on failure
-    staleTime: 0, // Always consider data stale
-    gcTime: 0, // Don't cache data (formerly cacheTime)
+    staleTime: 1000 * 60 * 5, // 5 minutes - avoid constant refetching
+    gcTime: 1000 * 60 * 10, // 10 minutes cache
   });
 };

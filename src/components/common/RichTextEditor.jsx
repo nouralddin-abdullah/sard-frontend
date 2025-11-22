@@ -36,6 +36,9 @@ const RichTextEditor = ({
             class: 'min-h-[1em]',
           },
         },
+        hardBreak: {
+          keepMarks: true,
+        },
         heading: false,
         codeBlock: false,
         blockquote: false,
@@ -58,6 +61,27 @@ const RichTextEditor = ({
       attributes: {
         class: 'prose dark:prose-invert max-w-none focus:outline-none tajawal-regular text-base leading-relaxed text-gray-800 dark:text-gray-100 min-h-[60vh]',
         dir: dir,
+      },
+      handleKeyDown: (view, event) => {
+        // If Enter is pressed (not Shift+Enter)
+        if (event.key === 'Enter' && !event.shiftKey) {
+          // Insert a hard break (<br>) instead of creating a new paragraph
+          const { state, dispatch } = view;
+          const { selection } = state;
+          const { $from } = selection;
+          
+          // Check if we're at the end of an empty paragraph
+          if ($from.parent.textContent === '') {
+            // If empty paragraph, create a new paragraph (double enter behavior)
+            return false; // Let default behavior happen
+          }
+          
+          // Otherwise, insert a hard break
+          event.preventDefault();
+          view.dispatch(state.tr.replaceSelectionWith(state.schema.nodes.hardBreak.create()).scrollIntoView());
+          return true;
+        }
+        return false;
       },
     },
     onUpdate: ({ editor }) => {
