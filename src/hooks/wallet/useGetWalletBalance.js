@@ -23,10 +23,11 @@ const fetchWalletBalance = async () => {
   return response.json();
 };
 
-export const useGetWalletBalance = () => {
+export const useGetWalletBalance = (enabled = true) => {
   return useQuery({
     queryKey: ["walletBalance"],
     queryFn: fetchWalletBalance,
+    enabled: enabled, // Only fetch when explicitly enabled
     staleTime: 30000, // 30 seconds
   });
 };

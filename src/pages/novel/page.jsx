@@ -5,7 +5,8 @@ import { Helmet } from "react-helmet-async";
 import { useNovelDetails } from "../../hooks/novel/useNovelDetails";
 import { useGetNovelChapters } from "../../hooks/novel/useGetNovelChapters";
 import { useGetNovelReadingProgress } from "../../hooks/novel/useGetNovelReadingProgress";
-import { formatDateShort } from "../../utils/date";
+import { useGetRecentGifts } from "../../hooks/novel/useGetRecentGifts";
+import { formatDateShort, getTimeAgo } from "../../utils/date";
 import { translateGenre } from "../../utils/translate-genre";
 import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift } from "lucide-react";
 import flowerGift from "../../assets/gifts/flower-100.png";
@@ -50,12 +51,16 @@ const NovelPage = () => {
   // Get reading progress for this novel (only if user is logged in)
   const { data: readingProgress } = useGetNovelReadingProgress(novel?.id);
 
+  // Get recent gifts for this novel (4 most recent)
+  const { data: recentGiftsData, isLoading: recentGiftsLoading } = useGetRecentGifts(novel?.id, 4, 1, !!novel?.id);
+
   const [selectedSubPage, setSelectedSubPage] = useState("chapters");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalAction, setAuthModalAction] = useState("لتنفيذ هذا الإجراء");
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
+  const [selectedGift, setSelectedGift] = useState(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Reviews pagination and sorting
@@ -75,7 +80,13 @@ const NovelPage = () => {
     data: reviewsData,
     isLoading: reviewsLoading,
     error: reviewsError,
-  } = useGetReviews(novel?.id, reviewsPageSize, reviewsPage, reviewsSorting);
+  } = useGetReviews(
+    novel?.id, 
+    reviewsPageSize, 
+    reviewsPage, 
+    reviewsSorting, 
+    selectedSubPage === "reviews" // Only fetch when reviews tab is selected
+  );
 
   const { mutate: likeReview } = useLikeReview();
   const { mutate: unlikeReview } = useUnlikeReview();
@@ -124,8 +135,8 @@ const NovelPage = () => {
     setSelectedSubPage(val);
   };
 
-  // Loading state
-  if (novelLoading || chaptersLoading) {
+  // Loading state - only wait for novel details, not chapters
+  if (novelLoading) {
     return (
       <>
         <Header />
@@ -351,10 +362,10 @@ const NovelPage = () => {
               </p>
             </div>
             <Link
-              to={`/novel/${novelSlug}/leaderboard`}
+              to={`/novel/${novelSlug}/supporters`}
               className="text-[#4A9EFF] hover:text-[#3A8EEF] text-sm font-bold whitespace-nowrap noto-sans-arabic-extrabold transition-colors"
             >
-              عرض لوحة المتصدرين الكاملة ←
+              عرض لوحة الداعمين الكاملة ←
             </Link>
           </div>
 
@@ -363,58 +374,106 @@ const NovelPage = () => {
             <div className="lg:col-span-2 flex flex-col gap-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {/* Flower Gift */}
-                <div className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
-                  <img src={flowerGift} alt="زهرة" className="w-10 h-10 object-contain" />
-                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">زهرة</p>
+                <div 
+                  onClick={() => {
+                    setSelectedGift("ec16dfde-71b8-4e23-8ff5-d1846cdf2036");
+                    setIsGiftModalOpen(true);
+                  }}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                >
+                  <img src={flowerGift} alt="وردة" className="w-10 h-10 object-contain" />
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">وردة</p>
                   <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">100 نقطة</p>
                 </div>
 
                 {/* Pizza Gift */}
-                <div className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                <div 
+                  onClick={() => {
+                    setSelectedGift("88103b01-2e5b-4d06-9ff3-2724f4afba52");
+                    setIsGiftModalOpen(true);
+                  }}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                >
                   <img src={pizzaGift} alt="بيتزا" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">بيتزا</p>
                   <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">300 نقطة</p>
                 </div>
 
-                {/* Book Gift - Selected */}
-                <div className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-[#4A9EFF] bg-[#4A9EFF]/10 cursor-pointer">
+                {/* Book Gift */}
+                <div 
+                  onClick={() => {
+                    setSelectedGift("9e17512a-269a-43e8-a571-1a1dc541cb5a");
+                    setIsGiftModalOpen(true);
+                  }}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                >
                   <img src={bookGift} alt="كتاب" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">كتاب</p>
                   <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">500 نقطة</p>
                 </div>
 
                 {/* Crown Gift */}
-                <div className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                <div 
+                  onClick={() => {
+                    setSelectedGift("48bdfb35-9f2c-4198-80c1-58f28eb648ef");
+                    setIsGiftModalOpen(true);
+                  }}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                >
                   <img src={crownGift} alt="تاج" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">تاج</p>
                   <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">1000 نقطة</p>
                 </div>
 
                 {/* Scepter Gift */}
-                <div className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                <div 
+                  onClick={() => {
+                    setSelectedGift("e6bfb3e7-6273-4e6b-a577-6afa71055bce");
+                    setIsGiftModalOpen(true);
+                  }}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                >
                   <img src={scepterGift} alt="صولجان" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">صولجان</p>
                   <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">1500 نقطة</p>
                 </div>
 
                 {/* Castle Gift */}
-                <div className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                <div 
+                  onClick={() => {
+                    setSelectedGift("a4005ee7-f2a5-488a-8757-574030513cd4");
+                    setIsGiftModalOpen(true);
+                  }}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                >
                   <img src={castleGift} alt="قلعة" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">قلعة</p>
                   <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">2000 نقطة</p>
                 </div>
 
                 {/* Dragon Gift */}
-                <div className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
+                <div 
+                  onClick={() => {
+                    setSelectedGift("955f63a6-5f4e-4b10-8743-8ea11f544bae");
+                    setIsGiftModalOpen(true);
+                  }}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                >
                   <img src={dragonGift} alt="تنين" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">تنين</p>
                   <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">5000 نقطة</p>
                 </div>
 
                 {/* Universe Gift */}
-                <div className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors">
-                  <img src={universeGift} alt="كون" className="w-10 h-10 object-contain" />
-                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">كون</p>
+                <div 
+                  onClick={() => {
+                    setSelectedGift("50ca3576-e6ee-4708-8d7d-4e9ce82cf722");
+                    setIsGiftModalOpen(true);
+                  }}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                >
+                  <img src={universeGift} alt="مجرة" className="w-10 h-10 object-contain" />
+                  <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">مجرة</p>
                   <p className="text-[#B0B0B0] text-xs noto-sans-arabic-medium">10000 نقطة</p>
                 </div>
               </div>
@@ -431,47 +490,40 @@ const NovelPage = () => {
             <div className="flex flex-col gap-4">
               <h3 className="text-white font-bold noto-sans-arabic-extrabold text-lg">الهدايا الأخيرة</h3>
               <div className="flex flex-col gap-3">
-                {/* Recent Gift Entry 1 */}
-                <div className="flex items-center gap-3">
-                  <div
-                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10 h-10 flex-shrink-0"
-                    style={{
-                      backgroundImage: `url("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop")`,
-                    }}
-                  ></div>
-                  <p className="text-[#E0E0E0] text-sm flex-1 noto-sans-arabic-medium">
-                    <span className="font-bold text-white noto-sans-arabic-extrabold">أحمد</span> أهدى 🌹
-                  </p>
-                  <span className="text-[#B0B0B0] text-xs noto-sans-arabic-medium whitespace-nowrap">منذ دقيقتين</span>
-                </div>
-
-                {/* Recent Gift Entry 2 */}
-                <div className="flex items-center gap-3">
-                  <div
-                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10 h-10 flex-shrink-0"
-                    style={{
-                      backgroundImage: `url("https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop")`,
-                    }}
-                  ></div>
-                  <p className="text-[#E0E0E0] text-sm flex-1 noto-sans-arabic-medium">
-                    <span className="font-bold text-white noto-sans-arabic-extrabold">فاطمة</span> أهدت ☕️
-                  </p>
-                  <span className="text-[#B0B0B0] text-xs noto-sans-arabic-medium whitespace-nowrap">منذ 15 دقيقة</span>
-                </div>
-
-                {/* Recent Gift Entry 3 */}
-                <div className="flex items-center gap-3">
-                  <div
-                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10 h-10 flex-shrink-0"
-                    style={{
-                      backgroundImage: `url("https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop")`,
-                    }}
-                  ></div>
-                  <p className="text-[#E0E0E0] text-sm flex-1 noto-sans-arabic-medium">
-                    <span className="font-bold text-white noto-sans-arabic-extrabold">محمد</span> أهدى 💎
-                  </p>
-                  <span className="text-[#B0B0B0] text-xs noto-sans-arabic-medium whitespace-nowrap">منذ ساعة</span>
-                </div>
+                {recentGiftsLoading ? (
+                  <p className="text-[#B0B0B0] text-sm noto-sans-arabic-medium">جاري التحميل...</p>
+                ) : recentGiftsData?.items && recentGiftsData.items.length > 0 ? (
+                  recentGiftsData.items.map((giftEntry) => (
+                    <div key={giftEntry.id} className="flex items-center gap-3">
+                      <Link
+                        to={`/profile/${giftEntry.senderUserName}`}
+                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10 h-10 flex-shrink-0 hover:ring-2 hover:ring-[#4A9EFF] transition-all"
+                        style={{
+                          backgroundImage: giftEntry.senderProfilePhoto
+                            ? `url("${giftEntry.senderProfilePhoto}")`
+                            : `url("https://ui-avatars.com/api/?name=${encodeURIComponent(giftEntry.senderDisplayName)}&background=4A9EFF&color=fff")`,
+                        }}
+                      ></Link>
+                      <p className="text-[#E0E0E0] text-sm flex-1 noto-sans-arabic-medium">
+                        <Link 
+                          to={`/profile/${giftEntry.senderUserName}`}
+                          className="font-bold text-white noto-sans-arabic-extrabold hover:text-[#4A9EFF] transition-colors"
+                        >
+                          {giftEntry.senderDisplayName}
+                        </Link> أهدى 
+                        <img 
+                          src={giftEntry.gift.imageUrl} 
+                          alt={giftEntry.gift.name} 
+                          className="inline-block w-5 h-5 mx-1 object-contain"
+                        />
+                        {giftEntry.count > 1 && <span className="text-[#4A9EFF]">x{giftEntry.count}</span>}
+                      </p>
+                      <span className="text-[#B0B0B0] text-xs noto-sans-arabic-medium whitespace-nowrap">{getTimeAgo(giftEntry.createdAt)}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-[#B0B0B0] text-sm noto-sans-arabic-medium">لا توجد هدايا حتى الآن</p>
+                )}
               </div>
             </div>
           </div>
@@ -518,7 +570,13 @@ const NovelPage = () => {
           >
             {selectedSubPage === "chapters" && (
               <>
-                {chapters.length > 0 ? (
+                {chaptersLoading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <p className="text-white text-xl noto-sans-arabic-extrabold">
+                      جاري تحميل الفصول...
+                    </p>
+                  </div>
+                ) : chapters.length > 0 ? (
                   chapters.map((chapter, index) => {
                     const chapterNumber = index + 1;
                     const lastReadChapterNumber = readingProgress?.progress?.lastReadChapterNumber || 0;
@@ -1033,8 +1091,13 @@ const NovelPage = () => {
       {/* Send Gift Modal */}
       <SendGiftModal
         isOpen={isGiftModalOpen}
-        onClose={() => setIsGiftModalOpen(false)}
+        onClose={() => {
+          setIsGiftModalOpen(false);
+          setSelectedGift(null);
+        }}
         novelTitle={novel?.title}
+        novelId={novel?.id}
+        preselectedGiftId={selectedGift}
       />
 
       {/* Share Modal */}
