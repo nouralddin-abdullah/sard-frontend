@@ -8,7 +8,7 @@ import { useGetNovelReadingProgress } from "../../hooks/novel/useGetNovelReading
 import { useGetRecentGifts } from "../../hooks/novel/useGetRecentGifts";
 import { formatDateShort, getTimeAgo } from "../../utils/date";
 import { translateGenre } from "../../utils/translate-genre";
-import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift } from "lucide-react";
+import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift, Lock } from "lucide-react";
 import flowerGift from "../../assets/gifts/flower-100.png";
 import pizzaGift from "../../assets/gifts/pizza-300.png";
 import bookGift from "../../assets/gifts/book-500.png";
@@ -31,6 +31,7 @@ import { useGetReviews } from "../../hooks/novel/useGetReviews";
 import { useLikeReview } from "../../hooks/novel/useLikeReview";
 import { useUnlikeReview } from "../../hooks/novel/useUnlikeReview";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
+import UnlockPrivilegeModal from "../../components/novel/UnlockPrivilegeModal";
 
 const NovelPage = () => {
   const { t } = useTranslation();
@@ -62,6 +63,8 @@ const NovelPage = () => {
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
   const [selectedGift, setSelectedGift] = useState(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isUnlockPrivilegeModalOpen, setIsUnlockPrivilegeModalOpen] = useState(false);
+  const [privilegeInfo, setPrivilegeInfo] = useState(null);
 
   // Reviews pagination and sorting
   const [reviewsPage, setReviewsPage] = useState(1);
@@ -70,6 +73,32 @@ const NovelPage = () => {
 
   // Track which spoiler reviews are revealed
   const [revealedSpoilers, setRevealedSpoilers] = useState({});
+
+  // Fetch privilege info
+  useEffect(() => {
+    const fetchPrivilegeInfo = async () => {
+      if (!novel?.id) return;
+      
+      try {
+        const response = await fetch(`https://api-sareed.runasp.net/api/novel/${novel.id}/privilege`, {
+          headers: {
+            'accept': '*/*'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.isEnabled) {
+            setPrivilegeInfo(data);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch privilege info:', error);
+      }
+    };
+
+    fetchPrivilegeInfo();
+  }, [novel?.id]);
 
   // Reset revealed spoilers when page or sorting changes (new set of reviews)
   useEffect(() => {
@@ -583,35 +612,56 @@ const NovelPage = () => {
                     const isRead = chapterNumber < lastReadChapterNumber;
                     const isLastRead = chapterNumber === lastReadChapterNumber;
                     const isUnread = chapterNumber > lastReadChapterNumber;
+                    const isLocked = chapter.isLocked;
                     
                     return (
                       <Link
                         key={chapter.id}
-                        to={`/novel/${novelSlug}/chapter/${chapter.id}`}
-                        className={`flex justify-between items-center border-b border-[#797979] py-[15px] cursor-pointer hover:bg-[#4A4A4A] px-[10px] rounded transition-colors ${
-                          isRead ? "opacity-60" : ""
+                        to={isLocked ? '#' : `/novel/${novelSlug}/chapter/${chapter.id}`}
+                        onClick={(e) => {
+                          if (isLocked) {
+                            e.preventDefault();
+                            setIsUnlockPrivilegeModalOpen(true);
+                          }
+                        }}
+                        className={`flex justify-between items-center border-b border-[#797979] py-[15px] px-[10px] rounded transition-colors ${
+                          isLocked 
+                            ? "opacity-50 cursor-not-allowed" 
+                            : "cursor-pointer hover:bg-[#4A4A4A]"
                         } ${
-                          isLastRead ? "bg-[#0077FF]/10 border-l-4 border-l-[#0077FF]" : ""
+                          isRead && !isLocked ? "opacity-60" : ""
+                        } ${
+                          isLastRead && !isLocked ? "bg-[#0077FF]/10 border-l-4 border-l-[#0077FF]" : ""
                         }`}
                       >
                         <div className="flex items-center gap-3">
+                          {isLocked && (
+                            <Lock className="w-5 h-5 text-yellow-400" />
+                          )}
                           <p className={`noto-sans-arabic-extrabold text-[18px] ${
+                            isLocked ? "text-yellow-400" :
                             isRead ? "text-[#B0B0B0]" : "text-[#FFFFFF]"
                           } ${
-                            isLastRead ? "text-[#0077FF]" : ""
+                            isLastRead && !isLocked ? "text-[#0077FF]" : ""
                           }`}>
                             {chapter.title}
                           </p>
-                          {isLastRead && (
+                          {isLastRead && !isLocked && (
                             <span className="text-xs bg-[#0077FF] text-white px-2 py-1 rounded noto-sans-arabic-medium">
                               آخر قراءة
                             </span>
                           )}
+                          {isLocked && (
+                            <span className="text-xs bg-yellow-400/20 text-yellow-400 px-2 py-1 rounded noto-sans-arabic-medium border border-yellow-400/30">
+                              مقفل
+                            </span>
+                          )}
                         </div>
                         <p className={`text-[16px] noto-sans-arabic-extrabold ${
+                          isLocked ? "text-yellow-400/70" :
                           isRead ? "text-[#888888]" : "text-[#FFFFFF]"
                         } ${
-                          isLastRead ? "text-[#0077FF]" : ""
+                          isLastRead && !isLocked ? "text-[#0077FF]" : ""
                         }`}>
                           {formatDate(chapter.createdAt)}
                         </p>
@@ -1110,6 +1160,16 @@ const NovelPage = () => {
         shareUrl={`${window.location.origin}/novel/${novelSlug}`}
         itemType="novel"
       />
+
+      {/* Unlock Privilege Modal */}
+      {privilegeInfo && (
+        <UnlockPrivilegeModal
+          isOpen={isUnlockPrivilegeModalOpen}
+          onClose={() => setIsUnlockPrivilegeModalOpen(false)}
+          privilegeCost={privilegeInfo.subscriptionCost}
+          lockedChaptersCount={privilegeInfo.lockedChaptersCount}
+        />
+      )}
     </>
   );
 };
