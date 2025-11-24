@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { MessageCircle, Plus } from 'lucide-react';
 
-const ChapterParagraph = ({ 
+const ChapterParagraph = memo(({ 
   paragraph, 
   onCommentClick, 
   theme, 
@@ -9,6 +9,34 @@ const ChapterParagraph = ({
   textColor
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const paragraphRef = useRef(null);
+  const scrollTimeoutRef = useRef(null);
+
+  // Clear hover state on scroll with debouncing
+  useEffect(() => {
+    const handleScroll = () => {
+      // Clear any existing timeout
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      
+      // Immediately hide if hovering
+      if (isHovered) {
+        setIsHovered(false);
+      }
+    };
+
+    const scrollContainer = paragraphRef.current?.closest('.overflow-y-auto');
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+      return () => {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+      };
+    }
+  }, [isHovered]);
 
   const themeStyles = {
     dark: {
@@ -34,16 +62,23 @@ const ChapterParagraph = ({
 
   return (
     <div
+      ref={paragraphRef}
       className="relative py-3 px-0"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      style={{ 
+        contain: 'layout style paint',
+        contentVisibility: 'auto'
+      }}
     >
       {/* Paragraph Text - No hover effects, no background changes */}
       <p
         className="leading-[2] whitespace-pre-line px-4 md:px-6 tajawal-regular"
         style={{
           color: paragraphColor,
-          fontSize: `${fontSize}px`
+          fontSize: `${fontSize}px`,
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden'
         }}
         dangerouslySetInnerHTML={{ __html: paragraph.content }}
       />
@@ -94,6 +129,8 @@ const ChapterParagraph = ({
       )}
     </div>
   );
-};
+});
+
+ChapterParagraph.displayName = 'ChapterParagraph';
 
 export default ChapterParagraph;

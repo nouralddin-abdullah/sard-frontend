@@ -1,37 +1,108 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import Cookies from 'js-cookie';
+import { BASE_URL } from '../../constants/base-url';
+import { TOKEN_KEY } from '../../constants/token-key';
 
-const UnlockPrivilegeModal = ({ isOpen, onClose, privilegeCost, lockedChaptersCount }) => {
+const UnlockPrivilegeModal = ({ isOpen, onClose, privilegeCost, lockedChaptersCount, novelId, onSubscribeSuccess }) => {
   const [timeLeft, setTimeLeft] = useState({
-    hours: 23,
-    minutes: 59,
-    seconds: 59
+    hours: 0,
+    minutes: 0,
+    seconds: 0
   });
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     if (!isOpen) return;
 
+    // Calculate time until next UTC midnight (00:00:00)
+    const calculateTimeUntilMidnight = () => {
+      const now = new Date();
+      const utcNow = Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+        now.getUTCSeconds(),
+        now.getUTCMilliseconds()
+      );
+      
+      // Next UTC midnight
+      const nextMidnight = Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + 1,
+        0, 0, 0, 0
+      );
+      
+      const diff = nextMidnight - utcNow;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      return { hours, minutes, seconds };
+    };
+
+    // Set initial time
+    setTimeLeft(calculateTimeUntilMidnight());
+
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        let { hours, minutes, seconds } = prev;
-        
-        if (seconds > 0) {
-          seconds--;
-        } else if (minutes > 0) {
-          minutes--;
-          seconds = 59;
-        } else if (hours > 0) {
-          hours--;
-          minutes = 59;
-          seconds = 59;
-        }
-        
-        return { hours, minutes, seconds };
-      });
+      const newTime = calculateTimeUntilMidnight();
+      setTimeLeft(newTime);
+      
+      // If we've hit midnight, you might want to trigger a refresh or callback here
+      if (newTime.hours === 0 && newTime.minutes === 0 && newTime.seconds === 0) {
+        // Optional: trigger a refresh or callback
+        // onMidnightReached?.();
+      }
     }, 1000);
 
     return () => clearInterval(timer);
   }, [isOpen]);
+
+  const handleSubscribe = async () => {
+    if (!novelId) return;
+
+    setIsSubscribing(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    try {
+      const token = Cookies.get(TOKEN_KEY);
+      if (!token) {
+        setErrorMessage('يجب تسجيل الدخول أولاً');
+        setIsSubscribing(false);
+        return;
+      }
+
+      const response = await fetch(`${BASE_URL}/api/novel/${novelId}/privilege/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        setSuccessMessage('تم الاشتراك بنجاح! يمكنك الآن قراءة جميع الفصول المقفلة.');
+        setTimeout(() => {
+          onSubscribeSuccess?.();
+          onClose();
+        }, 2000);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setErrorMessage(errorData.message || 'فشل الاشتراك. يرجى التحقق من رصيدك والمحاولة مرة أخرى.');
+      }
+    } catch (error) {
+      console.error('Subscribe error:', error);
+      setErrorMessage('حدث خطأ أثناء الاشتراك. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -135,11 +206,25 @@ const UnlockPrivilegeModal = ({ isOpen, onClose, privilegeCost, lockedChaptersCo
             </div>
 
             <div className="flex flex-col items-center gap-3">
+              {errorMessage && (
+                <div className="w-full rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-3 text-center">
+                  <p className="text-red-400 text-sm noto-sans-arabic-medium">{errorMessage}</p>
+                </div>
+              )}
+              {successMessage && (
+                <div className="w-full rounded-lg bg-green-500/10 border border-green-500/30 px-4 py-3 text-center">
+                  <p className="text-green-400 text-sm noto-sans-arabic-medium">{successMessage}</p>
+                </div>
+              )}
               <h2 className="text-[#F5F5F5] text-xl sm:text-2xl font-bold leading-tight tracking-[-0.015em] noto-sans-arabic-extrabold">
                 فقط {privilegeCost} نقطة
               </h2>
-              <button className="w-full rounded-lg bg-[#4A9EFF] px-6 py-3 text-center text-base font-bold text-white shadow-lg shadow-[#4A9EFF]/20 transition-all hover:bg-[#3A8EEF] hover:scale-[1.02] active:scale-[0.98] noto-sans-arabic-extrabold">
-                افتح الآن بنظام الامتيازات
+              <button 
+                onClick={handleSubscribe}
+                disabled={isSubscribing || !!successMessage}
+                className="w-full rounded-lg bg-[#4A9EFF] px-6 py-3 text-center text-base font-bold text-white shadow-lg shadow-[#4A9EFF]/20 transition-all hover:bg-[#3A8EEF] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 noto-sans-arabic-extrabold"
+              >
+                {isSubscribing ? 'جاري الاشتراك...' : 'افتح الآن بنظام الامتيازات'}
               </button>
             </div>
           </div>

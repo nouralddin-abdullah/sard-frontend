@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
+import Cookies from 'js-cookie';
+import { TOKEN_KEY } from '../../constants/token-key';
 import { Helmet } from "react-helmet-async";
 import { useNovelDetails } from "../../hooks/novel/useNovelDetails";
 import { useGetNovelChapters } from "../../hooks/novel/useGetNovelChapters";
@@ -8,7 +10,7 @@ import { useGetNovelReadingProgress } from "../../hooks/novel/useGetNovelReading
 import { useGetRecentGifts } from "../../hooks/novel/useGetRecentGifts";
 import { formatDateShort, getTimeAgo } from "../../utils/date";
 import { translateGenre } from "../../utils/translate-genre";
-import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift, Lock } from "lucide-react";
+import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift, Lock, Unlock } from "lucide-react";
 import flowerGift from "../../assets/gifts/flower-100.png";
 import pizzaGift from "../../assets/gifts/pizza-300.png";
 import bookGift from "../../assets/gifts/book-500.png";
@@ -74,29 +76,38 @@ const NovelPage = () => {
   // Track which spoiler reviews are revealed
   const [revealedSpoilers, setRevealedSpoilers] = useState({});
 
-  // Fetch privilege info
-  useEffect(() => {
-    const fetchPrivilegeInfo = async () => {
-      if (!novel?.id) return;
+  // Function to fetch privilege info
+  const fetchPrivilegeInfo = async () => {
+    if (!novel?.id) return;
+    
+    try {
+      const token = Cookies.get(TOKEN_KEY);
+      const headers = {
+        'accept': '*/*'
+      };
       
-      try {
-        const response = await fetch(`https://api-sareed.runasp.net/api/novel/${novel.id}/privilege`, {
-          headers: {
-            'accept': '*/*'
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.isEnabled) {
-            setPrivilegeInfo(data);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch privilege info:', error);
+      // Add auth token if user is logged in to check subscription status
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
-    };
+      
+      const response = await fetch(`https://api-sareed.runasp.net/api/novel/${novel.id}/privilege`, {
+        headers
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.isEnabled) {
+          setPrivilegeInfo(data);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch privilege info:', error);
+    }
+  };
 
+  // Fetch privilege info on mount
+  useEffect(() => {
     fetchPrivilegeInfo();
   }, [novel?.id]);
 
@@ -606,68 +617,142 @@ const NovelPage = () => {
                     </p>
                   </div>
                 ) : chapters.length > 0 ? (
-                  chapters.map((chapter, index) => {
-                    const chapterNumber = index + 1;
-                    const lastReadChapterNumber = readingProgress?.progress?.lastReadChapterNumber || 0;
-                    const isRead = chapterNumber < lastReadChapterNumber;
-                    const isLastRead = chapterNumber === lastReadChapterNumber;
-                    const isUnread = chapterNumber > lastReadChapterNumber;
-                    const isLocked = chapter.isLocked;
-                    
-                    return (
-                      <Link
-                        key={chapter.id}
-                        to={isLocked ? '#' : `/novel/${novelSlug}/chapter/${chapter.id}`}
-                        onClick={(e) => {
-                          if (isLocked) {
-                            e.preventDefault();
-                            setIsUnlockPrivilegeModalOpen(true);
-                          }
-                        }}
-                        className={`flex justify-between items-center border-b border-[#797979] py-[15px] px-[10px] rounded transition-colors ${
-                          isLocked 
-                            ? "opacity-50 cursor-not-allowed" 
-                            : "cursor-pointer hover:bg-[#4A4A4A]"
-                        } ${
-                          isRead && !isLocked ? "opacity-60" : ""
-                        } ${
-                          isLastRead && !isLocked ? "bg-[#0077FF]/10 border-l-4 border-l-[#0077FF]" : ""
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          {isLocked && (
-                            <Lock className="w-5 h-5 text-yellow-400" />
+                  <>
+                    {/* Chapters List */}
+                    {(() => {
+                      const lockedChapters = chapters.filter(ch => ch.isLocked);
+                      const unlockedChapters = chapters.filter(ch => !ch.isLocked);
+                      const isUserSubscribed = privilegeInfo?.isSubscribed;
+
+                      return (
+                        <>
+                          {/* Unlocked Chapters First */}
+                          {unlockedChapters.map((chapter, index) => {
+                            const chapterNumber = chapters.findIndex(ch => ch.id === chapter.id) + 1;
+                            const lastReadChapterNumber = readingProgress?.progress?.lastReadChapterNumber || 0;
+                            const isRead = chapterNumber < lastReadChapterNumber;
+                            const isLastRead = chapterNumber === lastReadChapterNumber;
+
+                            return (
+                              <Link
+                                key={chapter.id}
+                                to={`/novel/${novelSlug}/chapter/${chapter.id}`}
+                                className={`flex justify-between items-center border-b border-[#797979] py-[15px] px-[10px] rounded transition-colors cursor-pointer hover:bg-[#4A4A4A] ${
+                                  isRead ? "opacity-60" : ""
+                                } ${
+                                  isLastRead ? "bg-[#0077FF]/10 border-l-4 border-l-[#0077FF]" : ""
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <p className={`noto-sans-arabic-extrabold text-[18px] ${
+                                    isRead ? "text-[#B0B0B0]" : "text-[#FFFFFF]"
+                                  } ${
+                                    isLastRead ? "text-[#0077FF]" : ""
+                                  }`}>
+                                    {chapter.title}
+                                  </p>
+                                  {isLastRead && (
+                                    <span className="text-xs bg-[#0077FF] text-white px-2 py-1 rounded noto-sans-arabic-medium">
+                                      آخر قراءة
+                                    </span>
+                                  )}
+                                </div>
+                                <p className={`text-[16px] noto-sans-arabic-extrabold ${
+                                  isRead ? "text-[#888888]" : "text-[#FFFFFF]"
+                                } ${
+                                  isLastRead ? "text-[#0077FF]" : ""
+                                }`}>
+                                  {formatDate(chapter.createdAt)}
+                                </p>
+                              </Link>
+                            );
+                          })}
+
+                          {/* Dashed Divider - Show if privilege exists */}
+                          {privilegeInfo?.isEnabled && lockedChapters.length > 0 && (
+                            <div className="relative flex items-center justify-center py-4 px-4">
+                              <div aria-hidden="true" className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-dashed border-[#797979]"></div>
+                              </div>
+                              <div className="relative bg-[#3C3C3C] px-3">
+                                <p className="text-xs text-[#B0B0B0] noto-sans-arabic-medium">
+                                  {lockedChapters.length} فصل مقفل
+                                </p>
+                              </div>
+                            </div>
                           )}
-                          <p className={`noto-sans-arabic-extrabold text-[18px] ${
-                            isLocked ? "text-yellow-400" :
-                            isRead ? "text-[#B0B0B0]" : "text-[#FFFFFF]"
-                          } ${
-                            isLastRead && !isLocked ? "text-[#0077FF]" : ""
-                          }`}>
-                            {chapter.title}
-                          </p>
-                          {isLastRead && !isLocked && (
-                            <span className="text-xs bg-[#0077FF] text-white px-2 py-1 rounded noto-sans-arabic-medium">
-                              آخر قراءة
-                            </span>
+
+                          {/* Privilege Banner - Show after divider if not subscribed */}
+                          {privilegeInfo?.isEnabled && privilegeInfo?.lockedChaptersCount > 0 && !isUserSubscribed && (
+                            <div className="my-4">
+                              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl border border-[#4A9EFF]/30 bg-[#4A9EFF]/5 p-5">
+                                <div className="flex flex-col gap-1">
+                                  <p className="text-white text-base font-bold leading-tight noto-sans-arabic-extrabold">
+                                    اقرأ قبل الجميع!
+                                  </p>
+                                  <p className="text-[#B0B0B0] text-sm font-normal leading-normal noto-sans-arabic-medium">
+                                    افتح {privilegeInfo.lockedChaptersCount} فصل حصري وادعم الكاتب من خلال شراء وصول نظام الامتيازات.
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={() => setIsUnlockPrivilegeModalOpen(true)}
+                                  className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#4A9EFF] text-white text-sm font-medium leading-normal shadow-sm hover:bg-[#3A8EEF] transition-colors noto-sans-arabic-extrabold"
+                                >
+                                  <span className="truncate">كن قارئ امتيازات</span>
+                                </button>
+                              </div>
+                            </div>
                           )}
-                          {isLocked && (
-                            <span className="text-xs bg-yellow-400/20 text-yellow-400 px-2 py-1 rounded noto-sans-arabic-medium border border-yellow-400/30">
-                              مقفل
-                            </span>
-                          )}
-                        </div>
-                        <p className={`text-[16px] noto-sans-arabic-extrabold ${
-                          isLocked ? "text-yellow-400/70" :
-                          isRead ? "text-[#888888]" : "text-[#FFFFFF]"
-                        } ${
-                          isLastRead && !isLocked ? "text-[#0077FF]" : ""
-                        }`}>
-                          {formatDate(chapter.createdAt)}
-                        </p>
-                      </Link>
-                    );
-                  })
+
+                          {/* Locked/Privilege Chapters */}
+                          {lockedChapters.map((chapter, index) => {
+                            const chapterNumber = chapters.findIndex(ch => ch.id === chapter.id) + 1;
+                            const lastReadChapterNumber = readingProgress?.progress?.lastReadChapterNumber || 0;
+                            const isRead = chapterNumber < lastReadChapterNumber;
+                            const isLastRead = chapterNumber === lastReadChapterNumber;
+                            const canAccess = isUserSubscribed;
+
+                            return (
+                              <Link
+                                key={chapter.id}
+                                to={canAccess ? `/novel/${novelSlug}/chapter/${chapter.id}` : '#'}
+                                onClick={(e) => {
+                                  if (!canAccess) {
+                                    e.preventDefault();
+                                    setIsUnlockPrivilegeModalOpen(true);
+                                  }
+                                }}
+                                className={`flex justify-between items-center border-b border-[#797979] py-[15px] px-[10px] rounded transition-colors ${
+                                  canAccess ? "bg-[#2C2C2C] hover:bg-[#3A3A3A] cursor-pointer" : "bg-[#2C2C2C] hover:bg-[#3A3A3A] cursor-pointer"
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  {canAccess ? (
+                                    <Unlock className="w-5 h-5 text-[#4A9EFF]" />
+                                  ) : (
+                                    <Lock className="w-5 h-5 text-[#4A9EFF]" />
+                                  )}
+                                  <p className="noto-sans-arabic-extrabold text-[18px] text-white">
+                                    {chapter.title}
+                                  </p>
+                                  <span className={`text-xs px-2 py-1 rounded noto-sans-arabic-medium border ${
+                                    canAccess 
+                                      ? "bg-green-500/20 text-green-400 border-green-500/30" 
+                                      : "bg-[#4A9EFF]/20 text-[#4A9EFF] border-[#4A9EFF]/30"
+                                  }`}>
+                                    {canAccess ? "مفتوح" : "مقفل"}
+                                  </span>
+                                </div>
+                                <p className="text-[16px] noto-sans-arabic-extrabold text-[#B0B0B0]">
+                                  {formatDate(chapter.createdAt)}
+                                </p>
+                              </Link>
+                            );
+                          })}
+                        </>
+                      );
+                    })()}
+                  </>
                 ) : (
                   <p className="text-white text-center noto-sans-arabic-extrabold">
                     لا توجد فصول متاحة حالياً
@@ -1168,6 +1253,11 @@ const NovelPage = () => {
           onClose={() => setIsUnlockPrivilegeModalOpen(false)}
           privilegeCost={privilegeInfo.subscriptionCost}
           lockedChaptersCount={privilegeInfo.lockedChaptersCount}
+          novelId={novel?.id}
+          onSubscribeSuccess={() => {
+            // Refetch privilege info to update isSubscribed status
+            fetchPrivilegeInfo();
+          }}
         />
       )}
     </>

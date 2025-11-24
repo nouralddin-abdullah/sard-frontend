@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen, MessageCircle, Facebook, Twitter, Link as LinkIcon, Copy, Check } from 'lucide-react';
+import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen, MessageCircle, Facebook, Twitter, Link as LinkIcon, Copy, Check, Lock, Unlock } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useGetNovelChapters } from '../../hooks/novel/useGetNovelChapters';
 import { useGetChapterById } from '../../hooks/novel/useGetChapterById';
@@ -11,6 +11,8 @@ import { useToggleFollow } from '../../hooks/user/useToggleFollow';
 import CommentPanel from '../../components/novel/CommentPanel';
 import ChapterParagraph from '../../components/novel/ChapterParagraph';
 import PenIcon from '../../components/common/PenIcon';
+import AuthRequiredModal from '../../components/common/AuthRequiredModal';
+import UnlockPrivilegeModal from '../../components/novel/UnlockPrivilegeModal';
 import Cookies from 'js-cookie';
 import { TOKEN_KEY } from '../../constants/token-key';
 
@@ -48,6 +50,10 @@ const ChapterReaderPage = () => {
   const [currentPage, setCurrentPage] = useState(1); // For TOC pagination
   const [showMobileMenu, setShowMobileMenu] = useState(false); // Mobile menu trigger
   const [copied, setCopied] = useState(false);
+  const [privilegeInfo, setPrivilegeInfo] = useState(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalAction, setAuthModalAction] = useState('');
+  const [isUnlockPrivilegeModalOpen, setIsUnlockPrivilegeModalOpen] = useState(false);
   
   // Reader settings with localStorage persistence
   const [theme, setTheme] = useState(() => localStorage.getItem('readerTheme') || 'dark');
@@ -89,6 +95,40 @@ const ChapterReaderPage = () => {
   useEffect(() => {
     localStorage.setItem('readerCustomTextColor', customTextColor);
   }, [customTextColor]);
+
+  // Fetch privilege info
+  const fetchPrivilegeInfo = async () => {
+    if (!novel?.id) return;
+    
+    try {
+      const token = Cookies.get(TOKEN_KEY);
+      const headers = {
+        'accept': '*/*'
+      };
+      
+      // Add auth token if user is logged in to check subscription status
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(`https://api-sareed.runasp.net/api/novel/${novel.id}/privilege`, {
+        headers
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.isEnabled) {
+          setPrivilegeInfo(data);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch privilege info:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPrivilegeInfo();
+  }, [novel?.id]);
 
   // Pagination for Table of Contents
   const CHAPTERS_PER_PAGE = 100;
@@ -624,22 +664,53 @@ const ChapterReaderPage = () => {
             ) : (
               <>
                 <div className="mb-4">
-                  {paginatedChapters.map((ch) => (
-                    <Link
-                      key={ch.id}
-                      to={`/novel/${novelSlug}/chapter/${ch.id}`}
-                      className={`block p-4 rounded-lg mb-2 transition-colors ${
-                        ch.id === chapter?.id
-                          ? 'bg-[#4A9EFF] text-white'
-                          : 'text-white hover:bg-[#4A4A4A]'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="noto-sans-arabic-medium text-[14px] mt-1">{ch.number}</span>
-                        <span className="noto-sans-arabic-medium text-[15px] flex-1">{ch.title}</span>
-                      </div>
-                    </Link>
-                  ))}
+                  {paginatedChapters.map((ch) => {
+                    const isLocked = ch.isLocked && !privilegeInfo?.isSubscribed;
+                    const isPrivilegeChapter = ch.isLocked;
+                    const canAccess = !isLocked;
+                    
+                    return (
+                      <Link
+                        key={ch.id}
+                        to={canAccess ? `/novel/${novelSlug}/chapter/${ch.id}` : '#'}
+                        onClick={(e) => {
+                          if (isLocked) {
+                            e.preventDefault();
+                            // Check if user is logged in
+                            if (!currentUser) {
+                              setAuthModalAction('لقراءة هذا الفصل');
+                              setIsAuthModalOpen(true);
+                            } else {
+                              setIsUnlockPrivilegeModalOpen(true);
+                            }
+                          }
+                        }}
+                        className={`block p-4 rounded-lg mb-2 transition-colors ${
+                          ch.id === chapter?.id
+                            ? 'bg-[#4A9EFF] text-white'
+                            : isPrivilegeChapter
+                            ? 'bg-[#2C2C2C] text-white hover:bg-[#3A3A3A]'
+                            : 'text-white hover:bg-[#4A4A4A]'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="noto-sans-arabic-medium text-[14px] mt-1">{ch.number}</span>
+                          <div className="flex-1 flex items-center gap-2">
+                            <span className="noto-sans-arabic-medium text-[15px] flex-1">{ch.title}</span>
+                            {isPrivilegeChapter && (
+                              <>
+                                {canAccess ? (
+                                  <Unlock className="w-4 h-4 text-green-400 flex-shrink-0" />
+                                ) : (
+                                  <Lock className="w-4 h-4 text-[#4A9EFF] flex-shrink-0" />
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
                 
                 {/* Chapter Range Navigation */}
@@ -907,7 +978,11 @@ const ChapterReaderPage = () => {
         style={{ 
           height: 'calc(100vh - 72px)',
           marginTop: '72px',
-          fontFamily: fontFamilyMap[fontFamily]
+          fontFamily: fontFamilyMap[fontFamily],
+          overscrollBehavior: 'contain',
+          WebkitOverflowScrolling: 'touch',
+          transform: 'translateZ(0)',
+          willChange: 'scroll-position'
         }}
       >
         {chapterLoading || novelLoading ? (
@@ -940,7 +1015,40 @@ const ChapterReaderPage = () => {
 
             {/* Chapter Content - Takes available space */}
             <div className="space-y-2 flex-grow">
-              {chapter.paragraphs && chapter.paragraphs.length > 0 ? (
+              {chapter.isLocked && (!chapter.paragraphs || chapter.paragraphs.length === 0) ? (
+                // Locked chapter message
+                <div className="flex flex-col items-center justify-center py-16 px-6">
+                  <div className="bg-[#2C2C2C] rounded-2xl p-8 max-w-md w-full border border-[#4A9EFF]/30">
+                    <div className="flex flex-col items-center text-center gap-4">
+                      <Lock className="w-16 h-16 text-[#4A9EFF]" />
+                      <h3 className="text-white text-xl font-bold noto-sans-arabic-extrabold">
+                        هذا الفصل مقفل
+                      </h3>
+                      <p className="text-[#B0B0B0] text-sm noto-sans-arabic-medium leading-relaxed">
+                        {chapter.lockMessage === 'This chapter is locked by the privilege system. Subscribe to unlock all privilege chapters!' 
+                          ? 'هذا الفصل مقفل بنظام الامتيازات. اشترك لفتح جميع الفصول المقفلة!'
+                          : chapter.lockMessage || 'هذا الفصل مقفل بنظام الامتيازات. اشترك لفتح جميع الفصول المقفلة!'
+                        }
+                      </p>
+                      {privilegeInfo && (
+                        <button
+                          onClick={() => {
+                            if (!currentUser) {
+                              setAuthModalAction('لقراءة هذا الفصل');
+                              setIsAuthModalOpen(true);
+                            } else {
+                              setIsUnlockPrivilegeModalOpen(true);
+                            }
+                          }}
+                          className="mt-4 w-full rounded-xl bg-[#4A9EFF] px-6 py-3 text-center text-base font-bold text-white shadow-lg shadow-[#4A9EFF]/20 transition-all hover:bg-[#3A8EEF] hover:scale-[1.02] active:scale-[0.98] noto-sans-arabic-extrabold"
+                        >
+                          {currentUser ? 'اشترك الآن' : 'سجل الدخول للاشتراك'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : chapter.paragraphs && chapter.paragraphs.length > 0 ? (
                 // New format: Display paragraphs with inline comments
                 chapter.paragraphs.map((paragraph) => (
                   <ChapterParagraph
@@ -1041,6 +1149,28 @@ const ChapterReaderPage = () => {
         targetId={commentContext.targetId || chapterId}
         paragraphPreview={commentContext.preview}
       />
+
+      {/* Auth Required Modal */}
+      <AuthRequiredModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        action={authModalAction}
+      />
+
+      {/* Unlock Privilege Modal */}
+      {privilegeInfo && (
+        <UnlockPrivilegeModal
+          isOpen={isUnlockPrivilegeModalOpen}
+          onClose={() => setIsUnlockPrivilegeModalOpen(false)}
+          privilegeCost={privilegeInfo.subscriptionCost}
+          lockedChaptersCount={privilegeInfo.lockedChaptersCount}
+          novelId={novel?.id}
+          onSubscribeSuccess={() => {
+            // Refetch privilege info to update subscription status
+            fetchPrivilegeInfo();
+          }}
+        />
+      )}
     </div>
   );
 };
