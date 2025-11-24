@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen, MessageCircle, Facebook, Twitter, Link as LinkIcon, Copy, Check } from 'lucide-react';
+import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen, MessageCircle, MessagesSquare, Facebook, Twitter, Link as LinkIcon, Copy, Check, Lock, Unlock } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useGetNovelChapters } from '../../hooks/novel/useGetNovelChapters';
 import { useGetChapterById } from '../../hooks/novel/useGetChapterById';
@@ -11,6 +11,8 @@ import { useToggleFollow } from '../../hooks/user/useToggleFollow';
 import CommentPanel from '../../components/novel/CommentPanel';
 import ChapterParagraph from '../../components/novel/ChapterParagraph';
 import PenIcon from '../../components/common/PenIcon';
+import AuthRequiredModal from '../../components/common/AuthRequiredModal';
+import UnlockPrivilegeModal from '../../components/novel/UnlockPrivilegeModal';
 import Cookies from 'js-cookie';
 import { TOKEN_KEY } from '../../constants/token-key';
 
@@ -48,6 +50,10 @@ const ChapterReaderPage = () => {
   const [currentPage, setCurrentPage] = useState(1); // For TOC pagination
   const [showMobileMenu, setShowMobileMenu] = useState(false); // Mobile menu trigger
   const [copied, setCopied] = useState(false);
+  const [privilegeInfo, setPrivilegeInfo] = useState(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalAction, setAuthModalAction] = useState('');
+  const [isUnlockPrivilegeModalOpen, setIsUnlockPrivilegeModalOpen] = useState(false);
   
   // Reader settings with localStorage persistence
   const [theme, setTheme] = useState(() => localStorage.getItem('readerTheme') || 'dark');
@@ -57,6 +63,7 @@ const ChapterReaderPage = () => {
   const [customColors, setCustomColors] = useState(() => localStorage.getItem('readerCustomColors') === 'true');
   const [customBgColor, setCustomBgColor] = useState(() => localStorage.getItem('readerCustomBgColor') || '#2C2C2C');
   const [customTextColor, setCustomTextColor] = useState(() => localStorage.getItem('readerCustomTextColor') || '#FFFFFF');
+  const [focusMode, setFocusMode] = useState(() => localStorage.getItem('readerFocusMode') === 'true');
   
   const contentRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -89,6 +96,44 @@ const ChapterReaderPage = () => {
   useEffect(() => {
     localStorage.setItem('readerCustomTextColor', customTextColor);
   }, [customTextColor]);
+
+  useEffect(() => {
+    localStorage.setItem('readerFocusMode', focusMode.toString());
+  }, [focusMode]);
+
+  // Fetch privilege info
+  const fetchPrivilegeInfo = async () => {
+    if (!novel?.id) return;
+    
+    try {
+      const token = Cookies.get(TOKEN_KEY);
+      const headers = {
+        'accept': '*/*'
+      };
+      
+      // Add auth token if user is logged in to check subscription status
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(`https://api-sareed.runasp.net/api/novel/${novel.id}/privilege`, {
+        headers
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.isEnabled) {
+          setPrivilegeInfo(data);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch privilege info:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPrivilegeInfo();
+  }, [novel?.id]);
 
   // Pagination for Table of Contents
   const CHAPTERS_PER_PAGE = 100;
@@ -340,93 +385,95 @@ const ChapterReaderPage = () => {
         </script>
       </Helmet>
       {/* Top Header Bar */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex items-center px-6 py-4" style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8'}` }}>
-        {/* Left: SARD Logo + User + Library */}
-        <div className="flex items-center gap-6 flex-1">
-          <Link to="/home" className="noto-sans-arabic-extrabold text-[24px] leading-none hover:opacity-80 transition-opacity" style={{ color: currentTheme.text }}>
-            سَرْد
-          </Link>
-          
-          {/* User Dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="hover:opacity-80 transition-opacity focus:outline-none"
-            >
-              {showDefaultIcon ? (
-                <div className="w-10 h-10 rounded-full bg-[#4A4A4A] flex items-center justify-center">
-                  <svg width="24" height="24" viewBox="0 0 48 48" fill="none">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M24 43.5C27.4233 43.505 30.787 42.6046 33.75 40.89V34.5C33.75 32.7098 33.0388 30.9929 31.773 29.727C30.5071 28.4612 28.7902 27.75 27 27.75H21C19.2098 27.75 17.4929 28.4612 16.227 29.727C14.9612 30.9929 14.25 32.7098 14.25 34.5V40.89C17.213 42.6046 20.5767 43.505 24 43.5ZM38.25 34.5V37.311C40.8441 34.5339 42.5702 31.0594 43.2162 27.3145C43.8622 23.5696 43.3998 19.7175 41.886 16.2319C40.3722 12.7462 37.8728 9.77884 34.6952 7.69453C31.5176 5.61022 27.8002 4.49982 24 4.49982C20.1998 4.49982 16.4824 5.61022 13.3048 7.69453C10.1272 9.77884 7.62783 12.7462 6.114 16.2319C4.60016 19.7175 4.13781 23.5696 4.78378 27.3145C5.42975 31.0594 7.15589 34.5339 9.75 37.311V34.5C9.7491 32.1804 10.4652 29.9173 11.8003 28.0205C13.1354 26.1236 15.0242 24.6859 17.208 23.904C16.0752 22.601 15.341 20.9996 15.0932 19.2909C14.8454 17.5822 15.0943 15.8382 15.8102 14.2671C16.5262 12.6959 17.679 11.3638 19.1311 10.4298C20.5832 9.49568 22.2734 8.99902 24 8.99902C25.7266 8.99902 27.4168 9.49568 28.8689 10.4298C30.321 11.3638 31.4738 12.6959 32.1898 14.2671C32.9057 15.8382 33.1546 17.5822 32.9068 19.2909C32.659 20.9996 31.9248 22.601 30.792 23.904C32.9758 24.6859 34.8646 26.1236 36.1997 28.0205C37.5348 29.9173 38.2509 32.1804 38.25 34.5ZM24 48C30.3652 48 36.4697 45.4714 40.9706 40.9706C45.4714 36.4697 48 30.3652 48 24C48 17.6348 45.4714 11.5303 40.9706 7.02944C36.4697 2.52856 30.3652 0 24 0C17.6348 0 11.5303 2.52856 7.02944 7.02944C2.52856 11.5303 0 17.6348 0 24C0 30.3652 2.52856 36.4697 7.02944 40.9706C11.5303 45.4714 17.6348 48 24 48ZM28.5 18C28.5 19.1935 28.0259 20.3381 27.182 21.182C26.3381 22.0259 25.1935 22.5 24 22.5C22.8065 22.5 21.6619 22.0259 20.818 21.182C19.9741 20.3381 19.5 19.1935 19.5 18C19.5 16.8065 19.9741 15.6619 20.818 14.818C21.6619 13.9741 22.8065 13.5 24 13.5C25.1935 13.5 26.3381 13.9741 27.182 14.818C28.0259 15.6619 28.5 16.8065 28.5 18Z" fill="white"/>
-                  </svg>
-                </div>
-              ) : (
-                <img
-                  src={currentUser.profilePhoto}
-                  alt={currentUser.displayName}
-                  className="w-10 h-10 rounded-full object-cover"
-                  onError={() => setImageError(true)}
-                />
-              )}
-            </button>
+      {!focusMode && (
+        <div className="fixed top-0 left-0 right-0 z-40 flex items-center px-6 py-4" style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8'}` }}>
+          {/* Left: SARD Logo + User + Library */}
+          <div className="flex items-center gap-6 flex-1">
+            <Link to="/home" className="noto-sans-arabic-extrabold text-[24px] leading-none hover:opacity-80 transition-opacity" style={{ color: currentTheme.text }}>
+              سَرْد
+            </Link>
+            
+            {/* User Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="hover:opacity-80 transition-opacity focus:outline-none"
+              >
+                {showDefaultIcon ? (
+                  <div className="w-10 h-10 rounded-full bg-[#4A4A4A] flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 48 48" fill="none">
+                      <path fillRule="evenodd" clipRule="evenodd" d="M24 43.5C27.4233 43.505 30.787 42.6046 33.75 40.89V34.5C33.75 32.7098 33.0388 30.9929 31.773 29.727C30.5071 28.4612 28.7902 27.75 27 27.75H21C19.2098 27.75 17.4929 28.4612 16.227 29.727C14.9612 30.9929 14.25 32.7098 14.25 34.5V40.89C17.213 42.6046 20.5767 43.505 24 43.5ZM38.25 34.5V37.311C40.8441 34.5339 42.5702 31.0594 43.2162 27.3145C43.8622 23.5696 43.3998 19.7175 41.886 16.2319C40.3722 12.7462 37.8728 9.77884 34.6952 7.69453C31.5176 5.61022 27.8002 4.49982 24 4.49982C20.1998 4.49982 16.4824 5.61022 13.3048 7.69453C10.1272 9.77884 7.62783 12.7462 6.114 16.2319C4.60016 19.7175 4.13781 23.5696 4.78378 27.3145C5.42975 31.0594 7.15589 34.5339 9.75 37.311V34.5C9.7491 32.1804 10.4652 29.9173 11.8003 28.0205C13.1354 26.1236 15.0242 24.6859 17.208 23.904C16.0752 22.601 15.341 20.9996 15.0932 19.2909C14.8454 17.5822 15.0943 15.8382 15.8102 14.2671C16.5262 12.6959 17.679 11.3638 19.1311 10.4298C20.5832 9.49568 22.2734 8.99902 24 8.99902C25.7266 8.99902 27.4168 9.49568 28.8689 10.4298C30.321 11.3638 31.4738 12.6959 32.1898 14.2671C32.9057 15.8382 33.1546 17.5822 32.9068 19.2909C32.659 20.9996 31.9248 22.601 30.792 23.904C32.9758 24.6859 34.8646 26.1236 36.1997 28.0205C37.5348 29.9173 38.2509 32.1804 38.25 34.5ZM24 48C30.3652 48 36.4697 45.4714 40.9706 40.9706C45.4714 36.4697 48 30.3652 48 24C48 17.6348 45.4714 11.5303 40.9706 7.02944C36.4697 2.52856 30.3652 0 24 0C17.6348 0 11.5303 2.52856 7.02944 7.02944C2.52856 11.5303 0 17.6348 0 24C0 30.3652 2.52856 36.4697 7.02944 40.9706C11.5303 45.4714 17.6348 48 24 48ZM28.5 18C28.5 19.1935 28.0259 20.3381 27.182 21.182C26.3381 22.0259 25.1935 22.5 24 22.5C22.8065 22.5 21.6619 22.0259 20.818 21.182C19.9741 20.3381 19.5 19.1935 19.5 18C19.5 16.8065 19.9741 15.6619 20.818 14.818C21.6619 13.9741 22.8065 13.5 24 13.5C25.1935 13.5 26.3381 13.9741 27.182 14.818C28.0259 15.6619 28.5 16.8065 28.5 18Z" fill="white"/>
+                    </svg>
+                  </div>
+                ) : (
+                  <img
+                    src={currentUser.profilePhoto}
+                    alt={currentUser.displayName}
+                    className="w-10 h-10 rounded-full object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                )}
+              </button>
 
-            {/* Dropdown Menu */}
-            {isDropdownOpen && currentUser && (
-              <div className="absolute top-full right-0 mt-2 w-48 bg-[#3C3C3C] rounded-xl shadow-lg overflow-hidden z-50">
-                <Link
-                  to={`/profile/${currentUser.userName}`}
-                  onClick={() => setIsDropdownOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
+              {/* Dropdown Menu */}
+              {isDropdownOpen && currentUser && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-[#3C3C3C] rounded-xl shadow-lg overflow-hidden z-50">
+                  <Link
+                    to={`/profile/${currentUser.userName}`}
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
+                  >
+                    <span className="text-[15px] noto-sans-arabic-extrabold">الملف الشخصي</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
+                  >
+                    <span className="text-[15px] noto-sans-arabic-extrabold">تسجيل الخروج</span>
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            <Link to="/library" className="hidden md:block noto-sans-arabic-medium hover:opacity-80 transition-opacity" style={{ color: currentTheme.text }}>
+              المكتبة
+            </Link>
+          </div>
+
+          {/* Center: Novel Cover + Title - Absolutely centered */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
+            {novel && (
+              <>
+                <Link 
+                  to={`/novel/${novelSlug}`}
+                  className="hover:opacity-80 transition-opacity"
                 >
-                  <span className="text-[15px] noto-sans-arabic-extrabold">الملف الشخصي</span>
+                  <img 
+                    src={novel.coverImageUrl || '/default-cover.png'} 
+                    alt={novel.title}
+                    className="h-12 w-9 object-cover rounded"
+                  />
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-[#4A4A4A] transition-colors"
+                <Link 
+                  to={`/novel/${novelSlug}`}
+                  className="noto-sans-arabic-extrabold text-[16px] hover:opacity-70 transition-opacity"
+                  style={{ color: currentTheme.text }}
                 >
-                  <span className="text-[15px] noto-sans-arabic-extrabold">تسجيل الخروج</span>
-                </button>
-              </div>
+                  {truncateTitle(novel.title, 10)}
+                </Link>
+              </>
             )}
           </div>
-          
-          <Link to="/library" className="hidden md:block noto-sans-arabic-medium hover:opacity-80 transition-opacity" style={{ color: currentTheme.text }}>
-            المكتبة
-          </Link>
-        </div>
 
-        {/* Center: Novel Cover + Title - Absolutely centered */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
-          {novel && (
-            <>
-              <Link 
-                to={`/novel/${novelSlug}`}
-                className="hover:opacity-80 transition-opacity"
-              >
-                <img 
-                  src={novel.coverImageUrl || '/default-cover.png'} 
-                  alt={novel.title}
-                  className="h-12 w-9 object-cover rounded"
-                />
-              </Link>
-              <Link 
-                to={`/novel/${novelSlug}`}
-                className="noto-sans-arabic-extrabold text-[16px] hover:opacity-70 transition-opacity"
-                style={{ color: currentTheme.text }}
-              >
-                {truncateTitle(novel.title, 10)}
-              </Link>
-            </>
-          )}
+          {/* Right: Progress */}
+          <div className="flex items-center gap-2 flex-1 justify-end" style={{ color: currentTheme.secondary }}>
+            <span className="text-[14px]">|</span>
+            <span className="noto-sans-arabic-medium text-[14px]">
+              {scrollProgress.toFixed(0)}%
+            </span>
+          </div>
         </div>
-
-        {/* Right: Progress */}
-        <div className="flex items-center gap-2 flex-1 justify-end" style={{ color: currentTheme.secondary }}>
-          <span className="text-[14px]">|</span>
-          <span className="noto-sans-arabic-medium text-[14px]">
-            {scrollProgress.toFixed(0)}%
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Mobile Floating Menu - Smooth Slide Animation */}
       <div className="md:hidden fixed left-2 top-1/2 -translate-y-1/2 z-40">
@@ -527,9 +574,9 @@ const ChapterReaderPage = () => {
       </div>
 
       {/* Desktop Right Sidebar - Author Info & Share */}
-      {novel?.author && (
+      {!focusMode && novel?.author && (
         <div 
-          className="hidden xl:flex fixed z-40 flex-col items-center gap-6 p-4 rounded-2xl w-[140px]" 
+          className="hidden xl:flex fixed z-40 flex-col items-center gap-6 p-4 rounded-2xl w-[140px] transition-all duration-300" 
           style={{ 
             right: 'max(20px, calc(50% - 550px))',
             top: '150px'
@@ -624,22 +671,53 @@ const ChapterReaderPage = () => {
             ) : (
               <>
                 <div className="mb-4">
-                  {paginatedChapters.map((ch) => (
-                    <Link
-                      key={ch.id}
-                      to={`/novel/${novelSlug}/chapter/${ch.id}`}
-                      className={`block p-4 rounded-lg mb-2 transition-colors ${
-                        ch.id === chapter?.id
-                          ? 'bg-[#4A9EFF] text-white'
-                          : 'text-white hover:bg-[#4A4A4A]'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="noto-sans-arabic-medium text-[14px] mt-1">{ch.number}</span>
-                        <span className="noto-sans-arabic-medium text-[15px] flex-1">{ch.title}</span>
-                      </div>
-                    </Link>
-                  ))}
+                  {paginatedChapters.map((ch) => {
+                    const isLocked = ch.isLocked && !privilegeInfo?.isSubscribed;
+                    const isPrivilegeChapter = ch.isLocked;
+                    const canAccess = !isLocked;
+                    
+                    return (
+                      <Link
+                        key={ch.id}
+                        to={canAccess ? `/novel/${novelSlug}/chapter/${ch.id}` : '#'}
+                        onClick={(e) => {
+                          if (isLocked) {
+                            e.preventDefault();
+                            // Check if user is logged in
+                            if (!currentUser) {
+                              setAuthModalAction('لقراءة هذا الفصل');
+                              setIsAuthModalOpen(true);
+                            } else {
+                              setIsUnlockPrivilegeModalOpen(true);
+                            }
+                          }
+                        }}
+                        className={`block p-4 rounded-lg mb-2 transition-colors ${
+                          ch.id === chapter?.id
+                            ? 'bg-[#4A9EFF] text-white'
+                            : isPrivilegeChapter
+                            ? 'bg-[#2C2C2C] text-white hover:bg-[#3A3A3A]'
+                            : 'text-white hover:bg-[#4A4A4A]'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="noto-sans-arabic-medium text-[14px] mt-1">{ch.number}</span>
+                          <div className="flex-1 flex items-center gap-2">
+                            <span className="noto-sans-arabic-medium text-[15px] flex-1">{ch.title}</span>
+                            {isPrivilegeChapter && (
+                              <>
+                                {canAccess ? (
+                                  <Unlock className="w-4 h-4 text-green-400 flex-shrink-0" />
+                                ) : (
+                                  <Lock className="w-4 h-4 text-[#4A9EFF] flex-shrink-0" />
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
                 
                 {/* Chapter Range Navigation */}
@@ -896,6 +974,29 @@ const ChapterReaderPage = () => {
                 عند الوصول لنهاية الفصل، سيتم تحميل الفصل التالي تلقائياً
               </p>
             </div>
+
+            {/* Focus Mode Toggle */}
+            <div>
+              <h3 className="text-white noto-sans-arabic-medium text-[16px] mb-4">وضع التركيز</h3>
+              <button
+                onClick={() => setFocusMode(!focusMode)}
+                className={`w-full px-4 py-3 rounded-xl border-2 transition-all flex items-center justify-between ${
+                  focusMode
+                    ? 'border-[#4A9EFF] bg-[#4A9EFF]/10'
+                    : 'border-gray-600 bg-transparent'
+                }`}
+              >
+                <span className={`noto-sans-arabic-medium text-[15px] ${focusMode ? 'text-[#4A9EFF]' : 'text-white'}`}>
+                  إخفاء الشريط العلوي والمؤلف
+                </span>
+                <div className={`w-12 h-6 rounded-full transition-all relative ${focusMode ? 'bg-[#4A9EFF]' : 'bg-[#4A4A4A]'}`}>
+                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${focusMode ? 'right-1' : 'right-7'}`} />
+                </div>
+              </button>
+              <p className="text-[#AAAAAA] text-[13px] noto-sans-arabic-regular mt-2">
+                إزالة المشتتات للقراءة دون إزعاج
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -903,11 +1004,15 @@ const ChapterReaderPage = () => {
       {/* Main Content */}
       <div 
         ref={contentRef}
-        className="pt-4 pb-8 px-6 overflow-y-auto custom-scrollbar"
+        className="pt-4 pb-8 px-6 overflow-y-auto overflow-x-visible custom-scrollbar transition-all duration-300"
         style={{ 
-          height: 'calc(100vh - 72px)',
-          marginTop: '72px',
-          fontFamily: fontFamilyMap[fontFamily]
+          height: focusMode ? '100vh' : 'calc(100vh - 72px)',
+          marginTop: focusMode ? '0' : '72px',
+          fontFamily: fontFamilyMap[fontFamily],
+          overscrollBehavior: 'contain',
+          WebkitOverflowScrolling: 'touch',
+          transform: 'translateZ(0)',
+          willChange: 'scroll-position'
         }}
       >
         {chapterLoading || novelLoading ? (
@@ -940,7 +1045,40 @@ const ChapterReaderPage = () => {
 
             {/* Chapter Content - Takes available space */}
             <div className="space-y-2 flex-grow">
-              {chapter.paragraphs && chapter.paragraphs.length > 0 ? (
+              {chapter.isLocked && (!chapter.paragraphs || chapter.paragraphs.length === 0) ? (
+                // Locked chapter message
+                <div className="flex flex-col items-center justify-center py-16 px-6">
+                  <div className="bg-[#2C2C2C] rounded-2xl p-8 max-w-md w-full border border-[#4A9EFF]/30">
+                    <div className="flex flex-col items-center text-center gap-4">
+                      <Lock className="w-16 h-16 text-[#4A9EFF]" />
+                      <h3 className="text-white text-xl font-bold noto-sans-arabic-extrabold">
+                        هذا الفصل مقفل
+                      </h3>
+                      <p className="text-[#B0B0B0] text-sm noto-sans-arabic-medium leading-relaxed">
+                        {chapter.lockMessage === 'This chapter is locked by the privilege system. Subscribe to unlock all privilege chapters!' 
+                          ? 'هذا الفصل مقفل بنظام الامتيازات. اشترك لفتح جميع الفصول المقفلة!'
+                          : chapter.lockMessage || 'هذا الفصل مقفل بنظام الامتيازات. اشترك لفتح جميع الفصول المقفلة!'
+                        }
+                      </p>
+                      {privilegeInfo && (
+                        <button
+                          onClick={() => {
+                            if (!currentUser) {
+                              setAuthModalAction('لقراءة هذا الفصل');
+                              setIsAuthModalOpen(true);
+                            } else {
+                              setIsUnlockPrivilegeModalOpen(true);
+                            }
+                          }}
+                          className="mt-4 w-full rounded-xl bg-[#4A9EFF] px-6 py-3 text-center text-base font-bold text-white shadow-lg shadow-[#4A9EFF]/20 transition-all hover:bg-[#3A8EEF] hover:scale-[1.02] active:scale-[0.98] noto-sans-arabic-extrabold"
+                        >
+                          {currentUser ? 'اشترك الآن' : 'سجل الدخول للاشتراك'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : chapter.paragraphs && chapter.paragraphs.length > 0 ? (
                 // New format: Display paragraphs with inline comments
                 chapter.paragraphs.map((paragraph) => (
                   <ChapterParagraph
@@ -950,6 +1088,7 @@ const ChapterReaderPage = () => {
                     theme={theme}
                     fontSize={fontSize}
                     textColor={contentColor}
+                    fontFamily={fontFamilyMap[fontFamily]}
                   />
                 ))
               ) : chapter.content ? (
@@ -1019,7 +1158,7 @@ const ChapterReaderPage = () => {
           className="relative flex items-center justify-center w-14 h-14 bg-[#0077FF] text-white rounded-full shadow-lg hover:bg-[#0066DD] transition-all hover:scale-110"
           aria-label="فتح التعليقات"
         >
-          <MessageCircle size={24} />
+          <MessagesSquare size={24} />
           {chapter?.commentsCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-[#FF4444] text-white text-xs rounded-full min-w-6 h-6 flex items-center justify-center px-1.5 noto-sans-arabic-bold shadow-lg">
               {chapter.commentsCount > 99 ? '99+' : chapter.commentsCount}
@@ -1041,6 +1180,28 @@ const ChapterReaderPage = () => {
         targetId={commentContext.targetId || chapterId}
         paragraphPreview={commentContext.preview}
       />
+
+      {/* Auth Required Modal */}
+      <AuthRequiredModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        action={authModalAction}
+      />
+
+      {/* Unlock Privilege Modal */}
+      {privilegeInfo && (
+        <UnlockPrivilegeModal
+          isOpen={isUnlockPrivilegeModalOpen}
+          onClose={() => setIsUnlockPrivilegeModalOpen(false)}
+          privilegeCost={privilegeInfo.subscriptionCost}
+          lockedChaptersCount={privilegeInfo.lockedChaptersCount}
+          novelId={novel?.id}
+          onSubscribeSuccess={() => {
+            // Refetch privilege info to update subscription status
+            fetchPrivilegeInfo();
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -33,6 +33,7 @@ import { useReorderWorkChapters } from "../../hooks/work/useReorderWorkChapters"
 import { useUpdateWork } from "../../hooks/work/useUpdateWork";
 import { useUpdateWorkCover } from "../../hooks/work/useUpdateWorkCover";
 import { useDeleteChapter } from "../../hooks/work/useDeleteChapter";
+import PrivilegeSystemSetup from "../../components/work/PrivilegeSystemSetup";
 
 const STATUS_OPTIONS = [
   { value: "Ongoing", label: "Ongoing" },
@@ -77,6 +78,10 @@ const TAB_OPTIONS = [
   {
     id: "chapters",
     label: "Chapters & pacing",
+  },
+  {
+    id: "privilege",
+    label: "Privilege system",
   },
 ];
 
@@ -612,7 +617,7 @@ const EditWorkPage = () => {
             <div className="flex flex-wrap items-center gap-3">
               {TAB_OPTIONS.map((tab) => {
                 const isActive = activeTab === tab.id;
-                const label = tab.id === 'story' ? 'استوديو القصة' : 'الفصول والإيقاع';
+                const label = tab.id === 'story' ? 'استوديو القصة' : tab.id === 'chapters' ? 'الفصول والإيقاع' : 'نظام الامتيازات';
                 return (
                   <button
                     key={tab.id}
@@ -862,6 +867,8 @@ const EditWorkPage = () => {
                     </section>
                   </div>
                 </div>
+              ) : activeTab === "privilege" ? (
+                <PrivilegeSystemSetup workId={workId} />
               ) : (
                 <section className="flex flex-col gap-8 rounded-xl border px-8 py-9" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
                   <div className="space-y-6">
