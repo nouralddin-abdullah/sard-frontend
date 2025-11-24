@@ -81,8 +81,8 @@ const ChapterParagraph = memo(({
         dangerouslySetInnerHTML={{ __html: paragraph.content }}
       />
 
-      {/* Circular Comment Button - Positioned on Right Side */}
-      <div className={`absolute -right-4 top-1/2 -translate-y-1/2 transition-opacity duration-300 ${(isHovered || hasComments) ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Circular Comment Button - Positioned on Left Side */}
+      <div className={`absolute left-0 top-1/2 -translate-y-1/2 transition-opacity duration-300 ${(isHovered || hasComments) ? 'opacity-100' : 'opacity-0'}`}>
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -90,17 +90,14 @@ const ChapterParagraph = memo(({
           }}
           className="relative group/button flex h-9 w-9 items-center justify-center rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] focus:ring-offset-2 focus:ring-offset-[#2C2C2C]"
           style={{
-            backgroundColor: hasComments ? '#4A9EFF' : 'rgba(74, 74, 74, 0.5)'
+            backgroundColor: 'rgba(74, 74, 74, 0.5)',
+            opacity: isHovered ? 1 : 0.7
           }}
           onMouseEnter={(e) => {
-            if (!hasComments) {
-              e.currentTarget.style.backgroundColor = '#888888';
-            }
+            e.currentTarget.style.backgroundColor = '#888888';
           }}
           onMouseLeave={(e) => {
-            if (!hasComments) {
-              e.currentTarget.style.backgroundColor = 'rgba(74, 74, 74, 0.5)';
-            }
+            e.currentTarget.style.backgroundColor = 'rgba(74, 74, 74, 0.5)';
           }}
           aria-label="تعليق على الفقرة"
         >
@@ -114,7 +111,7 @@ const ChapterParagraph = memo(({
           {/* Comment Count Badge */}
           {hasComments && paragraph.commentsCount > 0 && (
             <span 
-              className="absolute -top-1 -right-1 noto-sans-arabic-bold bg-[#FF4444] text-white rounded-full flex items-center justify-center shadow-lg"
+              className="absolute -top-1 -right-1 noto-sans-arabic-bold bg-slate-700 text-white rounded-full flex items-center justify-center shadow-lg"
               style={{ 
                 fontSize: '10px',
                 minWidth: '18px',
