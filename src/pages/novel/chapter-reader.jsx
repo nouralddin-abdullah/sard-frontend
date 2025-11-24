@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen, MessageCircle, Facebook, Twitter, Link as LinkIcon, Copy, Check, Lock, Unlock } from 'lucide-react';
+import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen, MessageCircle, MessagesSquare, Facebook, Twitter, Link as LinkIcon, Copy, Check, Lock, Unlock } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useGetNovelChapters } from '../../hooks/novel/useGetNovelChapters';
 import { useGetChapterById } from '../../hooks/novel/useGetChapterById';
@@ -1004,7 +1004,7 @@ const ChapterReaderPage = () => {
       {/* Main Content */}
       <div 
         ref={contentRef}
-        className="pt-4 pb-8 px-6 overflow-y-auto custom-scrollbar transition-all duration-300"
+        className="pt-4 pb-8 px-6 overflow-y-auto overflow-x-visible custom-scrollbar transition-all duration-300"
         style={{ 
           height: focusMode ? '100vh' : 'calc(100vh - 72px)',
           marginTop: focusMode ? '0' : '72px',
@@ -1158,7 +1158,7 @@ const ChapterReaderPage = () => {
           className="relative flex items-center justify-center w-14 h-14 bg-[#0077FF] text-white rounded-full shadow-lg hover:bg-[#0066DD] transition-all hover:scale-110"
           aria-label="فتح التعليقات"
         >
-          <MessageCircle size={24} />
+          <MessagesSquare size={24} />
           {chapter?.commentsCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-[#FF4444] text-white text-xs rounded-full min-w-6 h-6 flex items-center justify-center px-1.5 noto-sans-arabic-bold shadow-lg">
               {chapter.commentsCount > 99 ? '99+' : chapter.commentsCount}

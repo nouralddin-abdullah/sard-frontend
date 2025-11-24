@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, memo } from 'react';
-import { MessageCircle, Plus } from 'lucide-react';
+import { MessageSquarePlus } from 'lucide-react';
 
 const ChapterParagraph = memo(({ 
   paragraph, 
@@ -64,15 +64,11 @@ const ChapterParagraph = memo(({
   return (
     <div
       ref={paragraphRef}
-      className="relative py-3 px-0"
+      className="group relative py-3 px-0"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      style={{ 
-        contain: 'layout style paint',
-        contentVisibility: 'auto'
-      }}
     >
-      {/* Paragraph Text - No hover effects, no background changes */}
+      {/* Paragraph Text */}
       <p
         className="leading-[2] whitespace-pre-line px-4 md:px-6"
         style={{
@@ -85,50 +81,52 @@ const ChapterParagraph = memo(({
         dangerouslySetInnerHTML={{ __html: paragraph.content }}
       />
 
-      {/* Simple Wattpad-style Comment Button - appears on hover or if has comments */}
-      {(isHovered || hasComments) && (
+      {/* Circular Comment Button - Positioned on Right Side */}
+      <div className={`absolute -right-4 top-1/2 -translate-y-1/2 transition-opacity duration-300 ${(isHovered || hasComments) ? 'opacity-100' : 'opacity-0'}`}>
         <button
           onClick={(e) => {
             e.stopPropagation();
             onCommentClick(paragraph);
           }}
-          className="absolute left-2 bottom-2 flex items-center justify-center transition-opacity"
+          className="relative group/button flex h-9 w-9 items-center justify-center rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] focus:ring-offset-2 focus:ring-offset-[#2C2C2C]"
           style={{
-            width: '34px',
-            height: '38px',
-            backgroundColor: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '0',
-            opacity: isHovered ? 1 : 0.7
+            backgroundColor: hasComments ? '#4A9EFF' : 'rgba(74, 74, 74, 0.5)'
+          }}
+          onMouseEnter={(e) => {
+            if (!hasComments) {
+              e.currentTarget.style.backgroundColor = '#888888';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!hasComments) {
+              e.currentTarget.style.backgroundColor = 'rgba(74, 74, 74, 0.5)';
+            }
           }}
           aria-label="تعليق على الفقرة"
         >
-          <div className="relative">
-            <svg width="28" height="28" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 12H11V9H14V7H11V4H9V7H6V9H9V12ZM0 20V2C0 1.45 0.196 0.979333 0.588 0.588C0.98 0.196667 1.45067 0.000666667 2 0H18C18.55 0 19.021 0.196 19.413 0.588C19.805 0.98 20.0007 1.45067 20 2V14C20 14.55 19.8043 15.021 19.413 15.413C19.0217 15.805 18.5507 16.0007 18 16H4L0 20Z" fill="#797979"/>
-            </svg>
-            {hasComments && (
-              <span 
-                className="absolute -top-1 -right-1 noto-sans-arabic-bold"
-                style={{ 
-                  fontSize: '11px',
-                  color: '#797979',
-                  backgroundColor: theme === 'dark' ? '#2C2C2C' : theme === 'light' ? '#FFFFFF' : '#F4ECD8',
-                  borderRadius: '50%',
-                  width: '16px',
-                  height: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                {paragraph.commentsCount > 9 ? '9+' : paragraph.commentsCount}
-              </span>
-            )}
+          <MessageSquarePlus size={18} className="text-white" />
+          
+          {/* Tooltip */}
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-800 px-2 py-1 text-xs text-white opacity-0 group-hover/button:opacity-100 transition-opacity pointer-events-none z-[100]">
+            {hasComments ? `${paragraph.commentsCount} ${paragraph.commentsCount === 1 ? 'تعليق' : 'تعليقات'}` : 'أضف تعليق'}
           </div>
+          
+          {/* Comment Count Badge */}
+          {hasComments && paragraph.commentsCount > 0 && (
+            <span 
+              className="absolute -top-1 -right-1 noto-sans-arabic-bold bg-[#FF4444] text-white rounded-full flex items-center justify-center shadow-lg"
+              style={{ 
+                fontSize: '10px',
+                minWidth: '18px',
+                height: '18px',
+                padding: '0 4px'
+              }}
+            >
+              {paragraph.commentsCount > 9 ? '9+' : paragraph.commentsCount}
+            </span>
+          )}
         </button>
-      )}
+      </div>
     </div>
   );
 });
