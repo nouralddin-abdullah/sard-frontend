@@ -6,7 +6,8 @@ const ChapterParagraph = memo(({
   onCommentClick, 
   theme, 
   fontSize,
-  textColor
+  textColor,
+  fontFamily
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const paragraphRef = useRef(null);
@@ -73,10 +74,11 @@ const ChapterParagraph = memo(({
     >
       {/* Paragraph Text - No hover effects, no background changes */}
       <p
-        className="leading-[2] whitespace-pre-line px-4 md:px-6 tajawal-regular"
+        className="leading-[2] whitespace-pre-line px-4 md:px-6"
         style={{
           color: paragraphColor,
           fontSize: `${fontSize}px`,
+          fontFamily: fontFamily,
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden'
         }}
