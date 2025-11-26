@@ -83,6 +83,21 @@ const PrivilegeSystemSetup = ({ workId }) => {
     sequence: chapter.sequence || index + 1
   }));
 
+  // Calculate the correct starting index for first-time enable
+  // Formula: totalChapters - 20 (but minimum 10 to keep first 10 free)
+  // This ensures we only lock the LAST 20 chapters maximum
+  useEffect(() => {
+    if (!wasEnabledBefore && baseChapters.length > 0) {
+      const totalChapters = baseChapters.length;
+      // Start index should lock at most 20 chapters from the end
+      // For 50 chapters: 50 - 20 = 30, so start at index 30 (chapter 31)
+      // For 15 chapters: 15 - 20 = -5, so use minimum 10
+      const suggestedStartIndex = Math.max(10, totalChapters - 20);
+      setPrivilegeStartIndex(suggestedStartIndex);
+      setInitialStartIndex(suggestedStartIndex);
+      setOriginalStartIndex(suggestedStartIndex);
+    }
+  }, [baseChapters.length, wasEnabledBefore]);
 
   // Dynamically calculate chapter status based on privilegeStartIndex
   const chapters = baseChapters.map((chapter, index) => {
