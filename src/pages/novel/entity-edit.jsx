@@ -23,6 +23,7 @@ import { useDeleteRelationship } from '../../hooks/entity/useDeleteRelationship'
 import { useAddGalleryImage } from '../../hooks/entity/useAddGalleryImage';
 import { useDeleteGalleryImage } from '../../hooks/entity/useDeleteGalleryImage';
 import { useUpdateGalleryImage } from '../../hooks/entity/useUpdateGalleryImage';
+import { useDeleteEntity } from '../../hooks/entity/useDeleteEntity';
 
 // Article Card Component with Inline Editor
 const ArticleCard = ({ 
@@ -211,6 +212,7 @@ const EntityEditPage = () => {
   const addGalleryImageMutation = useAddGalleryImage();
   const updateGalleryImageMutation = useUpdateGalleryImage();
   const deleteGalleryImageMutation = useDeleteGalleryImage();
+  const deleteEntityMutation = useDeleteEntity();
   
   // Local state
   const [localEntityData, setLocalEntityData] = useState(null);
@@ -231,6 +233,7 @@ const EntityEditPage = () => {
   const [originalEntityData, setOriginalEntityData] = useState(null);
   const [deleteGalleryImageModalOpen, setDeleteGalleryImageModalOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState(null);
+  const [deleteEntityModalOpen, setDeleteEntityModalOpen] = useState(false);
   const [addImageModalOpen, setAddImageModalOpen] = useState(false);
   const [imageCaption, setImageCaption] = useState("");
   const [selectedImageFile, setSelectedImageFile] = useState(null);
@@ -833,6 +836,17 @@ const EntityEditPage = () => {
     navigate(`/novel/${novelId}/wikipedia/${entityId}`);
   };
 
+  const handleDeleteEntity = async () => {
+    try {
+      await deleteEntityMutation.mutateAsync({ novelId, entityId });
+      toast.success('تم حذف الكيان بنجاح');
+      navigate(`/novel/${novelId}/wikipedia`);
+    } catch (error) {
+      console.error('Failed to delete entity:', error);
+      toast.error('فشل حذف الكيان');
+    }
+  };
+
   // Loading and error states
   if (isLoading) {
     return (
@@ -883,6 +897,13 @@ const EntityEditPage = () => {
           </div>
 
           <div className="flex gap-3">
+            <button
+              onClick={() => setDeleteEntityModalOpen(true)}
+              className="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors noto-sans-arabic-medium text-white flex items-center gap-2"
+            >
+              <Trash2 size={18} />
+              حذف
+            </button>
             <button
               onClick={handleCancel}
               className="px-6 py-2 bg-[#3C3C3C] hover:bg-[#5A5A5A] rounded-lg transition-colors noto-sans-arabic-medium"
@@ -1531,6 +1552,18 @@ const EntityEditPage = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Entity Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteEntityModalOpen}
+        onClose={() => setDeleteEntityModalOpen(false)}
+        onConfirm={handleDeleteEntity}
+        title="حذف الكيان"
+        message="هل أنت متأكد من حذف هذا الكيان؟ سيتم حذف جميع المقالات والعلاقات والصور المرتبطة به. لن تتمكن من التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        isLoading={deleteEntityMutation.isPending}
+      />
     </div>
   );
 };
