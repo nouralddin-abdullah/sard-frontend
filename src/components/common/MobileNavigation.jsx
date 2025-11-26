@@ -1,0 +1,392 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, Library, Trophy, Search, Menu, X, User, Bell, Settings, LogOut, Pen, BookOpen, BarChart3 } from 'lucide-react';
+import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
+import { useGetUnreadCount } from '../../hooks/notification/useGetUnreadCount';
+import { useQueryClient } from '@tanstack/react-query';
+import useAuthStore from '../../store/authTokenStore';
+import Cookies from 'js-cookie';
+import { TOKEN_KEY } from '../../constants/token-key';
+
+const MobileNavigation = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { data: currentUser } = useGetLoggedInUser();
+  const { data: unreadData } = useGetUnreadCount();
+  const queryClient = useQueryClient();
+  const { deleteToken } = useAuthStore();
+  
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const unreadCount = unreadData?.unreadCount || 0;
+
+  // Close drawer on route change
+  useEffect(() => {
+    setIsDrawerOpen(false);
+  }, [location.pathname]);
+
+  // Prevent body scroll when drawer is open
+  useEffect(() => {
+    if (isDrawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isDrawerOpen]);
+
+  const handleLogout = () => {
+    Cookies.remove(TOKEN_KEY);
+    deleteToken();
+    queryClient.clear();
+    setIsDrawerOpen(false);
+    navigate('/login');
+    window.location.reload();
+  };
+
+  // Determine home link based on auth status
+  const homeLink = currentUser ? "/home" : "/";
+
+  // Check if current path is active
+  const isActive = (path) => {
+    if (path === '/home' || path === '/') {
+      return location.pathname === '/home' || location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  // Pages where navigation should be hidden
+  const hiddenPaths = [
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/change-password',
+    '/auth/success',
+    '/auth/error',
+  ];
+
+  // Check if we're in chapter reader
+  const isChapterReader = location.pathname.includes('/chapter/');
+  
+  // Hide navigation on certain pages
+  if (hiddenPaths.some(path => location.pathname.startsWith(path)) || isChapterReader) {
+    return null;
+  }
+
+  const showDefaultIcon = !currentUser || !currentUser.profilePhoto || imageError;
+
+  return (
+    <>
+      {/* Bottom Navigation Bar */}
+      <nav 
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[#3C3C3C] bg-[#2C2C2C]/95 backdrop-blur-lg"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
+        <div className="flex justify-around items-start pt-2 pb-1 px-1">
+          {/* Home */}
+          <Link 
+            to={homeLink}
+            className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-all"
+          >
+            <div className={`relative rounded-full px-4 py-1.5 transition-all ${
+              isActive('/home') || isActive('/') 
+                ? 'bg-[#4A9EFF]/20' 
+                : ''
+            }`}>
+              <Home 
+                size={22} 
+                className={isActive('/home') || isActive('/') ? 'text-[#4A9EFF]' : 'text-[#9CA3AF]'} 
+                fill={isActive('/home') || isActive('/') ? '#4A9EFF' : 'none'}
+              />
+            </div>
+            <p className={`text-[10px] font-medium ${
+              isActive('/home') || isActive('/') ? 'text-[#4A9EFF] font-semibold' : 'text-[#9CA3AF]'
+            }`}>الرئيسية</p>
+          </Link>
+
+          {/* Library */}
+          <Link 
+            to="/library"
+            className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-all"
+          >
+            <div className={`relative rounded-full px-4 py-1.5 transition-all ${
+              isActive('/library') 
+                ? 'bg-[#4A9EFF]/20' 
+                : ''
+            }`}>
+              <Library 
+                size={22} 
+                className={isActive('/library') ? 'text-[#4A9EFF]' : 'text-[#9CA3AF]'} 
+                fill={isActive('/library') ? '#4A9EFF' : 'none'}
+              />
+            </div>
+            <p className={`text-[10px] font-medium ${
+              isActive('/library') ? 'text-[#4A9EFF] font-semibold' : 'text-[#9CA3AF]'
+            }`}>المكتبة</p>
+          </Link>
+
+          {/* Leaderboard */}
+          <Link 
+            to="/leaderboard"
+            className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-all"
+          >
+            <div className={`relative rounded-full px-4 py-1.5 transition-all ${
+              isActive('/leaderboard') 
+                ? 'bg-[#4A9EFF]/20' 
+                : ''
+            }`}>
+              <Trophy 
+                size={22} 
+                className={isActive('/leaderboard') ? 'text-[#4A9EFF]' : 'text-[#9CA3AF]'} 
+                fill={isActive('/leaderboard') ? '#4A9EFF' : 'none'}
+              />
+            </div>
+            <p className={`text-[10px] font-medium ${
+              isActive('/leaderboard') ? 'text-[#4A9EFF] font-semibold' : 'text-[#9CA3AF]'
+            }`}>المتصدرون</p>
+          </Link>
+
+          {/* Search */}
+          <Link 
+            to="/search"
+            className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-all"
+          >
+            <div className={`relative rounded-full px-4 py-1.5 transition-all ${
+              isActive('/search') 
+                ? 'bg-[#4A9EFF]/20' 
+                : ''
+            }`}>
+              <Search 
+                size={22} 
+                className={isActive('/search') ? 'text-[#4A9EFF]' : 'text-[#9CA3AF]'} 
+              />
+            </div>
+            <p className={`text-[10px] font-medium ${
+              isActive('/search') ? 'text-[#4A9EFF] font-semibold' : 'text-[#9CA3AF]'
+            }`}>البحث</p>
+          </Link>
+
+          {/* More Menu */}
+          <button 
+            onClick={() => setIsDrawerOpen(true)}
+            className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-all"
+          >
+            <div className="relative rounded-full px-4 py-1.5">
+              <Menu size={22} className="text-[#9CA3AF]" />
+              {currentUser && unreadCount > 0 && (
+                <span className="absolute top-0 right-2 bg-red-500 text-white text-[8px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] font-medium text-[#9CA3AF]">المزيد</p>
+          </button>
+        </div>
+      </nav>
+
+      {/* Drawer Backdrop */}
+      {isDrawerOpen && (
+        <div 
+          className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity"
+          onClick={() => setIsDrawerOpen(false)}
+        />
+      )}
+
+      {/* Side Drawer */}
+      <aside 
+        className={`md:hidden fixed top-0 bottom-0 right-0 z-50 w-72 transform transition-transform duration-300 ease-out bg-[#1E1E1E] rounded-l-2xl shadow-2xl flex flex-col ${
+          isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between p-4 border-b border-[#3C3C3C]">
+          <h3 className="text-lg font-bold text-white noto-sans-arabic-extrabold">القائمة</h3>
+          <button 
+            onClick={() => setIsDrawerOpen(false)}
+            className="p-2 rounded-full text-[#9CA3AF] hover:bg-white/5 transition-colors"
+          >
+            <X size={22} />
+          </button>
+        </div>
+
+        {/* User Info Section */}
+        {currentUser && (
+          <div className="p-4 border-b border-[#3C3C3C]">
+            <Link 
+              to={`/profile/${currentUser.userName}`}
+              onClick={() => setIsDrawerOpen(false)}
+              className="flex items-center gap-3"
+            >
+              {showDefaultIcon ? (
+                <div className="w-12 h-12 rounded-full bg-[#3C3C3C] flex items-center justify-center">
+                  <User size={24} className="text-white" />
+                </div>
+              ) : (
+                <img
+                  src={currentUser.profilePhoto}
+                  alt={currentUser.displayName || 'User'}
+                  className="w-12 h-12 rounded-full object-cover"
+                  onError={() => setImageError(true)}
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-semibold noto-sans-arabic-bold truncate">
+                  {currentUser.displayName || currentUser.userName}
+                </p>
+                <p className="text-[#9CA3AF] text-sm truncate">@{currentUser.userName}</p>
+              </div>
+            </Link>
+          </div>
+        )}
+
+        {/* Navigation Links */}
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+          {/* Author Tools Section */}
+          <div className="mb-4">
+            <h4 className="text-xs font-semibold text-[#6B7280] px-3 py-2 uppercase tracking-wider noto-sans-arabic-medium">
+              أدوات المؤلف
+            </h4>
+            <div className="space-y-1">
+              <Link
+                to="/dashboard/works"
+                onClick={() => setIsDrawerOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-white/5 transition-colors group"
+              >
+                <Pen size={20} className="text-[#9CA3AF] group-hover:text-[#4A9EFF] transition-colors" />
+                <span className="text-sm font-medium noto-sans-arabic-medium">أعمالي</span>
+              </Link>
+              <Link
+                to="/earnings"
+                onClick={() => setIsDrawerOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-white/5 transition-colors group"
+              >
+                <BarChart3 size={20} className="text-[#9CA3AF] group-hover:text-[#4A9EFF] transition-colors" />
+                <span className="text-sm font-medium noto-sans-arabic-medium">الأرباح</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-[#3C3C3C] my-3" />
+
+          {/* Main Navigation */}
+          <div className="space-y-1">
+            {currentUser ? (
+              <>
+                <Link
+                  to={`/profile/${currentUser.userName}`}
+                  onClick={() => setIsDrawerOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${
+                    isActive(`/profile/${currentUser.userName}`) 
+                      ? 'bg-[#4A9EFF]/10 text-[#4A9EFF]' 
+                      : 'text-white hover:bg-white/5'
+                  }`}
+                >
+                  <User 
+                    size={20} 
+                    className={isActive(`/profile/${currentUser.userName}`) ? 'text-[#4A9EFF]' : 'text-[#9CA3AF] group-hover:text-[#4A9EFF]'} 
+                    fill={isActive(`/profile/${currentUser.userName}`) ? '#4A9EFF' : 'none'}
+                  />
+                  <span className="text-sm font-medium noto-sans-arabic-medium">الملف الشخصي</span>
+                </Link>
+
+                <Link
+                  to="/notifications"
+                  onClick={() => setIsDrawerOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${
+                    isActive('/notifications') 
+                      ? 'bg-[#4A9EFF]/10 text-[#4A9EFF]' 
+                      : 'text-white hover:bg-white/5'
+                  }`}
+                >
+                  <div className="relative">
+                    <Bell 
+                      size={20} 
+                      className={isActive('/notifications') ? 'text-[#4A9EFF]' : 'text-[#9CA3AF] group-hover:text-[#4A9EFF]'} 
+                      fill={isActive('/notifications') ? '#4A9EFF' : 'none'}
+                    />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium noto-sans-arabic-medium">الإشعارات</span>
+                  {unreadCount > 0 && (
+                    <span className="mr-auto text-xs font-semibold bg-[#4A9EFF] text-white rounded-full h-5 min-w-5 flex items-center justify-center px-1.5">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </Link>
+
+                <Link
+                  to={`/profile/${currentUser.userName}/settings`}
+                  onClick={() => setIsDrawerOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${
+                    isActive('/settings') 
+                      ? 'bg-[#4A9EFF]/10 text-[#4A9EFF]' 
+                      : 'text-white hover:bg-white/5'
+                  }`}
+                >
+                  <Settings 
+                    size={20} 
+                    className={isActive('/settings') ? 'text-[#4A9EFF]' : 'text-[#9CA3AF] group-hover:text-[#4A9EFF]'} 
+                  />
+                  <span className="text-sm font-medium noto-sans-arabic-medium">الإعدادات</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  onClick={() => setIsDrawerOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-white/5 transition-colors group"
+                >
+                  <User size={20} className="text-[#9CA3AF] group-hover:text-[#4A9EFF] transition-colors" />
+                  <span className="text-sm font-medium noto-sans-arabic-medium">تسجيل الدخول</span>
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setIsDrawerOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-white/5 transition-colors group"
+                >
+                  <User size={20} className="text-[#9CA3AF] group-hover:text-[#4A9EFF] transition-colors" />
+                  <span className="text-sm font-medium noto-sans-arabic-medium">إنشاء حساب</span>
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Help Center */}
+          <div className="h-px bg-[#3C3C3C] my-3" />
+          <Link
+            to="/help"
+            onClick={() => setIsDrawerOpen(false)}
+            className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-white/5 transition-colors group"
+          >
+            <BookOpen size={20} className="text-[#9CA3AF] group-hover:text-[#4A9EFF] transition-colors" />
+            <span className="text-sm font-medium noto-sans-arabic-medium">مركز المساعدة</span>
+          </Link>
+        </nav>
+
+        {/* Logout Button */}
+        {currentUser && (
+          <div className="p-3 border-t border-[#3C3C3C]">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-colors group"
+            >
+              <LogOut size={20} className="text-[#9CA3AF] group-hover:text-red-500 transition-colors" />
+              <span className="text-sm font-medium noto-sans-arabic-medium">تسجيل الخروج</span>
+            </button>
+          </div>
+        )}
+      </aside>
+    </>
+  );
+};
+
+export default MobileNavigation;
