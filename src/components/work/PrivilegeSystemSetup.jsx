@@ -235,6 +235,11 @@ const PrivilegeSystemSetup = ({ workId }) => {
       // Cannot move backward if privilege was already enabled
       if (wasEnabledBefore && index < initialStartIndex) return;
       
+      // Prevent locking more than 20 chapters
+      // Minimum allowed index = totalChapters - 20 (but at least 10)
+      const minAllowedIndex = Math.max(10, baseChapters.length - 20);
+      if (index < minAllowedIndex) return;
+      
       setPrivilegeStartIndex(index);
     }
   };
