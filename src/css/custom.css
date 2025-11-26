@@ -53,3 +53,22 @@ article h1, article h2, article h3, article h4 {
   font-family: 'Noto Sans Arabic', sans-serif;
   font-weight: 800;
 }
+
+/* Mobile Navigation Safe Area Support */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-nav-safe-area {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Add padding to main content to account for fixed bottom navigation */
+  .mobile-content-padding {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Fallback for devices without safe-area-inset support */
+@supports not (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-content-padding {
+    padding-bottom: 70px;
+  }
+}

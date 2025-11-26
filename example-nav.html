@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tasrd - Mobile Navigation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 300,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        .material-symbols-outlined.fill {
+             font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#3B82F6",
+              "background-light": "#f6f7f8",
+              "background-dark": "#121212",
+              "surface-dark": "#1E1E1E",
+              "surface-light": "#FFFFFF",
+              "text-light": "#E0E0E0",
+              "text-light-muted": "#9dabb9",
+              "text-dark": "#121212",
+              "text-dark-muted": "#6b7280",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative min-h-screen w-full mx-auto max-w-md overflow-hidden" id="app-wrapper">
+<header class="fixed top-0 left-0 right-0 z-40 mx-auto max-w-md bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+<div class="flex items-center justify-between whitespace-nowrap px-4 py-3">
+<div class="flex items-center gap-2 text-text-dark dark:text-text-light">
+<svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+</svg>
+<h2 class="text-text-dark dark:text-text-light text-2xl font-bold tracking-tight">Tasrd</h2>
+</div>
+<div class="flex flex-1 justify-end items-center gap-4">
+<button class="text-text-dark-muted dark:text-text-light-muted p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'wght' 400">search</span>
+</button>
+<div class="relative">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBsFzzD0IFi7KE1IkqVMGVH4-LxUTUr4qrkbESUa2C7vmoYQWhRjKyX1uwjflS4uJ1YVtzhjpyHc1E1yyJ-Oky-sUdK_Ud6x1tCdGw_6poFpxhHQLBXEADcxCR9ac_OPdgfMN4kU1f13245tzogNrWWUz_f8cKLggEDdqPeEWuDpqb45p0zOW7gVxQWLdwKgF7eDAgi-5OJT8d4VYkLPvPn7sU7dMfiOjauHlkVJ-epA21a6Mksp5LqOa2_yc9Xkw3luSpUxV0p2M4F");'></div>
+<span class="absolute top-0 right-0 block h-3.5 w-3.5 rounded-full bg-blue-500 border-2 border-background-light dark:border-background-dark"></span>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-20 pb-24 px-4 text-text-dark dark:text-text-light">
+<h1 class="text-2xl font-bold mb-4">Home</h1>
+<div class="space-y-4">
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl">
+<h2 class="font-semibold text-lg">Demo Content</h2>
+<p class="text-text-dark-muted dark:text-text-light-muted mt-2">This is the main content area for the page. It sits above the bottom navigation bar and below the top bar.</p>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl">
+<h2 class="font-semibold text-lg">Another Card</h2>
+<p class="text-text-dark-muted dark:text-text-light-muted mt-2">More content can be placed here to fill up the page and demonstrate scrolling.</p>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl">
+<h2 class="font-semibold text-lg">Another Card</h2>
+<p class="text-text-dark-muted dark:text-text-light-muted mt-2">More content can be placed here to fill up the page and demonstrate scrolling.</p>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl">
+<h2 class="font-semibold text-lg">Another Card</h2>
+<p class="text-text-dark-muted dark:text-text-light-muted mt-2">More content can be placed here to fill up the page and demonstrate scrolling.</p>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl">
+<h2 class="font-semibold text-lg">Another Card</h2>
+<p class="text-text-dark-muted dark:text-text-light-muted mt-2">More content can be placed here to fill up the page and demonstrate scrolling.</p>
+</div>
+</div>
+</main>
+<div class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" id="side-drawer-scrim"></div>
+<aside class="fixed top-0 bottom-0 right-0 z-50 w-80 transform translate-x-0 bg-surface-light dark:bg-surface-dark rounded-l-xl shadow-2xl p-4 flex flex-col" id="side-drawer">
+<div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-200 dark:border-gray-700/50">
+<h3 class="text-lg font-semibold text-text-dark dark:text-text-light">Menu</h3>
+<button class="p-2 rounded-full text-text-dark-muted dark:text-text-light-muted hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<nav class="flex-grow space-y-2">
+<div>
+<h4 class="text-xs font-semibold text-text-dark-muted dark:text-text-light-muted px-3 py-2 uppercase tracking-wider">Author Tools</h4>
+<div class="space-y-1">
+<a class="flex items-center gap-4 px-3 py-2.5 text-text-dark dark:text-text-light rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-dark-muted dark:text-text-light-muted group-hover:text-primary transition-colors">edit_square</span>
+<p class="text-sm font-medium">My Works</p>
+</a>
+<a class="flex items-center gap-4 px-3 py-2.5 text-text-dark dark:text-text-light rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-dark-muted dark:text-text-light-muted group-hover:text-primary transition-colors">bar_chart</span>
+<p class="text-sm font-medium">Statistics</p>
+</a>
+</div>
+</div>
+<div class="!my-4 h-px bg-gray-200 dark:bg-gray-700/50"></div>
+<div class="space-y-1">
+<a class="flex items-center gap-4 px-3 py-2.5 bg-blue-500/10 text-primary rounded-lg font-semibold" href="#">
+<span class="material-symbols-outlined fill text-primary">person</span>
+<p class="text-sm">Profile</p>
+</a>
+<a class="flex items-center gap-4 px-3 py-2.5 text-text-dark dark:text-text-light rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-dark-muted dark:text-text-light-muted group-hover:text-primary transition-colors">notifications</span>
+<p class="text-sm font-medium">Notifications</p>
+<span class="ml-auto text-xs font-semibold bg-primary text-white rounded-full h-5 w-5 flex items-center justify-center">3</span>
+</a>
+<a class="flex items-center gap-4 px-3 py-2.5 text-text-dark dark:text-text-light rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-dark-muted dark:text-text-light-muted group-hover:text-primary transition-colors">settings</span>
+<p class="text-sm font-medium">Settings</p>
+</a>
+</div>
+</nav>
+<div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700/50">
+<a class="flex items-center gap-4 px-3 py-2.5 text-text-dark dark:text-text-light rounded-lg hover:bg-red-500/10 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-dark-muted dark:text-text-light-muted group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors">logout</span>
+<p class="text-sm font-medium">Sign Out</p>
+</a>
+</div>
+</aside>
+<nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-gray-200/50 dark:border-gray-800/70 bg-surface-light/80 dark:bg-surface-dark/80 backdrop-blur-lg">
+<div class="flex justify-around items-start pt-2 pb-1 px-2">
+<a class="flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all" href="#">
+<div class="relative rounded-full px-5 py-1 bg-gradient-to-br from-blue-500/20 to-blue-500/0 text-primary">
+<span class="material-symbols-outlined fill" style="font-variation-settings: 'FILL' 1, 'wght' 400;">home</span>
+</div>
+<p class="text-xs font-semibold text-primary">Home</p>
+</a>
+<a class="flex flex-col items-center justify-center text-text-dark-muted dark:text-text-light-muted gap-1 flex-1 py-1" href="#">
+<span class="material-symbols-outlined">import_contacts</span>
+<p class="text-xs font-medium">Library</p>
+</a>
+<a class="flex flex-col items-center justify-center text-text-dark-muted dark:text-text-light-muted gap-1 flex-1 py-1" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<p class="text-xs font-medium">Rankings</p>
+</a>
+<a class="flex flex-col items-center justify-center text-text-dark-muted dark:text-text-light-muted gap-1 flex-1 py-1" href="#">
+<span class="material-symbols-outlined">menu</span>
+<p class="text-xs font-medium">More</p>
+</a>
+</div>
+</nav>
+</div>
+
+</body></html>
