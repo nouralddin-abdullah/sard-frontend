@@ -34,5 +34,7 @@ export const useGetGenresList = () => {
   return useQuery({
     queryKey: ["genres"],
     queryFn: getGenres,
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours - genres rarely change
+    gcTime: 1000 * 60 * 60 * 24, // Keep in cache for 24 hours
   });
 };

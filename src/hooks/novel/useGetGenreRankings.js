@@ -27,7 +27,7 @@ export const useGetGenreRankings = (genreSlug, rankingType, pageSize = 10, pageN
 
       return response.json();
     },
-    staleTime: 15 * 60 * 1000, // 15 minutes
-    cacheTime: 20 * 60 * 1000, // 20 minutes
+    staleTime: 1000 * 60 * 60, // 1 hour - rankings are recalculated daily
+    gcTime: 1000 * 60 * 60 * 2, // Keep in cache for 2 hours
   });
 };
