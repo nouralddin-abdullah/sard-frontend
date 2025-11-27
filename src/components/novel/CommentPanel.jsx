@@ -393,7 +393,7 @@ const CommentPanel = ({
                 </div>
 
                 {/* Comment Content */}
-                <p className="text-white noto-sans-arabic-medium text-sm leading-relaxed mb-3 pr-13">
+                <p className="text-white noto-sans-arabic-medium text-sm leading-relaxed mb-3 pr-13 whitespace-pre-wrap">
                   {comment.content}
                 </p>
 
@@ -600,12 +600,6 @@ const CommentPanel = ({
                 className="w-full bg-[#5A5A5A] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#0077FF] placeholder-[#797979] overflow-hidden"
                 rows="2"
                 style={{ minHeight: "60px", maxHeight: "200px" }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit();
-                  }
-                }}
               />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
@@ -53,8 +54,8 @@ const ShareModal = ({
     window.open(whatsappUrl, "_blank");
   };
 
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 z-50">
+  return createPortal(
+    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 z-[9999]">
       <div className="relative w-full max-w-lg rounded-xl bg-[#2C2C2C] text-white shadow-2xl">
         {/* Header */}
         <div className="flex items-start justify-between p-6 border-b border-white/10">
@@ -191,7 +192,8 @@ const ShareModal = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

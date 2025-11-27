@@ -12,7 +12,7 @@ import CommentReplies from "../novel/CommentReplies";
 import ConfirmModal from "./ConfirmModal";
 import AuthRequiredModal from "./AuthRequiredModal";
 
-const PostCommentPanel = ({ isOpen, postId }) => {
+const PostCommentPanel = ({ isOpen, postId, onCommentCountChange }) => {
   const [expandedReplies, setExpandedReplies] = useState({});
   const [sortBy, setSortBy] = useState("recent");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -52,6 +52,13 @@ const PostCommentPanel = ({ isOpen, postId }) => {
 
   // Flatten comments from pages
   const comments = commentsData?.pages.flatMap((page) => page.items) || [];
+  
+  // Update parent component with comment count when data changes
+  useEffect(() => {
+    if (commentsData?.pages?.[0]?.totalItemsCount !== undefined && onCommentCountChange) {
+      onCommentCountChange(commentsData.pages[0].totalItemsCount);
+    }
+  }, [commentsData, onCommentCountChange]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -307,7 +314,7 @@ const PostCommentPanel = ({ isOpen, postId }) => {
                     </div>
 
                     {/* Comment Content */}
-                    <p className="text-white noto-sans-arabic-medium text-sm leading-relaxed mb-3 pr-13">
+                    <p className="text-white noto-sans-arabic-medium text-sm leading-relaxed mb-3 pr-13 whitespace-pre-wrap">
                       {comment.content}
                     </p>
 
@@ -457,12 +464,6 @@ const PostCommentPanel = ({ isOpen, postId }) => {
                 className="w-full bg-[#5A5A5A] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#0077FF] placeholder-[#797979] overflow-hidden"
                 rows="2"
                 style={{ minHeight: "60px", maxHeight: "200px" }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit();
-                  }
-                }}
               />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -483,13 +484,14 @@ const PostCommentPanel = ({ isOpen, postId }) => {
                 </div>
                 <button
                   onClick={handleSubmit}
-                  disabled={!newComment.trim() && !selectedImage}
-                  className={`px-6 py-2 rounded-lg noto-sans-arabic-medium text-sm transition-colors ${
-                    newComment.trim() || selectedImage
+                  disabled={(!newComment.trim() && !selectedImage) || createCommentMutation.isPending}
+                  className={`px-6 py-2 rounded-lg noto-sans-arabic-medium text-sm transition-colors flex items-center gap-2 ${
+                    (newComment.trim() || selectedImage) && !createCommentMutation.isPending
                       ? "bg-[#0077FF] text-white hover:bg-[#0066DD]"
                       : "bg-[#5A5A5A] text-[#797979] cursor-not-allowed"
                   }`}
                 >
+                  {createCommentMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
                   نشر
                 </button>
               </div>

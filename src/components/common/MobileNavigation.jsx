@@ -11,7 +11,7 @@ import { TOKEN_KEY } from '../../constants/token-key';
 const MobileNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { data: currentUser } = useGetLoggedInUser();
+  const { data: currentUser, dataUpdatedAt } = useGetLoggedInUser();
   const { data: unreadData } = useGetUnreadCount();
   const queryClient = useQueryClient();
   const { deleteToken } = useAuthStore();
@@ -20,6 +20,13 @@ const MobileNavigation = () => {
   const [imageError, setImageError] = useState(false);
 
   const unreadCount = unreadData?.unreadCount || 0;
+
+  // Cache-busting for profile photo
+  const getProfilePhotoUrl = (url) => {
+    if (!url) return null;
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}t=${dataUpdatedAt}`;
+  };
 
   // Close drawer on route change
   useEffect(() => {
@@ -226,7 +233,7 @@ const MobileNavigation = () => {
                 </div>
               ) : (
                 <img
-                  src={currentUser.profilePhoto}
+                  src={getProfilePhotoUrl(currentUser.profilePhoto)}
                   alt={currentUser.displayName || 'User'}
                   className="w-12 h-12 rounded-full object-cover"
                   onError={() => setImageError(true)}
