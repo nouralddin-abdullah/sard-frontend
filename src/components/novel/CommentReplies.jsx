@@ -115,7 +115,7 @@ const CommentReplies = ({
             </div>
 
             {/* Reply Content */}
-            <p className="text-white noto-sans-arabic-medium text-sm leading-relaxed mb-3 pr-11">
+            <p className="text-white noto-sans-arabic-medium text-sm leading-relaxed mb-3 pr-11 whitespace-pre-wrap">
               {reply.content}
             </p>
 

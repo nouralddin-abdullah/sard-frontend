@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import Header from "../../components/common/Header";
 import CreateCategoryModal from "../../components/novel/CreateCategoryModal";
 import CreateEntityModal from "../../components/novel/CreateEntityModal";
@@ -29,6 +29,7 @@ const NovelWikipediaPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
   const [isCreateEntityModalOpen, setIsCreateEntityModalOpen] = useState(false);
+  const [editingSectionData, setEditingSectionData] = useState(null); // For edit mode
 
   // Fetch sections (formerly categories)
   const { data: sectionsResponse, isLoading: sectionsLoading } = useGetCategories(novelId);
@@ -128,20 +129,48 @@ const NovelWikipediaPage = () => {
                       const Icon = getIconForCategory(category);
                       const categoryName = getCategoryName(category);
                       const categoryKey = getCategoryKey(category);
+                      const categoryId = typeof category === 'object' ? category.id : null;
+                      const categoryIcon = typeof category === 'object' ? category.icon : null;
                       
                       return (
-                        <button
+                        <div
                           key={categoryKey}
-                          onClick={() => setSelectedCategory(categoryName)}
-                          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors noto-sans-arabic-bold ${
-                            selectedCategory === categoryName
-                              ? "bg-[#0077FF] text-white"
-                              : "text-[#B8B8B8] hover:bg-[#4A4A4A] hover:text-white"
-                          }`}
+                          className="group relative flex items-center"
                         >
-                          <Icon className="w-5 h-5" />
-                          <span>{categoryName}</span>
-                        </button>
+                          <button
+                            onClick={() => setSelectedCategory(categoryName)}
+                            className={`flex-1 flex items-center gap-3 px-4 py-3 pr-10 rounded-lg transition-colors noto-sans-arabic-bold ${
+                              selectedCategory === categoryName
+                                ? "bg-[#0077FF] text-white"
+                                : "text-[#B8B8B8] hover:bg-[#4A4A4A] hover:text-white"
+                            }`}
+                          >
+                            <Icon className="w-5 h-5" />
+                            <span>{categoryName}</span>
+                          </button>
+                          {/* Edit button - only visible on hover and for owner */}
+                          {isOwner && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingSectionData({
+                                  id: categoryId,
+                                  name: categoryName,
+                                  icon: categoryIcon
+                                });
+                                setIsCreateCategoryModalOpen(true);
+                              }}
+                              className={`absolute left-2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity ${
+                                selectedCategory === categoryName
+                                  ? "text-white/70 hover:text-white hover:bg-white/10"
+                                  : "text-[#797979] hover:text-white hover:bg-[#4A4A4A]"
+                              }`}
+                              title="تعديل الفئة"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       );
                     })
                   )}
@@ -221,8 +250,13 @@ const NovelWikipediaPage = () => {
       {/* Modals */}
       <CreateCategoryModal
         isOpen={isCreateCategoryModalOpen}
-        onClose={() => setIsCreateCategoryModalOpen(false)}
+        onClose={() => {
+          setIsCreateCategoryModalOpen(false);
+          setEditingSectionData(null); // Reset edit data when closing
+        }}
         novelId={novelId}
+        editMode={!!editingSectionData}
+        sectionData={editingSectionData}
       />
       <CreateEntityModal
         isOpen={isCreateEntityModalOpen}

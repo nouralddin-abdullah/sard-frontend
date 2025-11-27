@@ -7,8 +7,11 @@ import Cookies from "js-cookie";
  * Hook to fetch paginated chapter comments
  * @param {string} chapterId - Chapter ID
  * @param {string} sorting - Sort order: 'recent', 'oldest', 'mostliked'
+ * @param {object} options - Additional options (e.g., { enabled: false })
  */
-export const useChapterComments = (chapterId, sorting = "recent") => {
+export const useChapterComments = (chapterId, sorting = "recent", options = {}) => {
+  const { enabled = true } = options;
+  
   return useInfiniteQuery({
     queryKey: ["chapterComments", chapterId, sorting],
     queryFn: async ({ pageParam = 1 }) => {
@@ -36,6 +39,6 @@ export const useChapterComments = (chapterId, sorting = "recent") => {
       const currentPage = allPages.length;
       return currentPage < lastPage.totalPages ? currentPage + 1 : undefined;
     },
-    enabled: !!chapterId,
+    enabled: !!chapterId && enabled,
   });
 };

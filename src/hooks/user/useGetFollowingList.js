@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import { BASE_URL } from "../../constants/base-url";
 import { TOKEN_KEY } from "../../constants/token-key";
 
-export const useGetFollowingList = (userId, pageSize = 20) => {
+export const useGetFollowingList = (userId, pageSize = 20, enabled = true) => {
   return useInfiniteQuery({
     queryKey: ["following-list", userId],
     queryFn: async ({ pageParam = 1 }) => {
@@ -31,6 +31,6 @@ export const useGetFollowingList = (userId, pageSize = 20) => {
       const currentPage = Math.ceil(lastPage.itemsTo / pageSize);
       return currentPage < lastPage.totalPages ? currentPage + 1 : undefined;
     },
-    enabled: !!userId,
+    enabled: !!userId && enabled,
   });
 };

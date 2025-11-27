@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import { Heart, MessageSquareText, Share2, MoreHorizontal, LibraryBig, Star, Trash2 } from "lucide-react";
 import PostCommentPanel from "./PostCommentPanel";
 import ConfirmModal from "./ConfirmModal";
+import ShareModal from "./ShareModal";
 import { useLikePost, useUnlikePost } from "../../hooks/post/useLikePost";
 import { useDeletePost } from "../../hooks/post/useDeletePost";
-import { usePostComments } from "../../hooks/comment/usePostComments";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import AddNovelToReadingListModal from "../novel/AddNovelToReadingListModal";
 import { toast } from "sonner";
@@ -23,10 +23,12 @@ const AboutMePost = ({
 }) => {
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(initialLikesCount);
+  const [commentsCount, setCommentsCount] = useState(initialCommentsCount);
   const [showComments, setShowComments] = useState(false);
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   
   const menuRef = useRef(null);
 
@@ -34,10 +36,6 @@ const AboutMePost = ({
   const { mutate: unlikePost } = useUnlikePost();
   const { mutate: deletePost, isPending: isDeleting } = useDeletePost();
   const { data: loggedInUser } = useGetLoggedInUser();
-  
-  // Fetch real-time comment count
-  const { data: commentsData } = usePostComments(postId, "recent", { enabled: true });
-  const actualCommentsCount = commentsData?.pages[0]?.totalItemsCount ?? initialCommentsCount;
 
   // Check if current user is the post author
   const isOwnPost = loggedInUser?.id === author?.userId || loggedInUser?.id === author?.id;
@@ -159,7 +157,7 @@ const AboutMePost = ({
 
       {/* Post Content */}
       <div className="px-6 pb-4">
-        <p className="text-lg leading-relaxed text-white noto-sans-arabic-medium">
+        <p className="text-lg leading-relaxed text-white noto-sans-arabic-medium whitespace-pre-wrap">
           {content}
         </p>
       </div>
@@ -244,14 +242,17 @@ const AboutMePost = ({
           >
             <MessageSquareText className="w-5 h-5" />
             <span className="font-medium">تعليق</span>
-            {actualCommentsCount > 0 && (
-              <span className="text-sm">{actualCommentsCount.toLocaleString("ar-SA")}</span>
+            {commentsCount > 0 && (
+              <span className="text-sm">{commentsCount.toLocaleString("ar-SA")}</span>
             )}
           </button>
 
           <div className="h-6 w-px bg-white/10"></div>
 
-          <button className="flex items-center gap-2 hover:text-white transition-colors duration-200 noto-sans-arabic-extrabold">
+          <button 
+            onClick={() => setShowShareModal(true)}
+            className="flex items-center gap-2 hover:text-white transition-colors duration-200 noto-sans-arabic-extrabold"
+          >
             <Share2 className="w-5 h-5" />
             <span className="font-medium">مشاركة</span>
           </button>
@@ -259,7 +260,11 @@ const AboutMePost = ({
       </div>
 
       {/* Comment Panel - Inline */}
-      <PostCommentPanel isOpen={showComments} postId={postId} />
+      <PostCommentPanel 
+        isOpen={showComments} 
+        postId={postId} 
+        onCommentCountChange={setCommentsCount}
+      />
 
       {/* Add to Reading List Modal */}
       {attachedNovel && (
@@ -284,6 +289,17 @@ const AboutMePost = ({
           isLoading={isDeleting}
         />
       )}
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        title={author?.displayName ? `منشور ${author.displayName}` : "منشور"}
+        description={content?.length > 150 ? content.substring(0, 150) + "..." : content}
+        imageUrl={attachedImage || attachedNovel?.coverImageUrl}
+        shareUrl={`${window.location.origin}/profile/${author?.userName}?post=${postId}`}
+        itemType="post"
+      />
     </div>
   );
 };

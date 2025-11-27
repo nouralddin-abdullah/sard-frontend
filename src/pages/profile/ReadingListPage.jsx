@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Loader2, MoreVertical, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
@@ -24,11 +24,18 @@ const ReadingListPage = () => {
   const [novelToDelete, setNovelToDelete] = useState(null);
   const [deleteListModalOpen, setDeleteListModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const menuRef = useRef(null);
 
   // Fetch reading list data
-  const { data: listData, isLoading, error } = useGetReadingListById(listId);
+  const { data: listData, isLoading, error, dataUpdatedAt } = useGetReadingListById(listId);
   const { data: loggedInUser } = useGetLoggedInUser();
+  
+  // Cache-busting for cover image (in case backend replaces with same filename)
+  const getCoverImageUrl = (url) => {
+    if (!url) return "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800&h=600&fit=crop";
+    // Add timestamp to bust cache after refetch
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}t=${dataUpdatedAt}`;
+  };
   
   // Follow/Unfollow mutations
   const followMutation = useFollowReadingList();
@@ -42,7 +49,9 @@ const ReadingListPage = () => {
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      // Check if the click is outside any menu by looking for data attribute
+      const clickedMenu = event.target.closest('[data-novel-menu]');
+      if (!clickedMenu) {
         setOpenMenuNovelId(null);
       }
     };
@@ -183,7 +192,7 @@ const ReadingListPage = () => {
           {/* List Cover - Left Side */}
           <div className="flex-shrink-0">
             <img
-              src={listData.coverImageUrl || "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800&h=600&fit=crop"}
+              src={getCoverImageUrl(listData.coverImageUrl)}
               alt={listData.name}
               className="w-64 h-64 object-cover rounded-lg"
               style={{ boxShadow: "0 4px 4px 0 rgba(0, 0, 0, 0.25)" }}
@@ -313,7 +322,7 @@ const ReadingListPage = () => {
                 >
                   {/* Three-dot menu - Only show if owner */}
                   {isOwner && (
-                    <div ref={menuRef} className="absolute top-4 left-4 z-10">
+                    <div data-novel-menu={novel.novelId} className="absolute top-4 left-4 z-10">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

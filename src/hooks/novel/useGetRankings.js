@@ -26,7 +26,7 @@ export const useGetRankings = (rankingType, pageSize = 10, pageNumber = 1) => {
 
       return response.json();
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 1000 * 60 * 60, // 1 hour - rankings are recalculated daily
+    gcTime: 1000 * 60 * 60 * 2, // Keep in cache for 2 hours
   });
 };

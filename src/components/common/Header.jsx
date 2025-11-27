@@ -17,7 +17,7 @@ const UserIcon = () => (
 );
 
 const Header = () => {
-  const { data: currentUser, isLoading } = useGetLoggedInUser();
+  const { data: currentUser, isLoading, dataUpdatedAt } = useGetLoggedInUser();
   const { data: unreadData } = useGetUnreadCount();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -27,6 +27,13 @@ const Header = () => {
   const dropdownRef = useRef(null);
 
   const unreadCount = unreadData?.unreadCount || 0;
+
+  // Cache-busting for profile photo (in case backend replaces with same filename)
+  const getProfilePhotoUrl = (url) => {
+    if (!url) return null;
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}t=${dataUpdatedAt}`;
+  };
 
   // Close dropdown when clicking outside (desktop only)
   useEffect(() => {
@@ -97,7 +104,7 @@ const Header = () => {
               ) : (
                 <div className="relative">
                   <img
-                    src={currentUser.profilePhoto}
+                    src={getProfilePhotoUrl(currentUser.profilePhoto)}
                     alt={currentUser.displayName || 'User'}
                     className="w-12 h-12 rounded-full object-cover"
                     onError={() => setImageError(true)}

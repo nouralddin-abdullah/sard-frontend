@@ -41,6 +41,52 @@ const SettingsPage = () => {
   const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
   const [profileBannerPreview, setProfileBannerPreview] = useState(null);
 
+  // Focus states for showing validation hints
+  const [focusedField, setFocusedField] = useState(null);
+
+  // Validation rules
+  const validationRules = {
+    userName: { min: 4, max: 20, label: "اسم المستخدم" },
+    displayName: { min: 3, max: 20, label: "الاسم المعروض" },
+    userBio: { min: 0, max: 150, label: "نبذة عني" },
+  };
+
+  // Image validation
+  const imageValidation = {
+    maxSize: 5 * 1024 * 1024, // 5MB
+    allowedTypes: ["image/jpeg", "image/png", "image/webp"],
+    allowedTypesLabel: "JPEG, PNG, WebP",
+  };
+
+  // Validation helper function
+  const getFieldValidation = (field, value) => {
+    const rules = validationRules[field];
+    if (!rules) return { isValid: true };
+    
+    const length = value?.length || 0;
+    const isValid = length >= rules.min && length <= rules.max;
+    const isTooShort = length < rules.min;
+    const isTooLong = length > rules.max;
+    
+    return { isValid, isTooShort, isTooLong, length, min: rules.min, max: rules.max };
+  };
+
+  // Image validation helper
+  const validateImage = (file) => {
+    if (!file) return { isValid: true };
+    
+    const isValidType = imageValidation.allowedTypes.includes(file.type);
+    const isValidSize = file.size <= imageValidation.maxSize;
+    
+    return {
+      isValid: isValidType && isValidSize,
+      isValidType,
+      isValidSize,
+      fileSize: (file.size / (1024 * 1024)).toFixed(2),
+      maxSize: 5,
+    };
+  };
+
   // Sidebar sections
   const sections = [
     { id: "account", label: "الحساب", icon: User },
@@ -84,6 +130,16 @@ const SettingsPage = () => {
   const handleProfilePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const validation = validateImage(file);
+      if (!validation.isValid) {
+        if (!validation.isValidType) {
+          toast.error(`الصيغة غير مدعومة. الصيغ المدعومة: ${imageValidation.allowedTypesLabel}`);
+        } else if (!validation.isValidSize) {
+          toast.error(`حجم الملف كبير جداً (${validation.fileSize}MB). الحد الأقصى: ${validation.maxSize}MB`);
+        }
+        e.target.value = "";
+        return;
+      }
       setProfilePhoto(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -96,6 +152,16 @@ const SettingsPage = () => {
   const handleProfileBannerChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const validation = validateImage(file);
+      if (!validation.isValid) {
+        if (!validation.isValidType) {
+          toast.error(`الصيغة غير مدعومة. الصيغ المدعومة: ${imageValidation.allowedTypesLabel}`);
+        } else if (!validation.isValidSize) {
+          toast.error(`حجم الملف كبير جداً (${validation.fileSize}MB). الحد الأقصى: ${validation.maxSize}MB`);
+        }
+        e.target.value = "";
+        return;
+      }
       setProfileBanner(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -112,6 +178,19 @@ const SettingsPage = () => {
     if (Object.keys(changedFields).length === 0 && !profilePhoto && !profileBanner) {
       toast.info("لم يتم تغيير أي شيء");
       return;
+    }
+
+    // Validate changed fields
+    for (const field of Object.keys(changedFields)) {
+      const validation = getFieldValidation(field, changedFields[field]);
+      if (!validation.isValid) {
+        if (validation.isTooShort) {
+          toast.error(`${validationRules[field]?.label || field}: الحد الأدنى ${validation.min} أحرف`);
+        } else if (validation.isTooLong) {
+          toast.error(`${validationRules[field]?.label || field}: الحد الأقصى ${validation.max} حرف`);
+        }
+        return;
+      }
     }
 
     try {
@@ -272,11 +351,14 @@ const SettingsPage = () => {
                         <input
                           id="banner-upload"
                           type="file"
-                          accept="image/*"
+                          accept="image/jpeg,image/png,image/webp"
                           onChange={handleProfileBannerChange}
                           className="hidden"
                         />
                       </div>
+                      <p className="text-sm text-gray-400 noto-sans-arabic-medium">
+                        الصيغ المدعومة: {imageValidation.allowedTypesLabel} • الحد الأقصى: 5MB
+                      </p>
                     </div>
 
                     {/* Profile Photo */}
@@ -305,14 +387,14 @@ const SettingsPage = () => {
                           <input
                             id="photo-upload"
                             type="file"
-                            accept="image/*"
+                            accept="image/jpeg,image/png,image/webp"
                             onChange={handleProfilePhotoChange}
                             className="hidden"
                           />
                         </div>
                         <div className="text-gray-400 noto-sans-arabic-medium">
                           <p>حجم الصورة الموصى به: 400×400 بكسل</p>
-                          <p className="text-sm">الصيغ المدعومة: JPG, PNG, GIF</p>
+                          <p className="text-sm">الصيغ المدعومة: {imageValidation.allowedTypesLabel} • الحد الأقصى: 5MB</p>
                         </div>
                       </div>
                     </div>
@@ -324,9 +406,42 @@ const SettingsPage = () => {
                         type="text"
                         value={formData.userName}
                         onChange={(e) => handleInputChange("userName", e.target.value)}
-                        className="w-full bg-[#2C2C2C] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] border border-gray-700"
+                        onFocus={() => setFocusedField("userName")}
+                        onBlur={() => setFocusedField(null)}
+                        className={`w-full bg-[#2C2C2C] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] border ${
+                          focusedField === "userName" && !getFieldValidation("userName", formData.userName).isValid
+                            ? "border-red-500"
+                            : "border-gray-700"
+                        }`}
                         dir="ltr"
                       />
+                      {focusedField === "userName" && (
+                        <div className="flex items-center justify-between text-sm">
+                          <p className={`noto-sans-arabic-medium ${
+                            getFieldValidation("userName", formData.userName).isValid
+                              ? "text-gray-400"
+                              : getFieldValidation("userName", formData.userName).isTooShort
+                                ? "text-yellow-500"
+                                : "text-red-500"
+                          }`}>
+                            {getFieldValidation("userName", formData.userName).isTooShort
+                              ? `الحد الأدنى ${validationRules.userName.min} أحرف`
+                              : getFieldValidation("userName", formData.userName).isTooLong
+                                ? `الحد الأقصى ${validationRules.userName.max} حرف`
+                                : `${validationRules.userName.min}-${validationRules.userName.max} حرف`
+                            }
+                          </p>
+                          <span className={`${
+                            getFieldValidation("userName", formData.userName).isValid
+                              ? "text-gray-400"
+                              : getFieldValidation("userName", formData.userName).isTooLong
+                                ? "text-red-500"
+                                : "text-yellow-500"
+                          }`}>
+                            {formData.userName?.length || 0}/{validationRules.userName.max}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Display Name */}
@@ -336,8 +451,41 @@ const SettingsPage = () => {
                         type="text"
                         value={formData.displayName}
                         onChange={(e) => handleInputChange("displayName", e.target.value)}
-                        className="w-full bg-[#2C2C2C] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] border border-gray-700"
+                        onFocus={() => setFocusedField("displayName")}
+                        onBlur={() => setFocusedField(null)}
+                        className={`w-full bg-[#2C2C2C] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] border ${
+                          focusedField === "displayName" && !getFieldValidation("displayName", formData.displayName).isValid
+                            ? "border-red-500"
+                            : "border-gray-700"
+                        }`}
                       />
+                      {focusedField === "displayName" && (
+                        <div className="flex items-center justify-between text-sm">
+                          <p className={`noto-sans-arabic-medium ${
+                            getFieldValidation("displayName", formData.displayName).isValid
+                              ? "text-gray-400"
+                              : getFieldValidation("displayName", formData.displayName).isTooShort
+                                ? "text-yellow-500"
+                                : "text-red-500"
+                          }`}>
+                            {getFieldValidation("displayName", formData.displayName).isTooShort
+                              ? `الحد الأدنى ${validationRules.displayName.min} أحرف`
+                              : getFieldValidation("displayName", formData.displayName).isTooLong
+                                ? `الحد الأقصى ${validationRules.displayName.max} حرف`
+                                : `${validationRules.displayName.min}-${validationRules.displayName.max} حرف`
+                            }
+                          </p>
+                          <span className={`${
+                            getFieldValidation("displayName", formData.displayName).isValid
+                              ? "text-gray-400"
+                              : getFieldValidation("displayName", formData.displayName).isTooLong
+                                ? "text-red-500"
+                                : "text-yellow-500"
+                          }`}>
+                            {formData.displayName?.length || 0}/{validationRules.displayName.max}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Bio */}
@@ -346,10 +494,39 @@ const SettingsPage = () => {
                       <textarea
                         value={formData.userBio}
                         onChange={(e) => handleInputChange("userBio", e.target.value)}
+                        onFocus={() => setFocusedField("userBio")}
+                        onBlur={() => setFocusedField(null)}
                         rows={4}
-                        className="w-full bg-[#2C2C2C] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] resize-none border border-gray-700"
+                        className={`w-full bg-[#2C2C2C] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] resize-none border ${
+                          focusedField === "userBio" && getFieldValidation("userBio", formData.userBio).isTooLong
+                            ? "border-red-500"
+                            : "border-gray-700"
+                        }`}
                         placeholder="أخبرنا عن نفسك..."
                       />
+                      {focusedField === "userBio" && (
+                        <div className="flex items-center justify-between text-sm">
+                          <p className={`noto-sans-arabic-medium ${
+                            getFieldValidation("userBio", formData.userBio).isTooLong
+                              ? "text-red-500"
+                              : "text-gray-400"
+                          }`}>
+                            {getFieldValidation("userBio", formData.userBio).isTooLong
+                              ? `تجاوزت الحد الأقصى (${validationRules.userBio.max} حرف)`
+                              : `الحد الأقصى ${validationRules.userBio.max} حرف`
+                            }
+                          </p>
+                          <span className={`${
+                            getFieldValidation("userBio", formData.userBio).isTooLong
+                              ? "text-red-500"
+                              : formData.userBio?.length > validationRules.userBio.max * 0.8
+                                ? "text-yellow-500"
+                                : "text-gray-400"
+                          }`}>
+                            {formData.userBio?.length || 0}/{validationRules.userBio.max}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Submit Buttons */}

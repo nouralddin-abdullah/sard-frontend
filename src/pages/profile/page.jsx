@@ -19,8 +19,27 @@ import { toast } from "sonner";
 
 const ProfilePage = () => {
   const { username } = useParams();
-  const { data: userData, isPending } = useGetUserByUsername(username);
-  const { data: loggedInUser } = useGetLoggedInUser();
+  const { data: loggedInUser, dataUpdatedAt: loggedInUserUpdatedAt, isLoading: isLoadingLoggedIn } = useGetLoggedInUser();
+  
+  // Only fetch user by username if it's NOT the logged-in user's profile
+  const isOwnProfile = loggedInUser?.userName?.toLowerCase() === username?.toLowerCase();
+  const { data: fetchedUserData, isPending: isFetchingUser, dataUpdatedAt } = useGetUserByUsername(
+    isOwnProfile ? null : username // Pass null to disable the query for own profile
+  );
+  
+  // Use loggedInUser data for own profile, fetched data for others
+  const userData = isOwnProfile ? loggedInUser : fetchedUserData;
+  const isPending = isOwnProfile ? isLoadingLoggedIn : isFetchingUser;
+
+  // Cache-busting for images (in case backend replaces with same filename)
+  const getCacheBustedUrl = (url, timestamp) => {
+    if (!url) return null;
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}t=${timestamp}`;
+  };
+
+  // Use appropriate timestamp based on whose profile we're viewing
+  const imageTimestamp = isOwnProfile ? loggedInUserUpdatedAt : dataUpdatedAt;
 
   const { t } = useTranslation();
 
@@ -34,9 +53,6 @@ const ProfilePage = () => {
       setShowDiscordTooltip(false);
     }
   };
-
-  // Check if viewing own profile
-  const isOwnProfile = loggedInUser?.id === userData?.id;
 
   /* 
         in order to change the text written in the buttons that navigates between sections you have to use the t function in this array
@@ -136,7 +152,7 @@ const ProfilePage = () => {
         <div
           className="w-full h-80 bg-cover bg-center flex justify-center relative"
           style={{
-            backgroundImage: `url(${userData?.profileBanner || profilePicture})`,
+            backgroundImage: `url(${userData?.profileBanner ? getCacheBustedUrl(userData.profileBanner, imageTimestamp) : profilePicture})`,
           }}
         >
           {/* Social Media Icons - Bottom Left Corner */}
@@ -195,7 +211,7 @@ const ProfilePage = () => {
 
         <div className=" flex justify-center items-center flex-col gap-4">
           <img
-            src={userData?.profilePhoto || mainPicture}
+            src={userData?.profilePhoto ? getCacheBustedUrl(userData.profilePhoto, imageTimestamp) : mainPicture}
             alt={userData?.displayName}
             className="w-40 h-40 rounded-full object-cover"
           />

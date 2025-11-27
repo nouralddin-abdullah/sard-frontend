@@ -27,7 +27,7 @@ const FollowersModal = ({ isOpen, onClose, userId, initialTab = "followers" }) =
     hasNextPage: hasNextFollowers,
     isFetchingNextPage: isFetchingNextFollowers,
     isLoading: isLoadingFollowers,
-  } = useGetFollowersList(userId);
+  } = useGetFollowersList(userId, 20, isOpen && activeTab === "followers");
 
   const {
     data: followingData,
@@ -35,7 +35,7 @@ const FollowersModal = ({ isOpen, onClose, userId, initialTab = "followers" }) =
     hasNextPage: hasNextFollowing,
     isFetchingNextPage: isFetchingNextFollowing,
     isLoading: isLoadingFollowing,
-  } = useGetFollowingList(userId);
+  } = useGetFollowingList(userId, 20, isOpen && activeTab === "following");
 
   const followers = followersData?.pages?.flatMap((page) => page.items) || [];
   const following = followingData?.pages?.flatMap((page) => page.items) || [];

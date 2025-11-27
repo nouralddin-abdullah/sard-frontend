@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+/* Global Image Error Handling */
+img {
+  /* Prevent layout shift on error */
+  min-height: 1px;
+}
+
+img[src=""],
+img:not([src]) {
+  visibility: hidden;
+}
+
+/* Hide broken image icon and show placeholder background */
+img::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #2C2C2C;
+}
+
 /* Material Symbols Outlined */
 .material-symbols-outlined {
   font-variation-settings:

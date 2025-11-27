@@ -8,6 +8,7 @@ import { useGetChapterById } from '../../hooks/novel/useGetChapterById';
 import { useGetNovelBySlug } from '../../hooks/novel/useGetNovelBySlug';
 import { useTrackReadingProgress } from '../../hooks/novel/useTrackReadingProgress';
 import { useToggleFollow } from '../../hooks/user/useToggleFollow';
+import { useGetNovelPrivilege } from '../../hooks/novel/useGetNovelPrivilege';
 import CommentPanel from '../../components/novel/CommentPanel';
 import ChapterParagraph from '../../components/novel/ChapterParagraph';
 import PenIcon from '../../components/common/PenIcon';
@@ -31,9 +32,6 @@ const ChapterReaderPage = () => {
     chapterId
   );
   
-  // Fetch all chapters for TOC
-  const { data: allChapters = [], isLoading: chaptersLoading } = useGetNovelChapters(novel?.id);
-  
   // Track reading progress (only for authenticated users)
   const trackProgressMutation = useTrackReadingProgress();
   
@@ -50,10 +48,24 @@ const ChapterReaderPage = () => {
   const [currentPage, setCurrentPage] = useState(1); // For TOC pagination
   const [showMobileMenu, setShowMobileMenu] = useState(false); // Mobile menu trigger
   const [copied, setCopied] = useState(false);
-  const [privilegeInfo, setPrivilegeInfo] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalAction, setAuthModalAction] = useState('');
   const [isUnlockPrivilegeModalOpen, setIsUnlockPrivilegeModalOpen] = useState(false);
+  
+  // Track if TOC was ever opened (for lazy loading chapters)
+  const [tocOpened, setTocOpened] = useState(false);
+  
+  // Fetch all chapters for TOC - only when TOC is opened (lazy loading)
+  const { data: allChapters = [], isLoading: chaptersLoading } = useGetNovelChapters(
+    novel?.id, 
+    { enabled: tocOpened } // Only fetch when user opens TOC
+  );
+  
+  // Helper to open TOC and trigger chapters fetch
+  const openTOC = () => {
+    setShowTOC(true);
+    setTocOpened(true); // Once opened, chapters will be fetched and cached
+  };
   
   // Reader settings with localStorage persistence
   const [theme, setTheme] = useState(() => localStorage.getItem('readerTheme') || 'dark');
@@ -101,39 +113,17 @@ const ChapterReaderPage = () => {
     localStorage.setItem('readerFocusMode', focusMode.toString());
   }, [focusMode]);
 
-  // Fetch privilege info
-  const fetchPrivilegeInfo = async () => {
-    if (!novel?.id) return;
-    
-    try {
-      const token = Cookies.get(TOKEN_KEY);
-      const headers = {
-        'accept': '*/*'
-      };
-      
-      // Add auth token if user is logged in to check subscription status
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
-      const response = await fetch(`https://api-sareed.runasp.net/api/novel/${novel.id}/privilege`, {
-        headers
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.isEnabled) {
-          setPrivilegeInfo(data);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch privilege info:', error);
-    }
-  };
+  // Privilege info is only needed when:
+  // 1. TOC is opened (to show lock icons and subscription status)
+  // 2. Current chapter is locked AND user doesn't have access (lockMessage is not null)
+  // If isLocked=true but lockMessage=null, user already has access - no need to fetch
+  // We explicitly check for true to avoid undefined triggering the condition
+  const needsPrivilegeForLockedChapter = chapter?.isLocked === true && chapter?.lockMessage != null;
+  const shouldFetchPrivilege = tocOpened || needsPrivilegeForLockedChapter;
 
-  useEffect(() => {
-    fetchPrivilegeInfo();
-  }, [novel?.id]);
+  // Fetch privilege info only when actually needed
+  const { data: privilegeData } = useGetNovelPrivilege(novel?.id, shouldFetchPrivilege);
+  const privilegeInfo = privilegeData?.isEnabled ? privilegeData : null;
 
   // Pagination for Table of Contents
   const CHAPTERS_PER_PAGE = 100;
@@ -505,7 +495,11 @@ const ChapterReaderPage = () => {
             {/* Table of Contents Button */}
             <button
               onClick={() => {
-                setShowTOC(!showTOC);
+                if (!showTOC) {
+                  openTOC();
+                } else {
+                  setShowTOC(false);
+                }
                 setShowSettings(false);
                 setShowMobileMenu(false);
               }}
@@ -551,7 +545,11 @@ const ChapterReaderPage = () => {
         {/* Table of Contents Button */}
         <button
           onClick={() => {
-            setShowTOC(!showTOC);
+            if (!showTOC) {
+              openTOC();
+            } else {
+              setShowTOC(false);
+            }
             setShowSettings(false);
           }}
           className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110"

@@ -31,6 +31,7 @@ export const useGetGlobalLeaderboard = (period, pageNumber = 1, pageSize = 10) =
   return useQuery({
     queryKey: ["global-leaderboard", period, pageNumber, pageSize],
     queryFn: () => fetchGlobalLeaderboard(period, pageNumber, pageSize),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 30, // 30 minutes - aggregate leaderboard data
+    gcTime: 1000 * 60 * 60, // Keep in cache for 1 hour
   });
 };
