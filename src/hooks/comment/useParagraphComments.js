@@ -7,8 +7,11 @@ import Cookies from "js-cookie";
  * Hook to fetch paginated paragraph comments
  * @param {string} paragraphId - Paragraph ID
  * @param {string} sorting - Sort order: 'recent', 'oldest', 'mostliked'
+ * @param {object} options - Additional options (e.g., { enabled: false })
  */
-export const useParagraphComments = (paragraphId, sorting = "recent") => {
+export const useParagraphComments = (paragraphId, sorting = "recent", options = {}) => {
+  const { enabled = true } = options;
+  
   return useInfiniteQuery({
     queryKey: ["paragraphComments", paragraphId, sorting],
     queryFn: async ({ pageParam = 1}) => {
@@ -36,6 +39,6 @@ export const useParagraphComments = (paragraphId, sorting = "recent") => {
       const currentPage = allPages.length;
       return currentPage < lastPage.totalPages ? currentPage + 1 : undefined;
     },
-    enabled: !!paragraphId,
+    enabled: !!paragraphId && enabled,
   });
 };

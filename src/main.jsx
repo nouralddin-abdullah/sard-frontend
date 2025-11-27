@@ -9,7 +9,20 @@ import { I18nextProvider } from "react-i18next";
 import { HelmetProvider } from "react-helmet-async";
 import i18n from "./i18n.js";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Don't refetch on window focus by default
+      refetchOnWindowFocus: false,
+      // Don't refetch on reconnect by default
+      refetchOnReconnect: false,
+      // Retry once on failure
+      retry: 1,
+      // Keep data in cache for 5 minutes even when unused
+      staleTime: 1000 * 60 * 5,
+    },
+  },
+});
 
 // ensureDevToken(); // Commented out for testing
 

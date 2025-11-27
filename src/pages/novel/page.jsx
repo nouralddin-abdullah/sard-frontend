@@ -8,6 +8,7 @@ import { useNovelDetails } from "../../hooks/novel/useNovelDetails";
 import { useGetNovelChapters } from "../../hooks/novel/useGetNovelChapters";
 import { useGetNovelReadingProgress } from "../../hooks/novel/useGetNovelReadingProgress";
 import { useGetRecentGifts } from "../../hooks/novel/useGetRecentGifts";
+import { useGetNovelPrivilege } from "../../hooks/novel/useGetNovelPrivilege";
 import { formatDateShort, getTimeAgo } from "../../utils/date";
 import { translateGenre } from "../../utils/translate-genre";
 import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift, Lock, Unlock } from "lucide-react";
@@ -66,7 +67,6 @@ const NovelPage = () => {
   const [selectedGift, setSelectedGift] = useState(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isUnlockPrivilegeModalOpen, setIsUnlockPrivilegeModalOpen] = useState(false);
-  const [privilegeInfo, setPrivilegeInfo] = useState(null);
 
   // Reviews pagination and sorting
   const [reviewsPage, setReviewsPage] = useState(1);
@@ -76,40 +76,12 @@ const NovelPage = () => {
   // Track which spoiler reviews are revealed
   const [revealedSpoilers, setRevealedSpoilers] = useState({});
 
-  // Function to fetch privilege info
-  const fetchPrivilegeInfo = async () => {
-    if (!novel?.id) return;
-    
-    try {
-      const token = Cookies.get(TOKEN_KEY);
-      const headers = {
-        'accept': '*/*'
-      };
-      
-      // Add auth token if user is logged in to check subscription status
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
-      const response = await fetch(`https://api-sareed.runasp.net/api/novel/${novel.id}/privilege`, {
-        headers
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.isEnabled) {
-          setPrivilegeInfo(data);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch privilege info:', error);
-    }
-  };
+  // Check if any chapter is locked - only then do we need privilege info
+  const hasLockedChapters = chapters.some(chapter => chapter.isLocked);
 
-  // Fetch privilege info on mount
-  useEffect(() => {
-    fetchPrivilegeInfo();
-  }, [novel?.id]);
+  // Fetch privilege info ONLY if there are locked chapters (saves backend queries for most novels)
+  const { data: privilegeData } = useGetNovelPrivilege(novel?.id, hasLockedChapters);
+  const privilegeInfo = privilegeData?.isEnabled ? privilegeData : null;
 
   // Reset revealed spoilers when page or sorting changes (new set of reviews)
   useEffect(() => {
