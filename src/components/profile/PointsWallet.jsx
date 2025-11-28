@@ -195,7 +195,7 @@ const PointsWallet = ({ userId }) => {
     <div className="bg-zinc-800 min-h-screen">
       <div className="p-6 md:p-10">
         {/* Page Header */}
-        <header className="flex flex-col md:flex-row flex-wrap justify-between items-start md:items-center gap-4 mb-8">
+        <header className="flex flex-col gap-4 mb-8">
           <div className="flex flex-col gap-1">
             <h1 className="text-white text-3xl md:text-4xl font-bold leading-tight tracking-tight noto-sans-arabic-bold">
               المحفظة
@@ -209,9 +209,11 @@ const PointsWallet = ({ userId }) => {
               }
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          
+          {/* Balance and Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {/* Balance Display */}
-            <div className="flex items-center gap-2 bg-[#2C2C2C] px-4 py-2 rounded-lg">
+            <div className="flex items-center justify-center gap-2 bg-[#2C2C2C] px-4 py-3 sm:py-2 rounded-lg">
               <svg className="w-5 h-5 text-[#4A9EFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -221,27 +223,31 @@ const PointsWallet = ({ userId }) => {
                 <span className="text-white font-bold noto-sans-arabic-bold">{currentBalance.toLocaleString("ar-EG")} نقطة</span>
               )}
             </div>
-            <button 
-              className="flex items-center justify-center gap-2 h-10 px-5 bg-[#4A9EFF] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#3A8EEF] transition-colors noto-sans-arabic-bold"
-              onClick={() => setIsRechargeModalOpen(true)}
-            >
-              <CreditCard size={20} />
-              <span>شحن النقاط</span>
-            </button>
-            <button 
-              className="flex items-center justify-center gap-2 h-10 px-5 bg-[#16a34a] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#15803d] transition-colors noto-sans-arabic-bold"
-              onClick={() => setIsWithdrawModalOpen(true)}
-            >
-              <ArrowDownToLine size={20} />
-              <span>سحب النقاط</span>
-            </button>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-col xs:flex-row gap-2 sm:gap-3">
+              <button 
+                className="flex items-center justify-center gap-2 h-10 px-4 sm:px-5 bg-[#4A9EFF] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#3A8EEF] transition-colors noto-sans-arabic-bold text-sm sm:text-base"
+                onClick={() => setIsRechargeModalOpen(true)}
+              >
+                <CreditCard size={18} className="sm:w-5 sm:h-5" />
+                <span>شحن النقاط</span>
+              </button>
+              <button 
+                className="flex items-center justify-center gap-2 h-10 px-4 sm:px-5 bg-[#16a34a] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#15803d] transition-colors noto-sans-arabic-bold text-sm sm:text-base"
+                onClick={() => setIsWithdrawModalOpen(true)}
+              >
+                <ArrowDownToLine size={18} className="sm:w-5 sm:h-5" />
+                <span>سحب النقاط</span>
+              </button>
+            </div>
           </div>
         </header>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-[#3A3A3A]">
+        <div className="flex gap-1 sm:gap-2 mb-6 border-b border-[#3A3A3A] overflow-x-auto">
           <button
-            className={`px-6 py-3 text-base font-medium transition-colors noto-sans-arabic-medium relative ${
+            className={`px-3 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium transition-colors noto-sans-arabic-medium relative whitespace-nowrap ${
               activeTab === "recharge"
                 ? "text-[#4A9EFF] border-b-2 border-[#4A9EFF]"
                 : "text-[#B8B8B8] hover:text-white"
@@ -255,7 +261,7 @@ const PointsWallet = ({ userId }) => {
             سجل الشحن
           </button>
           <button
-            className={`px-6 py-3 text-base font-medium transition-colors noto-sans-arabic-medium relative ${
+            className={`px-3 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium transition-colors noto-sans-arabic-medium relative whitespace-nowrap ${
               activeTab === "withdraw"
                 ? "text-[#4A9EFF] border-b-2 border-[#4A9EFF]"
                 : "text-[#B8B8B8] hover:text-white"
@@ -269,7 +275,7 @@ const PointsWallet = ({ userId }) => {
             سجل السحب
           </button>
           <button
-            className={`px-6 py-3 text-base font-medium transition-colors noto-sans-arabic-medium relative ${
+            className={`px-3 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium transition-colors noto-sans-arabic-medium relative whitespace-nowrap ${
               activeTab === "transactions"
                 ? "text-[#4A9EFF] border-b-2 border-[#4A9EFF]"
                 : "text-[#B8B8B8] hover:text-white"
