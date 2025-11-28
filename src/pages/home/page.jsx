@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -29,384 +29,6 @@ import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
 import "swiper/css/effect-cards";
 
-// Placeholder data - will be replaced with API calls
-const placeholderData = {
-  topGreatestNovels: [
-    {
-      id: "1",
-      title: "أسطورة السيف الإلهي",
-      slug: "divine-sword-legend",
-      author: "محمد أحمد",
-      authorSlug: "mohamed-ahmed",
-      summary: "رحلة ملحمية في عالم الفنون القتالية حيث يسعى البطل لإتقان فن السيف الإلهي",
-      coverImage: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop",
-      genre: "أكشن",
-      rating: 4.9,
-      views: "2.5M",
-      chapters: 450,
-      status: "مستمرة",
-    },
-    {
-      id: "2",
-      title: "إمبراطور العوالم التسعة",
-      slug: "nine-realms-emperor",
-      author: "سارة علي",
-      authorSlug: "sara-ali",
-      summary: "في عالم تحكمه قوانين الزراعة، يصعد بطلنا من الحضيض ليصبح إمبراطور العوالم",
-      coverImage: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=600&fit=crop",
-      genre: "فانتازيا",
-      rating: 4.8,
-      views: "3.1M",
-      chapters: 520,
-      status: "مستمرة",
-    },
-    {
-      id: "3",
-      title: "سيد الظلال",
-      slug: "shadow-master",
-      author: "خالد حسن",
-      authorSlug: "khaled-hassan",
-      summary: "قصة غامضة عن سيد يتحكم في ظلال العالم ويحميه من الشر الخفي",
-      coverImage: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=400&h=600&fit=crop",
-      genre: "غموض",
-      rating: 4.7,
-      views: "1.8M",
-      chapters: 380,
-      status: "مكتملة",
-    },
-    {
-      id: "4",
-      title: "نجم السماء الأزرق",
-      slug: "blue-sky-star",
-      author: "فاطمة محمود",
-      authorSlug: "fatima-mahmoud",
-      summary: "في عالم السحر والخيال، تبدأ رحلة فتاة لتصبح أقوى ساحرة في التاريخ",
-      coverImage: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=600&fit=crop",
-      genre: "فانتازيا",
-      rating: 4.6,
-      views: "2.2M",
-      chapters: 410,
-      status: "مستمرة",
-    },
-    {
-      id: "5",
-      title: "حارس البوابة الأبدية",
-      slug: "eternal-gate-guardian",
-      author: "عمر يوسف",
-      authorSlug: "omar-youssef",
-      summary: "حارس وحيد يقف بين العالمين، يمنع قوى الشر من اختراق بوابة الأبدية",
-      coverImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=600&fit=crop",
-      genre: "أكشن",
-      rating: 4.9,
-      views: "2.8M",
-      chapters: 465,
-      status: "مستمرة",
-    },
-  ],
-  trendingNow: [
-    {
-      id: "6",
-      title: "عودة الإمبراطور الخالد",
-      slug: "immortal-emperor-return",
-      summary: "بعد ألف عام من الموت، يعود الإمبراطور الخالد ليستعيد عرشه",
-      coverImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop",
-      genre: "فانتازيا",
-      views: "150K",
-      status: "مستمرة",
-    },
-    {
-      id: "7",
-      title: "أسطورة التنين الفضي",
-      slug: "silver-dragon-legend",
-      summary: "قصة فتى يكتشف أنه آخر من يحمل دم التنانين الفضية",
-      coverImage: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=300&h=400&fit=crop",
-      genre: "فانتازيا",
-      views: "98K",
-      status: "مكتملة",
-    },
-    {
-      id: "8",
-      title: "سيد الوقت",
-      slug: "time-master",
-      summary: "مغامرة عبر الزمن لإنقاذ العالم من كارثة مستقبلية",
-      coverImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=400&fit=crop",
-      genre: "خيال علمي",
-      views: "120K",
-      status: "مستمرة",
-    },
-    {
-      id: "9",
-      title: "الساحر المظلم",
-      slug: "dark-wizard",
-      summary: "قصة ساحر يستخدم السحر المحرم لحماية من يحب",
-      coverImage: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=300&h=400&fit=crop",
-      genre: "فانتازيا",
-      views: "85K",
-      status: "مستمرة",
-    },
-    {
-      id: "10",
-      title: "ملك الوحوش",
-      slug: "beast-king",
-      summary: "فتى يمتلك قدرة فريدة على التواصل مع الوحوش وترويضها",
-      coverImage: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=300&h=400&fit=crop",
-      genre: "فانتازيا",
-      views: "92K",
-      status: "مكتملة",
-    },
-  ],
-  continueReading: [
-    {
-      id: "1",
-      title: "أسطورة السيف الإلهي",
-      slug: "divine-sword-legend",
-      lastChapter: 125,
-      totalChapters: 450,
-      progress: 28,
-      coverImage: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=400&fit=crop",
-    },
-    {
-      id: "3",
-      title: "سيد الظلال",
-      slug: "shadow-master",
-      lastChapter: 312,
-      totalChapters: 380,
-      progress: 82,
-      coverImage: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=300&h=400&fit=crop",
-    },
-  ],
-  fantasyCategory: [
-    {
-      id: "11",
-      title: "عالم السحر المفقود",
-      slug: "lost-magic-world",
-      summary: "اكتشاف عالم سحري قديم مليء بالأسرار والكنوز",
-      coverImage: "https://images.unsplash.com/photo-1528459584353-5297db1a9c01?w=300&h=400&fit=crop",
-      chapters: 85,
-    },
-    {
-      id: "12",
-      title: "أكاديمية السحرة",
-      slug: "wizard-academy",
-      summary: "حياة طالب جديد في أعرق أكاديمية للسحر في العالم",
-      coverImage: "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?w=300&h=400&fit=crop",
-      chapters: 120,
-    },
-    {
-      id: "13",
-      title: "حرب العناصر",
-      slug: "elemental-war",
-      summary: "صراع ملحمي بين أسياد العناصر الأربعة",
-      coverImage: "https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?w=300&h=400&fit=crop",
-      chapters: 95,
-    },
-  ],
-  actionCategory: [
-    {
-      id: "14",
-      title: "قبضة التنين",
-      slug: "dragon-fist",
-      summary: "فنون قتالية أسطورية ومعارك ملحمية لا تنسى",
-      coverImage: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=300&h=400&fit=crop",
-      views: "450K",
-    },
-    {
-      id: "15",
-      title: "محارب النار",
-      slug: "fire-warrior",
-      summary: "رحلة محارب يسعى للانتقام من قتلة عائلته",
-      coverImage: "https://images.unsplash.com/photo-1502899576159-f224dc2349fa?w=300&h=400&fit=crop",
-      views: "380K",
-    },
-    {
-      id: "16",
-      title: "سيف العدالة",
-      slug: "justice-sword",
-      summary: "بطل يحمل سيفاً أسطورياً يقاتل من أجل العدالة",
-      coverImage: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=300&h=400&fit=crop",
-      views: "520K",
-    },
-  ],
-  newArrivals: [
-    {
-      id: "21",
-      title: "طريق الأبطال",
-      slug: "heroes-path",
-      summary: "رحلة شاب عادي ليصبح أعظم بطل عرفه التاريخ. في عالم مليء بالمخاطر والتحديات، يجد نفسه في مواجهة قوى خارقة وأعداء أقوياء.",
-      coverImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=450&fit=crop",
-      genre: "Teen",
-      chapters: 45,
-      author: "أحمد صالح",
-    },
-    {
-      id: "22",
-      title: "الساحرة المفقودة",
-      slug: "lost-sorceress",
-      summary: "ساحرة قوية تفقد ذاكرتها وتبدأ رحلة لاستعادة قواها وماضيها. مغامرة سحرية مليئة بالألغاز والأسرار في عالم الفانتازيا.",
-      coverImage: "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?w=300&h=450&fit=crop",
-      genre: "Romance",
-      chapters: 67,
-      author: "ليلى محمود",
-    },
-    {
-      id: "23",
-      title: "حارس المدينة الليلي",
-      slug: "night-city-guardian",
-      summary: "بطل خارق يحمي المدينة من الجريمة والشر في ظلام الليل. قصة مشوقة عن التضحية والشجاعة والعدالة.",
-      coverImage: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=300&h=450&fit=crop",
-      genre: "Action",
-      chapters: 89,
-      author: "كريم عبدالله",
-    },
-    {
-      id: "24",
-      title: "سر القمر الدموي",
-      slug: "blood-moon-secret",
-      summary: "لغز غامض يتكشف تحت ضوء القمر الدموي. أحداث مثيرة ومخيفة تربط بين الماضي والحاضر في قصة تشويقية مذهلة.",
-      coverImage: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=300&h=450&fit=crop",
-      genre: "Mystery",
-      chapters: 52,
-      author: "سارة حسن",
-    },
-    {
-      id: "25",
-      title: "عاشق تحت المطر",
-      slug: "lover-in-rain",
-      summary: "قصة حب رومانسية تبدأ بلقاء صدفة تحت المطر. مشاعر جياشة وأحداث مؤثرة في رواية رومانسية ساحرة.",
-      coverImage: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop",
-      genre: "Romance",
-      chapters: 73,
-      author: "نور الدين",
-    },
-    {
-      id: "26",
-      title: "ملحمة الفارس الأسود",
-      slug: "black-knight-saga",
-      summary: "فارس غامض يظهر لإنقاذ المملكة من الدمار. معارك ملحمية ومغامرات شيقة في عالم فانتازيا ضخم.",
-      coverImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=450&fit=crop",
-      genre: "Fantasy",
-      chapters: 98,
-      author: "خالد يوسف",
-    },
-    {
-      id: "27",
-      title: "أكاديمية النخبة",
-      slug: "elite-academy",
-      summary: "حياة طلاب في أرقى أكاديمية للموهوبين. منافسات شرسة وصداقات قوية ودراما مثيرة في بيئة تعليمية استثنائية.",
-      coverImage: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=450&fit=crop",
-      genre: "School Life",
-      chapters: 61,
-      author: "فاطمة علي",
-    },
-    {
-      id: "28",
-      title: "صياد الشياطين",
-      slug: "demon-hunter",
-      summary: "صياد محترف يقاتل الشياطين والمخلوقات الخارقة. أكشن مكثف ومعارك دموية في عالم مظلم وخطير.",
-      coverImage: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=300&h=450&fit=crop",
-      genre: "Action",
-      chapters: 112,
-      author: "عمر حسين",
-    },
-  ],
-  mysteryCategory: [
-    {
-      id: "17",
-      title: "لغز القصر المهجور",
-      slug: "abandoned-palace-mystery",
-      summary: "أسرار مظلمة تكشف في قصر قديم مهجور",
-      coverImage: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=300&h=400&fit=crop",
-      views: "280K",
-    },
-    {
-      id: "18",
-      title: "المحقق الأسطوري",
-      slug: "legendary-detective",
-      summary: "محقق بقدرات خارقة يحل أصعب القضايا",
-      coverImage: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=400&fit=crop",
-      views: "310K",
-    },
-    {
-      id: "19",
-      title: "الشفرة السرية",
-      slug: "secret-code",
-      summary: "سباق مع الزمن لحل شفرة قديمة قبل فوات الأوان",
-      coverImage: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=300&h=400&fit=crop",
-      views: "265K",
-    },
-  ],
-};
-
-// Static featured novels data
-const featuredNovelsData = [
-  {
-    id: "featured-1",
-    title: "أسطورة السيف الإلهي",
-    slug: "divine-sword-legend",
-    author: "محمد أحمد",
-    summary: "رحلة ملحمية في عالم الفنون القتالية حيث يسعى البطل لإتقان فن السيف الإلهي. في عالم تحكمه قوانين القوة، يبدأ بطلنا رحلته من الحضيض ليصبح أقوى محارب في التاريخ.",
-    coverImageUrl: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop",
-    genres: ["أكشن", "فانتازيا", "مغامرات"],
-    rating: 4.9,
-    views: 2500000,
-  },
-  {
-    id: "featured-2",
-    title: "إمبراطور العوالم التسعة",
-    slug: "nine-realms-emperor",
-    author: "سارة علي",
-    summary: "في عالم تحكمه قوانين الزراعة، يصعد بطلنا من الحضيض ليصبح إمبراطور العوالم التسعة. قصة ملحمية عن القوة والطموح والانتقام.",
-    coverImageUrl: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=600&fit=crop",
-    genres: ["فانتازيا", "أكشن", "دراما"],
-    rating: 4.8,
-    views: 3100000,
-  },
-  {
-    id: "featured-3",
-    title: "سيد الظلال",
-    slug: "shadow-master",
-    author: "خالد حسن",
-    summary: "قصة غامضة عن سيد يتحكم في ظلال العالم ويحميه من الشر الخفي. في ظلام الليل، يقف حارساً وحيداً ضد قوى الظلام التي تهدد بابتلاع العالم.",
-    coverImageUrl: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=400&h=600&fit=crop",
-    genres: ["غموض", "إثارة", "خيال مظلم"],
-    rating: 4.7,
-    views: 1800000,
-  },
-  {
-    id: "featured-4",
-    title: "نجم السماء الأزرق",
-    slug: "blue-sky-star",
-    author: "فاطمة محمود",
-    summary: "في عالم السحر والخيال، تبدأ رحلة فتاة لتصبح أقوى ساحرة في التاريخ. مواجهات سحرية ملحمية ومغامرات لا تنسى في عالم مليء بالأسرار.",
-    coverImageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=600&fit=crop",
-    genres: ["فانتازيا", "سحر", "مغامرات"],
-    rating: 4.6,
-    views: 2200000,
-  },
-  {
-    id: "featured-5",
-    title: "حارس البوابة الأبدية",
-    slug: "eternal-gate-guardian",
-    author: "عمر يوسف",
-    summary: "حارس وحيد يقف بين العالمين، يمنع قوى الشر من اختراق بوابة الأبدية. معركة لا تنتهي ضد الظلام في رحلة ملحمية لحماية البشرية.",
-    coverImageUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=600&fit=crop",
-    genres: ["أكشن", "فانتازيا", "ملحمي"],
-    rating: 4.9,
-    views: 2800000,
-  },
-  {
-    id: "featured-6",
-    title: "عودة الإمبراطور الخالد",
-    slug: "immortal-emperor-return",
-    author: "أحمد صالح",
-    summary: "بعد ألف عام من الموت، يعود الإمبراطور الخالد ليستعيد عرشه ويواجه الأعداء الذين خانوه. انتقام دموي وصراع على السلطة في عالم القوة المطلقة.",
-    coverImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop",
-    genres: ["فانتازيا", "أكشن", "انتقام"],
-    rating: 4.8,
-    views: 1500000,
-  },
-];
-
 const HomePage = () => {
   const [mounted, setMounted] = useState(false);
   const [selectedArrival, setSelectedArrival] = useState(null);
@@ -415,15 +37,23 @@ const HomePage = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalAction, setAuthModalAction] = useState("");
   const [currentFeaturedIndex, setCurrentFeaturedIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const autoPlayRef = useRef(null);
+  const dragRef = useRef({ startX: 0, isDragging: false });
 
   // Get current user and reading history
   const token = Cookies.get(TOKEN_KEY);
   const { data: currentUser } = useGetLoggedInUser();
   const { data: readingHistoryData } = useGetReadingHistory(1, 6); // Get first 6 novels
 
-  // Fetch rankings from API
-  const { data: trendingData, isLoading: trendingLoading } = useGetRankings("Trending", 16);
+  // Fetch rankings from API - single call for 22 items (6 featured + 8 trending + 8 suggestions)
+  const { data: trendingData, isLoading: trendingLoading } = useGetRankings("Trending", 22);
   const { data: newArrivalsData, isLoading: newArrivalsLoading } = useGetRankings("NewArrivals", 8);
+
+  // Split trending data into sections
+  const featuredNovels = useMemo(() => trendingData?.items?.slice(0, 6) || [], [trendingData]);
+  const trendingNowNovels = useMemo(() => trendingData?.items?.slice(6, 14) || [], [trendingData]);
+  const suggestedNovels = useMemo(() => trendingData?.items?.slice(14, 22) || [], [trendingData]);
 
   // Get random genre sections (cached for 15 minutes)
   const genreSections = useMemo(() => getRandomGenreSections(), []);
@@ -448,6 +78,50 @@ const HomePage = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Auto-spin featured novels every 5 seconds
+  useEffect(() => {
+    if (isPaused || featuredNovels.length === 0) return;
+    
+    autoPlayRef.current = setInterval(() => {
+      setCurrentFeaturedIndex((prev) => (prev + 1) % featuredNovels.length);
+    }, 5000);
+
+    return () => {
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current);
+      }
+    };
+  }, [isPaused, featuredNovels.length]);
+
+  // Drag handlers for featured novel carousel
+  const handleDragStart = useCallback((e) => {
+    const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    dragRef.current = { startX: clientX, isDragging: true };
+    setIsPaused(true);
+  }, []);
+
+  const handleDragEnd = useCallback((e) => {
+    if (!dragRef.current.isDragging) return;
+    
+    const clientX = e.type === 'touchend' ? e.changedTouches[0].clientX : e.clientX;
+    const diff = dragRef.current.startX - clientX;
+    const threshold = 50;
+
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        // Swiped left - next (RTL: previous visually)
+        setCurrentFeaturedIndex((prev) => (prev + 1) % featuredNovels.length);
+      } else {
+        // Swiped right - previous (RTL: next visually)
+        setCurrentFeaturedIndex((prev) => (prev - 1 + featuredNovels.length) % featuredNovels.length);
+      }
+    }
+
+    dragRef.current.isDragging = false;
+    // Resume auto-play after 3 seconds of no interaction
+    setTimeout(() => setIsPaused(false), 3000);
+  }, [featuredNovels.length]);
 
   // Set initial selected arrival when data loads
   useEffect(() => {
@@ -526,53 +200,68 @@ const HomePage = () => {
               <div className="lg:col-span-7">
                 <h2 className="text-3xl font-bold text-white noto-sans-arabic-extrabold mb-6 px-4">رواية الأسبوع المميزة</h2>
                 
-                <div className="bg-[#2C2C2C] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-stretch gap-8 border border-gray-700 shadow-lg relative overflow-hidden">
-                  {/* Blurred Background Image */}
+                {trendingLoading || featuredNovels.length === 0 ? (
+                  <div className="bg-[#2C2C2C] rounded-2xl p-6 md:p-8 border border-gray-700 shadow-lg h-64 flex items-center justify-center">
+                    <div className="text-white text-xl noto-sans-arabic-medium">جاري التحميل...</div>
+                  </div>
+                ) : (
                   <div 
-                    className="absolute inset-0 bg-cover bg-center opacity-50 blur-lg scale-110"
-                    style={{ backgroundImage: `url("${featuredNovelsData[currentFeaturedIndex].coverImageUrl}")` }}
-                  />
-                  
-                  {/* Content */}
-                  <div className="relative z-10 flex flex-col md:flex-row items-stretch gap-8 w-full">
-                    <Link to={`/novel/${featuredNovelsData[currentFeaturedIndex].slug}`} className="w-32 md:w-40 flex-shrink-0">
-                      <img 
-                        src={featuredNovelsData[currentFeaturedIndex].coverImageUrl}
-                        alt={featuredNovelsData[currentFeaturedIndex].title}
-                        className="w-full h-auto rounded-xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
-                      />
-                    </Link>
+                    className="bg-[#2C2C2C] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-stretch gap-8 border border-gray-700 shadow-lg relative overflow-hidden cursor-grab active:cursor-grabbing select-none"
+                    onMouseDown={handleDragStart}
+                    onMouseUp={handleDragEnd}
+                    onMouseLeave={(e) => { if (dragRef.current.isDragging) handleDragEnd(e); }}
+                    onTouchStart={handleDragStart}
+                    onTouchEnd={handleDragEnd}
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseOut={(e) => { if (!dragRef.current.isDragging && !e.currentTarget.contains(e.relatedTarget)) setIsPaused(false); }}
+                  >
+                    {/* Blurred Background Image */}
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-50 blur-lg scale-110"
+                      style={{ backgroundImage: `url("${featuredNovels[currentFeaturedIndex]?.coverImageUrl}")` }}
+                    />
                     
-                    <div className="text-white flex flex-col flex-1">
-                      <div className="flex-1">
-                        <Link to={`/novel/${featuredNovelsData[currentFeaturedIndex].slug}`}>
-                          <h3 className="text-3xl font-bold mb-4 noto-sans-arabic-extrabold hover:text-[#4A9EFF] transition-colors cursor-pointer">
-                            {featuredNovelsData[currentFeaturedIndex].title}
-                          </h3>
-                        </Link>
-                        <p className="text-gray-300 leading-relaxed mb-6 noto-sans-arabic-regular">
-                          {featuredNovelsData[currentFeaturedIndex].summary}
-                        </p>
-                      </div>
+                    {/* Content */}
+                    <div className="relative z-10 flex flex-col md:flex-row items-stretch gap-8 w-full h-[220px]">
+                      <Link to={`/novel/${featuredNovels[currentFeaturedIndex]?.slug}`} className="w-32 md:w-40 flex-shrink-0 h-full">
+                        <img 
+                          src={featuredNovels[currentFeaturedIndex]?.coverImageUrl}
+                          alt={featuredNovels[currentFeaturedIndex]?.title}
+                          className="w-full h-full object-cover rounded-xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
+                        />
+                      </Link>
                       
-                      {/* Navigation Dots */}
-                      <div className="flex items-center gap-2 mt-auto">
-                        {featuredNovelsData.map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => setCurrentFeaturedIndex(index)}
-                            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                              index === currentFeaturedIndex 
-                                ? 'bg-white opacity-100' 
-                                : 'bg-white opacity-50 hover:opacity-75'
-                            }`}
-                            aria-label={`اذهب إلى الرواية ${index + 1}`}
-                          />
-                        ))}
+                      <div className="text-white flex flex-col flex-1 h-full overflow-hidden">
+                        <div className="flex-1 overflow-hidden">
+                          <Link to={`/novel/${featuredNovels[currentFeaturedIndex]?.slug}`}>
+                            <h3 className="text-3xl font-bold mb-4 noto-sans-arabic-extrabold hover:text-[#4A9EFF] transition-colors cursor-pointer line-clamp-2 h-[4.5rem]">
+                              {featuredNovels[currentFeaturedIndex]?.title}
+                            </h3>
+                          </Link>
+                          <p className="text-gray-300 leading-relaxed noto-sans-arabic-regular line-clamp-3 h-[4.5rem] overflow-hidden">
+                            {featuredNovels[currentFeaturedIndex]?.summary}
+                          </p>
+                        </div>
+                        
+                        {/* Navigation Dots */}
+                        <div className="flex items-center gap-2 mt-4">
+                          {featuredNovels.map((_, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setCurrentFeaturedIndex(index)}
+                              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                index === currentFeaturedIndex 
+                                  ? 'bg-white opacity-100' 
+                                  : 'bg-white opacity-50 hover:opacity-75'
+                              }`}
+                              aria-label={`اذهب إلى الرواية ${index + 1}`}
+                            />
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Right Section: Meet Sard */}
@@ -652,7 +341,7 @@ const HomePage = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 justify-items-center">
-                {trendingData?.items?.slice(0, 8).map((novel) => (
+                {trendingNowNovels.map((novel) => (
                   <Link
                     key={novel.id}
                     to={`/novel/${novel.slug}`}
@@ -678,8 +367,8 @@ const HomePage = () => {
             )}
           </section>
 
-          {/* We Also Suggest - Shows remaining trending novels (9-16) */}
-          {trendingData?.items && trendingData.items.length > 8 && (
+          {/* We Also Suggest - Shows remaining trending novels (15-22) */}
+          {suggestedNovels.length > 0 && (
             <section>
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 bg-[#4A9EFF] rounded-xl flex items-center justify-center shadow-lg">
@@ -692,7 +381,7 @@ const HomePage = () => {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 justify-items-center">
-                {trendingData.items.slice(8, 16).map((novel) => (
+                {suggestedNovels.map((novel) => (
                   <Link
                     key={novel.id}
                     to={`/novel/${novel.slug}`}
