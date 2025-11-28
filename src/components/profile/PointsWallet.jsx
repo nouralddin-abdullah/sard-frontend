@@ -209,9 +209,11 @@ const PointsWallet = ({ userId }) => {
               }
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          
+          {/* Balance and Action Buttons - Stack on mobile, row on desktop */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
             {/* Balance Display */}
-            <div className="flex items-center gap-2 bg-[#2C2C2C] px-4 py-2 rounded-lg">
+            <div className="flex items-center justify-center gap-2 bg-[#2C2C2C] px-4 py-2 rounded-lg">
               <svg className="w-5 h-5 text-[#4A9EFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -221,27 +223,31 @@ const PointsWallet = ({ userId }) => {
                 <span className="text-white font-bold noto-sans-arabic-bold">{currentBalance.toLocaleString("ar-EG")} نقطة</span>
               )}
             </div>
-            <button 
-              className="flex items-center justify-center gap-2 h-10 px-5 bg-[#4A9EFF] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#3A8EEF] transition-colors noto-sans-arabic-bold"
-              onClick={() => setIsRechargeModalOpen(true)}
-            >
-              <CreditCard size={20} />
-              <span>شحن النقاط</span>
-            </button>
-            <button 
-              className="flex items-center justify-center gap-2 h-10 px-5 bg-[#16a34a] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#15803d] transition-colors noto-sans-arabic-bold"
-              onClick={() => setIsWithdrawModalOpen(true)}
-            >
-              <ArrowDownToLine size={20} />
-              <span>سحب النقاط</span>
-            </button>
+            
+            {/* Action Buttons - Stack on mobile only */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+              <button 
+                className="flex items-center justify-center gap-2 h-10 px-5 bg-[#4A9EFF] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#3A8EEF] transition-colors noto-sans-arabic-bold"
+                onClick={() => setIsRechargeModalOpen(true)}
+              >
+                <CreditCard size={20} />
+                <span>شحن النقاط</span>
+              </button>
+              <button 
+                className="flex items-center justify-center gap-2 h-10 px-5 bg-[#16a34a] text-white font-medium rounded-lg whitespace-nowrap hover:bg-[#15803d] transition-colors noto-sans-arabic-bold"
+                onClick={() => setIsWithdrawModalOpen(true)}
+              >
+                <ArrowDownToLine size={20} />
+                <span>سحب النقاط</span>
+              </button>
+            </div>
           </div>
         </header>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-[#3A3A3A]">
+        <div className="flex gap-2 mb-6 border-b border-[#3A3A3A] overflow-x-auto">
           <button
-            className={`px-6 py-3 text-base font-medium transition-colors noto-sans-arabic-medium relative ${
+            className={`px-4 sm:px-6 py-3 text-sm sm:text-base font-medium transition-colors noto-sans-arabic-medium relative whitespace-nowrap ${
               activeTab === "recharge"
                 ? "text-[#4A9EFF] border-b-2 border-[#4A9EFF]"
                 : "text-[#B8B8B8] hover:text-white"
@@ -255,7 +261,7 @@ const PointsWallet = ({ userId }) => {
             سجل الشحن
           </button>
           <button
-            className={`px-6 py-3 text-base font-medium transition-colors noto-sans-arabic-medium relative ${
+            className={`px-4 sm:px-6 py-3 text-sm sm:text-base font-medium transition-colors noto-sans-arabic-medium relative whitespace-nowrap ${
               activeTab === "withdraw"
                 ? "text-[#4A9EFF] border-b-2 border-[#4A9EFF]"
                 : "text-[#B8B8B8] hover:text-white"
@@ -269,7 +275,7 @@ const PointsWallet = ({ userId }) => {
             سجل السحب
           </button>
           <button
-            className={`px-6 py-3 text-base font-medium transition-colors noto-sans-arabic-medium relative ${
+            className={`px-4 sm:px-6 py-3 text-sm sm:text-base font-medium transition-colors noto-sans-arabic-medium relative whitespace-nowrap ${
               activeTab === "transactions"
                 ? "text-[#4A9EFF] border-b-2 border-[#4A9EFF]"
                 : "text-[#B8B8B8] hover:text-white"

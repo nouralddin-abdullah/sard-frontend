@@ -50,29 +50,29 @@ const ReadingHistoryCard = ({ novel, onAddToList }) => {
 
         {/* Hover Actions Overlay */}
         {showActions && (
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2 p-3">
             <button
               onClick={handleContinueReading}
-              className="w-full py-2.5 px-4 bg-[#0077FF] hover:bg-[#0066DD] text-white rounded-lg noto-sans-arabic-medium flex items-center justify-center gap-2 transition-colors"
+              className="w-full py-2 px-3 bg-[#0077FF] hover:bg-[#0066DD] text-white rounded-lg noto-sans-arabic-medium flex items-center justify-center gap-1.5 transition-colors text-xs"
             >
-              <BookOpen className="w-5 h-5" />
+              <BookOpen className="w-4 h-4" />
               <span>متابعة القراءة</span>
             </button>
             
             <button
               onClick={handleNovelDetails}
-              className="w-full py-2.5 px-4 bg-[#5A5A5A] hover:bg-[#6A6A6A] text-white rounded-lg noto-sans-arabic-medium flex items-center justify-center gap-2 transition-colors"
+              className="w-full py-2 px-3 bg-[#5A5A5A] hover:bg-[#6A6A6A] text-white rounded-lg noto-sans-arabic-medium flex items-center justify-center gap-1.5 transition-colors text-xs"
             >
-              <Info className="w-5 h-5" />
+              <Info className="w-4 h-4" />
               <span>تفاصيل الرواية</span>
             </button>
             
             <button
               onClick={() => onAddToList(novel)}
-              className="w-full py-2.5 px-4 bg-[#5A5A5A] hover:bg-[#6A6A6A] text-white rounded-lg noto-sans-arabic-medium flex items-center justify-center gap-2 transition-colors"
+              className="w-full py-2 px-3 bg-[#5A5A5A] hover:bg-[#6A6A6A] text-white rounded-lg noto-sans-arabic-medium flex items-center justify-center gap-1.5 transition-colors text-xs"
             >
-              <ListPlus className="w-5 h-5" />
-              <span>أضف لقائمة القراءة</span>
+              <ListPlus className="w-4 h-4" />
+              <span>أضف لقائمة</span>
             </button>
           </div>
         )}
