@@ -206,7 +206,7 @@ const HomePage = () => {
                   </div>
                 ) : (
                   <div 
-                    className="bg-[#2C2C2C] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-stretch gap-8 border border-gray-700 shadow-lg relative overflow-hidden cursor-grab active:cursor-grabbing select-none"
+                    className="bg-[#2C2C2C] rounded-2xl p-4 md:p-8 border border-gray-700 shadow-lg relative overflow-hidden cursor-grab active:cursor-grabbing select-none"
                     onMouseDown={handleDragStart}
                     onMouseUp={handleDragEnd}
                     onMouseLeave={(e) => { if (dragRef.current.isDragging) handleDragEnd(e); }}
@@ -222,34 +222,34 @@ const HomePage = () => {
                     />
                     
                     {/* Content */}
-                    <div className="relative z-10 flex flex-col md:flex-row items-stretch gap-8 w-full h-[220px]">
-                      <Link to={`/novel/${featuredNovels[currentFeaturedIndex]?.slug}`} className="w-32 md:w-40 flex-shrink-0 h-full">
+                    <div className="relative z-10 flex flex-row items-stretch gap-4 md:gap-8 w-full">
+                      <Link to={`/novel/${featuredNovels[currentFeaturedIndex]?.slug}`} className="w-28 md:w-40 flex-shrink-0">
                         <img 
                           src={featuredNovels[currentFeaturedIndex]?.coverImageUrl}
                           alt={featuredNovels[currentFeaturedIndex]?.title}
-                          className="w-full h-full object-cover rounded-xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
+                          className="w-full h-40 md:h-56 object-cover rounded-xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
                         />
                       </Link>
                       
-                      <div className="text-white flex flex-col flex-1 h-full overflow-hidden">
+                      <div className="text-white flex flex-col flex-1 min-w-0 justify-between py-1">
                         <div className="flex-1 overflow-hidden">
                           <Link to={`/novel/${featuredNovels[currentFeaturedIndex]?.slug}`}>
-                            <h3 className="text-3xl font-bold mb-4 noto-sans-arabic-extrabold hover:text-[#4A9EFF] transition-colors cursor-pointer line-clamp-2 h-[4.5rem]">
+                            <h3 className="text-lg md:text-3xl font-bold mb-2 md:mb-4 noto-sans-arabic-extrabold hover:text-[#4A9EFF] transition-colors cursor-pointer line-clamp-2">
                               {featuredNovels[currentFeaturedIndex]?.title}
                             </h3>
                           </Link>
-                          <p className="text-gray-300 leading-relaxed noto-sans-arabic-regular line-clamp-3 h-[4.5rem] overflow-hidden">
+                          <p className="text-gray-300 text-sm md:text-base leading-relaxed noto-sans-arabic-regular line-clamp-3 md:line-clamp-4">
                             {featuredNovels[currentFeaturedIndex]?.summary}
                           </p>
                         </div>
                         
                         {/* Navigation Dots */}
-                        <div className="flex items-center gap-2 mt-4">
+                        <div className="flex items-center gap-2 mt-3 md:mt-4">
                           {featuredNovels.map((_, index) => (
                             <button
                               key={index}
                               onClick={() => setCurrentFeaturedIndex(index)}
-                              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                              className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
                                 index === currentFeaturedIndex 
                                   ? 'bg-white opacity-100' 
                                   : 'bg-white opacity-50 hover:opacity-75'
@@ -323,9 +323,9 @@ const HomePage = () => {
             </div>
           </section>
 
-          {/* Trending Now - Grid Cards */}
+          {/* Trending Now - Horizontal Slider */}
           <section>
-            <div className="flex items-center gap-3 mb-8">
+            <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-[#4A9EFF] rounded-xl flex items-center justify-center shadow-lg">
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
@@ -336,19 +336,20 @@ const HomePage = () => {
             </div>
 
             {trendingLoading ? (
-              <div className="flex justify-center items-center h-64">
+              <div className="flex justify-center items-center h-48">
                 <div className="text-white text-xl noto-sans-arabic-medium">جاري التحميل...</div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 justify-items-center">
+              <div className="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-[#4A9EFF] scrollbar-track-gray-800 pb-4 px-1" style={{ scrollSnapType: 'x mandatory' }}>
                 {trendingNowNovels.map((novel) => (
                   <Link
                     key={novel.id}
                     to={`/novel/${novel.slug}`}
-                    className="group w-full max-w-[160px]"
+                    className="group flex-shrink-0"
+                    style={{ scrollSnapAlign: 'start', width: '120px' }}
                   >
                     {/* Cover Image */}
-                    <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-3 shadow-lg transition-transform duration-300 group-hover:scale-105">
+                    <div className="relative rounded-lg overflow-hidden mb-2 shadow-lg transition-transform duration-300 group-hover:scale-105" style={{ width: '120px', height: '180px' }}>
                       <img
                         src={novel.coverImageUrl}
                         alt={novel.title}
@@ -358,7 +359,7 @@ const HomePage = () => {
                     </div>
 
                     {/* Novel Title */}
-                    <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 mb-2 text-center">
+                    <h3 className="text-white text-xs noto-sans-arabic-bold line-clamp-2 text-center">
                       {novel.title}
                     </h3>
                   </Link>
@@ -367,10 +368,10 @@ const HomePage = () => {
             )}
           </section>
 
-          {/* We Also Suggest - Shows remaining trending novels (15-22) */}
+          {/* We Also Suggest - Horizontal Slider */}
           {suggestedNovels.length > 0 && (
             <section>
-              <div className="flex items-center gap-3 mb-8">
+              <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-[#4A9EFF] rounded-xl flex items-center justify-center shadow-lg">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
@@ -380,15 +381,16 @@ const HomePage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 justify-items-center">
+              <div className="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-[#4A9EFF] scrollbar-track-gray-800 pb-4 px-1" style={{ scrollSnapType: 'x mandatory' }}>
                 {suggestedNovels.map((novel) => (
                   <Link
                     key={novel.id}
                     to={`/novel/${novel.slug}`}
-                    className="group w-full max-w-[160px]"
+                    className="group flex-shrink-0"
+                    style={{ scrollSnapAlign: 'start', width: '120px' }}
                   >
                     {/* Cover Image */}
-                    <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-3 shadow-lg transition-transform duration-300 group-hover:scale-105">
+                    <div className="relative rounded-lg overflow-hidden mb-2 shadow-lg transition-transform duration-300 group-hover:scale-105" style={{ width: '120px', height: '180px' }}>
                       <img
                         src={novel.coverImageUrl}
                         alt={novel.title}
@@ -398,7 +400,7 @@ const HomePage = () => {
                     </div>
 
                     {/* Novel Title */}
-                    <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 mb-2 text-center">
+                    <h3 className="text-white text-xs noto-sans-arabic-bold line-clamp-2 text-center">
                       {novel.title}
                     </h3>
                   </Link>
