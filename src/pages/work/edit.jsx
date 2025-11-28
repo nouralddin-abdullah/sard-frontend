@@ -215,9 +215,8 @@ const EditWorkPage = () => {
 
   const coverPreview = useMemo(() => {
     if (coverFile) return URL.createObjectURL(coverFile);
-    if (work?.coverImageUrl) return work.coverImageUrl;
     return null;
-  }, [coverFile, work]);
+  }, [coverFile]);
 
   useEffect(() => () => {
     if (coverFile) URL.revokeObjectURL(coverPreview);
@@ -557,7 +556,7 @@ const EditWorkPage = () => {
   );
 
   const isLoading = isWorkLoading;
-  const coverSource = coverPreview || work?.coverImageUrl || mainPicture;
+  const coverSource = work?.coverImageUrl || mainPicture;
 
   if (isError) {
     return (
@@ -832,14 +831,14 @@ const EditWorkPage = () => {
                         <div className="grid gap-4 text-right lg:grid-cols-2">
                           <div className="rounded-xl border p-4" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
                             <p className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>الغلاف الحالي</p>
-                            <div className="mt-3 h-48 overflow-hidden rounded-xl border" style={{ borderColor: '#5A5A5A' }}>
+                            <div className="mt-3 aspect-[3/4] max-h-48 overflow-hidden rounded-xl border" style={{ borderColor: '#5A5A5A' }}>
                               <img src={coverSource} alt={detailsState.title} className="h-full w-full object-cover" />
                             </div>
                           </div>
                           {coverFile ? (
                             <div className="rounded-xl border p-4" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)' }}>
                               <p className="noto-sans-arabic-bold text-xs" style={{ color: '#0077FF' }}>رفع جديد</p>
-                              <div className="mt-3 h-48 overflow-hidden rounded-xl border" style={{ borderColor: '#0077FF' }}>
+                              <div className="mt-3 aspect-[3/4] max-h-48 overflow-hidden rounded-xl border" style={{ borderColor: '#0077FF' }}>
                                 <img src={coverPreview} alt="New cover preview" className="h-full w-full object-cover" />
                               </div>
                               <button
