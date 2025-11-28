@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
 import { useCreateWork } from "../../hooks/work/useCreateWork";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ const SUMMARY_MAX = 2000;
 
 export default function CreateNovel() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     summary: "",
@@ -36,6 +38,12 @@ export default function CreateNovel() {
   const handleGenreChange = (e) => {
     const selectedGenreId = parseInt(e.target.value);
     const selectedGenre = genres.find((genre) => genre.id === selectedGenreId);
+
+    if (formData.genreIds.length >= 4) {
+      toast.error(t("workPage.create.validation.maxGenres"));
+      e.target.value = "";
+      return;
+    }
 
     if (selectedGenre && !formData.genreIds.includes(selectedGenreId)) {
       setFormData((prev) => ({
@@ -129,6 +137,11 @@ export default function CreateNovel() {
       return;
     }
 
+    if (formData.genreIds.length > 4) {
+      toast.error(t("workPage.create.validation.maxGenres"));
+      return;
+    }
+
     const multipartForm = new FormData();
     multipartForm.append("Title", formData.title);
     multipartForm.append("Summary", formData.summary);
@@ -138,20 +151,19 @@ export default function CreateNovel() {
     if (formData.cover) multipartForm.append("CoverImageUrl", formData.cover);
 
     try {
-      await createWork(multipartForm);
+      const response = await createWork(multipartForm);
 
       toast.success(t("workPage.create.toast.success"));
 
-      for (let i = 0; i < selectedGenres.length; i++) {
-        removeGenre(selectedGenres[i].id);
+      // Redirect to the newly created work's story studio (edit page)
+      // API returns NovelId with capital N
+      const workId = response?.novelId || response?.NovelId;
+      if (workId) {
+        navigate(`/dashboard/works/${workId}/edit`);
+      } else {
+        // Fallback to works list if no ID returned
+        navigate('/dashboard/works');
       }
-
-      setFormData({
-        title: "",
-        summary: "",
-        genreIds: [],
-        cover: null,
-      });
     } catch (error) {
       console.error(error);
       toast.error(error?.message || t("workPage.create.toast.error"));

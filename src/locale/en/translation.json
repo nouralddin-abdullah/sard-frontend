@@ -186,10 +186,11 @@
       },
       "validation": {
         "invalidImage": "Please select a valid image file",
-        "maxSize": "Image must be smaller than 10MB",
-        "title": "A title is required",
-        "summary": "A summary is required",
-        "genre": "Select at least one genre"
+        "maxSize": "Image must be less than 10MB",
+        "title": "Novel title is required",
+        "summary": "Summary is required",
+        "genre": "Select at least one genre",
+        "maxGenres": "Maximum 4 genres allowed"
       },
       "toast": {
         "success": "Novel created successfully!",
