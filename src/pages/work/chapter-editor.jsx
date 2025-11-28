@@ -413,18 +413,18 @@ const ChapterEditorPage = () => {
     <>
       <Header />
       <div dir="rtl" className="min-h-screen text-white" style={{ backgroundColor: '#2C2C2C' }}>
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-10">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:gap-8 px-3 md:px-6 py-6 md:py-10">
         
         <main className="mx-auto w-full max-w-5xl">
           {/* Header with Return and Save buttons - directly above the editor container */}
-          <header className="flex flex-wrap items-center justify-between gap-4 mb-8">
+          <header className="flex flex-wrap items-center justify-between gap-3 md:gap-4 mb-4 md:mb-8">
             <Button
               variant="ghost"
-              className="noto-sans-arabic-bold border px-4 py-2"
+              className="noto-sans-arabic-bold border px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm"
               style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C', color: '#FFFFFF' }}
               onClick={() => goToChaptersView()}
             >
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowRight className="ml-1.5 md:ml-2 h-3.5 w-3.5 md:h-4 md:w-4" />
               العودة لمساحة العمل
             </Button>
 
@@ -487,13 +487,13 @@ const ChapterEditorPage = () => {
             </div>
           </header>
 
-          <section className="rounded-2xl border px-10 py-12" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
+          <section className="rounded-2xl border px-3 md:px-10 py-6 md:py-12" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
             {shouldShowBlockingLoader ? (
               <div className="flex h-[28rem] items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin" style={{ color: '#797979' }} />
               </div>
             ) : (
-              <div className="flex flex-col gap-10">
+              <div className="flex flex-col gap-6 md:gap-10">
                 <div className="space-y-2">
                   <label htmlFor="chapter-title" className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>
                     عنوان الفصل
@@ -503,7 +503,7 @@ const ChapterEditorPage = () => {
                     value={editorState.title}
                     onChange={(event) => handleFieldChange("title", event.target.value.slice(0, 180))}
                     placeholder="مثال: بداية الرحلة"
-                    className="noto-sans-arabic-extrabold w-full rounded-2xl border px-6 py-4 text-2xl text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 transition"
+                    className="noto-sans-arabic-extrabold w-full rounded-xl md:rounded-2xl border px-4 md:px-6 py-3 md:py-4 text-lg md:text-2xl text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 transition"
                     style={{ 
                       borderColor: '#5A5A5A', 
                       backgroundColor: '#2C2C2C',
@@ -537,7 +537,7 @@ const ChapterEditorPage = () => {
                   />
                 </div>
 
-                <div className="noto-sans-arabic-medium flex flex-col gap-3 rounded-xl border p-6 text-sm md:flex-row md:items-center md:justify-between" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C', color: '#B8B8B8' }}>
+                <div className="noto-sans-arabic-medium flex flex-col gap-3 rounded-xl border p-4 md:p-6 text-xs md:text-sm md:flex-row md:items-center md:justify-between" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C', color: '#B8B8B8' }}>
                   <div className="flex items-center gap-3 text-white">
                     {hasUnsavedChanges ? (
                       <AlertCircle className="h-5 w-5" style={{ color: '#FF4444' }} />
