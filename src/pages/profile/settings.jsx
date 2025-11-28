@@ -289,24 +289,24 @@ const SettingsPage = () => {
             <h1 className="text-2xl text-white noto-sans-arabic-bold">الإعدادات</h1>
           </div>
 
-          <div className="flex">
-            {/* Sidebar Navigation */}
-            <aside className="w-80 border-l border-gray-800 min-h-screen bg-[#1C1C1C]">
-              <nav className="py-4">
+          <div className="flex flex-col md:flex-row">
+            {/* Sidebar Navigation - Horizontal on mobile, vertical on desktop */}
+            <aside className="w-full md:w-80 border-b md:border-b-0 md:border-l border-gray-800 md:min-h-screen bg-[#1C1C1C]">
+              <nav className="py-2 md:py-4 flex md:flex-col overflow-x-auto">
                 {sections.map((section) => {
                   const Icon = section.icon;
                   return (
                     <button
                       key={section.id}
                       onClick={() => setActiveSection(section.id)}
-                      className={`w-full flex items-center gap-4 px-6 py-4 text-right transition-colors ${
+                      className={`flex items-center gap-2 md:gap-4 px-4 md:px-6 py-3 md:py-4 text-right transition-colors whitespace-nowrap md:w-full ${
                         activeSection === section.id
-                          ? "bg-[#2C2C2C] text-white border-l-4 border-[#4A9EFF]"
+                          ? "bg-[#2C2C2C] text-white md:border-l-4 border-b-2 md:border-b-0 border-[#4A9EFF]"
                           : "text-gray-400 hover:bg-[#2C2C2C] hover:text-white"
                       }`}
                     >
                       <Icon className="w-5 h-5" />
-                      <span className="noto-sans-arabic-bold text-lg">{section.label}</span>
+                      <span className="noto-sans-arabic-bold text-sm md:text-lg">{section.label}</span>
                     </button>
                   );
                 })}
@@ -314,7 +314,7 @@ const SettingsPage = () => {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 px-8 py-6 bg-[#1C1C1C]">
+            <main className="flex-1 px-4 md:px-8 py-6 bg-[#1C1C1C]">
               <div className="max-w-3xl">
                 {/* Account Section */}
                 {activeSection === "account" && (
@@ -364,7 +364,7 @@ const SettingsPage = () => {
                     {/* Profile Photo */}
                     <div className="space-y-3">
                       <label className="block text-white noto-sans-arabic-bold text-lg">الصورة الشخصية</label>
-                      <div className="flex items-center gap-6">
+                      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                         <div className="relative">
                           <div
                             className="w-32 h-32 rounded-full bg-[#2C2C2C] bg-cover bg-center overflow-hidden border-2 border-gray-700"
@@ -392,9 +392,9 @@ const SettingsPage = () => {
                             className="hidden"
                           />
                         </div>
-                        <div className="text-gray-400 noto-sans-arabic-medium">
-                          <p>حجم الصورة الموصى به: 400×400 بكسل</p>
-                          <p className="text-sm">الصيغ المدعومة: {imageValidation.allowedTypesLabel} • الحد الأقصى: 5MB</p>
+                        <div className="text-gray-400 noto-sans-arabic-medium text-center sm:text-right">
+                          <p className="text-sm sm:text-base">حجم الصورة الموصى به: 400×400 بكسل</p>
+                          <p className="text-xs sm:text-sm">الصيغ المدعومة: {imageValidation.allowedTypesLabel} • الحد الأقصى: 5MB</p>
                         </div>
                       </div>
                     </div>
@@ -530,18 +530,18 @@ const SettingsPage = () => {
                     </div>
 
                     {/* Submit Buttons */}
-                    <div className="flex gap-4 justify-end pt-6 border-t border-gray-800">
+                    <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 sm:justify-end pt-6 border-t border-gray-800">
                       <button
                         type="button"
                         onClick={() => navigate(`/profile/${userData?.userName}`)}
-                        className="px-6 py-3 bg-[#2C2C2C] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3C3C3C] transition-colors border border-gray-700"
+                        className="px-6 py-3 bg-[#2C2C2C] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3C3C3C] transition-colors border border-gray-700 w-full sm:w-auto"
                       >
                         إلغاء
                       </button>
                       <button
                         type="submit"
                         disabled={isUpdating || (Object.keys(changedFields).length === 0 && !profilePhoto && !profileBanner)}
-                        className="px-6 py-3 bg-[#4A9EFF] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3A8EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-6 py-3 bg-[#4A9EFF] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3A8EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 w-full sm:w-auto"
                       >
                         {isUpdating ? (
                           <>
@@ -608,18 +608,18 @@ const SettingsPage = () => {
                     </div>
 
                     {/* Submit Buttons */}
-                    <div className="flex gap-4 justify-end pt-6 border-t border-gray-800">
+                    <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 sm:justify-end pt-6 border-t border-gray-800">
                       <button
                         type="button"
                         onClick={() => navigate(`/profile/${userData?.userName}`)}
-                        className="px-6 py-3 bg-[#2C2C2C] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3C3C3C] transition-colors border border-gray-700"
+                        className="px-6 py-3 bg-[#2C2C2C] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3C3C3C] transition-colors border border-gray-700 w-full sm:w-auto"
                       >
                         إلغاء
                       </button>
                       <button
                         type="submit"
                         disabled={isUpdating || (Object.keys(changedFields).length === 0 && !profilePhoto && !profileBanner)}
-                        className="px-6 py-3 bg-[#4A9EFF] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3A8EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-6 py-3 bg-[#4A9EFF] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3A8EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 w-full sm:w-auto"
                       >
                         {isUpdating ? (
                           <>
@@ -687,7 +687,7 @@ const SettingsPage = () => {
                     </div>
 
                     {/* Submit Buttons */}
-                    <div className="flex gap-4 justify-end pt-6 border-t border-gray-800">
+                    <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 sm:justify-end pt-6 border-t border-gray-800">
                       <button
                         type="button"
                         onClick={() => {
@@ -697,14 +697,14 @@ const SettingsPage = () => {
                             confirmPassword: "",
                           });
                         }}
-                        className="px-6 py-3 bg-[#2C2C2C] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3C3C3C] transition-colors border border-gray-700"
+                        className="px-6 py-3 bg-[#2C2C2C] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3C3C3C] transition-colors border border-gray-700 w-full sm:w-auto"
                       >
                         إعادة تعيين
                       </button>
                       <button
                         type="submit"
                         disabled={isUpdatingPassword || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
-                        className="px-6 py-3 bg-[#4A9EFF] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3A8EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-6 py-3 bg-[#4A9EFF] text-white rounded-lg noto-sans-arabic-bold hover:bg-[#3A8EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 w-full sm:w-auto"
                       >
                         {isUpdatingPassword ? (
                           <>

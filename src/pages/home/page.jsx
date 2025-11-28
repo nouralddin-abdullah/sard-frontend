@@ -323,9 +323,9 @@ const HomePage = () => {
             </div>
           </section>
 
-          {/* Trending Now - Horizontal Slider */}
+          {/* Trending Now - Grid on desktop, Horizontal Slider on mobile */}
           <section>
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-6 md:mb-8">
               <div className="w-12 h-12 bg-[#4A9EFF] rounded-xl flex items-center justify-center shadow-lg">
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
@@ -336,42 +336,65 @@ const HomePage = () => {
             </div>
 
             {trendingLoading ? (
-              <div className="flex justify-center items-center h-48">
+              <div className="flex justify-center items-center h-48 md:h-64">
                 <div className="text-white text-xl noto-sans-arabic-medium">جاري التحميل...</div>
               </div>
             ) : (
-              <div className="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-[#4A9EFF] scrollbar-track-gray-800 pb-4 px-1" style={{ scrollSnapType: 'x mandatory' }}>
-                {trendingNowNovels.map((novel) => (
-                  <Link
-                    key={novel.id}
-                    to={`/novel/${novel.slug}`}
-                    className="group flex-shrink-0"
-                    style={{ scrollSnapAlign: 'start', width: '120px' }}
-                  >
-                    {/* Cover Image */}
-                    <div className="relative rounded-lg overflow-hidden mb-2 shadow-lg transition-transform duration-300 group-hover:scale-105" style={{ width: '120px', height: '180px' }}>
-                      <img
-                        src={novel.coverImageUrl}
-                        alt={novel.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
+              <>
+                {/* Mobile: Horizontal Slider */}
+                <div className="md:hidden flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-[#4A9EFF] scrollbar-track-gray-800 pb-4 px-1" style={{ scrollSnapType: 'x mandatory' }}>
+                  {trendingNowNovels.map((novel) => (
+                    <Link
+                      key={novel.id}
+                      to={`/novel/${novel.slug}`}
+                      className="group flex-shrink-0"
+                      style={{ scrollSnapAlign: 'start', width: '120px' }}
+                    >
+                      <div className="relative rounded-lg overflow-hidden mb-2 shadow-lg transition-transform duration-300 group-hover:scale-105" style={{ width: '120px', height: '180px' }}>
+                        <img
+                          src={novel.coverImageUrl}
+                          alt={novel.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                      <h3 className="text-white text-xs noto-sans-arabic-bold line-clamp-2 text-center">
+                        {novel.title}
+                      </h3>
+                    </Link>
+                  ))}
+                </div>
 
-                    {/* Novel Title */}
-                    <h3 className="text-white text-xs noto-sans-arabic-bold line-clamp-2 text-center">
-                      {novel.title}
-                    </h3>
-                  </Link>
-                ))}
-              </div>
+                {/* Desktop: Grid */}
+                <div className="hidden md:grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 justify-items-center">
+                  {trendingNowNovels.map((novel) => (
+                    <Link
+                      key={novel.id}
+                      to={`/novel/${novel.slug}`}
+                      className="group w-full max-w-[160px]"
+                    >
+                      <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-3 shadow-lg transition-transform duration-300 group-hover:scale-105">
+                        <img
+                          src={novel.coverImageUrl}
+                          alt={novel.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                      <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 mb-2 text-center">
+                        {novel.title}
+                      </h3>
+                    </Link>
+                  ))}
+                </div>
+              </>
             )}
           </section>
 
-          {/* We Also Suggest - Horizontal Slider */}
+          {/* We Also Suggest - Grid on desktop, Horizontal Slider on mobile */}
           {suggestedNovels.length > 0 && (
             <section>
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-6 md:mb-8">
                 <div className="w-12 h-12 bg-[#4A9EFF] rounded-xl flex items-center justify-center shadow-lg">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
@@ -381,7 +404,8 @@ const HomePage = () => {
                 </div>
               </div>
 
-              <div className="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-[#4A9EFF] scrollbar-track-gray-800 pb-4 px-1" style={{ scrollSnapType: 'x mandatory' }}>
+              {/* Mobile: Horizontal Slider */}
+              <div className="md:hidden flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-[#4A9EFF] scrollbar-track-gray-800 pb-4 px-1" style={{ scrollSnapType: 'x mandatory' }}>
                 {suggestedNovels.map((novel) => (
                   <Link
                     key={novel.id}
@@ -389,7 +413,6 @@ const HomePage = () => {
                     className="group flex-shrink-0"
                     style={{ scrollSnapAlign: 'start', width: '120px' }}
                   >
-                    {/* Cover Image */}
                     <div className="relative rounded-lg overflow-hidden mb-2 shadow-lg transition-transform duration-300 group-hover:scale-105" style={{ width: '120px', height: '180px' }}>
                       <img
                         src={novel.coverImageUrl}
@@ -398,9 +421,30 @@ const HomePage = () => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
-
-                    {/* Novel Title */}
                     <h3 className="text-white text-xs noto-sans-arabic-bold line-clamp-2 text-center">
+                      {novel.title}
+                    </h3>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Desktop: Grid */}
+              <div className="hidden md:grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 justify-items-center">
+                {suggestedNovels.map((novel) => (
+                  <Link
+                    key={novel.id}
+                    to={`/novel/${novel.slug}`}
+                    className="group w-full max-w-[160px]"
+                  >
+                    <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-3 shadow-lg transition-transform duration-300 group-hover:scale-105">
+                      <img
+                        src={novel.coverImageUrl}
+                        alt={novel.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
+                    <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 mb-2 text-center">
                       {novel.title}
                     </h3>
                   </Link>
