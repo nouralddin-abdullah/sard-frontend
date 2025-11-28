@@ -222,12 +222,12 @@ const Library = ({ username }) => {
 
                     {list.previewNovels && list.previewNovels.length > 0 && (
                       <div className="bg-[#666666] rounded-xl p-2 md:p-4 w-full md:w-fit" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                        {/* Mobile: 3 cards grid with +X remaining */}
+                        {/* Mobile: 3 cards grid - 2 novels + 1 with +X remaining */}
                         <div className="md:hidden grid grid-cols-3 gap-2">
                           {list.previewNovels.slice(0, 3).map((novel, index) => (
                             <div key={novel.novelId} className="relative group">
-                              {/* Show +X on 3rd card if more novels exist */}
-                              {index === 2 && list.novelsCount > 3 ? (
+                              {/* Show +X on 3rd card if more than 2 novels exist */}
+                              {index === 2 && list.novelsCount > 2 ? (
                                 <Link to={`/reading-list/${list.id}`}>
                                   <div className="aspect-[3/4] rounded-lg overflow-hidden relative" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
                                     <img
@@ -256,27 +256,34 @@ const Library = ({ username }) => {
                             </div>
                           ))}
                         </div>
-                        {/* Desktop: Original layout */}
+                        {/* Desktop: 2 novels + 1 with +X remaining */}
                         <div className="hidden md:flex flex-wrap gap-3 max-w-full">
-                          {list.previewNovels.map((novel, index) => (
+                          {list.previewNovels.slice(0, 3).map((novel, index) => (
                             <div key={novel.novelId} className="relative group w-[180px] flex-shrink-0">
-                              <Link to={`/novel/${novel.slug}`}>
-                                <div className="aspect-[3/4] rounded-lg overflow-hidden transition-all duration-300" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                                  <img
-                                    src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
-                                    alt={novel.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                  />
-                                </div>
-                              </Link>
-                              
-                              {/* +Number overlay on last item if there are more novels */}
-                              {index === list.previewNovels.length - 1 && list.novelsCount > list.previewNovels.length && (
+                              {/* Show +X on 3rd card if more than 2 novels exist */}
+                              {index === 2 && list.novelsCount > 2 ? (
                                 <Link to={`/reading-list/${list.id}`}>
-                                  <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-lg flex items-center justify-center cursor-pointer hover:bg-black/90 transition-colors">
-                                    <span className="text-3xl font-bold noto-sans-arabic-extrabold text-white">
-                                      +{list.novelsCount - list.previewNovels.length}
-                                    </span>
+                                  <div className="aspect-[3/4] rounded-lg overflow-hidden relative" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
+                                    <img
+                                      src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
+                                      alt={novel.title}
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-lg flex items-center justify-center cursor-pointer hover:bg-black/90 transition-colors">
+                                      <span className="text-3xl font-bold noto-sans-arabic-extrabold text-white">
+                                        +{list.novelsCount - 2}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </Link>
+                              ) : (
+                                <Link to={`/novel/${novel.slug}`}>
+                                  <div className="aspect-[3/4] rounded-lg overflow-hidden transition-all duration-300" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
+                                    <img
+                                      src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
+                                      alt={novel.title}
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
                                   </div>
                                 </Link>
                               )}
@@ -341,12 +348,12 @@ const Library = ({ username }) => {
 
                         {list.previewNovels && list.previewNovels.length > 0 && (
                           <div className="bg-[#666666] rounded-xl p-2 md:p-4 w-full md:w-fit" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                            {/* Mobile: 3 cards grid with +X remaining */}
+                            {/* Mobile: 3 cards grid - 2 novels + 1 with +X remaining */}
                             <div className="md:hidden grid grid-cols-3 gap-2">
                               {list.previewNovels.slice(0, 3).map((novel, index) => (
                                 <div key={novel.novelId} className="relative group">
-                                  {/* Show +X on 3rd card if more novels exist */}
-                                  {index === 2 && list.novelsCount > 3 ? (
+                                  {/* Show +X on 3rd card if more than 2 novels exist */}
+                                  {index === 2 && list.novelsCount > 2 ? (
                                     <Link to={`/reading-list/${list.id}`}>
                                       <div className="aspect-[3/4] rounded-lg overflow-hidden relative" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
                                         <img
@@ -375,27 +382,34 @@ const Library = ({ username }) => {
                                 </div>
                               ))}
                             </div>
-                            {/* Desktop: Original layout */}
+                            {/* Desktop: 2 novels + 1 with +X remaining */}
                             <div className="hidden md:flex flex-wrap gap-3 max-w-full">
-                              {list.previewNovels.map((novel, index) => (
+                              {list.previewNovels.slice(0, 3).map((novel, index) => (
                                 <div key={novel.novelId} className="relative group w-[180px] flex-shrink-0">
-                                  <Link to={`/novel/${novel.slug}`}>
-                                    <div className="aspect-[3/4] rounded-lg overflow-hidden transition-all duration-300" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                                      <img
-                                        src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
-                                        alt={novel.title}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                      />
-                                    </div>
-                                  </Link>
-                                  
-                                  {/* +Number overlay on last item if there are more novels */}
-                                  {index === list.previewNovels.length - 1 && list.novelsCount > list.previewNovels.length && (
+                                  {/* Show +X on 3rd card if more than 2 novels exist */}
+                                  {index === 2 && list.novelsCount > 2 ? (
                                     <Link to={`/reading-list/${list.id}`}>
-                                      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-lg flex items-center justify-center cursor-pointer hover:bg-black/90 transition-colors">
-                                        <span className="text-3xl font-bold noto-sans-arabic-extrabold text-white">
-                                          +{list.novelsCount - list.previewNovels.length}
-                                        </span>
+                                      <div className="aspect-[3/4] rounded-lg overflow-hidden relative" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
+                                        <img
+                                          src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
+                                          alt={novel.title}
+                                          className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-lg flex items-center justify-center cursor-pointer hover:bg-black/90 transition-colors">
+                                          <span className="text-3xl font-bold noto-sans-arabic-extrabold text-white">
+                                            +{list.novelsCount - 2}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </Link>
+                                  ) : (
+                                    <Link to={`/novel/${novel.slug}`}>
+                                      <div className="aspect-[3/4] rounded-lg overflow-hidden transition-all duration-300" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
+                                        <img
+                                          src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
+                                          alt={novel.title}
+                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        />
                                       </div>
                                     </Link>
                                   )}
