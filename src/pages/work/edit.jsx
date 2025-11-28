@@ -229,6 +229,12 @@ const EditWorkPage = () => {
     const genre = genres.find((item) => item.id === genreId);
     if (!genre || detailsState.genreIds.includes(genreId)) return;
 
+    if (detailsState.genreIds.length >= 4) {
+      toast.error("الحد الأقصى للأنواع هو 4");
+      event.target.value = "";
+      return;
+    }
+
     setDetailsState((prev) => ({
       ...prev,
       genreIds: [...prev.genreIds, genreId],
@@ -259,6 +265,11 @@ const EditWorkPage = () => {
     }
     if (detailsState.genreIds.length === 0) {
       toast.error("اختر نوعاً واحداً على الأقل.");
+      return;
+    }
+
+    if (detailsState.genreIds.length > 4) {
+      toast.error("الحد الأقصى للأنواع هو 4");
       return;
     }
 
@@ -724,7 +735,9 @@ const EditWorkPage = () => {
                         <label className="block space-y-2">
                           <span className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>إضافة نوع</span>
                           <Select value="" onChange={handleGenreSelect} placeholder="اختر النوع">
-                            {genres.map((genre) => (
+                            {genres
+                              .filter((genre) => !detailsState.genreIds.includes(genre.id))
+                              .map((genre) => (
                               <option key={genre.id} value={genre.id}>
                                 {translateGenre(genre.name)}
                               </option>

@@ -39,6 +39,12 @@ export default function CreateNovel() {
     const selectedGenreId = parseInt(e.target.value);
     const selectedGenre = genres.find((genre) => genre.id === selectedGenreId);
 
+    if (formData.genreIds.length >= 4) {
+      toast.error(t("workPage.create.validation.maxGenres"));
+      e.target.value = "";
+      return;
+    }
+
     if (selectedGenre && !formData.genreIds.includes(selectedGenreId)) {
       setFormData((prev) => ({
         ...prev,
@@ -128,6 +134,11 @@ export default function CreateNovel() {
 
     if (formData.genreIds.length === 0) {
       toast.error(t("workPage.create.validation.genre"));
+      return;
+    }
+
+    if (formData.genreIds.length > 4) {
+      toast.error(t("workPage.create.validation.maxGenres"));
       return;
     }
 
