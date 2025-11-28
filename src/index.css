@@ -37,6 +37,20 @@ body {
   font-family: "Tajawal", sans-serif;
 }
 
+/* Mobile Navigation Spacer - Prevents content from being hidden behind bottom nav */
+@media (max-width: 768px) {
+  main,
+  .main-content,
+  [role="main"] {
+    padding-bottom: 80px;
+  }
+  
+  /* For pages that use min-h-screen, ensure content is still accessible */
+  .min-h-screen {
+    padding-bottom: 80px;
+  }
+}
+
 /* Noto Sans Arabic ExtraBold 800 */
 .noto-sans-arabic-extrabold {
   font-family: "Noto Sans Arabic", sans-serif;

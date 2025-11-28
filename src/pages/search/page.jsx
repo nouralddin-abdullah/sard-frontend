@@ -182,28 +182,28 @@ const SearchPage = () => {
           {searchType === "novels" && (
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="md:hidden w-full mb-6 px-4 py-3 bg-[#2C2C2C] text-white rounded-lg flex items-center justify-center gap-2 noto-sans-arabic-bold"
+              className="md:hidden w-full mb-4 px-4 py-3 bg-[#2C2C2C] text-white rounded-lg flex items-center justify-center gap-2 noto-sans-arabic-bold"
             >
-              <SlidersHorizontal className="w-5 h-5" />
+              {showFilters ? <X className="w-5 h-5" /> : <SlidersHorizontal className="w-5 h-5" />}
               {showFilters ? "إخفاء الفلاتر" : "إظهار الفلاتر"}
             </button>
           )}
 
-          <div className="flex gap-6">
+          <div className="flex flex-col md:flex-row gap-6">
             {/* Filters Sidebar - Only for novels */}
             {searchType === "novels" && (
               <aside
                 className={`${
                   showFilters ? "block" : "hidden"
-                } md:block w-full md:w-64 flex-shrink-0 space-y-6`}
+                } md:block w-full md:w-64 flex-shrink-0 space-y-4 md:space-y-6`}
               >
               {/* Sort By */}
-              <div className="bg-[#2C2C2C] rounded-lg p-4">
-                <h3 className="text-white noto-sans-arabic-bold text-lg mb-4">ترتيب حسب</h3>
+              <div className="bg-[#2C2C2C] rounded-lg p-3 md:p-4">
+                <h3 className="text-white noto-sans-arabic-bold text-base md:text-lg mb-3 md:mb-4">ترتيب حسب</h3>
                 <select
                   value={sortBy}
                   onChange={(e) => handleSortChange(e.target.value)}
-                  className="w-full bg-[#3C3C3C] text-white rounded-lg px-3 py-2 noto-sans-arabic-medium focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]"
+                  className="w-full bg-[#3C3C3C] text-white rounded-lg px-3 py-2 noto-sans-arabic-medium text-sm focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]"
                   dir="rtl"
                 >
                   {SORT_OPTIONS.map((option) => (
@@ -215,9 +215,9 @@ const SearchPage = () => {
               </div>
 
               {/* Chapter Count Filter */}
-              <div className="bg-[#2C2C2C] rounded-lg p-4">
-                <h3 className="text-white noto-sans-arabic-bold text-lg mb-4">عدد الفصول</h3>
-                <div className="space-y-2">
+              <div className="bg-[#2C2C2C] rounded-lg p-3 md:p-4">
+                <h3 className="text-white noto-sans-arabic-bold text-base md:text-lg mb-3 md:mb-4">عدد الفصول</h3>
+                <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
                   {CHAPTER_RANGES.map((range) => {
                     const isSelected =
                       range.value === "Any" ? isAnySelected : selectedChapterRanges.includes(range.value);
@@ -225,7 +225,7 @@ const SearchPage = () => {
                     return (
                       <label
                         key={range.value}
-                        className="flex items-center gap-3 cursor-pointer"
+                        className="flex items-center gap-2 md:gap-3 cursor-pointer"
                       >
                         <input
                           type="checkbox"
@@ -233,7 +233,7 @@ const SearchPage = () => {
                           onChange={() => handleChapterRangeToggle(range.value)}
                           className="w-4 h-4 rounded border-gray-600 text-[#4A9EFF] focus:ring-[#4A9EFF]"
                         />
-                        <span className="text-gray-300 noto-sans-arabic-medium text-sm">
+                        <span className="text-gray-300 noto-sans-arabic-medium text-xs md:text-sm">
                           {range.label}
                         </span>
                       </label>
@@ -243,34 +243,34 @@ const SearchPage = () => {
               </div>
 
               {/* Status Filter */}
-              <div className="bg-[#2C2C2C] rounded-lg p-4">
-                <h3 className="text-white noto-sans-arabic-bold text-lg mb-4">الحالة</h3>
-                <label className="flex items-center gap-3 cursor-pointer">
+              <div className="bg-[#2C2C2C] rounded-lg p-3 md:p-4">
+                <h3 className="text-white noto-sans-arabic-bold text-base md:text-lg mb-3 md:mb-4">الحالة</h3>
+                <label className="flex items-center gap-2 md:gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={showCompletedOnly}
                     onChange={handleCompletedToggle}
                     className="w-4 h-4 rounded border-gray-600 text-[#4A9EFF] focus:ring-[#4A9EFF]"
                   />
-                  <span className="text-gray-300 noto-sans-arabic-medium text-sm">
+                  <span className="text-gray-300 noto-sans-arabic-medium text-xs md:text-sm">
                     روايات مكتملة فقط
                   </span>
                 </label>
               </div>
 
               {/* Genre Filter */}
-              <div className="bg-[#2C2C2C] rounded-lg p-4">
-                <h3 className="text-white noto-sans-arabic-bold text-lg mb-4">التصنيفات</h3>
-                <div className="space-y-2 max-h-[400px] overflow-y-auto custom-scrollbar">
+              <div className="bg-[#2C2C2C] rounded-lg p-3 md:p-4">
+                <h3 className="text-white noto-sans-arabic-bold text-base md:text-lg mb-3 md:mb-4">التصنيفات</h3>
+                <div className="grid grid-cols-2 md:grid-cols-1 gap-2 max-h-[200px] md:max-h-[400px] overflow-y-auto custom-scrollbar">
                   {genresList.map((genre) => (
-                    <label key={genre.id} className="flex items-center gap-3 cursor-pointer">
+                    <label key={genre.id} className="flex items-center gap-2 md:gap-3 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={selectedGenres.includes(genre.name)}
                         onChange={() => handleGenreToggle(genre.name)}
                         className="w-4 h-4 rounded border-gray-600 text-[#4A9EFF] focus:ring-[#4A9EFF]"
                       />
-                      <span className="text-gray-300 noto-sans-arabic-medium text-sm">
+                      <span className="text-gray-300 noto-sans-arabic-medium text-xs md:text-sm">
                         {translateGenre(genre.name)}
                       </span>
                     </label>
