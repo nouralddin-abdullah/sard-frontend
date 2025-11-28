@@ -127,7 +127,7 @@ const ChecklistItem = ({ label, complete }) => (
   </li>
 );
 
-const MENU_WIDTH = 192;
+const MENU_WIDTH = 140;
 const MENU_HEIGHT = 112;
 const VIEWPORT_MARGIN = 12;
 
@@ -413,8 +413,19 @@ const EditWorkPage = () => {
       
       // Position the menu directly below the trigger, aligned to the right edge
       // Using viewport coordinates since the menu is fixed position
-      const left = rect.right - MENU_WIDTH;
+      let left = rect.right - MENU_WIDTH;
       const top = rect.bottom + 4;
+      
+      // Ensure menu doesn't go off-screen on the left
+      if (left < VIEWPORT_MARGIN) {
+        left = VIEWPORT_MARGIN;
+      }
+      
+      // Ensure menu doesn't go off-screen on the right
+      const viewportWidth = window.innerWidth;
+      if (left + MENU_WIDTH > viewportWidth - VIEWPORT_MARGIN) {
+        left = viewportWidth - MENU_WIDTH - VIEWPORT_MARGIN;
+      }
 
       setChapterMenuPosition({ top, left });
       setOpenChapterMenuId(key);
@@ -624,8 +635,8 @@ const EditWorkPage = () => {
             <Loader2 className="h-8 w-8 animate-spin" style={{ color: '#797979' }} />
           </div>
         ) : (
-          <section className="rounded-2xl border px-8 py-9" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
-            <div className="flex flex-wrap items-center gap-3">
+          <section className="rounded-2xl border px-3 md:px-8 py-4 md:py-9" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
               {TAB_OPTIONS.map((tab) => {
                 const isActive = activeTab === tab.id;
                 const label = tab.id === 'story' ? 'استوديو القصة' : tab.id === 'chapters' ? 'الفصول والإيقاع' : 'نظام الامتيازات';
@@ -634,7 +645,7 @@ const EditWorkPage = () => {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className="noto-sans-arabic-bold flex items-center gap-2 rounded-full border px-5 py-2 text-sm transition"
+                    className="noto-sans-arabic-bold flex items-center gap-1.5 md:gap-2 rounded-full border px-3 md:px-5 py-1.5 md:py-2 text-xs md:text-sm transition"
                     style={isActive ? {
                       borderColor: '#0077FF',
                       backgroundColor: 'rgba(0, 119, 255, 0.2)',
@@ -883,25 +894,25 @@ const EditWorkPage = () => {
               ) : activeTab === "privilege" ? (
                 <PrivilegeSystemSetup workId={workId} />
               ) : (
-                <section className="flex flex-col gap-8 rounded-xl border px-8 py-9" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
-                  <div className="space-y-6">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <section className="flex flex-col gap-6 md:gap-8 rounded-xl border px-2 md:px-8 py-4 md:py-9" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
+                  <div className="space-y-4 md:space-y-6">
+                    <div className="flex flex-col gap-3 md:gap-4 lg:flex-row lg:items-center lg:justify-between">
                       <div className="space-y-1">
-                        <h2 className="noto-sans-arabic-extrabold text-lg text-white">إيقاع الفصول</h2>
-                        <p className="noto-sans-arabic-medium text-sm" style={{ color: '#B8B8B8' }}>
+                        <h2 className="noto-sans-arabic-extrabold text-base md:text-lg text-white">إيقاع الفصول</h2>
+                        <p className="noto-sans-arabic-medium text-xs md:text-sm" style={{ color: '#B8B8B8' }}>
                           تصفح كل فصل بالتسلسل. صفّ، ابحث، وأعد ترتيب الفصول بدون أي أعمدة إضافية.
                         </p>
                       </div>
-                      <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+                      <div className="flex w-full flex-col gap-2 md:gap-3 sm:w-auto sm:flex-row sm:items-center">
                         <div className="relative w-full sm:w-56">
-                          <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: '#797979' }} />
+                          <Search className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 md:h-4 md:w-4 -translate-y-1/2" style={{ color: '#797979' }} />
                           <input
                             data-testid="chapter-search"
                             type="search"
                             value={chapterSearch}
                             onChange={(event) => setChapterSearch(event.target.value)}
                             placeholder="ابحث عن فصل"
-                            className="noto-sans-arabic-medium w-full rounded-full border py-2 pr-10 pl-4 text-sm text-white transition focus:outline-none focus:ring-2"
+                            className="noto-sans-arabic-medium w-full rounded-full border py-2 pr-9 md:pr-10 pl-3 md:pl-4 text-xs md:text-sm text-white transition focus:outline-none focus:ring-2"
                             style={{ 
                               borderColor: '#5A5A5A', 
                               backgroundColor: '#5A5A5A',
@@ -915,41 +926,41 @@ const EditWorkPage = () => {
                           data-testid="start-new-chapter"
                           variant="primary"
                           onClick={() => openAdvancedComposer()}
-                          className="noto-sans-arabic-bold w-full sm:w-auto gap-2"
+                          className="noto-sans-arabic-bold w-full sm:w-auto gap-1.5 md:gap-2 text-xs md:text-sm py-2 md:py-2.5"
                         >
-                          <PenSquare className="h-4 w-4" />
+                          <PenSquare className="h-3.5 w-3.5 md:h-4 md:w-4" />
                           إضافة فصل
                         </Button>
                       </div>
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      <div className="rounded-xl border px-4 py-3 text-center" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
-                        <p className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>في المكتبة</p>
-                        <p className="noto-sans-arabic-extrabold mt-1 text-2xl text-white">{chapterOrder.length}</p>
-                        <p className="noto-sans-arabic-medium text-[11px]" style={{ color: '#797979' }}>فصول جاهزة للقراء</p>
+                    <div className="grid gap-2 md:gap-3 grid-cols-3">
+                      <div className="rounded-xl border px-2 md:px-4 py-2 md:py-3 text-center" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
+                        <p className="noto-sans-arabic-bold text-[10px] md:text-xs" style={{ color: '#797979' }}>في المكتبة</p>
+                        <p className="noto-sans-arabic-extrabold mt-0.5 md:mt-1 text-lg md:text-2xl text-white">{chapterOrder.length}</p>
+                        <p className="noto-sans-arabic-medium text-[9px] md:text-[11px] hidden md:block" style={{ color: '#797979' }}>فصول جاهزة للقراء</p>
                       </div>
-                      <div className="rounded-xl border px-4 py-3 text-center" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)' }}>
-                        <p className="noto-sans-arabic-bold text-xs" style={{ color: '#0077FF' }}>منشور</p>
-                        <div className="mt-1">
-                          <p className="noto-sans-arabic-extrabold text-2xl text-white">{publishedChapterCount}</p>
+                      <div className="rounded-xl border px-2 md:px-4 py-2 md:py-3 text-center" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)' }}>
+                        <p className="noto-sans-arabic-bold text-[10px] md:text-xs" style={{ color: '#0077FF' }}>منشور</p>
+                        <div className="mt-0.5 md:mt-1">
+                          <p className="noto-sans-arabic-extrabold text-lg md:text-2xl text-white">{publishedChapterCount}</p>
                         </div>
-                        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: 'rgba(0, 119, 255, 0.2)' }}>
+                        <div className="mt-1 md:mt-2 h-1 md:h-1.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: 'rgba(0, 119, 255, 0.2)' }}>
                           <div
                             className="h-full rounded-full transition-[width]"
                             style={{ width: `${Math.min(100, Math.max(0, publicationProgress))}%`, backgroundColor: '#0077FF' }}
                           />
                         </div>
                       </div>
-                      <div className="rounded-xl border px-4 py-3 text-center" style={{ borderColor: 'rgb(251 191 36)', backgroundColor: 'rgba(251, 191, 36, 0.1)' }}>
-                        <p className="noto-sans-arabic-bold text-xs text-amber-400">مسودة</p>
-                        <p className="noto-sans-arabic-extrabold mt-1 text-2xl text-amber-300">{draftChapterCount}</p>
-                        <p className="noto-sans-arabic-medium text-[11px] text-amber-400">في انتظار النشر</p>
+                      <div className="rounded-xl border px-2 md:px-4 py-2 md:py-3 text-center" style={{ borderColor: 'rgb(251 191 36)', backgroundColor: 'rgba(251, 191, 36, 0.1)' }}>
+                        <p className="noto-sans-arabic-bold text-[10px] md:text-xs text-amber-400">مسودة</p>
+                        <p className="noto-sans-arabic-extrabold mt-0.5 md:mt-1 text-lg md:text-2xl text-amber-300">{draftChapterCount}</p>
+                        <p className="noto-sans-arabic-medium text-[9px] md:text-[11px] text-amber-400 hidden md:block">في انتظار النشر</p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
-                      <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center justify-between gap-2 md:gap-3 rounded-xl border px-3 md:px-4 py-2 md:py-3" style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}>
+                      <div className="flex items-center gap-1.5 md:gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
                         {STATUS_FILTERS.map((option) => {
                           const isActive = chapterFilter === option.id;
                           const arabicLabels = {
@@ -963,7 +974,7 @@ const EditWorkPage = () => {
                               type="button"
                               data-testid={`chapter-filter-${option.id}`}
                               onClick={() => setChapterFilter(option.id)}
-                              className="noto-sans-arabic-bold flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition"
+                              className="noto-sans-arabic-bold flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition whitespace-nowrap"
                               style={isActive ? {
                                 borderColor: '#0077FF',
                                 backgroundColor: 'rgba(0, 119, 255, 0.15)',
@@ -987,19 +998,19 @@ const EditWorkPage = () => {
                               }}
                             >
                               {option.id === "published" ? (
-                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                <CheckCircle2 className="h-4 w-4" />
                               ) : option.id === "draft" ? (
-                                <PenSquare className="h-3.5 w-3.5" />
+                                <PenSquare className="h-4 w-4" />
                               ) : (
-                                <Filter className="h-3.5 w-3.5" />
+                                <Filter className="h-4 w-4" />
                               )}
                               {arabicLabels[option.id] || option.label}
                             </button>
                           );
                         })}
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <div className="inline-flex items-center gap-1 rounded-full border p-1" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
+                      <div className="flex items-center gap-1.5 md:gap-2 w-full md:w-auto justify-between md:justify-start">
+                        <div className="inline-flex items-center gap-0.5 md:gap-1 rounded-full border p-1 md:p-1" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
                           {SORT_OPTIONS.map((option) => {
                             const isActive = chapterSort === option.id;
                             const arabicLabels = {
@@ -1012,7 +1023,7 @@ const EditWorkPage = () => {
                                 type="button"
                                 data-testid={`chapter-sort-${option.id}`}
                                 onClick={() => setChapterSort(option.id)}
-                                className="noto-sans-arabic-bold rounded-full px-3 py-1.5 text-xs transition"
+                                className="noto-sans-arabic-bold rounded-full px-4 py-2 text-sm transition"
                                 style={isActive ? {
                                   backgroundColor: 'rgba(0, 119, 255, 0.2)',
                                   color: '#FFFFFF'
@@ -1095,14 +1106,10 @@ const EditWorkPage = () => {
                         </div>
                       ) : (
                         <>
-                          <ul className="chapter-scroll max-h-[28rem] space-y-3 overflow-y-auto pl-2">
+                          <ul className="chapter-scroll max-h-[24rem] md:max-h-[28rem] space-y-2 md:space-y-3 overflow-y-auto pl-1 md:pl-2">
                             {visibleChapters.map(({ chapter, orderIndex }) => {
                               const chapterKey = resolveChapterKey(chapter, orderIndex);
                               const timelineLabel = chapter.updatedAt || chapter.createdAt;
-                              const previewText =
-                                chapter.synopsis?.trim()?.slice(0, 140) ||
-                                chapter.content?.trim()?.slice(0, 140) ||
-                                "لا يوجد ملخص بعد. افتح الفصل لإضافة سياق.";
                               const sequenceNumber = orderIndex + 1;
                               return (
                                 <li key={chapterKey}>
@@ -1117,7 +1124,7 @@ const EditWorkPage = () => {
                                         openAdvancedComposer(chapter.id);
                                       }
                                     }}
-                                    className="group flex flex-col gap-4 rounded-xl border px-4 py-4 transition cursor-pointer"
+                                    className="group flex flex-col gap-2 md:gap-4 rounded-xl border px-3 md:px-4 py-3 md:py-4 transition cursor-pointer"
                                     style={{ borderColor: '#5A5A5A', backgroundColor: '#3C3C3C' }}
                                     onMouseEnter={(e) => {
                                       e.currentTarget.style.borderColor = '#0077FF';
@@ -1128,24 +1135,23 @@ const EditWorkPage = () => {
                                       e.currentTarget.style.backgroundColor = '#3C3C3C';
                                     }}
                                   >
-                                    <div className="flex items-start justify-between gap-4">
-                                      <div className="flex items-start gap-3">
-                                        <span className="noto-sans-arabic-bold mt-1 flex h-8 w-8 items-center justify-center rounded-xl border text-xs" style={{ borderColor: '#5A5A5A', color: '#797979' }}>
+                                    <div className="flex items-center justify-between gap-2 md:gap-4">
+                                      <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+                                        <span className="noto-sans-arabic-bold flex h-6 w-6 md:h-8 md:w-8 items-center justify-center rounded-lg md:rounded-xl border text-[10px] md:text-xs flex-shrink-0" style={{ borderColor: '#5A5A5A', color: '#797979' }}>
                                           {String(sequenceNumber).padStart(2, "0")}
                                         </span>
-                                        <div className="space-y-2">
-                                          <div className="flex flex-wrap items-center gap-2">
-                                            <p className="noto-sans-arabic-extrabold text-sm text-white">
+                                        <div className="min-w-0">
+                                          <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
+                                            <p className="noto-sans-arabic-extrabold text-xs md:text-sm text-white truncate">
                                               {chapter.title || `فصل بدون عنوان ${sequenceNumber}`}
                                             </p>
-                                            <span className={`noto-sans-arabic-bold inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] ${getStatusTone(chapter.status)}`}>
+                                            <span className={`noto-sans-arabic-bold inline-flex items-center gap-0.5 md:gap-1 rounded-full px-1.5 md:px-2.5 py-0.5 md:py-1 text-[9px] md:text-[11px] flex-shrink-0 ${getStatusTone(chapter.status)}`}>
                                               {chapter.status === 'Published' ? 'منشور' : chapter.status === 'Draft' ? 'مسودة' : chapter.status || "مسودة"}
                                             </span>
                                           </div>
-                                          <p className="noto-sans-arabic-medium text-xs line-clamp-2" style={{ color: '#B8B8B8' }}>{previewText}</p>
                                         </div>
                                       </div>
-                                      <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+                                      <div className="flex items-center gap-1 flex-shrink-0">
                                         <div className="flex items-center gap-1">
                                           <Button
                                             variant="ghost"
@@ -1158,7 +1164,7 @@ const EditWorkPage = () => {
                                             aria-label="تحريك الفصل لأعلى"
                                             style={{ color: '#B8B8B8' }}
                                           >
-                                            <ArrowUp className="h-4 w-4" />
+                                            <ArrowUp className="h-3.5 w-3.5 md:h-4 md:w-4" />
                                           </Button>
                                           <Button
                                             variant="ghost"
@@ -1171,7 +1177,7 @@ const EditWorkPage = () => {
                                             aria-label="تحريك الفصل لأسفل"
                                             style={{ color: '#B8B8B8' }}
                                           >
-                                            <ArrowDown className="h-4 w-4" />
+                                            <ArrowDown className="h-3.5 w-3.5 md:h-4 md:w-4" />
                                           </Button>
                                         </div>
                                         <div className="relative" data-chapter-menu-root>
@@ -1183,25 +1189,25 @@ const EditWorkPage = () => {
                                             aria-expanded={openChapterMenuId === chapterKey}
                                             data-testid={`chapter-card-${chapterKey}-menu-trigger`}
                                             onClick={(event) => handleChapterMenuToggle(event, chapter, orderIndex)}
-                                            className="rounded-full border px-2"
+                                            className="rounded-full border px-1.5 md:px-2"
                                             style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}
                                           >
-                                            <MoreVertical className="h-4 w-4" />
+                                            <MoreVertical className="h-3.5 w-3.5 md:h-4 md:w-4" />
                                           </Button>
                                         </div>
                                       </div>
                                     </div>
-                                    <div className="noto-sans-arabic-medium flex flex-wrap items-center justify-between gap-2 text-xs" style={{ color: '#797979' }}>
-                                      <span className="flex items-center gap-1">
-                                        <Clock3 className="h-3.5 w-3.5" />
+                                    <div className="noto-sans-arabic-medium flex flex-wrap items-center justify-between gap-1.5 md:gap-2 text-[10px] md:text-xs" style={{ color: '#797979' }}>
+                                      <span className="flex items-center gap-0.5 md:gap-1">
+                                        <Clock3 className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                         {timelineLabel ? formatSmart(timelineLabel) : "لا يوجد تاريخ"}
                                       </span>
-                                      <div className="flex flex-wrap items-center gap-2">
-                                        <span className="noto-sans-arabic-bold rounded-full border px-2 py-0.5 text-[10px]" style={{ borderColor: '#5A5A5A', color: '#797979' }}>
+                                      <div className="flex items-center gap-1.5 md:gap-2">
+                                        <span className="noto-sans-arabic-bold rounded-full border px-1.5 md:px-2 py-0.5 text-[9px] md:text-[10px] hidden md:inline-block" style={{ borderColor: '#5A5A5A', color: '#797979' }}>
                                           تسلسل {sequenceNumber}
                                         </span>
                                         {chapter.wordCount ? (
-                                          <span>{chapter.wordCount.toLocaleString()} كلمة</span>
+                                          <span className="hidden md:inline">{chapter.wordCount.toLocaleString()} كلمة</span>
                                         ) : null}
                                       </div>
                                     </div>
@@ -1210,8 +1216,8 @@ const EditWorkPage = () => {
                               );
                             })}
                           </ul>
-                          <div className="mt-5 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: '#5A5A5A' }}>
-                            <p className="noto-sans-arabic-medium text-xs" style={{ color: '#797979' }}>
+                          <div className="mt-3 md:mt-5 flex flex-col gap-2 md:gap-3 border-t pt-3 md:pt-4 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: '#5A5A5A' }}>
+                            <p className="noto-sans-arabic-medium text-[10px] md:text-xs hidden md:block" style={{ color: '#797979' }}>
                               {isReorderEnabled
                                 ? "استخدم أزرار الأسهم لضبط الإيقاع. احفظ لدفع الترتيب الجديد للعمل."
                                 : "إعادة الترتيب معطلة أثناء تفعيل الفلاتر أو الترتيب البديل."}
@@ -1220,7 +1226,7 @@ const EditWorkPage = () => {
                               onClick={handleChapterOrderSave}
                               isLoading={isSavingChapters}
                               disabled={!isReorderEnabled || chapterOrder.length === 0}
-                              className="noto-sans-arabic-bold sm:w-auto"
+                              className="noto-sans-arabic-bold sm:w-auto text-xs md:text-sm py-2 md:py-2.5"
                             >
                               حفظ ترتيب الفصول
                             </Button>
@@ -1239,7 +1245,7 @@ const EditWorkPage = () => {
         <div
           role="menu"
           data-chapter-menu
-          className="fixed z-[70] w-48 overflow-hidden rounded-xl border"
+          className="fixed z-[70] w-36 overflow-hidden rounded-xl border"
           style={{ 
             top: chapterMenuPosition.top, 
             left: chapterMenuPosition.left,
