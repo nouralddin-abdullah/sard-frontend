@@ -108,7 +108,7 @@ const EntityDetailsPage = () => {
           
           {/* Edit Button - Only show to owner */}
           {transformedData.isOwner && (
-            <div className="absolute top-6 left-6">
+            <div className="absolute top-6 left-6 z-10">
               <Link
                 to={`/novel/${novelId}/wikipedia/${entityId}/edit`}
                 className="flex items-center gap-2 px-4 py-2 bg-[#2C2C2C]/80 backdrop-blur-sm hover:bg-[#3C3C3C] border border-[#5A5A5A] rounded-lg transition-colors text-white noto-sans-arabic-medium"
