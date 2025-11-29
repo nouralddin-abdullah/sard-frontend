@@ -11,7 +11,7 @@ import { useGetRecentGifts } from "../../hooks/novel/useGetRecentGifts";
 import { useGetNovelPrivilege } from "../../hooks/novel/useGetNovelPrivilege";
 import { formatDateShort, getTimeAgo } from "../../utils/date";
 import { translateGenre } from "../../utils/translate-genre";
-import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift, Lock, Unlock } from "lucide-react";
+import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift, Lock, Unlock, MoreVertical, Trash2 } from "lucide-react";
 import flowerGift from "../../assets/gifts/flower-100.png";
 import pizzaGift from "../../assets/gifts/pizza-300.png";
 import bookGift from "../../assets/gifts/book-500.png";
@@ -33,7 +33,9 @@ import ShareModal from "../../components/common/ShareModal";
 import { useGetReviews } from "../../hooks/novel/useGetReviews";
 import { useLikeReview } from "../../hooks/novel/useLikeReview";
 import { useUnlikeReview } from "../../hooks/novel/useUnlikeReview";
+import { useDeleteReview } from "../../hooks/novel/useDeleteReview";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
+import ConfirmModal from "../../components/common/ConfirmModal";
 import UnlockPrivilegeModal from "../../components/novel/UnlockPrivilegeModal";
 
 const NovelPage = () => {
@@ -102,6 +104,22 @@ const NovelPage = () => {
 
   const { mutate: likeReview } = useLikeReview();
   const { mutate: unlikeReview } = useUnlikeReview();
+  const { mutate: deleteReview, isPending: isDeletePending } = useDeleteReview();
+
+  // Delete review state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showReviewMenu, setShowReviewMenu] = useState(false);
+
+  // Close review menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (showReviewMenu) {
+        setShowReviewMenu(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showReviewMenu]);
 
   // Static data (will be replaced with API later)
   const staticNovel = {
@@ -904,76 +922,104 @@ const NovelPage = () => {
                 {!reviewsLoading &&
                   !reviewsError &&
                   reviewsData?.currentUserReview && (
-                    <div className="mb-8">
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-2 h-2 rounded-full bg-[#4A9EFF]"></div>
-                        <p className="text-[#4A9EFF] noto-sans-arabic-extrabold text-[16px]">
-                          تقييمك
-                        </p>
-                      </div>
-                      <div className="border border-[#4A9EFF]/30 bg-[#4A9EFF]/5 rounded-2xl p-6">
-                        <div className="flex items-start justify-between mb-6">
-                          <div className="flex items-center gap-4">
-                            {currentUser?.profilePhoto ? (
-                              <img
-                                src={currentUser.profilePhoto}
-                                alt={currentUser.displayName}
-                                className="w-16 h-16 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-16 h-16 rounded-full bg-[#4A4A4A] flex items-center justify-center">
-                                <User className="w-8 h-8 text-white" />
-                              </div>
-                            )}
-                            <div>
+                    <div className="border-b border-[#797979] pb-8 mb-8">
+                      <div className="flex items-start justify-between mb-6">
+                        <div className="flex items-center gap-4">
+                          {currentUser?.profilePhoto ? (
+                            <img
+                              src={currentUser.profilePhoto}
+                              alt={currentUser.displayName}
+                              className="w-16 h-16 rounded-full object-cover ring-2 ring-[#4A9EFF]"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 rounded-full bg-[#4A4A4A] flex items-center justify-center ring-2 ring-[#4A9EFF]">
+                              <User className="w-8 h-8 text-white" />
+                            </div>
+                          )}
+                          <div>
+                            <div className="flex items-center gap-2">
                               <p className="text-white noto-sans-arabic-extrabold text-[20px]">
                                 {currentUser?.displayName || "أنت"}
                               </p>
-                              <div className="mt-2">
-                                <StarRating
-                                  rating={reviewsData.currentUserReview.totalAverageScore}
-                                  className="w-[22px] h-[22px]"
-                                />
-                              </div>
+                              <span className="text-[#4A9EFF] text-xs noto-sans-arabic-medium bg-[#4A9EFF]/10 px-2 py-0.5 rounded">
+                                تقييمك
+                              </span>
+                            </div>
+                            <div className="mt-2">
+                              <StarRating
+                                rating={reviewsData.currentUserReview.totalAverageScore}
+                                className="w-[22px] h-[22px]"
+                              />
                             </div>
                           </div>
+                        </div>
+                        <div className="flex items-center gap-3">
                           <span className="text-[#AAAAAA] noto-sans-arabic-medium text-[14px]">
-                            {formatDateShort(reviewsData.currentUserReview.createdAt)}
+                            {getTimeAgo(reviewsData.currentUserReview.createdAt)}
                           </span>
-                        </div>
-
-                        {/* Review Content */}
-                        <p className="text-white noto-sans-arabic-extrabold text-[18px] leading-relaxed">
-                          {reviewsData.currentUserReview.content}
-                        </p>
-
-                        {/* Spoiler Badge if applicable */}
-                        {reviewsData.currentUserReview.isSpoiler && (
-                          <div className="mt-4 inline-flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-lg">
-                            <AlertTriangle className="w-4 h-4" />
-                            <span className="noto-sans-arabic-medium text-[14px]">يحتوي على حرق</span>
+                          {/* 3-dot menu for delete */}
+                          <div className="relative">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowReviewMenu(!showReviewMenu);
+                              }}
+                              className="p-1 hover:bg-[#3C3C3C] rounded-full transition-colors"
+                            >
+                              <MoreVertical className="w-5 h-5 text-[#AAAAAA]" />
+                            </button>
+                            {showReviewMenu && (
+                              <div 
+                                className="absolute left-0 top-full mt-1 bg-[#3C3C3C] rounded-lg shadow-lg border border-[#5A5A5A] py-1 z-10 min-w-[120px]"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  onClick={() => {
+                                    setShowReviewMenu(false);
+                                    setShowDeleteConfirm(true);
+                                  }}
+                                  className="w-full flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-[#4A4A4A] transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  <span className="noto-sans-arabic-medium text-[14px]">حذف</span>
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        )}
-
-                        {/* Like count */}
-                        <div className="mt-4 flex items-center gap-2 text-[#AAAAAA]">
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                            />
-                          </svg>
-                          <span className="noto-sans-arabic-medium text-[14px]">
-                            {reviewsData.currentUserReview.likeCount} إعجاب
-                          </span>
                         </div>
+                      </div>
+
+                      {/* Review Content */}
+                      <p className="text-white noto-sans-arabic-extrabold text-[18px] leading-relaxed">
+                        {reviewsData.currentUserReview.content}
+                      </p>
+
+                      {/* Spoiler Badge if applicable */}
+                      {reviewsData.currentUserReview.isSpoiler && (
+                        <div className="mt-4 inline-flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-lg">
+                          <AlertTriangle className="w-4 h-4" />
+                          <span className="noto-sans-arabic-medium text-[14px]">يحتوي على حرق</span>
+                        </div>
+                      )}
+
+                      {/* Like count */}
+                      <div className="mt-4 flex items-center gap-2 text-[#AAAAAA]">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                          />
+                        </svg>
+                        <span className="noto-sans-arabic-medium text-[14px]">
+                          {reviewsData.currentUserReview.likeCount} إعجاب
+                        </span>
                       </div>
                     </div>
                   )}
@@ -1017,7 +1063,7 @@ const NovelPage = () => {
                             </div>
                           </div>
                           <span className="text-[#AAAAAA] noto-sans-arabic-medium text-[14px]">
-                            {formatDateShort(review.createdAt)}
+                            {getTimeAgo(review.createdAt)}
                           </span>
                         </div>
 
@@ -1332,6 +1378,24 @@ const NovelPage = () => {
           }}
         />
       )}
+
+      {/* Delete Review Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => {
+          deleteReview(novel?.id, {
+            onSuccess: () => {
+              setShowDeleteConfirm(false);
+            },
+          });
+        }}
+        title="حذف التقييم"
+        message="هل أنت متأكد من حذف تقييمك؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        isLoading={isDeletePending}
+      />
     </>
   );
 };
