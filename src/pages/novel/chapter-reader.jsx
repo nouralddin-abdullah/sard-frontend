@@ -376,15 +376,15 @@ const ChapterReaderPage = () => {
       </Helmet>
       {/* Top Header Bar */}
       {!focusMode && (
-        <div className="fixed top-0 left-0 right-0 z-40 flex items-center px-6 py-4" style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8'}` }}>
+        <div className="fixed top-0 left-0 right-0 z-40 flex items-center px-6 py-4 min-h-[72px]" style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8'}` }}>
           {/* Left: SARD Logo + User + Library */}
           <div className="flex items-center gap-6 flex-1">
             <Link to="/home" className="noto-sans-arabic-extrabold text-[24px] leading-none hover:opacity-80 transition-opacity" style={{ color: currentTheme.text }}>
               سَرْد
             </Link>
             
-            {/* User Dropdown */}
-            <div className="relative" ref={dropdownRef}>
+            {/* User Dropdown - Hidden on mobile */}
+            <div className="relative hidden md:block" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="hover:opacity-80 transition-opacity focus:outline-none"
@@ -599,19 +599,6 @@ const ChapterReaderPage = () => {
             <span className="text-white noto-sans-arabic-bold text-[14px] text-center px-2 break-words w-full leading-tight">
               {novel.author.displayName || novel.author.username}
             </span>
-            
-            {/* Follow Button */}
-            <button
-              onClick={handleFollowToggle}
-              disabled={toggleFollowMutation.isPending}
-              className={`w-full px-4 py-2 rounded-lg noto-sans-arabic-medium text-[13px] transition-all ${
-                novel.author.isFollowing
-                  ? 'bg-gray-600 text-white hover:bg-gray-500'
-                  : 'bg-[#4A9EFF] text-white hover:bg-[#6BB4FF]'
-              }`}
-            >
-              {novel.author.isFollowing ? 'متابَع' : 'متابعة'}
-            </button>
           </div>
 
           {/* Share Section */}
