@@ -11,7 +11,7 @@ import { useGetRecentGifts } from "../../hooks/novel/useGetRecentGifts";
 import { useGetNovelPrivilege } from "../../hooks/novel/useGetNovelPrivilege";
 import { formatDateShort, getTimeAgo } from "../../utils/date";
 import { translateGenre } from "../../utils/translate-genre";
-import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift, Lock, Unlock } from "lucide-react";
+import { Plus, AlertTriangle, Share2, User, Calendar, Eye, BookOpen, Gift, Lock, Unlock, MoreVertical, Trash2 } from "lucide-react";
 import flowerGift from "../../assets/gifts/flower-100.png";
 import pizzaGift from "../../assets/gifts/pizza-300.png";
 import bookGift from "../../assets/gifts/book-500.png";
@@ -33,7 +33,9 @@ import ShareModal from "../../components/common/ShareModal";
 import { useGetReviews } from "../../hooks/novel/useGetReviews";
 import { useLikeReview } from "../../hooks/novel/useLikeReview";
 import { useUnlikeReview } from "../../hooks/novel/useUnlikeReview";
+import { useDeleteReview } from "../../hooks/novel/useDeleteReview";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
+import ConfirmModal from "../../components/common/ConfirmModal";
 import UnlockPrivilegeModal from "../../components/novel/UnlockPrivilegeModal";
 
 const NovelPage = () => {
@@ -102,6 +104,22 @@ const NovelPage = () => {
 
   const { mutate: likeReview } = useLikeReview();
   const { mutate: unlikeReview } = useUnlikeReview();
+  const { mutate: deleteReview, isPending: isDeletePending } = useDeleteReview();
+
+  // Delete review state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showReviewMenu, setShowReviewMenu] = useState(false);
+
+  // Close review menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (showReviewMenu) {
+        setShowReviewMenu(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showReviewMenu]);
 
   // Static data (will be replaced with API later)
   const staticNovel = {
@@ -384,14 +402,14 @@ const NovelPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Gift Selection Column */}
             <div className="lg:col-span-2 flex flex-col gap-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="flex md:grid md:grid-cols-4 gap-3 overflow-x-auto pb-2 md:pb-0 md:overflow-visible scrollbar-hide">
                 {/* Flower Gift */}
                 <div 
                   onClick={() => {
                     setSelectedGift("ec16dfde-71b8-4e23-8ff5-d1846cdf2036");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={flowerGift} alt="وردة" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">وردة</p>
@@ -404,7 +422,7 @@ const NovelPage = () => {
                     setSelectedGift("88103b01-2e5b-4d06-9ff3-2724f4afba52");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={pizzaGift} alt="بيتزا" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">بيتزا</p>
@@ -417,7 +435,7 @@ const NovelPage = () => {
                     setSelectedGift("9e17512a-269a-43e8-a571-1a1dc541cb5a");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={bookGift} alt="كتاب" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">كتاب</p>
@@ -430,7 +448,7 @@ const NovelPage = () => {
                     setSelectedGift("48bdfb35-9f2c-4198-80c1-58f28eb648ef");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={crownGift} alt="تاج" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">تاج</p>
@@ -443,7 +461,7 @@ const NovelPage = () => {
                     setSelectedGift("e6bfb3e7-6273-4e6b-a577-6afa71055bce");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={scepterGift} alt="صولجان" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">صولجان</p>
@@ -456,7 +474,7 @@ const NovelPage = () => {
                     setSelectedGift("a4005ee7-f2a5-488a-8757-574030513cd4");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={castleGift} alt="قلعة" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">قلعة</p>
@@ -469,7 +487,7 @@ const NovelPage = () => {
                     setSelectedGift("955f63a6-5f4e-4b10-8743-8ea11f544bae");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={dragonGift} alt="تنين" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">تنين</p>
@@ -482,7 +500,7 @@ const NovelPage = () => {
                     setSelectedGift("50ca3576-e6ee-4708-8d7d-4e9ce82cf722");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={universeGift} alt="مجرة" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">مجرة</p>
@@ -694,20 +712,20 @@ const NovelPage = () => {
                                     setIsUnlockPrivilegeModalOpen(true);
                                   }
                                 }}
-                                className={`flex justify-between items-center border-b border-[#797979] py-[15px] px-[10px] rounded transition-colors ${
+                                className={`flex justify-between items-center gap-2 border-b border-[#797979] py-[15px] px-[10px] rounded transition-colors ${
                                   canAccess ? "bg-[#2C2C2C] hover:bg-[#3A3A3A] cursor-pointer" : "bg-[#2C2C2C] hover:bg-[#3A3A3A] cursor-pointer"
                                 }`}
                               >
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
                                   {canAccess ? (
-                                    <Unlock className="w-5 h-5 text-[#4A9EFF]" />
+                                    <Unlock className="w-4 h-4 md:w-5 md:h-5 text-[#4A9EFF] flex-shrink-0" />
                                   ) : (
-                                    <Lock className="w-5 h-5 text-[#4A9EFF]" />
+                                    <Lock className="w-4 h-4 md:w-5 md:h-5 text-[#4A9EFF] flex-shrink-0" />
                                   )}
-                                  <p className="noto-sans-arabic-extrabold text-[18px] text-white">
+                                  <p className="noto-sans-arabic-extrabold text-[16px] md:text-[18px] text-white truncate">
                                     {chapter.title}
                                   </p>
-                                  <span className={`text-xs px-2 py-1 rounded noto-sans-arabic-medium border ${
+                                  <span className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded noto-sans-arabic-medium border whitespace-nowrap flex-shrink-0 ${
                                     canAccess 
                                       ? "bg-green-500/20 text-green-400 border-green-500/30" 
                                       : "bg-[#4A9EFF]/20 text-[#4A9EFF] border-[#4A9EFF]/30"
@@ -715,7 +733,7 @@ const NovelPage = () => {
                                     {canAccess ? "مفتوح" : "مقفل"}
                                   </span>
                                 </div>
-                                <p className="text-[16px] noto-sans-arabic-extrabold text-[#B0B0B0]">
+                                <p className="text-[14px] md:text-[16px] noto-sans-arabic-extrabold text-[#B0B0B0] whitespace-nowrap flex-shrink-0">
                                   {formatDate(chapter.createdAt)}
                                 </p>
                               </Link>
@@ -739,26 +757,44 @@ const NovelPage = () => {
                 <div className="grid md:grid-cols-[2fr_1fr] gap-8 mb-12">
                   {/* Left Column - Share Review (No Background) - Extended */}
                   <div className="flex flex-col justify-center items-center text-center space-y-6">
-                    <p className="text-white noto-sans-arabic-extrabold text-[18px] md:text-[24px] leading-relaxed">
-                      شارك أفكارك حول الرواية مع الآخرين،
-                      <br /> وحرصاً على جودة النقاش،
-                      <br /> نرجو أن يكون رأيك موضوعيًا وبنّاءً.
-                    </p>
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      onClick={() => {
-                        if (!currentUser) {
-                          setAuthModalAction("لمشاركة تقييمك");
-                          setIsAuthModalOpen(true);
-                        } else {
-                          setIsReviewModalOpen(true);
-                        }
-                      }}
-                      className="bg-[#4A9EFF] hover:bg-[#3A8EEF] text-white noto-sans-arabic-extrabold text-[18px] px-12 py-4"
-                    >
-                      شارك تقييمك
-                    </Button>
+                    {reviewsData?.currentUserReview ? (
+                      <>
+                        <p className="text-white noto-sans-arabic-extrabold text-[18px] md:text-[24px] leading-relaxed">
+                          شكراً لمشاركتك تقييمك!
+                          <br /> رأيك يساعد القرّاء الآخرين
+                          <br /> في اكتشاف هذه الرواية.
+                        </p>
+                        <div className="flex items-center gap-2 text-[#4A9EFF]">
+                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="noto-sans-arabic-extrabold text-[16px]">تم نشر تقييمك</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-white noto-sans-arabic-extrabold text-[18px] md:text-[24px] leading-relaxed">
+                          شارك أفكارك حول الرواية مع الآخرين،
+                          <br /> وحرصاً على جودة النقاش،
+                          <br /> نرجو أن يكون رأيك موضوعيًا وبنّاءً.
+                        </p>
+                        <Button
+                          variant="primary"
+                          size="lg"
+                          onClick={() => {
+                            if (!currentUser) {
+                              setAuthModalAction("لمشاركة تقييمك");
+                              setIsAuthModalOpen(true);
+                            } else {
+                              setIsReviewModalOpen(true);
+                            }
+                          }}
+                          className="bg-[#4A9EFF] hover:bg-[#3A8EEF] text-white noto-sans-arabic-extrabold text-[18px] px-12 py-4"
+                        >
+                          شارك تقييمك
+                        </Button>
+                      </>
+                    )}
                   </div>
 
                   {/* Right Column - Review Aspects with Background (Narrower) */}
@@ -873,7 +909,8 @@ const NovelPage = () => {
                 {/* Reviews List */}
                 {!reviewsLoading &&
                   !reviewsError &&
-                  reviewsData?.items?.length === 0 && (
+                  reviewsData?.reviews?.length === 0 && 
+                  !reviewsData?.currentUserReview && (
                     <div className="text-center py-12">
                       <p className="text-[#AAAAAA] noto-sans-arabic-extrabold text-[18px]">
                         لا توجد تقييمات بعد. كن أول من يقيّم!
@@ -881,9 +918,118 @@ const NovelPage = () => {
                     </div>
                   )}
 
+                {/* Current User's Review - Shown First */}
                 {!reviewsLoading &&
                   !reviewsError &&
-                  reviewsData?.items?.map((review) => {
+                  reviewsData?.currentUserReview && (
+                    <div className="border-b border-[#797979] pb-8 mb-8">
+                      <div className="flex items-start justify-between mb-6">
+                        <div className="flex items-center gap-4">
+                          {currentUser?.profilePhoto ? (
+                            <img
+                              src={currentUser.profilePhoto}
+                              alt={currentUser.displayName}
+                              className="w-16 h-16 rounded-full object-cover ring-2 ring-[#4A9EFF]"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 rounded-full bg-[#4A4A4A] flex items-center justify-center ring-2 ring-[#4A9EFF]">
+                              <User className="w-8 h-8 text-white" />
+                            </div>
+                          )}
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="text-white noto-sans-arabic-extrabold text-[20px]">
+                                {currentUser?.displayName || "أنت"}
+                              </p>
+                              <span className="text-[#4A9EFF] text-xs noto-sans-arabic-medium bg-[#4A9EFF]/10 px-2 py-0.5 rounded">
+                                تقييمك
+                              </span>
+                            </div>
+                            <div className="mt-2">
+                              <StarRating
+                                rating={reviewsData.currentUserReview.totalAverageScore}
+                                className="w-[22px] h-[22px]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[#AAAAAA] noto-sans-arabic-medium text-[14px]">
+                            {getTimeAgo(reviewsData.currentUserReview.createdAt)}
+                          </span>
+                          {/* 3-dot menu for delete */}
+                          <div className="relative">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowReviewMenu(!showReviewMenu);
+                              }}
+                              className="p-1 hover:bg-[#3C3C3C] rounded-full transition-colors"
+                            >
+                              <MoreVertical className="w-5 h-5 text-[#AAAAAA]" />
+                            </button>
+                            {showReviewMenu && (
+                              <div 
+                                className="absolute left-0 top-full mt-1 bg-[#3C3C3C] rounded-lg shadow-lg border border-[#5A5A5A] py-1 z-10 min-w-[120px]"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  onClick={() => {
+                                    setShowReviewMenu(false);
+                                    setShowDeleteConfirm(true);
+                                  }}
+                                  className="w-full flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-[#4A4A4A] transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  <span className="noto-sans-arabic-medium text-[14px]">حذف</span>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Review Content */}
+                      <p className="text-white noto-sans-arabic-extrabold text-[18px] leading-relaxed">
+                        {reviewsData.currentUserReview.content}
+                      </p>
+
+                      {/* Spoiler Badge if applicable */}
+                      {reviewsData.currentUserReview.isSpoiler && (
+                        <div className="mt-4 inline-flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-lg">
+                          <AlertTriangle className="w-4 h-4" />
+                          <span className="noto-sans-arabic-medium text-[14px]">يحتوي على حرق</span>
+                        </div>
+                      )}
+
+                      {/* Like count */}
+                      <div className="mt-4 flex items-center gap-2 text-[#AAAAAA]">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                          />
+                        </svg>
+                        <span className="noto-sans-arabic-medium text-[14px]">
+                          {reviewsData.currentUserReview.likeCount} إعجاب
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                {/* Other Reviews - Filter out current user's review to avoid duplication */}
+                {!reviewsLoading &&
+                  !reviewsError &&
+                  reviewsData?.reviews
+                    ?.filter((review) => review.id !== reviewsData?.currentUserReview?.id)
+                    .map((review) => {
                     const isSpoilerRevealed = revealedSpoilers[review.id];
 
                     return (
@@ -917,7 +1063,7 @@ const NovelPage = () => {
                             </div>
                           </div>
                           <span className="text-[#AAAAAA] noto-sans-arabic-medium text-[14px]">
-                            {formatDateShort(review.createdAt)}
+                            {getTimeAgo(review.createdAt)}
                           </span>
                         </div>
 
@@ -1232,6 +1378,24 @@ const NovelPage = () => {
           }}
         />
       )}
+
+      {/* Delete Review Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => {
+          deleteReview(novel?.id, {
+            onSuccess: () => {
+              setShowDeleteConfirm(false);
+            },
+          });
+        }}
+        title="حذف التقييم"
+        message="هل أنت متأكد من حذف تقييمك؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        isLoading={isDeletePending}
+      />
     </>
   );
 };

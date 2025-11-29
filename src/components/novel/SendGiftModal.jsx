@@ -126,12 +126,12 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle, novelId, preselectedGiftId
               <label className="mb-1.5 block text-sm font-medium text-white noto-sans-arabic-extrabold">
                 اختر هدية
               </label>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="flex md:grid md:grid-cols-4 gap-3 overflow-x-auto pb-2 md:pb-0 md:overflow-visible scrollbar-hide">
                 {gifts.map((gift) => (
                   <div
                     key={gift.id}
                     onClick={() => handleGiftSelect(gift.id)}
-                    className={`cursor-pointer rounded-lg border-2 p-2 text-center transition-all ${
+                    className={`cursor-pointer rounded-lg border-2 p-2 text-center transition-all flex-shrink-0 min-w-[80px] md:min-w-0 ${
                       selectedGift === gift.id
                         ? "border-[#4A9EFF] bg-[#4A9EFF]/10"
                         : "border-transparent bg-[#2C2C2C] hover:border-[#4A9EFF]/50"

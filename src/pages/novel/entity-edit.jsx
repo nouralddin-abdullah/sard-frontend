@@ -880,40 +880,40 @@ const EntityEditPage = () => {
 
       <div className="container mx-auto px-4 py-8">
         {/* Header Section with Image */}
-        <div className="flex items-start justify-between mb-8 p-6 border-b border-[#5A5A5A]">
-          <div className="flex items-center gap-6">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8 p-4 md:p-6 border-b border-[#5A5A5A]">
+          <div className="flex items-center gap-4 md:gap-6">
             <div
-              className="w-32 h-32 rounded-lg bg-cover bg-center border-2 border-[#5A5A5A] flex-shrink-0"
+              className="w-20 h-20 md:w-32 md:h-32 rounded-lg bg-cover bg-center border-2 border-[#5A5A5A] flex-shrink-0"
               style={{ backgroundImage: `url(${localEntityData.imageUrl})` }}
             />
-            <div>
-              <h1 className="text-3xl font-bold text-white noto-sans-arabic-extrabold mb-2">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl md:text-3xl font-bold text-white noto-sans-arabic-extrabold mb-1 md:mb-2 truncate">
                 {localEntityData.name}
               </h1>
-              <p className="text-[#797979] noto-sans-arabic-regular">
+              <p className="text-sm md:text-base text-[#797979] noto-sans-arabic-regular">
                 آخر تعديل: منذ ساعتين
               </p>
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2 md:gap-3">
             <button
               onClick={() => setDeleteEntityModalOpen(true)}
-              className="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors noto-sans-arabic-medium text-white flex items-center gap-2"
+              className="flex-1 md:flex-none px-4 md:px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors noto-sans-arabic-medium text-white flex items-center justify-center gap-2 text-sm md:text-base"
             >
               <Trash2 size={18} />
-              حذف
+              <span className="hidden sm:inline">حذف</span>
             </button>
             <button
               onClick={handleCancel}
-              className="px-6 py-2 bg-[#3C3C3C] hover:bg-[#5A5A5A] rounded-lg transition-colors noto-sans-arabic-medium"
+              className="flex-1 md:flex-none px-4 md:px-6 py-2 bg-[#3C3C3C] hover:bg-[#5A5A5A] rounded-lg transition-colors noto-sans-arabic-medium text-sm md:text-base"
               style={{ color: '#B8B8B8' }}
             >
               إلغاء
             </button>
             <button
               onClick={handleCancel}
-              className="px-6 py-2 rounded-lg transition-colors noto-sans-arabic-bold text-white"
+              className="flex-1 md:flex-none px-4 md:px-6 py-2 rounded-lg transition-colors noto-sans-arabic-bold text-white text-sm md:text-base"
               style={{ backgroundColor: '#0077FF' }}
             >
               رجوع للتفاصيل
@@ -927,14 +927,14 @@ const EntityEditPage = () => {
           <div className="lg:col-span-2 space-y-8">
             {/* Entity Details Section */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <h2 className="text-xl md:text-2xl font-bold noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
                   التفاصيل الأساسية
                 </h2>
                 <button
                   onClick={handleSaveEntityDetails}
                   disabled={updateEntityMutation.isPending || !hasDetailsChanged}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#0077FF] hover:bg-[#0066DD] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed rounded-lg transition-colors noto-sans-arabic-medium text-white"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-[#0077FF] hover:bg-[#0066DD] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed rounded-lg transition-colors noto-sans-arabic-medium text-white text-sm md:text-base"
                 >
                   <Save size={18} />
                   <span className={updateEntityMutation.isPending ? 'noto-sans-arabic-bold' : ''}>
@@ -1004,14 +1004,14 @@ const EntityEditPage = () => {
 
             {/* Custom Attributes Section */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <h2 className="text-xl md:text-2xl font-bold noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
                   السمات المخصصة
                 </h2>
                 <button
                   onClick={handleSaveAttributes}
                   disabled={updateEntityMutation.isPending || !hasAttributesChanged}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#0077FF] hover:bg-[#0066DD] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed rounded-lg transition-colors noto-sans-arabic-medium text-white"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-[#0077FF] hover:bg-[#0066DD] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed rounded-lg transition-colors noto-sans-arabic-medium text-white text-sm md:text-base"
                 >
                   <Save size={18} />
                   <span className={updateEntityMutation.isPending ? 'noto-sans-arabic-bold' : ''}>
@@ -1109,7 +1109,7 @@ const EntityEditPage = () => {
 
             {/* Articles Section */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
+              <h2 className="text-xl md:text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
                 المقالات
               </h2>
 
@@ -1172,7 +1172,7 @@ const EntityEditPage = () => {
 
             {/* Gallery Section */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
+              <h2 className="text-xl md:text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
                 معرض الصور
               </h2>
 
@@ -1228,7 +1228,7 @@ const EntityEditPage = () => {
           {/* Right Column - Relationships */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
-              <h2 className="text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
+              <h2 className="text-xl md:text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
                 العلاقات
               </h2>
 
