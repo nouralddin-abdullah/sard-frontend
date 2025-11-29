@@ -739,26 +739,44 @@ const NovelPage = () => {
                 <div className="grid md:grid-cols-[2fr_1fr] gap-8 mb-12">
                   {/* Left Column - Share Review (No Background) - Extended */}
                   <div className="flex flex-col justify-center items-center text-center space-y-6">
-                    <p className="text-white noto-sans-arabic-extrabold text-[18px] md:text-[24px] leading-relaxed">
-                      شارك أفكارك حول الرواية مع الآخرين،
-                      <br /> وحرصاً على جودة النقاش،
-                      <br /> نرجو أن يكون رأيك موضوعيًا وبنّاءً.
-                    </p>
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      onClick={() => {
-                        if (!currentUser) {
-                          setAuthModalAction("لمشاركة تقييمك");
-                          setIsAuthModalOpen(true);
-                        } else {
-                          setIsReviewModalOpen(true);
-                        }
-                      }}
-                      className="bg-[#4A9EFF] hover:bg-[#3A8EEF] text-white noto-sans-arabic-extrabold text-[18px] px-12 py-4"
-                    >
-                      شارك تقييمك
-                    </Button>
+                    {reviewsData?.currentUserReview ? (
+                      <>
+                        <p className="text-white noto-sans-arabic-extrabold text-[18px] md:text-[24px] leading-relaxed">
+                          شكراً لمشاركتك تقييمك!
+                          <br /> رأيك يساعد القرّاء الآخرين
+                          <br /> في اكتشاف هذه الرواية.
+                        </p>
+                        <div className="flex items-center gap-2 text-[#4A9EFF]">
+                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="noto-sans-arabic-extrabold text-[16px]">تم نشر تقييمك</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-white noto-sans-arabic-extrabold text-[18px] md:text-[24px] leading-relaxed">
+                          شارك أفكارك حول الرواية مع الآخرين،
+                          <br /> وحرصاً على جودة النقاش،
+                          <br /> نرجو أن يكون رأيك موضوعيًا وبنّاءً.
+                        </p>
+                        <Button
+                          variant="primary"
+                          size="lg"
+                          onClick={() => {
+                            if (!currentUser) {
+                              setAuthModalAction("لمشاركة تقييمك");
+                              setIsAuthModalOpen(true);
+                            } else {
+                              setIsReviewModalOpen(true);
+                            }
+                          }}
+                          className="bg-[#4A9EFF] hover:bg-[#3A8EEF] text-white noto-sans-arabic-extrabold text-[18px] px-12 py-4"
+                        >
+                          شارك تقييمك
+                        </Button>
+                      </>
+                    )}
                   </div>
 
                   {/* Right Column - Review Aspects with Background (Narrower) */}
@@ -873,7 +891,8 @@ const NovelPage = () => {
                 {/* Reviews List */}
                 {!reviewsLoading &&
                   !reviewsError &&
-                  reviewsData?.items?.length === 0 && (
+                  reviewsData?.reviews?.length === 0 && 
+                  !reviewsData?.currentUserReview && (
                     <div className="text-center py-12">
                       <p className="text-[#AAAAAA] noto-sans-arabic-extrabold text-[18px]">
                         لا توجد تقييمات بعد. كن أول من يقيّم!
@@ -881,9 +900,90 @@ const NovelPage = () => {
                     </div>
                   )}
 
+                {/* Current User's Review - Shown First */}
                 {!reviewsLoading &&
                   !reviewsError &&
-                  reviewsData?.items?.map((review) => {
+                  reviewsData?.currentUserReview && (
+                    <div className="mb-8">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-2 h-2 rounded-full bg-[#4A9EFF]"></div>
+                        <p className="text-[#4A9EFF] noto-sans-arabic-extrabold text-[16px]">
+                          تقييمك
+                        </p>
+                      </div>
+                      <div className="border border-[#4A9EFF]/30 bg-[#4A9EFF]/5 rounded-2xl p-6">
+                        <div className="flex items-start justify-between mb-6">
+                          <div className="flex items-center gap-4">
+                            {currentUser?.profilePhoto ? (
+                              <img
+                                src={currentUser.profilePhoto}
+                                alt={currentUser.displayName}
+                                className="w-16 h-16 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 rounded-full bg-[#4A4A4A] flex items-center justify-center">
+                                <User className="w-8 h-8 text-white" />
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-white noto-sans-arabic-extrabold text-[20px]">
+                                {currentUser?.displayName || "أنت"}
+                              </p>
+                              <div className="mt-2">
+                                <StarRating
+                                  rating={reviewsData.currentUserReview.totalAverageScore}
+                                  className="w-[22px] h-[22px]"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <span className="text-[#AAAAAA] noto-sans-arabic-medium text-[14px]">
+                            {formatDateShort(reviewsData.currentUserReview.createdAt)}
+                          </span>
+                        </div>
+
+                        {/* Review Content */}
+                        <p className="text-white noto-sans-arabic-extrabold text-[18px] leading-relaxed">
+                          {reviewsData.currentUserReview.content}
+                        </p>
+
+                        {/* Spoiler Badge if applicable */}
+                        {reviewsData.currentUserReview.isSpoiler && (
+                          <div className="mt-4 inline-flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-lg">
+                            <AlertTriangle className="w-4 h-4" />
+                            <span className="noto-sans-arabic-medium text-[14px]">يحتوي على حرق</span>
+                          </div>
+                        )}
+
+                        {/* Like count */}
+                        <div className="mt-4 flex items-center gap-2 text-[#AAAAAA]">
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                            />
+                          </svg>
+                          <span className="noto-sans-arabic-medium text-[14px]">
+                            {reviewsData.currentUserReview.likeCount} إعجاب
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                {/* Other Reviews - Filter out current user's review to avoid duplication */}
+                {!reviewsLoading &&
+                  !reviewsError &&
+                  reviewsData?.reviews
+                    ?.filter((review) => review.id !== reviewsData?.currentUserReview?.id)
+                    .map((review) => {
                     const isSpoilerRevealed = revealedSpoilers[review.id];
 
                     return (
