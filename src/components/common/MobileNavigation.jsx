@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Library, Trophy, Search, Menu, X, User, Bell, Settings, LogOut, Pen, BookOpen, BarChart3 } from 'lucide-react';
+import { Home, Library, Trophy, Search, Menu, X, User, Bell, Settings, LogOut, Pen, BookOpen, BarChart3, BookMarked, Award, DollarSign, Globe } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useGetUnreadCount } from '../../hooks/notification/useGetUnreadCount';
 import { useQueryClient } from '@tanstack/react-query';
@@ -103,11 +103,19 @@ const MobileNavigation = () => {
                 ? 'bg-[#4A9EFF]/20' 
                 : ''
             }`}>
-              <Home 
-                size={22} 
-                className={isActive('/home') || isActive('/') ? 'text-[#4A9EFF]' : 'text-[#9CA3AF]'} 
+              <svg 
+                width="22" 
+                height="22" 
+                viewBox="0 0 24 24" 
                 fill={isActive('/home') || isActive('/') ? '#4A9EFF' : 'none'}
-              />
+                stroke={isActive('/home') || isActive('/') ? '#4A9EFF' : '#9CA3AF'}
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+                <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              </svg>
             </div>
             <p className={`text-[10px] font-medium ${
               isActive('/home') || isActive('/') ? 'text-[#4A9EFF] font-semibold' : 'text-[#9CA3AF]'
@@ -145,11 +153,23 @@ const MobileNavigation = () => {
                 ? 'bg-[#4A9EFF]/20' 
                 : ''
             }`}>
-              <Trophy 
-                size={22} 
-                className={isActive('/leaderboard') ? 'text-[#4A9EFF]' : 'text-[#9CA3AF]'} 
+              <svg 
+                width="22" 
+                height="22" 
+                viewBox="0 0 24 24" 
                 fill={isActive('/leaderboard') ? '#4A9EFF' : 'none'}
-              />
+                stroke={isActive('/leaderboard') ? '#4A9EFF' : '#9CA3AF'}
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                <path d="M4 22h16" />
+                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+              </svg>
             </div>
             <p className={`text-[10px] font-medium ${
               isActive('/leaderboard') ? 'text-[#4A9EFF] font-semibold' : 'text-[#9CA3AF]'
@@ -251,11 +271,8 @@ const MobileNavigation = () => {
 
         {/* Navigation Links */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {/* Author Tools Section */}
+          {/* Author Tools Section - No header text */}
           <div className="mb-4">
-            <h4 className="text-xs font-semibold text-[#6B7280] px-3 py-2 uppercase tracking-wider noto-sans-arabic-medium">
-              أدوات المؤلف
-            </h4>
             <div className="space-y-1">
               <Link
                 to="/dashboard/works"
@@ -263,15 +280,15 @@ const MobileNavigation = () => {
                 className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-white/5 transition-colors group"
               >
                 <Pen size={20} className="text-[#9CA3AF] group-hover:text-[#4A9EFF] transition-colors" />
-                <span className="text-sm font-medium noto-sans-arabic-medium">أعمالي</span>
+                <span className="text-sm font-medium noto-sans-arabic-medium">أدوات المؤلف</span>
               </Link>
               <Link
-                to="/earnings"
+                to={currentUser ? `/profile/${currentUser.userName}?tab=reading-lists` : '/login'}
                 onClick={() => setIsDrawerOpen(false)}
                 className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-white/5 transition-colors group"
               >
-                <BarChart3 size={20} className="text-[#9CA3AF] group-hover:text-[#4A9EFF] transition-colors" />
-                <span className="text-sm font-medium noto-sans-arabic-medium">الأرباح</span>
+                <BookMarked size={20} className="text-[#9CA3AF] group-hover:text-[#4A9EFF] transition-colors" />
+                <span className="text-sm font-medium noto-sans-arabic-medium">قوائم القراءة</span>
               </Link>
             </div>
           </div>
@@ -330,7 +347,7 @@ const MobileNavigation = () => {
                 </Link>
 
                 <Link
-                  to={`/profile/${currentUser.userName}/settings`}
+                  to="/settings"
                   onClick={() => setIsDrawerOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${
                     isActive('/settings') 
@@ -368,6 +385,34 @@ const MobileNavigation = () => {
           </div>
 
           {/* Help Center */}
+          <div className="h-px bg-[#3C3C3C] my-3" />
+          
+          {/* Author Benefits, Earnings, My Wikipedia */}
+          <Link
+            to="/authorsbenefits"
+            onClick={() => setIsDrawerOpen(false)}
+            className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-white/5 transition-colors group"
+          >
+            <Award size={20} className="text-[#9CA3AF] group-hover:text-[#4A9EFF] transition-colors" />
+            <span className="text-sm font-medium noto-sans-arabic-medium">مزايا المؤلفين</span>
+          </Link>
+          <Link
+            to="/earnings"
+            onClick={() => setIsDrawerOpen(false)}
+            className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-white/5 transition-colors group"
+          >
+            <DollarSign size={20} className="text-[#9CA3AF] group-hover:text-[#4A9EFF] transition-colors" />
+            <span className="text-sm font-medium noto-sans-arabic-medium">الأرباح</span>
+          </Link>
+          <Link
+            to="/metwekpeida"
+            onClick={() => setIsDrawerOpen(false)}
+            className="flex items-center gap-3 px-3 py-2.5 text-white rounded-lg hover:bg-white/5 transition-colors group"
+          >
+            <Globe size={20} className="text-[#9CA3AF] group-hover:text-[#4A9EFF] transition-colors" />
+            <span className="text-sm font-medium noto-sans-arabic-medium">موسوعتي</span>
+          </Link>
+
           <div className="h-px bg-[#3C3C3C] my-3" />
           <Link
             to="/help"
