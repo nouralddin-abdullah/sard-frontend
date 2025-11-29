@@ -384,14 +384,14 @@ const NovelPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Gift Selection Column */}
             <div className="lg:col-span-2 flex flex-col gap-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="flex md:grid md:grid-cols-4 gap-3 overflow-x-auto pb-2 md:pb-0 md:overflow-visible scrollbar-hide">
                 {/* Flower Gift */}
                 <div 
                   onClick={() => {
                     setSelectedGift("ec16dfde-71b8-4e23-8ff5-d1846cdf2036");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={flowerGift} alt="وردة" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">وردة</p>
@@ -404,7 +404,7 @@ const NovelPage = () => {
                     setSelectedGift("88103b01-2e5b-4d06-9ff3-2724f4afba52");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={pizzaGift} alt="بيتزا" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">بيتزا</p>
@@ -417,7 +417,7 @@ const NovelPage = () => {
                     setSelectedGift("9e17512a-269a-43e8-a571-1a1dc541cb5a");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={bookGift} alt="كتاب" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">كتاب</p>
@@ -430,7 +430,7 @@ const NovelPage = () => {
                     setSelectedGift("48bdfb35-9f2c-4198-80c1-58f28eb648ef");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={crownGift} alt="تاج" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">تاج</p>
@@ -443,7 +443,7 @@ const NovelPage = () => {
                     setSelectedGift("e6bfb3e7-6273-4e6b-a577-6afa71055bce");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={scepterGift} alt="صولجان" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">صولجان</p>
@@ -456,7 +456,7 @@ const NovelPage = () => {
                     setSelectedGift("a4005ee7-f2a5-488a-8757-574030513cd4");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={castleGift} alt="قلعة" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">قلعة</p>
@@ -469,7 +469,7 @@ const NovelPage = () => {
                     setSelectedGift("955f63a6-5f4e-4b10-8743-8ea11f544bae");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={dragonGift} alt="تنين" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">تنين</p>
@@ -482,7 +482,7 @@ const NovelPage = () => {
                     setSelectedGift("50ca3576-e6ee-4708-8d7d-4e9ce82cf722");
                     setIsGiftModalOpen(true);
                   }}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 border-transparent bg-[#2C2C2C] cursor-pointer hover:border-[#4A9EFF]/50 transition-colors flex-shrink-0 min-w-[100px] md:min-w-0"
                 >
                   <img src={universeGift} alt="مجرة" className="w-10 h-10 object-contain" />
                   <p className="text-white text-sm font-medium noto-sans-arabic-extrabold">مجرة</p>
@@ -694,20 +694,20 @@ const NovelPage = () => {
                                     setIsUnlockPrivilegeModalOpen(true);
                                   }
                                 }}
-                                className={`flex justify-between items-center border-b border-[#797979] py-[15px] px-[10px] rounded transition-colors ${
+                                className={`flex justify-between items-center gap-2 border-b border-[#797979] py-[15px] px-[10px] rounded transition-colors ${
                                   canAccess ? "bg-[#2C2C2C] hover:bg-[#3A3A3A] cursor-pointer" : "bg-[#2C2C2C] hover:bg-[#3A3A3A] cursor-pointer"
                                 }`}
                               >
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
                                   {canAccess ? (
-                                    <Unlock className="w-5 h-5 text-[#4A9EFF]" />
+                                    <Unlock className="w-4 h-4 md:w-5 md:h-5 text-[#4A9EFF] flex-shrink-0" />
                                   ) : (
-                                    <Lock className="w-5 h-5 text-[#4A9EFF]" />
+                                    <Lock className="w-4 h-4 md:w-5 md:h-5 text-[#4A9EFF] flex-shrink-0" />
                                   )}
-                                  <p className="noto-sans-arabic-extrabold text-[18px] text-white">
+                                  <p className="noto-sans-arabic-extrabold text-[16px] md:text-[18px] text-white truncate">
                                     {chapter.title}
                                   </p>
-                                  <span className={`text-xs px-2 py-1 rounded noto-sans-arabic-medium border ${
+                                  <span className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded noto-sans-arabic-medium border whitespace-nowrap flex-shrink-0 ${
                                     canAccess 
                                       ? "bg-green-500/20 text-green-400 border-green-500/30" 
                                       : "bg-[#4A9EFF]/20 text-[#4A9EFF] border-[#4A9EFF]/30"
@@ -715,7 +715,7 @@ const NovelPage = () => {
                                     {canAccess ? "مفتوح" : "مقفل"}
                                   </span>
                                 </div>
-                                <p className="text-[16px] noto-sans-arabic-extrabold text-[#B0B0B0]">
+                                <p className="text-[14px] md:text-[16px] noto-sans-arabic-extrabold text-[#B0B0B0] whitespace-nowrap flex-shrink-0">
                                   {formatDate(chapter.createdAt)}
                                 </p>
                               </Link>
