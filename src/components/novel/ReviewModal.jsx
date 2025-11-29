@@ -16,6 +16,25 @@ const ReviewModal = ({ isOpen, onClose, novelTitle, novelId }) => {
   const [reviewText, setReviewText] = useState("");
   const [isSpoiler, setIsSpoiler] = useState(false);
   const [hoveredRating, setHoveredRating] = useState({});
+  const [isTextFocused, setIsTextFocused] = useState(false);
+
+  // Validation rules for review content
+  const validationRules = {
+    content: { min: 5, max: 2000, label: "المحتوى" },
+  };
+
+  // Validation helper function
+  const getFieldValidation = (value) => {
+    const rules = validationRules.content;
+    const length = value?.length || 0;
+    const isValid = length >= rules.min && length <= rules.max;
+    const isTooShort = length > 0 && length < rules.min;
+    const isTooLong = length > rules.max;
+    
+    return { isValid, isTooShort, isTooLong, length, min: rules.min, max: rules.max };
+  };
+
+  const contentValidation = getFieldValidation(reviewText);
 
   // Calculate overall rating (average of all categories)
   const overallRating = useMemo(() => {
@@ -194,17 +213,35 @@ const ReviewModal = ({ isOpen, onClose, novelTitle, novelId }) => {
           </div>
 
           {/* Review Text Area */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <label className="text-white noto-sans-arabic-extrabold text-[18px] md:text-[20px] block">
               شارك رأيك
             </label>
             <textarea
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
+              onFocus={() => setIsTextFocused(true)}
+              onBlur={() => setIsTextFocused(false)}
               placeholder="ندعوك لمشاركة أفكارك وانطباعاتك حول الرواية مع المجتمع، فآراؤك تُسهم في تطوير المحتوى وتوسيع النقاش. نرجو منك أن تعبّر عن رأيك بموضوعية واحترام، بعيدًا عن التحيّز أو الهجوم الشخصي. تذكّر أن كلماتك قد تؤثر في الكُتّاب والقرّاء على حدٍّ سواء، فكن صوتًا داعمًا للحوار البنّاء والتقدير الواعي."
-              className="w-full h-[200px] bg-[#4A4A4A] text-white noto-sans-arabic-extrabold text-[16px] rounded-2xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] placeholder:text-[#AAAAAA] placeholder:leading-relaxed"
+              className={`w-full h-[200px] bg-[#4A4A4A] text-white noto-sans-arabic-extrabold text-[16px] rounded-2xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] placeholder:text-[#AAAAAA] placeholder:leading-relaxed border ${
+                isTextFocused && !contentValidation.isValid && reviewText.length > 0
+                  ? "border-red-500"
+                  : "border-transparent"
+              }`}
               disabled={isPending}
             />
+            {/* Character Counter */}
+            <div className="flex justify-end text-sm">
+              <span className={`noto-sans-arabic-medium ${
+                contentValidation.isValid
+                  ? "text-gray-400"
+                  : contentValidation.isTooLong
+                    ? "text-red-500"
+                    : "text-yellow-500"
+              }`}>
+                {reviewText.length}/{validationRules.content.max}
+              </span>
+            </div>
             {/* Error Message */}
             {isError && (
               <p className="text-red-400 noto-sans-arabic-bold text-[14px]">
@@ -246,7 +283,7 @@ const ReviewModal = ({ isOpen, onClose, novelTitle, novelId }) => {
               <button
                 onClick={handleSubmit}
                 disabled={
-                  reviewText.length < 50 ||
+                  !contentValidation.isValid ||
                   Object.values(ratings).some((r) => r === 0) ||
                   isPending
                 }
