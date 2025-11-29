@@ -105,6 +105,8 @@ const EntityDetailsPage = () => {
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C] via-[#2C2C2C]/70 to-transparent" />
+          {/* Extra solid bar to cover any sub-pixel gap on mobile */}
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#2C2C2C] md:hidden" />
           
           {/* Edit Button - Only show to owner */}
           {transformedData.isOwner && (
@@ -135,7 +137,40 @@ const EntityDetailsPage = () => {
         </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-8 md:py-16">
+        <div className="container mx-auto px-4 py-8 md:py-16 -mt-1 md:mt-0">
+          {/* Mobile-only Key Traits - Shown after short description */}
+          {Object.keys(transformedData.keyTraits).length > 0 && (
+            <div className="lg:hidden bg-[#3C3C3C] p-6 rounded-xl border border-[#5A5A5A] mb-8">
+              <h3 className="text-xl font-bold text-white border-b border-[#5A5A5A] pb-3 noto-sans-arabic-extrabold">
+                السمات الرئيسية
+              </h3>
+              <div className="space-y-4 mt-4">
+                {Object.entries(transformedData.keyTraits).map(([key, value], index) => {
+                  const isList = Array.isArray(value);
+                  
+                  return (
+                    <div key={index} className={isList ? "flex flex-col" : "flex justify-between"}>
+                      <span className={`text-[#B8B8B8] font-medium noto-sans-arabic-medium ${isList ? 'mb-2' : ''}`}>
+                        {key}
+                      </span>
+                      {isList ? (
+                        <ul className="list-disc list-inside text-white space-y-1 pl-1 noto-sans-arabic-regular">
+                          {value.map((item, itemIndex) => (
+                            <li key={itemIndex}>{item}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span className="text-white noto-sans-arabic-bold">
+                          {value}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
             {/* Left Column - Content */}
             <div className="lg:col-span-2 space-y-8 md:space-y-12">
@@ -168,9 +203,9 @@ const EntityDetailsPage = () => {
                 </div>
               ))}
 
-              {/* Relationships Section */}
+              {/* Relationships Section - Hidden on mobile, shown after gallery on mobile */}
               {transformedData.relationships.length > 0 && (
-                <div className="bg-[#3C3C3C] p-6 md:p-8 rounded-xl border border-[#5A5A5A]">
+                <div className="hidden lg:block bg-[#3C3C3C] p-6 md:p-8 rounded-xl border border-[#5A5A5A]">
                   <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 noto-sans-arabic-extrabold">
                     العلاقات
                   </h2>
@@ -225,10 +260,43 @@ const EntityDetailsPage = () => {
                   </div>
                 </div>
               )}
+
+              {/* Mobile-only Relationships Section - After Gallery */}
+              {transformedData.relationships.length > 0 && (
+                <div className="lg:hidden bg-[#3C3C3C] p-6 rounded-xl border border-[#5A5A5A]">
+                  <h2 className="text-2xl font-bold text-white mb-6 noto-sans-arabic-extrabold">
+                    العلاقات
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {transformedData.relationships.map((relationship) => (
+                      <Link
+                        key={relationship.id}
+                        to={`/novel/${novelId}/wikipedia/${relationship.targetEntityId}`}
+                        className="flex items-center gap-4 hover:opacity-80 transition-opacity"
+                      >
+                        <div
+                          className="w-16 h-16 rounded-full bg-cover bg-center flex-shrink-0 border-2 border-[#5A5A5A]"
+                          style={{
+                            backgroundImage: `url(${relationship.imageUrl})`
+                          }}
+                        />
+                        <div>
+                          <h4 className="font-bold text-white noto-sans-arabic-extrabold">
+                            {relationship.name}
+                          </h4>
+                          <p className="text-sm text-[#B8B8B8] noto-sans-arabic-regular">
+                            {relationship.role}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Right Column - Key Traits Sidebar */}
-            <div className="lg:col-span-1">
+            {/* Right Column - Key Traits Sidebar (Hidden on mobile, shown at top on mobile) */}
+            <div className="hidden lg:block lg:col-span-1">
               <div className="sticky top-24 bg-[#3C3C3C] p-6 rounded-xl border border-[#5A5A5A]">
                 <h3 className="text-xl font-bold text-white border-b border-[#5A5A5A] pb-3 noto-sans-arabic-extrabold">
                   السمات الرئيسية

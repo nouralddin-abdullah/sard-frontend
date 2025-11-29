@@ -927,14 +927,14 @@ const EntityEditPage = () => {
           <div className="lg:col-span-2 space-y-8">
             {/* Entity Details Section */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <h2 className="text-xl md:text-2xl font-bold noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
                   التفاصيل الأساسية
                 </h2>
                 <button
                   onClick={handleSaveEntityDetails}
                   disabled={updateEntityMutation.isPending || !hasDetailsChanged}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#0077FF] hover:bg-[#0066DD] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed rounded-lg transition-colors noto-sans-arabic-medium text-white"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-[#0077FF] hover:bg-[#0066DD] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed rounded-lg transition-colors noto-sans-arabic-medium text-white text-sm md:text-base"
                 >
                   <Save size={18} />
                   <span className={updateEntityMutation.isPending ? 'noto-sans-arabic-bold' : ''}>
@@ -1004,14 +1004,14 @@ const EntityEditPage = () => {
 
             {/* Custom Attributes Section */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <h2 className="text-xl md:text-2xl font-bold noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
                   السمات المخصصة
                 </h2>
                 <button
                   onClick={handleSaveAttributes}
                   disabled={updateEntityMutation.isPending || !hasAttributesChanged}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#0077FF] hover:bg-[#0066DD] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed rounded-lg transition-colors noto-sans-arabic-medium text-white"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-[#0077FF] hover:bg-[#0066DD] disabled:bg-[#5A5A5A] disabled:cursor-not-allowed rounded-lg transition-colors noto-sans-arabic-medium text-white text-sm md:text-base"
                 >
                   <Save size={18} />
                   <span className={updateEntityMutation.isPending ? 'noto-sans-arabic-bold' : ''}>
@@ -1109,7 +1109,7 @@ const EntityEditPage = () => {
 
             {/* Articles Section */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
+              <h2 className="text-xl md:text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
                 المقالات
               </h2>
 
@@ -1172,7 +1172,7 @@ const EntityEditPage = () => {
 
             {/* Gallery Section */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
+              <h2 className="text-xl md:text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
                 معرض الصور
               </h2>
 
@@ -1228,7 +1228,7 @@ const EntityEditPage = () => {
           {/* Right Column - Relationships */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
-              <h2 className="text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
+              <h2 className="text-xl md:text-2xl font-bold mb-4 noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
                 العلاقات
               </h2>
 
