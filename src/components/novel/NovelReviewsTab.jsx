@@ -38,7 +38,7 @@ const NovelReviewsTab = ({
   return (
     <div className="space-y-8">
       {/* Review Aspects Section */}
-      <div className="grid md:grid-cols-[2fr_1fr] gap-8 mb-12">
+      <div className="grid md:grid-cols-[1fr_1.5fr] gap-8 mb-12">
         {/* Share Review CTA */}
         <div className="flex flex-col justify-center items-center text-center space-y-6">
           {reviewsData?.currentUserReview ? (
@@ -61,7 +61,7 @@ const NovelReviewsTab = ({
             </>
           ) : (
             <>
-              <p className="text-white noto-sans-arabic-extrabold text-lg md:text-xl leading-relaxed">
+              <p className="text-white noto-sans-arabic-extrabold text-base md:text-lg leading-relaxed">
                 شارك أفكارك حول الرواية مع الآخرين،
                 <br /> وحرصاً على جودة النقاش،
                 <br /> نرجو أن يكون رأيك موضوعيًا وبنّاءً.
@@ -83,12 +83,12 @@ const NovelReviewsTab = ({
         </div>
 
         {/* Rating Categories */}
-        <div className="rounded-xl bg-[#3C3C3C] p-6 shadow-lg">
-          <div className="space-y-5">
+        <div className="rounded-xl bg-[#3C3C3C] p-6 md:p-8 shadow-[0px_0px_1px_rgba(0,0,0,0.4)] border border-[#4A4A4A]">
+          <div className="space-y-6">
             {ratingCategories.map((category) => (
-              <div key={category.key} className="flex items-center justify-between">
-                <p className="text-white noto-sans-arabic-extrabold text-base">{category.label}</p>
-                <StarRating rating={category.score || 0} className="w-5 h-5" />
+              <div key={category.key} className="flex items-center justify-between gap-4">
+                <p className="text-white noto-sans-arabic-extrabold text-base md:text-lg">{category.label}</p>
+                <StarRating rating={category.score || 0} className="w-6 h-6 md:w-7 md:h-7" />
               </div>
             ))}
           </div>
