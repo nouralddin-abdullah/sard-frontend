@@ -37,6 +37,8 @@ export const useSendGift = () => {
       // Invalidate relevant queries after sending a gift
       if (variables?.novelId) {
         queryClient.invalidateQueries({ queryKey: ["novel", variables.novelId] });
+        // Refresh latest gifts list
+        queryClient.invalidateQueries({ queryKey: ["recent-gifts", variables.novelId] });
       }
     },
   });
