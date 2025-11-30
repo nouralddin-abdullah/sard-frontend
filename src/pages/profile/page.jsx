@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Settings, Loader2 } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import AboutMe from "../../components/profile/AboutMe";
 import MyNovels from "../../components/profile/MyNovels";
 import Library from "../../components/profile/Library";
@@ -19,6 +19,7 @@ import { toast } from "sonner";
 
 const ProfilePage = () => {
   const { username } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: loggedInUser, dataUpdatedAt: loggedInUserUpdatedAt, isLoading: isLoadingLoggedIn } = useGetLoggedInUser();
   
   // Only fetch user by username if it's NOT the logged-in user's profile
@@ -43,7 +44,25 @@ const ProfilePage = () => {
 
   const { t } = useTranslation();
 
-  const [selectedSubPage, setSelectedSubPage] = useState("about-me");
+  // Valid tabs - single source of truth
+  const VALID_TABS = ['about-me', 'my-novels', 'reading-lists', 'points'];
+  const DEFAULT_TAB = 'about-me';
+  
+  // Get current tab from URL, fallback to default if invalid
+  const tabParam = searchParams.get('tab');
+  const currentTab = VALID_TABS.includes(tabParam) ? tabParam : DEFAULT_TAB;
+
+  // Navigate to tab by updating URL
+  const navigateToTab = (tab) => {
+    if (tab === DEFAULT_TAB) {
+      // Remove tab param for default tab (cleaner URLs)
+      searchParams.delete('tab');
+    } else {
+      searchParams.set('tab', tab);
+    }
+    setSearchParams(searchParams, { replace: true });
+  };
+
   const [showDiscordTooltip, setShowDiscordTooltip] = useState(false);
 
   const handleDiscordClick = () => {
@@ -83,7 +102,7 @@ const ProfilePage = () => {
     },
     {
       title: t("profilePage.profileNav.library"),
-      value: "library",
+      value: "reading-lists",
       isActive: false,
       showForOthers: true, // Always visible - Library component handles public/private lists internally
     },
@@ -106,10 +125,6 @@ const ProfilePage = () => {
   const subPages = isOwnProfile 
     ? allSubPages 
     : allSubPages.filter(page => page.showForOthers);
-
-  const navigateSubPages = (val) => {
-    setSelectedSubPage(val);
-  };
 
   if (isPending) {
     return (
@@ -235,9 +250,9 @@ const ProfilePage = () => {
             <button
               key={subPage.value}
               className={`cursor-pointer relative whitespace-nowrap text-[14px] md:text-xl py-2.5 btn-underline noto-sans-arabic-medium ${
-                subPage.value === selectedSubPage && "border-b-2 border-white"
+                subPage.value === currentTab && "border-b-2 border-white"
               }`}
-              onClick={() => navigateSubPages(subPage.value)}
+              onClick={() => navigateToTab(subPage.value)}
             >
               {subPage.title}
             </button>
@@ -263,27 +278,27 @@ const ProfilePage = () => {
       </div>
 
       {/* components of the sub sections */}
-      {selectedSubPage === "about-me" && (
+      {currentTab === "about-me" && (
         <AboutMe 
           userData={userData} 
           isOwnProfile={isOwnProfile}
         />
       )}
       {/* My Novels is visible to everyone */}
-      {selectedSubPage === "my-novels" && (
+      {currentTab === "my-novels" && (
         <MyNovels 
           userId={userData?.id} 
           isOwnProfile={isOwnProfile}
         />
       )}
       {/* Library component handles public/private reading lists internally */}
-      {selectedSubPage === "library" && <Library username={username} />}
+      {currentTab === "reading-lists" && <Library username={username} />}
       {/* Points/Wallet - Only for own profile */}
-      {selectedSubPage === "points" && isOwnProfile && (
+      {currentTab === "points" && isOwnProfile && (
         <PointsWallet userId={userData?.id} />
       )}
       {/* Badges temporarily removed */}
-      {/* {selectedSubPage === "badges" && <BadgesList />} */}
+      {/* {currentTab === "badges" && <BadgesList />} */}
       </div>
     </>
   );

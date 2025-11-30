@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import { BASE_URL } from '../../constants/base-url';
 import { TOKEN_KEY } from '../../constants/token-key';
 
 const UnlockPrivilegeModal = ({ isOpen, onClose, privilegeCost, lockedChaptersCount, novelId, onSubscribeSuccess }) => {
+  const queryClient = useQueryClient();
   const [timeLeft, setTimeLeft] = useState({
     hours: 0,
     minutes: 0,
@@ -88,6 +90,10 @@ const UnlockPrivilegeModal = ({ isOpen, onClose, privilegeCost, lockedChaptersCo
 
       if (response.ok) {
         setSuccessMessage('تم الاشتراك بنجاح! يمكنك الآن قراءة جميع الفصول المقفلة.');
+        // Refresh chapters list to show unlocked chapters
+        queryClient.invalidateQueries({ queryKey: ["novel", novelId, "chapters"] });
+        // Refresh privilege info to update subscription status
+        queryClient.invalidateQueries({ queryKey: ["novel-privilege", novelId] });
         setTimeout(() => {
           onSubscribeSuccess?.();
           onClose();

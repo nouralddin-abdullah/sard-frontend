@@ -120,7 +120,7 @@ const GenrePage = () => {
     <div className="min-h-screen bg-[#1A1A1A]">
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 py-8 mt-20">
+      <main className="max-w-7xl mx-auto px-4 py-8 md:mt-20">
         {/* Genre Header */}
         <div className="mb-8 bg-gradient-to-r from-[#3A3A3A] to-[#2A2A2A] rounded-2xl p-8 relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
