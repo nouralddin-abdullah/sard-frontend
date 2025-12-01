@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { Plus, AlertTriangle, Share2 } from "lucide-react";
 import { getTimeAgo } from "../../utils/date";
 import CustomStar from "../common/CustomStar";
+import { useGetNovelRecommendations } from "../../hooks/novel/useGetNovelRecommendations";
+import SafeImage from "../common/SafeImage";
 
 // Gift imports
 import flowerGift from "../../assets/gifts/flower-100.png";
@@ -26,6 +28,7 @@ const GIFTS = [
 const NovelSidebar = ({
   novel,
   novelSlug,
+  novelId,
   currentUser,
   recentGiftsData,
   recentGiftsLoading,
@@ -34,6 +37,12 @@ const NovelSidebar = ({
   onGiftClick,
   onSendGift,
 }) => {
+  // Fetch recommendations with 1-hour cache
+  const { 
+    data: recommendations, 
+    isLoading: recommendationsLoading 
+  } = useGetNovelRecommendations(novelId, 10, !!novelId);
+
   return (
     <div className="space-y-6">
       {/* Action Links */}
@@ -140,28 +149,63 @@ const NovelSidebar = ({
       {/* Recommendations */}
       <div className="bg-[#3C3C3C] rounded-xl p-6">
         <h3 className="text-lg font-bold text-white mb-4 noto-sans-arabic-extrabold">قد تعجبك أيضاً</h3>
-        <div className="flex gap-4">
-          <img
-            src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=200&h=300&fit=crop"
-            alt="لنا فقط جندي"
-            className="w-24 h-36 object-cover rounded-lg flex-shrink-0"
-          />
-          <div className="flex flex-col min-w-0">
-            <h4 className="font-bold text-white noto-sans-arabic-extrabold text-sm">لنا فقط جندي</h4>
-            <p className="text-xs text-[#B0B0B0] mt-1 mb-2 line-clamp-3 noto-sans-arabic-medium">
-              في زمنٍ اشتعلت فيه الحروب، وتاهت فيه الحقيقة بين صرخات الرصاص ودموع الضعفاء، يقف شاب بسيط يُدعى سليم، لا يحمل لقب بطل...
-            </p>
-            <div className="flex items-center justify-between text-xs mt-auto">
-              <span className="flex items-center gap-1 text-white">
-                <CustomStar className="w-4 h-4" />
-                <span className="noto-sans-arabic-medium">4 (1,200)</span>
-              </span>
-              <span className="flex items-center gap-1 text-[#B0B0B0] noto-sans-arabic-medium truncate">
-                الخلافة الهائج
-              </span>
-            </div>
+        
+        {recommendationsLoading ? (
+          <div className="space-y-4">
+            {[1, 2].map((i) => (
+              <div key={i} className="flex gap-4 animate-pulse">
+                <div className="w-24 h-36 bg-[#2C2C2C] rounded-lg flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-[#2C2C2C] rounded w-3/4" />
+                  <div className="h-3 bg-[#2C2C2C] rounded w-full" />
+                  <div className="h-3 bg-[#2C2C2C] rounded w-2/3" />
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        ) : recommendations && recommendations.length > 0 ? (
+          <div className="space-y-4">
+            {recommendations.map((rec) => (
+              <Link
+                key={rec.id}
+                to={`/novel/${rec.slug}`}
+                className="flex gap-4 hover:bg-[#2C2C2C] p-2 -mx-2 rounded-lg transition-colors"
+              >
+                <SafeImage
+                  src={rec.coverImageUrl}
+                  alt={rec.title}
+                  className="w-16 h-24 rounded object-cover flex-shrink-0"
+                  fallback="https://ui-avatars.com/api/?name=Novel&background=4A9EFF&color=fff&size=200"
+                />
+                <div className="flex flex-col min-w-0 flex-1">
+                  <h4 className="font-bold text-white noto-sans-arabic-extrabold text-sm line-clamp-2">
+                    {rec.title}
+                  </h4>
+                  <span className={`w-fit px-2 py-0.5 rounded text-xs mt-1 noto-sans-arabic-medium ${
+                    rec.status === "Completed" 
+                      ? "bg-green-600/20 text-green-400" 
+                      : "bg-yellow-600/20 text-yellow-400"
+                  }`}>
+                    {rec.status === "Completed" ? "مكتملة" : "مستمرة"}
+                  </span>
+                  <span className="flex items-center gap-1 text-xs text-[#B0B0B0] mt-1 noto-sans-arabic-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                    </svg>
+                    {rec.chapterCount} فصل
+                  </span>
+                  <p className="text-[10px] text-[#B0B0B0] mt-1 line-clamp-3 noto-sans-arabic-medium flex-1">
+                    {rec.summary || "لا يوجد وصف"}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="text-[#B0B0B0] text-sm noto-sans-arabic-medium text-center py-4">
+            لا توجد توصيات متاحة حالياً
+          </p>
+        )}
       </div>
     </div>
   );

@@ -20,6 +20,7 @@ import { translateGenre } from "../../utils/translate-genre";
 
 // Components
 import Header from "../../components/common/Header";
+import NotFoundPage from "../../components/common/NotFoundPage";
 import NovelHeroSection from "../../components/novel/NovelHeroSection";
 import NovelChaptersTab from "../../components/novel/NovelChaptersTab";
 import NovelReviewsTab from "../../components/novel/NovelReviewsTab";
@@ -141,14 +142,13 @@ const NovelPage = () => {
   // Error state
   if (novelError || !novel) {
     return (
-      <>
-        <Header />
-        <main className="min-h-screen bg-[#2C2C2C] flex items-center justify-center" dir="rtl">
-          <p className="text-white text-2xl noto-sans-arabic-extrabold">
-            {novelError || "لم يتم العثور على الرواية"}
-          </p>
-        </main>
-      </>
+      <NotFoundPage
+        title="الرواية غير موجودة"
+        message="عذراً، لم نتمكن من العثور على الرواية التي تبحث عنها. قد تكون حُذفت أو أن الرابط غير صحيح."
+        showBackButton={true}
+        showHomeButton={true}
+        showSearchButton={true}
+      />
     );
   }
 
@@ -313,6 +313,7 @@ const NovelPage = () => {
               <NovelSidebar
                 novel={novel}
                 novelSlug={novelSlug}
+                novelId={novel?.id}
                 currentUser={currentUser}
                 recentGiftsData={recentGiftsData}
                 recentGiftsLoading={recentGiftsLoading}
