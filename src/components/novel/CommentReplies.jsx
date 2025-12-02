@@ -132,8 +132,8 @@ const CommentReplies = ({
 
             {/* Reply Actions */}
             <div className="flex items-center gap-4 pr-11">
-              {/* Only show like button if not own reply */}
-              {reply.user.id !== currentUserId && (
+              {/* Like button - show count for everyone, but only allow click if not own reply */}
+              {reply.user.id !== currentUserId ? (
                 <button
                   onClick={() => handleLike(reply.id, reply.isLikedByCurrentUser)}
                   disabled={likingReplyId === reply.id}
@@ -144,6 +144,12 @@ const CommentReplies = ({
                   <ThumbsUp size={14} fill={reply.isLikedByCurrentUser ? "#FF4444" : "none"} />
                   <span className="noto-sans-arabic-medium text-xs">{reply.likesCount}</span>
                 </button>
+              ) : (
+                /* Show likes count for reply owner (non-clickable) */
+                <div className="flex items-center gap-1 text-[#686868]">
+                  <ThumbsUp size={14} fill="none" />
+                  <span className="noto-sans-arabic-medium text-xs">{reply.likesCount}</span>
+                </div>
               )}
 
               {reply.user.id === currentUserId && (
