@@ -1096,8 +1096,8 @@ const ChapterReaderPage = () => {
               )}
             </div>
 
-            {/* Navigation Buttons - Always at bottom */}
-            <div className="flex justify-between items-center mt-auto pt-8 pb-2 border-t" style={{ borderColor: theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8' }}>
+            {/* Navigation Buttons - Always at bottom with safe area for iPhone */}
+            <div className="flex justify-between items-center mt-auto pt-8 pb-2 border-t pb-safe" style={{ borderColor: theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8', paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
               {prevChapterId ? (
                 <button 
                   onClick={() => navigate(`/novel/${novelSlug}/chapter/${prevChapterId}`)}
@@ -1125,8 +1125,8 @@ const ChapterReaderPage = () => {
         ) : null}
       </div>
 
-      {/* Progress Bar */}
-      <div className="fixed bottom-0 left-0 right-0 h-1 bg-gray-700 z-40">
+      {/* Progress Bar - positioned above safe area */}
+      <div className="fixed left-0 right-0 h-1 bg-gray-700 z-40" style={{ bottom: 'env(safe-area-inset-bottom, 0px)' }}>
         <div 
           className="h-full bg-[#4A9EFF] transition-all duration-300"
           style={{ width: `${scrollProgress}%` }}

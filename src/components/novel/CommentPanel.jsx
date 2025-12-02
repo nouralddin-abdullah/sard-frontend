@@ -410,8 +410,8 @@ const CommentPanel = ({
 
                 {/* Actions */}
                 <div className="flex items-center gap-4 pr-13">
-                  {/* Only show like button if not own comment */}
-                  {comment.user.id !== currentUserId && (
+                  {/* Like button - show count for everyone, but only allow click if not own comment */}
+                  {comment.user.id !== currentUserId ? (
                     <button
                       onClick={() => handleLike(comment.id, comment.isLikedByCurrentUser)}
                       disabled={likingCommentId === comment.id}
@@ -422,6 +422,12 @@ const CommentPanel = ({
                       <ThumbsUp size={16} fill={comment.isLikedByCurrentUser ? "#FF4444" : "none"} />
                       <span className="noto-sans-arabic-medium text-xs">{comment.likesCount}</span>
                     </button>
+                  ) : (
+                    /* Show likes count for comment owner (non-clickable) */
+                    <div className="flex items-center gap-1 text-[#686868]">
+                      <ThumbsUp size={16} fill="none" />
+                      <span className="noto-sans-arabic-medium text-xs">{comment.likesCount}</span>
+                    </div>
                   )}
 
                   <button
