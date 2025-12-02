@@ -31,6 +31,7 @@ import HelpCenterPage from "../pages/help/page";
 import HelpArticlePage from "../pages/help/article";
 import EarningsPage from "../pages/earnings/page";
 import WekipeidaTutorial from "../pages/wekipeida/page";
+import GlobalNotFoundPage from "../pages/not-found/page";
 
 
 const routes = [
@@ -176,6 +177,11 @@ const routes = [
   {
     url: "/metwekpeida",
     component: <WekipeidaTutorial />,
+  },
+  // 404 catch-all route - must be last
+  {
+    url: "*",
+    component: <GlobalNotFoundPage />,
   },
 ];
 
