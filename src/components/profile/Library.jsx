@@ -112,6 +112,12 @@ const Library = ({ username }) => {
   // Check if viewing own profile or another user's profile
   const isOwnProfile = loggedInUser?.userName === username;
   
+  // Truncate username if too long (for display purposes)
+  const truncateUsername = (name, maxLength = 15) => {
+    if (!name) return '';
+    return name.length > maxLength ? `${name.slice(0, maxLength)}...` : name;
+  };
+  
   // Fetch reading lists based on profile type
   // Own profile: Get all lists (public + private) using /my-lists
   // Other user: Get only public lists using /user/{userName}
@@ -169,7 +175,7 @@ const Library = ({ username }) => {
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-3xl font-bold noto-sans-arabic-extrabold">
-              {isOwnProfile ? "قوائم قرائتك" : `قوائم ${username}`}
+              {isOwnProfile ? "قوائم قرائتك" : `قوائم ${truncateUsername(username)}`}
             </h2>
             {isOwnProfile && (
               <button 

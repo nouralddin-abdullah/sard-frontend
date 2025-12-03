@@ -12,10 +12,13 @@ const ChapterParagraph = memo(({
   const [isHovered, setIsHovered] = useState(false);
   const paragraphRef = useRef(null);
   const scrollTimeoutRef = useRef(null);
+  const isScrollingRef = useRef(false);
 
   // Clear hover state on scroll with debouncing
   useEffect(() => {
     const handleScroll = () => {
+      isScrollingRef.current = true;
+      
       // Clear any existing timeout
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
@@ -25,6 +28,11 @@ const ChapterParagraph = memo(({
       if (isHovered) {
         setIsHovered(false);
       }
+      
+      // Reset scrolling flag after scroll ends
+      scrollTimeoutRef.current = setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 100);
     };
 
     const scrollContainer = paragraphRef.current?.closest('.overflow-y-auto');
@@ -38,6 +46,13 @@ const ChapterParagraph = memo(({
       };
     }
   }, [isHovered]);
+
+  // Handle mouse move - re-trigger hover after scroll ends
+  const handleMouseMove = () => {
+    if (!isScrollingRef.current && !isHovered) {
+      setIsHovered(true);
+    }
+  };
 
   const themeStyles = {
     dark: {
@@ -66,6 +81,7 @@ const ChapterParagraph = memo(({
       ref={paragraphRef}
       className="group relative py-3 px-0"
       onMouseEnter={() => setIsHovered(true)}
+      onMouseMove={handleMouseMove}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Paragraph Text */}
