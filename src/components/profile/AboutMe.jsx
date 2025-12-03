@@ -160,7 +160,7 @@ const AboutMe = ({ userData, isOwnProfile = false }) => {
               <img
                 src={userData?.profilePhoto || mainPicture}
                 alt=""
-                className="w-12 md:w-16 rounded-full"
+                className="w-14 h-14 md:w-18 md:h-18 rounded-full object-cover flex-shrink-0 aspect-square"
               />
               <div className="bg-white/5 border border-white/10 w-full h-22 text-white/60 p-6 rounded-xl flex items-center noto-sans-arabic-medium">
                 {t("profilePage.aboutMe.writeSomething")}

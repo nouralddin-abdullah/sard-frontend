@@ -488,7 +488,13 @@ const EditWorkPage = () => {
 
     if (chapterSort === "recent") {
       entries = [...entries].sort((a, b) => {
-        const toTime = (entry) => new Date(entry.chapter.updatedAt || entry.chapter.createdAt || 0).getTime();
+        const toTime = (entry) => {
+          const dateStr = entry.chapter.updatedAt || entry.chapter.createdAt || 0;
+          if (!dateStr) return 0;
+          // Ensure UTC parsing
+          const utcStr = typeof dateStr === 'string' && !dateStr.endsWith('Z') ? dateStr + 'Z' : dateStr;
+          return new Date(utcStr).getTime();
+        };
         return toTime(b) - toTime(a);
       });
     }

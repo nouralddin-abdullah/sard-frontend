@@ -5,11 +5,9 @@ import { Book, Plus } from "lucide-react";
 import Button from "../ui/button";
 import { useGetMyWorks } from "../../hooks/work/useGetMyWorks";
 import { useGetUserWorks } from "../../hooks/work/useGetUserWorks";
-import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 const MyNovels = ({ userId, isOwnProfile = false }) => {
-  const { t } = useTranslation();
 
   // Use different hooks based on whether viewing own profile or another user's
   const ownWorksQuery = useGetMyWorks({ enabled: isOwnProfile });
@@ -55,10 +53,10 @@ const MyNovels = ({ userId, isOwnProfile = false }) => {
         <div className="text-center py-12">
           <div className="border rounded-2xl p-8 max-w-md mx-auto" style={{ backgroundColor: '#3C3C3C', borderColor: '#5A5A5A' }}>
             <h3 className="text-red-400 text-xl noto-sans-arabic-extrabold mb-2">
-              {t("profilePage.myNovels.novelsErrorTitle")}
+              حدث خطأ
             </h3>
             <p className="text-red-300 text-sm noto-sans-arabic-medium">
-              {t("profilePage.myNovels.novelsErrorMessage")}
+              تعذر تحميل الأعمال. حاول مرة أخرى لاحقاً
             </p>
           </div>
         </div>
@@ -73,10 +71,10 @@ const MyNovels = ({ userId, isOwnProfile = false }) => {
         <div className="p-6 border-b" style={{ borderColor: '#5A5A5A' }}>
           <div className="rounded-2xl p-8 text-center border" style={{ backgroundColor: '#3C3C3C', borderColor: '#5A5A5A' }}>
             <h3 className="text-white text-xl noto-sans-arabic-extrabold mb-3">
-              إدارة رواياتك
+              إدارة أعمالك
             </h3>
             <p className="text-sm mb-6 noto-sans-arabic-medium" style={{ color: '#B8B8B8' }}>
-              للتحكم الكامل في رواياتك وتعديلها، استخدم أدوات المؤلف المخصصة
+              للتحكم الكامل في أعمالك وتعديلها، استخدم أدوات المؤلف المخصصة
             </p>
             <Link
               to="/dashboard/works"
@@ -109,10 +107,12 @@ const MyNovels = ({ userId, isOwnProfile = false }) => {
               <Book className="w-16 h-16 mx-auto mb-4" />
             </div>
             <h3 className="text-white text-xl noto-sans-arabic-extrabold mb-3">
-              {t("profilePage.myNovels.noNovelsTitle")}
+              {isOwnProfile ? "لا توجد أعمال بعد" : "لا توجد أعمال بعد"}
             </h3>
             <p className="text-sm noto-sans-arabic-medium" style={{ color: '#B8B8B8' }}>
-              {t("profilePage.myNovels.noNovelsMessage")}
+              {isOwnProfile 
+                ? "ابدأ بكتابة عملك الأول وشاركه مع القراء" 
+                : "هذا المستخدم لم ينشر أي أعمال بعد"}
             </p>
           </div>
         </div>

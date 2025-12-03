@@ -165,7 +165,13 @@ const FollowersModal = ({ isOpen, onClose, userId, initialTab = "followers" }) =
                           {user.displayName}
                         </Link>
                         <p className="text-sm text-[#B8B8B8] noto-sans-arabic-medium truncate text-right">
-                          @{user.userName}
+                          {/* Truncate username to 8 chars on mobile, full on desktop */}
+                          <span className="md:hidden">
+                            @{user.userName?.length > 12 ? `${user.userName.slice(0, 12)}...` : user.userName}
+                          </span>
+                          <span className="hidden md:inline">
+                            @{user.userName}
+                          </span>
                         </p>
                       </div>
                       {!isCurrentUser && (
