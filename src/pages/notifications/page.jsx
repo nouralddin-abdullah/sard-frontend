@@ -122,12 +122,16 @@ const NotificationsPage = () => {
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
     const newOnes = allNotifications.filter(notif => {
-      const notifDate = new Date(notif.createdAt);
+      // Ensure UTC parsing by appending 'Z' if not present
+      const dateStr = notif.createdAt?.endsWith('Z') ? notif.createdAt : notif.createdAt + 'Z';
+      const notifDate = new Date(dateStr);
       return notifDate > oneDayAgo;
     });
 
     const earlierOnes = allNotifications.filter(notif => {
-      const notifDate = new Date(notif.createdAt);
+      // Ensure UTC parsing by appending 'Z' if not present
+      const dateStr = notif.createdAt?.endsWith('Z') ? notif.createdAt : notif.createdAt + 'Z';
+      const notifDate = new Date(dateStr);
       return notifDate <= oneDayAgo;
     });
 

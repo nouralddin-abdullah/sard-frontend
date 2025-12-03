@@ -2,7 +2,12 @@ import { ArrowUpRight, Clock3, Sparkles, UsersRound } from "lucide-react";
 
 const computeLastUpdated = (works) => {
   const timestamps = works
-    .map((work) => (work?.lastUpdatedAt ? new Date(work.lastUpdatedAt) : null))
+    .map((work) => {
+      if (!work?.lastUpdatedAt) return null;
+      // Ensure UTC parsing
+      const dateStr = work.lastUpdatedAt.endsWith('Z') ? work.lastUpdatedAt : work.lastUpdatedAt + 'Z';
+      return new Date(dateStr);
+    })
     .filter((date) => date instanceof Date && !Number.isNaN(date?.getTime()));
 
   if (timestamps.length === 0) return "لا توجد تحديثات";

@@ -96,9 +96,9 @@
   },
   "profilePage": {
     "profileNav": {
-      "aboutMe": "عنى",
-      "myNovels": "روايات بقلمى",
-      "library": "قوائم القراءة",
+      "aboutMe": "عني",
+      "myWorks": "أعمالي",
+      "library": "قوائم قراءتي",
       "badges": "قاعة الشارات",
       "profileSettings": "تعديل الملف الشخصى"
     },

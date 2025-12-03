@@ -51,7 +51,7 @@ const ProfilePage = () => {
   const { t } = useTranslation();
 
   // Valid tabs - single source of truth
-  const VALID_TABS = ['about-me', 'my-novels', 'reading-lists', 'points'];
+  const VALID_TABS = ['about-me', 'my-works', 'reading-lists', 'points'];
   const DEFAULT_TAB = 'about-me';
   
   // Get current tab from URL, fallback to default if invalid
@@ -89,7 +89,7 @@ const ProfilePage = () => {
     */
   const allSubPages = [
     {
-      // Show "About Me" for own profile, "About Him" for others
+      // Show "عني" for own profile, "عنه" for others
       title: isOwnProfile 
         ? t("profilePage.profileNav.aboutMe")
         : "عنه",
@@ -98,16 +98,19 @@ const ProfilePage = () => {
       showForOthers: true, // Always visible
     },
     {
-      // Show "My Novels" for own profile, "His Novels" for others
+      // Show "أعمالي" for own profile, "أعماله" for others
       title: isOwnProfile 
-        ? t("profilePage.profileNav.myNovels")
-        : "رواياته",
-      value: "my-novels",
+        ? "أعمالي"
+        : "أعماله",
+      value: "my-works",
       isActive: false,
-      showForOthers: true, // Always visible - everyone can see user's novels
+      showForOthers: true, // Always visible - everyone can see user's works
     },
     {
-      title: t("profilePage.profileNav.library"),
+      // Show "قوائم قراءتي" for own profile, "قوائم قراءته" for others
+      title: isOwnProfile 
+        ? t("profilePage.profileNav.library")
+        : "قوائم قراءته",
       value: "reading-lists",
       isActive: false,
       showForOthers: true, // Always visible - Library component handles public/private lists internally
@@ -296,8 +299,8 @@ const ProfilePage = () => {
           isOwnProfile={isOwnProfile}
         />
       )}
-      {/* My Novels is visible to everyone */}
-      {currentTab === "my-novels" && (
+      {/* My Works is visible to everyone */}
+      {currentTab === "my-works" && (
         <MyNovels 
           userId={userData?.id} 
           isOwnProfile={isOwnProfile}

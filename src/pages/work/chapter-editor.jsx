@@ -210,7 +210,9 @@ const ChapterEditorPage = () => {
       ...prev,
       status: "idle",
       error: null,
-      lastSavedAt: chapterData.updatedAt ? new Date(chapterData.updatedAt) : prev.lastSavedAt,
+      lastSavedAt: chapterData.updatedAt 
+        ? new Date(chapterData.updatedAt.endsWith('Z') ? chapterData.updatedAt : chapterData.updatedAt + 'Z') 
+        : prev.lastSavedAt,
     }));
   }, [chapterData]);
 

@@ -9,6 +9,7 @@ import { useDeletePost } from "../../hooks/post/useDeletePost";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import AddNovelToReadingListModal from "../novel/AddNovelToReadingListModal";
 import { toast } from "sonner";
+import { getTimeAgo } from "../../utils/date";
 
 const AboutMePost = ({ 
   content, 
@@ -99,11 +100,6 @@ const AboutMePost = ({
     }
   };
 
-  const formatTime = (dateString) => {
-    // This should be replaced with proper date formatting
-    return "منذ 5 ساعات";
-  };
-
   return (
     <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg mb-6 overflow-hidden" dir="rtl">
       {/* Post Header */}
@@ -126,7 +122,7 @@ const AboutMePost = ({
                   {author?.displayName || "مستخدم"}
                 </Link>
                 <p className="text-sm text-[#B0B0B0] noto-sans-arabic-medium">
-                  {formatTime(createdAt)}
+                  {getTimeAgo(createdAt)}
                 </p>
               </div>
               {isOwnPost && (

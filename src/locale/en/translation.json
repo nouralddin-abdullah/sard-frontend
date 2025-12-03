@@ -97,8 +97,8 @@
   "profilePage": {
     "profileNav": {
       "aboutMe": "About Me",
-      "myNovels": "My Novels",
-      "library": "Reading Lists",
+      "myWorks": "My Works",
+      "library": "My Reading Lists",
       "badges": "Badges",
       "profileSettings": "Edit Profile"
     },
