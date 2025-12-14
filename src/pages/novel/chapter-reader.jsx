@@ -155,30 +155,26 @@ const ChapterReaderPage = () => {
   // Calculate reading progress and auto-load next chapter
   useEffect(() => {
     const handleScroll = () => {
-      if (contentRef.current) {
-        const element = contentRef.current;
-        const totalHeight = element.scrollHeight - element.clientHeight;
-        // Handle edge case where content fits in viewport (totalHeight = 0)
-        const progress = totalHeight > 0 ? (element.scrollTop / totalHeight) * 100 : 0;
-        setScrollProgress(Math.min(progress, 100));
-        
-        // Auto-navigate to next chapter when reaching 98% with continuous reading enabled
-        if (continueReading && progress >= 98 && nextChapterId) {
-          setTimeout(() => {
-            navigate(`/novel/${novelSlug}/chapter/${nextChapterId}`);
-          }, 500); // Small delay for better UX
-        }
+      // Use window scroll for proper mobile browser behavior
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      // Handle edge case where content fits in viewport (docHeight <= 0)
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      setScrollProgress(Math.min(progress, 100));
+      
+      // Auto-navigate to next chapter when reaching 98% with continuous reading enabled
+      if (continueReading && progress >= 98 && nextChapterId) {
+        setTimeout(() => {
+          navigate(`/novel/${novelSlug}/chapter/${nextChapterId}`);
+        }, 500); // Small delay for better UX
       }
     };
 
-    const content = contentRef.current;
-    if (content) {
-      // Calculate initial progress
-      handleScroll();
-      
-      content.addEventListener('scroll', handleScroll);
-      return () => content.removeEventListener('scroll', handleScroll);
-    }
+    // Calculate initial progress
+    handleScroll();
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [continueReading, nextChapterId, navigate, novelSlug, chapter]);
 
   // Track reading progress (only for authenticated users)
@@ -989,15 +985,11 @@ const ChapterReaderPage = () => {
       {/* Main Content */}
       <div 
         ref={contentRef}
-        className="pt-4 pb-8 px-6 overflow-y-auto overflow-x-visible custom-scrollbar transition-all duration-300"
+        className="pt-4 pb-8 px-6 transition-all duration-300"
         style={{ 
-          height: focusMode ? '100vh' : 'calc(100vh - 72px)',
-          marginTop: focusMode ? '0' : '72px',
-          fontFamily: fontFamilyMap[fontFamily],
-          overscrollBehavior: 'contain',
-          WebkitOverflowScrolling: 'touch',
-          transform: 'translateZ(0)',
-          willChange: 'scroll-position'
+          minHeight: focusMode ? '100dvh' : 'calc(100dvh - 72px)',
+          paddingTop: focusMode ? '1rem' : 'calc(72px + 1rem)',
+          fontFamily: fontFamilyMap[fontFamily]
         }}
       >
         {chapterLoading || novelLoading ? (

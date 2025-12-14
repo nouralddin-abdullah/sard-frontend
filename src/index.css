@@ -51,6 +51,19 @@ body {
   }
 }
 
+/* Dynamic viewport height fallback for older browsers */
+@supports not (min-height: 100dvh) {
+  .min-h-dvh {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Ensure proper scrolling on mobile for chapter reader */
+html, body {
+  overscroll-behavior-y: none;
+}
+
 /* Noto Sans Arabic ExtraBold 800 */
 .noto-sans-arabic-extrabold {
   font-family: "Noto Sans Arabic", sans-serif;
