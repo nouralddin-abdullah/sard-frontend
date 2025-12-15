@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo } from 'react';
+import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import { MessageSquarePlus } from 'lucide-react';
 
 const ChapterParagraph = memo(({ 
@@ -13,6 +13,8 @@ const ChapterParagraph = memo(({
   const paragraphRef = useRef(null);
   const scrollTimeoutRef = useRef(null);
   const isScrollingRef = useRef(false);
+  const lastMousePositionRef = useRef({ x: 0, y: 0 });
+  const hoverIntentTimeoutRef = useRef(null);
 
   // Clear hover state on scroll with debouncing
   useEffect(() => {
@@ -24,35 +26,121 @@ const ChapterParagraph = memo(({
         clearTimeout(scrollTimeoutRef.current);
       }
       
+      // Clear any pending hover intent
+      if (hoverIntentTimeoutRef.current) {
+        clearTimeout(hoverIntentTimeoutRef.current);
+        hoverIntentTimeoutRef.current = null;
+      }
+      
       // Immediately hide if hovering
       if (isHovered) {
         setIsHovered(false);
       }
       
-      // Reset scrolling flag after scroll ends
+      // Reset scrolling flag after scroll ends (longer delay to ensure scroll truly stopped)
       scrollTimeoutRef.current = setTimeout(() => {
         isScrollingRef.current = false;
-      }, 100);
+      }, 200);
     };
 
+    // Listen to both window scroll and any potential scroll container
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+    
+    // Also check for a scroll container
     const scrollContainer = paragraphRef.current?.closest('.overflow-y-auto');
     if (scrollContainer) {
       scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-      return () => {
+    }
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('scroll', handleScroll, { capture: true });
+      if (scrollContainer) {
         scrollContainer.removeEventListener('scroll', handleScroll);
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
-      };
+      }
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      if (hoverIntentTimeoutRef.current) {
+        clearTimeout(hoverIntentTimeoutRef.current);
+      }
+    };
+  }, [isHovered]);
+
+  // Also detect wheel events to catch scrolling before scroll event fires
+  useEffect(() => {
+    const handleWheel = () => {
+      isScrollingRef.current = true;
+      
+      if (hoverIntentTimeoutRef.current) {
+        clearTimeout(hoverIntentTimeoutRef.current);
+        hoverIntentTimeoutRef.current = null;
+      }
+      
+      if (isHovered) {
+        setIsHovered(false);
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [isHovered]);
+
+  // Handle mouse enter with hover intent - only show if mouse stays still
+  const handleMouseEnter = useCallback((e) => {
+    if (isScrollingRef.current) return;
+    
+    lastMousePositionRef.current = { x: e.clientX, y: e.clientY };
+    
+    // Clear any existing hover intent timeout
+    if (hoverIntentTimeoutRef.current) {
+      clearTimeout(hoverIntentTimeoutRef.current);
+    }
+    
+    // Delay showing the icon to ensure intentional hover
+    hoverIntentTimeoutRef.current = setTimeout(() => {
+      if (!isScrollingRef.current) {
+        setIsHovered(true);
+      }
+    }, 80);
+  }, []);
+
+  // Handle mouse move - check if mouse actually moved (not just scroll passing by)
+  const handleMouseMove = useCallback((e) => {
+    if (isScrollingRef.current) {
+      setIsHovered(false);
+      return;
+    }
+    
+    const dx = Math.abs(e.clientX - lastMousePositionRef.current.x);
+    const dy = Math.abs(e.clientY - lastMousePositionRef.current.y);
+    
+    // Only trigger hover if mouse actually moved (user intentionally moved mouse)
+    if (dx > 3 || dy > 3) {
+      lastMousePositionRef.current = { x: e.clientX, y: e.clientY };
+      
+      if (!isHovered && !hoverIntentTimeoutRef.current) {
+        hoverIntentTimeoutRef.current = setTimeout(() => {
+          if (!isScrollingRef.current) {
+            setIsHovered(true);
+          }
+          hoverIntentTimeoutRef.current = null;
+        }, 50);
+      }
     }
   }, [isHovered]);
 
-  // Handle mouse move - re-trigger hover after scroll ends
-  const handleMouseMove = () => {
-    if (!isScrollingRef.current && !isHovered) {
-      setIsHovered(true);
+  const handleMouseLeave = useCallback(() => {
+    if (hoverIntentTimeoutRef.current) {
+      clearTimeout(hoverIntentTimeoutRef.current);
+      hoverIntentTimeoutRef.current = null;
     }
-  };
+    setIsHovered(false);
+  }, []);
 
   const themeStyles = {
     dark: {
@@ -80,9 +168,9 @@ const ChapterParagraph = memo(({
     <div
       ref={paragraphRef}
       className="group relative py-3 px-0"
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Paragraph Text */}
       <p
