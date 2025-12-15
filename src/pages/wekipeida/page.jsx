@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
+import AuthRequiredModal from "../../components/common/AuthRequiredModal";
 import backgroundImage from "../../assets/wekipedia-background.jpg";
 import step1Image from "../../assets/wekepdia-step1.png";
 import step1Video from "../../assets/Timelinsde 1.mp4";
@@ -9,6 +11,17 @@ import step4Image from "../../assets/step4-entitypreview.png";
 
 const WekipeidaTutorial = () => {
   const [activeSection, setActiveSection] = useState(0);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const { data: currentUser } = useGetLoggedInUser();
+
+  const handleStartClick = () => {
+    if (currentUser) {
+      navigate("/dashboard/works");
+    } else {
+      setIsAuthModalOpen(true);
+    }
+  };
 
   useEffect(() => {
     const scrollContainer = document.querySelector('.scroll-snap-container');
@@ -207,19 +220,24 @@ const WekipeidaTutorial = () => {
                   أنت جاهز الآن
                 </h1>
               </div>
-              <a
-                href="https://wekipeida.sard.com"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={handleStartClick}
                 className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-gradient-to-r from-[#B76E4F] to-[#8B5A3C] hover:from-[#8B5A3C] hover:to-[#B76E4F] text-white text-base font-bold transition-all duration-300 transform hover:scale-105 shadow-lg shadow-[#B76E4F]/30 mt-4 noto-sans-arabic-bold"
               >
                 <span>ابدأ استكشاف ويكبيديا</span>
-              </a>
+              </button>
             </div>
           </section>
 
         </div>
       </div>
+
+      {/* Auth Required Modal */}
+      <AuthRequiredModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        actionDescription="الوصول إلى أدوات الكاتب"
+      />
     </>
   );
 };
