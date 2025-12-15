@@ -26,7 +26,8 @@ const RichTextEditor = ({
   });
   
   const isInitialMount = React.useRef(true);
-  const initialContent = React.useRef(content);
+  const initialContentRef = React.useRef(content);
+  const lastReportedContent = React.useRef(content);
 
   const editor = useEditor({
     extensions: [
@@ -88,13 +89,20 @@ const RichTextEditor = ({
       const html = editor.getHTML();
       const text = editor.getText();
       
-      // Skip the first update to prevent false "unsaved changes" on mount
+      // Only skip if this is truly the initial mount AND content hasn't actually changed
+      // This ensures paste events are captured even on first interaction
       if (isInitialMount.current) {
         isInitialMount.current = false;
-        return;
+        // Check if content actually changed from initial - if so, still call onChange
+        // This handles the case where user pastes content as their first action
+        if (html === initialContentRef.current || html === lastReportedContent.current) {
+          return;
+        }
       }
       
-      if (text.length <= maxLength) {
+      // Only call onChange if content actually changed
+      if (text.length <= maxLength && html !== lastReportedContent.current) {
+        lastReportedContent.current = html;
         onChange(html);
       }
 
@@ -119,6 +127,8 @@ const RichTextEditor = ({
     if (editor && content !== editor.getHTML()) {
       // Reset initial mount flag when content changes externally
       isInitialMount.current = true;
+      initialContentRef.current = content;
+      lastReportedContent.current = content;
       editor.commands.setContent(content || '');
     }
   }, [content, editor]);

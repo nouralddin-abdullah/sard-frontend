@@ -61,8 +61,11 @@ const UpdateUserModal = ({ userData, isOpen, onClose }) => {
         if (!value.trim()) {
           return "الاسم المعروض مطلوب";
         }
-        if (value.length > 50) {
-          return "الاسم المعروض يجب ألا يتجاوز 50 حرف";
+        if (value.length < 3) {
+          return "الاسم المعروض يجب أن يكون 3 أحرف على الأقل";
+        }
+        if (value.length > 20) {
+          return "الاسم المعروض يجب ألا يتجاوز 20 حرف";
         }
         return "";
 
