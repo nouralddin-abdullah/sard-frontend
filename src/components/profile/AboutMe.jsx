@@ -1,7 +1,7 @@
 import { BookCheckIcon, Calendar, MessageSquareText, Star, Users, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import mainPicture from "../../assets/mainPicture.jpg";
+import { DEFAULT_AVATAR_SVG } from "../common/SafeImage";
 import AboutMePost from "../common/AboutMePost";
 import CreatePostModal from "./CreatePostModal";
 import FollowersModal from "./FollowersModal";
@@ -158,7 +158,7 @@ const AboutMe = ({ userData, isOwnProfile = false }) => {
               className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-4 flex items-center gap-5 cursor-pointer hover:bg-white/10 transition-colors"
             >
               <img
-                src={userData?.profilePhoto || mainPicture}
+                src={userData?.profilePhoto || DEFAULT_AVATAR_SVG}
                 alt=""
                 className="w-14 h-14 md:w-18 md:h-18 rounded-full object-cover flex-shrink-0 aspect-square"
               />
