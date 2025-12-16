@@ -55,16 +55,16 @@ const ChapterReaderPage = () => {
   // Track if TOC was ever opened (for lazy loading chapters)
   const [tocOpened, setTocOpened] = useState(false);
   
-  // Fetch all chapters for TOC - only when TOC is opened (lazy loading)
+  // Fetch all chapters - always fetch for navigation buttons, TOC uses the same data
   const { data: allChapters = [], isLoading: chaptersLoading } = useGetNovelChapters(
     novel?.id, 
-    { enabled: tocOpened } // Only fetch when user opens TOC
+    { enabled: Boolean(novel?.id) } // Always fetch when novel is loaded
   );
   
-  // Helper to open TOC and trigger chapters fetch
+  // Helper to open TOC
   const openTOC = () => {
     setShowTOC(true);
-    setTocOpened(true); // Once opened, chapters will be fetched and cached
+    setTocOpened(true); // Track for privilege fetching
   };
   
   // Reader settings with localStorage persistence

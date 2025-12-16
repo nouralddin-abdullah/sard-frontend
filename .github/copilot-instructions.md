@@ -2,15 +2,9 @@
 
 - You are responsible for designing UI components and layouts.
 - Never stop after only providing code. Always:
-  1. Generate Playwright tests for the design you created.
-  2. Include steps to run those tests.
-  3. Assume errors will happen. Always explain possible fixes.
-- After generating code, simulate Playwright test results:
-  - If any likely errors exist (selectors, async waits, rendering issues), show fixes.
+  - I want always to make code that is efficient and good and that works robux 
   - Keep proposing corrected code until no issues remain.
 - Always assume ES module syntax (`import`) is used in this project.
-- Do not optimize for speed. Optimize for correctness, stability, and passing tests.
+- Do not optimize for speed in tasks and taking shortcuts always prefer Optimize for correctness, stability and optimal soluations 
 - Never output incomplete designs.
-- Treat every design edit as a cycle: **Design → Test → Debug → Redesign**.
-- Keep iterating logically until the design is perfect, even if it takes multiple steps.
-- Never say "done" until tests are green.
+- Treat every design edit as a cycle: **Design  → Debug → Redesign**.
