@@ -70,6 +70,8 @@ const ChapterParagraph = memo(({
 
   // Also detect wheel events to catch scrolling before scroll event fires
   useEffect(() => {
+    let wheelTimeoutRef = null;
+    
     const handleWheel = () => {
       isScrollingRef.current = true;
       
@@ -81,12 +83,23 @@ const ChapterParagraph = memo(({
       if (isHovered) {
         setIsHovered(false);
       }
+      
+      // Reset scrolling flag after wheel stops (handles edge case when at page bounds)
+      if (wheelTimeoutRef) {
+        clearTimeout(wheelTimeoutRef);
+      }
+      wheelTimeoutRef = setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 200);
     };
 
     window.addEventListener('wheel', handleWheel, { passive: true });
     
     return () => {
       window.removeEventListener('wheel', handleWheel);
+      if (wheelTimeoutRef) {
+        clearTimeout(wheelTimeoutRef);
+      }
     };
   }, [isHovered]);
 
