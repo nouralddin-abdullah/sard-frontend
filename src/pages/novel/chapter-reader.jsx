@@ -202,6 +202,33 @@ const ChapterReaderPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Handle browser back button to close panels instead of navigating
+  useEffect(() => {
+    const anyPanelOpen = showTOC || showSettings || showComments;
+    
+    // Push a dummy state when any panel opens
+    if (anyPanelOpen) {
+      window.history.pushState({ panelOpen: true }, '');
+    }
+    
+    const handlePopState = (event) => {
+      // If any panel is open, close them instead of navigating back
+      if (showTOC || showSettings || showComments) {
+        // Prevent the default navigation by pushing state back
+        event.preventDefault();
+        
+        // Close all panels
+        setShowTOC(false);
+        setShowSettings(false);
+        setShowComments(false);
+        setShowMobileMenu(false);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [showTOC, showSettings, showComments]);
+
   // Update current page when chapter changes
   useEffect(() => {
     if (currentChapterIndex >= 0) {
@@ -985,11 +1012,16 @@ const ChapterReaderPage = () => {
       {/* Main Content */}
       <div 
         ref={contentRef}
-        className="pt-4 pb-8 px-6 transition-all duration-300"
+        className="pt-4 pb-8 px-6 transition-all duration-300 select-none"
         style={{ 
           minHeight: focusMode ? '100dvh' : 'calc(100dvh - 72px)',
           paddingTop: focusMode ? '1rem' : 'calc(72px + 1rem)',
-          fontFamily: fontFamilyMap[fontFamily]
+          fontFamily: fontFamilyMap[fontFamily],
+          WebkitUserSelect: 'none',
+          MozUserSelect: 'none',
+          msUserSelect: 'none',
+          userSelect: 'none',
+          WebkitTouchCallout: 'none'
         }}
       >
         {chapterLoading || novelLoading ? (

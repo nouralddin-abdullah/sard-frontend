@@ -108,7 +108,10 @@ const HomePage = () => {
     const diff = dragRef.current.startX - clientX;
     const threshold = 50;
 
-    if (Math.abs(diff) > threshold) {
+    // Reset dragging state first
+    dragRef.current.isDragging = false;
+
+    if (Math.abs(diff) > threshold && featuredNovels.length > 0) {
       if (diff > 0) {
         // Swiped left - next (RTL: previous visually)
         setCurrentFeaturedIndex((prev) => (prev + 1) % featuredNovels.length);
@@ -118,7 +121,6 @@ const HomePage = () => {
       }
     }
 
-    dragRef.current.isDragging = false;
     // Resume auto-play after 3 seconds of no interaction
     setTimeout(() => setIsPaused(false), 3000);
   }, [featuredNovels.length]);
@@ -206,18 +208,20 @@ const HomePage = () => {
                   </div>
                 ) : (
                   <div 
-                    className="bg-[#2C2C2C] rounded-2xl p-4 md:p-8 border border-gray-700 shadow-lg relative overflow-hidden cursor-grab active:cursor-grabbing select-none"
+                    className="bg-[#2C2C2C] rounded-2xl p-4 md:p-8 border border-gray-700 shadow-lg relative overflow-hidden cursor-grab active:cursor-grabbing select-none touch-pan-y"
                     onMouseDown={handleDragStart}
                     onMouseUp={handleDragEnd}
                     onMouseLeave={(e) => { if (dragRef.current.isDragging) handleDragEnd(e); }}
                     onTouchStart={handleDragStart}
                     onTouchEnd={handleDragEnd}
+                    onTouchCancel={handleDragEnd}
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseOut={(e) => { if (!dragRef.current.isDragging && !e.currentTarget.contains(e.relatedTarget)) setIsPaused(false); }}
                   >
                     {/* Blurred Background Image */}
                     <div 
-                      className="absolute inset-0 bg-cover bg-center opacity-50 blur-lg scale-110"
+                      key={`bg-${currentFeaturedIndex}`}
+                      className="absolute inset-0 bg-cover bg-center opacity-50 blur-lg scale-110 transition-all duration-300"
                       style={{ backgroundImage: `url("${featuredNovels[currentFeaturedIndex]?.coverImageUrl}")` }}
                     />
                     
