@@ -23,8 +23,27 @@ const Header = () => {
   const queryClient = useQueryClient();
   const { deleteToken } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isContestsHovered, setIsContestsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const dropdownRef = useRef(null);
+  const contestsRef = useRef(null);
+
+  // Sample contests data - replace with actual API data
+  const ongoingContests = [
+    {
+      id: 'im-special',
+      title: 'أنا مميز',
+      image: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=300&fit=crop',
+      prize: '$800',
+      endDate: '2025-03-31',
+    },
+  ];
+
+  const upcomingContests = [
+    { id: 2, title: 'مسابقة القصة القصيرة' },
+    { id: 3, title: 'مسابقة الخيال العلمي' },
+    { id: 4, title: 'مسابقة الرومانسية' },
+  ];
 
   const unreadCount = unreadData?.unreadCount || 0;
 
@@ -207,6 +226,74 @@ const Header = () => {
             >
               المتصدرون
             </Link>
+
+            {/* Contests with Dropdown */}
+            <div 
+              className="relative"
+              ref={contestsRef}
+              onMouseEnter={() => setIsContestsHovered(true)}
+              onMouseLeave={() => setIsContestsHovered(false)}
+            >
+              <Link 
+                to="/contests" 
+                className="noto-sans-arabic-extrabold text-white text-[20px] hover:opacity-80 transition-opacity flex items-center gap-2"
+              >
+                المسابقات
+                {/* Prize Badge - Red notification style */}
+                <span className="relative flex items-center">
+                  <span className="absolute -top-3 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap shadow-lg animate-pulse">
+                    $100
+                  </span>
+                </span>
+              </Link>
+
+              {/* Contests Hover Dropdown - WebNovel Style */}
+              {isContestsHovered && (
+                <div className="absolute top-full right-0 pt-2 z-50">
+                  <div className="w-[300px] bg-[#1a1a1a] rounded-lg shadow-2xl overflow-hidden">
+                    
+                    {/* Hot Ongoing Section - Different Background */}
+                    {ongoingContests.length > 0 && (
+                      <div className="p-4 pb-3 bg-[#252525]">
+                        <p className="text-white text-xl font-bold mb-3 noto-sans-arabic-extrabold">المسابقات الجارية</p>
+                        
+                        <Link 
+                          to={`/contests/${ongoingContests[0].id}`}
+                          className="block rounded overflow-hidden group"
+                        >
+                          {/* Contest Banner Image */}
+                          <div className="relative w-full">
+                            <img 
+                              src={ongoingContests[0].image} 
+                              alt={ongoingContests[0].title}
+                              className="w-full h-auto object-cover rounded transition-transform duration-200 group-hover:opacity-90"
+                            />
+                          </div>
+                          {/* Title Below Image - Underline on hover */}
+                          <p className="text-white text-[15px] leading-5 mt-3 line-clamp-2 noto-sans-arabic-medium group-hover:underline transition-all">
+                            {ongoingContests[0].title}
+                          </p>
+                        </Link>
+                      </div>
+                    )}
+
+                    {/* Other Contests List - Blue background on hover */}
+                    <div className="px-4 pb-4 pt-3 space-y-1">
+                      {upcomingContests.map((contest) => (
+                        <Link
+                          key={contest.id}
+                          to={`/contests/${contest.id}`}
+                          className="block py-2 px-3 -mx-3 text-white text-base font-semibold noto-sans-arabic-semibold rounded-lg hover:bg-[#4A9EFF] transition-colors"
+                        >
+                          {contest.title}
+                        </Link>
+                      ))}
+                    </div>
+
+                  </div>
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* Author Tools - Before Search */}

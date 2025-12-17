@@ -143,7 +143,41 @@ const MobileNavigation = () => {
             }`}>المكتبة</p>
           </Link>
 
-          {/* Leaderboard */}
+          {/* Contests - New Position (where Leaderboard was) */}
+          <Link 
+            to="/contests"
+            className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-all"
+          >
+            <div className={`relative rounded-full px-4 py-1.5 transition-all ${
+              isActive('/contests') 
+                ? 'bg-[#4A9EFF]/20' 
+                : ''
+            }`}>
+              {/* Trophy/Award Icon for Contests */}
+              <svg 
+                width="22" 
+                height="22" 
+                viewBox="0 0 24 24" 
+                fill={isActive('/contests') ? '#4A9EFF' : 'none'}
+                stroke={isActive('/contests') ? '#4A9EFF' : '#9CA3AF'}
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="8" r="6" />
+                <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+              </svg>
+              {/* Prize Badge - Red notification style */}
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-[7px] font-bold px-1 py-0.5 rounded-full whitespace-nowrap shadow-lg animate-pulse">
+                $100
+              </span>
+            </div>
+            <p className={`text-[10px] font-medium ${
+              isActive('/contests') ? 'text-[#4A9EFF] font-semibold' : 'text-[#9CA3AF]'
+            }`}>المسابقات</p>
+          </Link>
+
+          {/* Leaderboard - New Position (where Search was) */}
           <Link 
             to="/leaderboard"
             className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-all"
@@ -174,26 +208,6 @@ const MobileNavigation = () => {
             <p className={`text-[10px] font-medium ${
               isActive('/leaderboard') ? 'text-[#4A9EFF] font-semibold' : 'text-[#9CA3AF]'
             }`}>المتصدرون</p>
-          </Link>
-
-          {/* Search */}
-          <Link 
-            to="/search"
-            className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-all"
-          >
-            <div className={`relative rounded-full px-4 py-1.5 transition-all ${
-              isActive('/search') 
-                ? 'bg-[#4A9EFF]/20' 
-                : ''
-            }`}>
-              <Search 
-                size={22} 
-                className={isActive('/search') ? 'text-[#4A9EFF]' : 'text-[#9CA3AF]'} 
-              />
-            </div>
-            <p className={`text-[10px] font-medium ${
-              isActive('/search') ? 'text-[#4A9EFF] font-semibold' : 'text-[#9CA3AF]'
-            }`}>البحث</p>
           </Link>
 
           {/* More Menu */}
@@ -271,6 +285,26 @@ const MobileNavigation = () => {
 
         {/* Navigation Links */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+          {/* Search - Moved from bottom nav */}
+          <Link
+            to="/search"
+            onClick={() => setIsDrawerOpen(false)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${
+              isActive('/search') 
+                ? 'bg-[#4A9EFF]/10 text-[#4A9EFF]' 
+                : 'text-white hover:bg-white/5'
+            }`}
+          >
+            <Search 
+              size={20} 
+              className={isActive('/search') ? 'text-[#4A9EFF]' : 'text-[#9CA3AF] group-hover:text-[#4A9EFF]'} 
+            />
+            <span className="text-sm font-medium noto-sans-arabic-medium">البحث</span>
+          </Link>
+
+          {/* Divider after Search */}
+          <div className="h-px bg-[#3C3C3C] my-3" />
+
           {/* Author Tools Section - No header text */}
           <div className="mb-4">
             <div className="space-y-1">

@@ -32,6 +32,8 @@ import HelpArticlePage from "../pages/help/article";
 import EarningsPage from "../pages/earnings/page";
 import WekipeidaTutorial from "../pages/wekipeida/page";
 import GlobalNotFoundPage from "../pages/not-found/page";
+import ContestsPage from "../pages/contests/page";
+import ImSpecialContestPage from "../pages/contests/im-special";
 
 
 const routes = [
@@ -177,6 +179,15 @@ const routes = [
   {
     url: "/metwekpeida",
     component: <WekipeidaTutorial />,
+  },
+  // Contests
+  {
+    url: "/contests",
+    component: <ContestsPage />,
+  },
+  {
+    url: "/contests/im-special",
+    component: <ImSpecialContestPage />,
   },
   // 404 catch-all route - must be last
   {
