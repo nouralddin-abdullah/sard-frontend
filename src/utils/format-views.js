@@ -1,26 +1,26 @@
 /**
- * Format view count with Arabic thousands suffix
+ * Format view count with Arabic numerals and thousands suffix
  * @param {number} views - The view count
- * @returns {string} - Formatted view count
+ * @returns {string} - Formatted view count in Arabic numerals
  * 
  * Examples:
- * 195 → "195"
- * 1956 → "1.9الف"
- * 15000 → "15الف"
- * 123456 → "123.5الف"
+ * 195 → "١٩٥"
+ * 1956 → "١٫٩الف"
+ * 15000 → "١٥الف"
+ * 123456 → "١٢٣٫٥الف"
  */
 export const formatViews = (views) => {
   if (!views || views < 1000) {
-    return views?.toString() || "0";
+    return (views || 0).toLocaleString("ar-SA");
   }
 
   const thousands = views / 1000;
   
   // If it's a whole number (like 15000 = 15K)
   if (thousands % 1 === 0) {
-    return `${thousands}الف`;
+    return `${thousands.toLocaleString("ar-SA")}الف`;
   }
   
   // Otherwise show one decimal place (like 1956 = 1.9K)
-  return `${thousands.toFixed(1)}الف`;
+  return `${parseFloat(thousands.toFixed(1)).toLocaleString("ar-SA")}الف`;
 };
