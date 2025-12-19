@@ -366,9 +366,6 @@ const MobileNavigation = () => {
                             {contest.status === 'Upcoming' ? 'قادمة' : 'جارية'}
                           </p>
                         </div>
-                        {contest.totalPrize > 0 && (
-                          <span className="text-[10px] font-bold text-yellow-400">{formatPrize(contest.totalPrize)}</span>
-                        )}
                       </Link>
                     ))}
                   </>

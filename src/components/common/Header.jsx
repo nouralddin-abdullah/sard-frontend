@@ -276,12 +276,6 @@ const Header = () => {
                               alt={activeCompetitions[0].name}
                               className="w-full h-full object-cover transition-transform duration-200 group-hover:opacity-90"
                             />
-                            {/* Prize badge on image */}
-                            {activeCompetitions[0].totalPrize > 0 && (
-                              <span className="absolute top-2 left-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                                {formatPrize(activeCompetitions[0].totalPrize)}
-                              </span>
-                            )}
                           </div>
                           {/* Title Below Image - Underline on hover */}
                           <p className="text-white text-[15px] leading-5 mt-3 line-clamp-2 noto-sans-arabic-medium group-hover:underline transition-all">

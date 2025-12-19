@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Header from '../../components/common/Header';
+import JoinCompetitionModal from '../../components/common/JoinCompetitionModal';
 import { useGetCompetition, CompetitionStatus } from '../../hooks/competition/useGetCompetition';
+import { useGetCompetitionNovels } from '../../hooks/competition/useGetCompetitionNovels';
+import { useGetMyParticipations } from '../../hooks/competition/useGetMyParticipations';
 import { 
   Trophy, 
   Calendar, 
@@ -54,59 +57,83 @@ const getStatusInfo = (status) => {
   }
 };
 
+// Import contest theme images
+import returnedMercImage from '../../assets/contest/im-special/returned-merc.png';
+import systemCheatingImage from '../../assets/contest/im-special/system-cheating.png';
+import singleSpellImage from '../../assets/contest/im-special/single-spell.png';
+import girlSoundsImage from '../../assets/contest/im-special/gril-sounds.png';
+
 // Competition themes data - "I'm Special" themed
 const competitionThemes = [
   {
     number: 1,
-    category: 'البصر',
-    categoryEn: 'Vision',
-    title: 'عالم بلا ألوان / رؤية مختلفة',
-    titleEn: 'A World Without Colors / Different Vision',
-    description: 'ماذا لو كان بطلك يرى العالم بشكل مختلف؟ شخص أعمى يشعر بالألوان، أو يرى ما لا يراه الآخرون.',
-    image: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=300&fit=crop',
+    category: 'النجاة',
+    categoryEn: 'Survival',
+    title: 'المرتزق العائد',
+    description: 'شاب كان مسافرًا مع عائلته وهو صغير، لكن الطائرة سقطت ونجا في جزيرة نائية. وجدته منظمة سرية ودربته في برنامج قاسٍ حتى أصبح مرتزقًا محترفًا. بطريقة ما عاد لأهله... كيف سيتعايش مع المدرسة الجديدة ويحمي أصدقاءه وإخوته من ماضيه الذي يطارده؟',
+    image: returnedMercImage,
   },
   {
     number: 2,
-    category: 'السمع',
-    categoryEn: 'Hearing', 
-    title: 'صمت الموسيقى / إيقاع القلب',
-    titleEn: 'The Silence of Music / Heartbeat Rhythm',
-    description: 'موسيقي أصم يشعر بالموسيقى من خلال الاهتزازات، أو شخص يسمع أصوات لا يسمعها غيره.',
-    image: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&h=300&fit=crop',
+    category: 'النظام',
+    categoryEn: 'System', 
+    title: 'أعتقد اني اغش',
+    description: 'شاب في الجيش يستيقظ فجأة ليجد نفسه يمتلك نظامًا خارقًا: كشف ما وراء الجدران، تصويب تلقائي لا يُخطئ، وقدرات لا يمكن تفسيرها. يستخدم هذا النظام ليتفوق في الحرب والمهمات المستحيلة... لكن من أين جاء هذا النظام؟ وما الثمن؟',
+    image: systemCheatingImage,
   },
   {
     number: 3,
-    category: 'العقل',
-    categoryEn: 'Mind',
-    title: 'عقل مختلف / موهبة خفية',
-    titleEn: 'A Different Mind / Hidden Talent',
-    description: 'شخص مصاب بالتوحد لديه قدرات خارقة، أو من يعاني من اضطراب نفسي يمنحه رؤية فريدة.',
-    image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop',
+    category: 'السحر',
+    categoryEn: 'Magic',
+    title: 'تعويذة واحدة',
+    description: 'في أكاديمية السحر، الجميع يتقن عشرات التعاويذ إلا هو... شاب لا يستطيع استخدام سوى تعويذة واحدة فقط. يتنمرون عليه ويظنونه الأضعف، لكنهم لا يعلمون أن تلك التعويذة الوحيدة تخفي قوة لا يتخيلها أحد.',
+    image: singleSpellImage,
   },
   {
     number: 4,
-    category: 'المظهر',
-    categoryEn: 'Appearance',
-    title: 'جمال مختلف / علامة فارقة',
-    titleEn: 'Different Beauty / A Unique Mark',
-    description: 'شعر أبيض، عيون بلونين مختلفين، وحمة غريبة... ما الذي يجعل اختلافك قوتك؟',
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=300&fit=crop',
+    category: 'الأصوات',
+    categoryEn: 'Voices',
+    title: 'همسات لا يسمعها أحد',
+    description: 'بنت تسمع أصواتًا غريبة لا يسمعها غيرها... الأطباء يقولون إنها مريضة، لكنها تكتشف أن هذه الأصوات ليست وهمًا. إنها تحذيرات، رسائل، وأحيانًا... أرواح تطلب المساعدة.',
+    image: girlSoundsImage,
   },
-];
-
-// Sample entries
-const sampleEntries = [
-  { rank: 1, title: 'عيون السماء الصامتة', author: 'نور الكاتبة', collection: 10431 },
-  { rank: 2, title: 'أصابع الضوء', author: 'أحمد الروائي', collection: 8937 },
-  { rank: 3, title: 'صدى الصمت الجميل', author: 'ليلى القصصية', collection: 8411 },
-  { rank: 4, title: 'ألوان الظلام', author: 'محمد الأديب', collection: 8111 },
 ];
 
 const ImSpecialContestPage = () => {
   const [activeTab, setActiveTab] = useState('popular');
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
   
   // Fetch competition data from API
   const { data: competition, isLoading, isError, error } = useGetCompetition('im-special');
+  
+  // Fetch competition novels/participants
+  const { 
+    data: novelsData, 
+    isLoading: isLoadingNovels 
+  } = useGetCompetitionNovels(
+    competition?.id, 
+    { 
+      sortBy: activeTab === 'popular' ? 'top' : 'newest', 
+      pageNumber: currentPage, 
+      pageSize 
+    }
+  );
+  
+  // Fetch user's participations
+  const { data: myParticipations } = useGetMyParticipations();
+  
+  // Filter participations for this competition
+  const myCompetitionEntries = myParticipations?.filter(
+    p => p.competitionId === competition?.id
+  ) || [];
+  
+  // Reset to page 1 when switching tabs
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  };
 
   // Loading state
   if (isLoading) {
@@ -183,6 +210,7 @@ const ImSpecialContestPage = () => {
           <div className="mt-10 flex gap-4 flex-wrap justify-center">
             <button 
               disabled={!competition?.canJoin}
+              onClick={() => competition?.canJoin && setIsJoinModalOpen(true)}
               className={`px-8 py-4 rounded-full font-bold text-lg flex items-center noto-sans-arabic-bold transition-all duration-200 ${
                 competition?.canJoin 
                   ? 'bg-white text-black hover:bg-white/90 hover:scale-105' 
@@ -390,7 +418,7 @@ const ImSpecialContestPage = () => {
                 {/* Content with Image */}
                 <div className="flex flex-col md:flex-row gap-4 mr-16 md:mr-20">
                   {/* Image Thumbnail */}
-                  <div className="w-full md:w-32 h-24 md:h-24 rounded-xl overflow-hidden flex-shrink-0 grayscale group-hover:grayscale-0 transition-all duration-500">
+                  <div className="w-full md:w-32 h-48 md:h-24 rounded-xl overflow-hidden flex-shrink-0 grayscale group-hover:grayscale-0 transition-all duration-500">
                     <img 
                       src={theme.image} 
                       alt={theme.title}
@@ -420,7 +448,88 @@ const ImSpecialContestPage = () => {
               </div>
             ))}
           </div>
+          
+          {/* Note about custom ideas */}
+          <p className="text-center text-gray-500 text-sm mt-6 noto-sans-arabic-medium">
+            * يمكنك استخدام أي فكرة من خيالك، المهم أن تكون متعلقة بموضوع المسابقة
+          </p>
         </section>
+
+        {/* My Participations Section - Only show if user has entries */}
+        {myCompetitionEntries.length > 0 && (
+          <section className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 rounded-3xl p-6 sm:p-8 border border-amber-500/20">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 noto-sans-arabic-extrabold text-white">
+              <Trophy className="w-5 h-5 text-amber-500" />
+              مشاركاتي في هذه المسابقة
+            </h2>
+            
+            <div className="space-y-3">
+              {myCompetitionEntries.map((entry) => (
+                <div 
+                  key={entry.novelId}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black/30 rounded-xl p-4 border border-white/5"
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    {/* Novel Cover */}
+                    {entry.novelCoverImageUrl && (
+                      <img 
+                        src={entry.novelCoverImageUrl} 
+                        alt={entry.novelTitle}
+                        className="w-12 h-16 object-cover rounded-lg flex-shrink-0 border border-white/10"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <Link 
+                        to={`/novel/${entry.novelSlug}`}
+                        className="font-bold text-white hover:text-amber-500 transition-colors truncate block noto-sans-arabic-bold"
+                      >
+                        {entry.novelTitle}
+                      </Link>
+                      <p className="text-sm text-gray-500 mt-1 noto-sans-arabic-medium">
+                        انضممت في {formatDate(entry.joinedAt)}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-6 flex-shrink-0">
+                    {/* Rank */}
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500 noto-sans-arabic-medium">الترتيب</p>
+                      <p className={`text-lg font-bold noto-sans-arabic-bold ${
+                        entry.currentRank === 1 ? 'text-amber-500' :
+                        entry.currentRank === 2 ? 'text-gray-400' :
+                        entry.currentRank === 3 ? 'text-amber-700' :
+                        'text-white'
+                      }`}>
+                        {entry.currentRank > 0 ? `#${entry.currentRank}` : '-'}
+                      </p>
+                    </div>
+                    
+                    {/* Points */}
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500 noto-sans-arabic-medium">النقاط</p>
+                      <p className="text-lg font-bold text-amber-500 noto-sans-arabic-bold">
+                        {entry.totalPoints?.toLocaleString() || 0}
+                      </p>
+                    </div>
+                    
+                    {/* Competition Views */}
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500 noto-sans-arabic-medium">المشاهدات</p>
+                      <p className="text-lg font-bold text-white/70 noto-sans-arabic-bold">
+                        {entry.competitionViews?.toLocaleString() || 0}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <p className="text-center text-gray-500 text-xs mt-4 noto-sans-arabic-medium">
+              * المشاهدات تُحسب من تاريخ انضمامك للمسابقة
+            </p>
+          </section>
+        )}
 
         {/* Contest Entries Showcase */}
         <section className="bg-[#111111] rounded-3xl p-6 sm:p-8 border border-white/5">
@@ -432,15 +541,15 @@ const ImSpecialContestPage = () => {
           <div className="flex justify-center mb-6">
             <div className="bg-black p-1 rounded-full inline-flex border border-white/10">
               <button 
-                onClick={() => setActiveTab('popular')}
+                onClick={() => handleTabChange('popular')}
                 className={`px-6 py-2 rounded-full font-medium transition-colors noto-sans-arabic-medium ${
                   activeTab === 'popular' ? 'bg-white text-black' : 'text-gray-500 hover:text-white'
                 }`}
               >
-                الأكثر قراءة
+                الأكثر نقاطاً
               </button>
               <button 
-                onClick={() => setActiveTab('newest')}
+                onClick={() => handleTabChange('newest')}
                 className={`px-6 py-2 rounded-full font-medium transition-colors noto-sans-arabic-medium ${
                   activeTab === 'newest' ? 'bg-white text-black' : 'text-gray-500 hover:text-white'
                 }`}
@@ -450,52 +559,172 @@ const ImSpecialContestPage = () => {
             </div>
           </div>
 
+          {/* Loading State */}
+          {isLoadingNovels && (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-white/50" />
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoadingNovels && (!novelsData?.items || novelsData.items.length === 0) && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 noto-sans-arabic-medium">لا توجد مشاركات حتى الآن</p>
+              {competition?.canJoin && (
+                <button 
+                  onClick={() => setIsJoinModalOpen(true)}
+                  className="mt-4 px-6 py-2 bg-white text-black rounded-full font-bold hover:bg-white/90 transition-colors noto-sans-arabic-bold"
+                >
+                  كن أول مشارك!
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Table Header */}
-          <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider border-b border-white/5 mb-2 noto-sans-arabic-medium">
-            <div className="col-span-1 text-center">الترتيب</div>
-            <div className="col-span-9">العمل / الكاتب</div>
-            <div className="col-span-2 text-left">المجموعات</div>
-          </div>
-
-          {/* Entries */}
-          <div className="space-y-2">
-            {sampleEntries.map((entry) => (
-              <div 
-                key={entry.rank}
-                className="flex flex-col md:grid md:grid-cols-12 gap-2 md:gap-4 px-4 py-3 rounded-lg hover:bg-white/5 transition-colors items-center"
-              >
-                <div className="md:col-span-1 flex items-center justify-center">
-                  <span className={`w-8 h-8 flex items-center justify-center font-bold rounded-full noto-sans-arabic-bold ${
-                    entry.rank === 1 ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30' :
-                    entry.rank === 2 ? 'bg-white/5 text-gray-400 border border-white/10' :
-                    entry.rank === 3 ? 'bg-amber-900/20 text-amber-700 border border-amber-700/30' :
-                    'text-gray-600 text-sm'
-                  }`}>
-                    {entry.rank}
-                  </span>
-                </div>
-                <div className="md:col-span-9 w-full">
-                  <Link to="#" className="font-bold text-white hover:text-white/70 text-lg md:text-base block truncate noto-sans-arabic-bold">
-                    {entry.title}
-                  </Link>
-                  <span className="text-sm text-gray-600 noto-sans-arabic-medium">{entry.author}</span>
-                </div>
-                <div className="md:col-span-2 flex justify-between md:justify-start w-full md:w-auto text-sm">
-                  <span className="md:hidden text-gray-600 noto-sans-arabic-medium">المجموعات:</span>
-                  <span className="font-mono text-white/50 font-medium">{entry.collection.toLocaleString()}</span>
-                </div>
+          {!isLoadingNovels && novelsData?.items?.length > 0 && (
+            <>
+              <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 text-xs font-bold text-gray-600 uppercase tracking-wider border-b border-white/5 mb-2 noto-sans-arabic-medium">
+                <div className="col-span-1 text-center">الترتيب</div>
+                <div className="col-span-7">العمل / الكاتب</div>
+                <div className="col-span-2 text-center">النقاط</div>
+                <div className="col-span-2 text-center">مشاهدات المسابقة</div>
               </div>
-            ))}
-          </div>
 
-          {/* Pagination */}
-          <div className="flex justify-center mt-8 gap-2">
-            <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-white text-black text-sm font-bold">1</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-500 text-sm">2</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-500 text-sm">3</button>
-            <span className="w-8 h-8 flex items-center justify-center text-gray-600">...</span>
-            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-500 text-sm">79</button>
-          </div>
+              {/* Entries */}
+              <div className="space-y-2">
+                {novelsData.items.map((entry, index) => {
+                  const rank = entry.currentRank > 0 ? entry.currentRank : (currentPage - 1) * pageSize + index + 1;
+                  return (
+                    <div 
+                      key={entry.id}
+                      className="flex flex-col md:grid md:grid-cols-12 gap-2 md:gap-4 px-4 py-3 rounded-lg hover:bg-white/5 transition-colors items-center"
+                    >
+                      {/* Rank */}
+                      <div className="md:col-span-1 flex items-center justify-center">
+                        <span className={`w-8 h-8 flex items-center justify-center font-bold rounded-full noto-sans-arabic-bold ${
+                          rank === 1 ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30' :
+                          rank === 2 ? 'bg-white/5 text-gray-400 border border-white/10' :
+                          rank === 3 ? 'bg-amber-900/20 text-amber-700 border border-amber-700/30' :
+                          'text-gray-600 text-sm'
+                        }`}>
+                          {rank}
+                        </span>
+                      </div>
+                      
+                      {/* Novel Info with Cover */}
+                      <div className="md:col-span-7 w-full flex items-center gap-3">
+                        {entry.novelCoverImageUrl && (
+                          <img 
+                            src={entry.novelCoverImageUrl} 
+                            alt={entry.novelTitle}
+                            className="w-10 h-14 object-cover rounded-md flex-shrink-0 border border-white/10"
+                          />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <Link 
+                            to={`/novel/${entry.novelSlug}`} 
+                            className="font-bold text-white hover:text-white/70 text-lg md:text-base block truncate noto-sans-arabic-bold"
+                          >
+                            {entry.novelTitle}
+                          </Link>
+                          <Link 
+                            to={`/profile/${entry.author?.userName}`}
+                            className="text-sm text-gray-500 hover:text-gray-400 noto-sans-arabic-medium"
+                          >
+                            {entry.author?.displayName || entry.author?.userName}
+                          </Link>
+                        </div>
+                      </div>
+                      
+                      {/* Points */}
+                      <div className="md:col-span-2 flex justify-between md:justify-center w-full md:w-auto text-sm">
+                        <span className="md:hidden text-gray-600 noto-sans-arabic-medium">النقاط:</span>
+                        <span className="font-mono text-amber-500 font-bold">{entry.totalPoints?.toLocaleString() || 0}</span>
+                      </div>
+                      
+                      {/* Views */}
+                      <div className="md:col-span-2 flex justify-between md:justify-center w-full md:w-auto text-sm">
+                        <span className="md:hidden text-gray-600 noto-sans-arabic-medium">مشاهدات المسابقة:</span>
+                        <span className="font-mono text-white/50 font-medium">{entry.competitionViews?.toLocaleString() || 0}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {novelsData.totalPages > 1 && (
+                <div className="flex justify-center mt-8 gap-2 flex-wrap">
+                  {/* Previous Button */}
+                  {currentPage > 1 && (
+                    <button 
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-500 text-sm"
+                    >
+                      ←
+                    </button>
+                  )}
+                  
+                  {/* Page Numbers */}
+                  {Array.from({ length: Math.min(5, novelsData.totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (novelsData.totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= novelsData.totalPages - 2) {
+                      pageNum = novelsData.totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <button 
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold ${
+                          currentPage === pageNum 
+                            ? 'bg-white text-black' 
+                            : 'hover:bg-white/10 text-gray-500'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                  
+                  {/* Ellipsis and Last Page */}
+                  {novelsData.totalPages > 5 && currentPage < novelsData.totalPages - 2 && (
+                    <>
+                      <span className="w-8 h-8 flex items-center justify-center text-gray-600">...</span>
+                      <button 
+                        onClick={() => setCurrentPage(novelsData.totalPages)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-500 text-sm"
+                      >
+                        {novelsData.totalPages}
+                      </button>
+                    </>
+                  )}
+                  
+                  {/* Next Button */}
+                  {currentPage < novelsData.totalPages && (
+                    <button 
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-500 text-sm"
+                    >
+                      →
+                    </button>
+                  )}
+                </div>
+              )}
+              
+              {/* Total Count */}
+              <p className="text-center text-gray-600 text-sm mt-4 noto-sans-arabic-medium">
+                إجمالي المشاركات: {novelsData.totalItemsCount?.toLocaleString() || 0}
+              </p>
+            </>
+          )}
         </section>
 
       </main>
@@ -503,12 +732,23 @@ const ImSpecialContestPage = () => {
       {/* Floating Join Button */}
       {competition?.canJoin && (
         <div className="fixed bottom-20 md:bottom-6 left-6 z-50">
-          <button className="w-16 h-16 rounded-full bg-white text-black shadow-2xl flex flex-col items-center justify-center hover:scale-110 transition-transform duration-200 border-2 border-white/20">
+          <button 
+            onClick={() => setIsJoinModalOpen(true)}
+            className="w-16 h-16 rounded-full bg-white text-black shadow-2xl flex flex-col items-center justify-center hover:scale-110 transition-transform duration-200 border-2 border-white/20"
+          >
             <span className="font-black text-xs leading-none noto-sans-arabic-bold">شارك</span>
             <span className="font-black text-xs leading-none noto-sans-arabic-bold">الآن</span>
           </button>
         </div>
       )}
+
+      {/* Join Competition Modal */}
+      <JoinCompetitionModal 
+        isOpen={isJoinModalOpen} 
+        onClose={() => setIsJoinModalOpen(false)} 
+        competitionId={competition?.id} 
+        competitionName={competition?.name} 
+      />
 
       {/* Footer Spacer */}
       <div className="h-20 md:h-0" />
