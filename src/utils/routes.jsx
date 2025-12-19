@@ -32,8 +32,10 @@ import HelpArticlePage from "../pages/help/article";
 import EarningsPage from "../pages/earnings/page";
 import WekipeidaTutorial from "../pages/wekipeida/page";
 import GlobalNotFoundPage from "../pages/not-found/page";
-import ContestsPage from "../pages/contests/page";
 import ImSpecialContestPage from "../pages/contests/im-special";
+import JudgingCriteriaPage from "../pages/contests/judging-criteria";
+import WinningRulesPage from "../pages/contests/winning-rules";
+import ImportantNotesPage from "../pages/contests/important-notes";
 
 
 const routes = [
@@ -180,14 +182,23 @@ const routes = [
     url: "/metwekpeida",
     component: <WekipeidaTutorial />,
   },
-  // Contests
-  {
-    url: "/contests",
-    component: <ContestsPage />,
-  },
+  // Contests - Individual competition pages at /contests/{slug}
   {
     url: "/contests/im-special",
     component: <ImSpecialContestPage />,
+  },
+  // Contests - Shared pages (judging criteria, winning rules, important notes)
+  {
+    url: "/contests/judging-criteria",
+    component: <JudgingCriteriaPage />,
+  },
+  {
+    url: "/contests/winning-rules",
+    component: <WinningRulesPage />,
+  },
+  {
+    url: "/contests/important-notes",
+    component: <ImportantNotesPage />,
   },
   // 404 catch-all route - must be last
   {

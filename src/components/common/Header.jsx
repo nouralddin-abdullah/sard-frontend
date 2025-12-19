@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User as UserIconLucide, LogOut, ChevronDown, Bell } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
 import { useGetUnreadCount } from '../../hooks/notification/useGetUnreadCount';
+import { useGetActiveCompetitions, CompetitionStatus } from '../../hooks/competition/useGetCompetitions';
 import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '../../store/authTokenStore';
 import SearchBar from './SearchBar';
@@ -28,22 +29,19 @@ const Header = () => {
   const dropdownRef = useRef(null);
   const contestsRef = useRef(null);
 
-  // Sample contests data - replace with actual API data
-  const ongoingContests = [
-    {
-      id: 'im-special',
-      title: 'أنا مميز',
-      image: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=300&fit=crop',
-      prize: '$800',
-      endDate: '2025-03-31',
-    },
-  ];
+  // Fetch competitions from API (cached for 1 hour)
+  const { 
+    activeCompetitions, 
+    completedCompetitions, 
+    totalActivePrize,
+    isLoading: isLoadingCompetitions 
+  } = useGetActiveCompetitions();
 
-  const upcomingContests = [
-    { id: 2, title: 'مسابقة القصة القصيرة' },
-    { id: 3, title: 'مسابقة الخيال العلمي' },
-    { id: 4, title: 'مسابقة الرومانسية' },
-  ];
+  // Format prize for display
+  const formatPrize = (amount) => {
+    if (!amount) return null;
+    return amount >= 1000 ? `$${(amount / 1000).toFixed(amount % 1000 === 0 ? 0 : 1)}k` : `$${amount}`;
+  };
 
   const unreadCount = unreadData?.unreadCount || 0;
 
@@ -234,61 +232,102 @@ const Header = () => {
               onMouseEnter={() => setIsContestsHovered(true)}
               onMouseLeave={() => setIsContestsHovered(false)}
             >
-              <Link 
-                to="/contests" 
+              <button 
                 className="noto-sans-arabic-extrabold text-white text-[20px] hover:opacity-80 transition-opacity flex items-center gap-2"
               >
                 المسابقات
-                {/* Prize Badge - Red notification style */}
-                <span className="relative flex items-center">
-                  <span className="absolute -top-3 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap shadow-lg animate-pulse">
-                    $100
+                {/* Prize Badge - Red notification style - shows total active prize */}
+                {totalActivePrize > 0 && (
+                  <span className="relative flex items-center">
+                    <span className="absolute -top-3 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap shadow-lg animate-pulse">
+                      {formatPrize(totalActivePrize)}
+                    </span>
                   </span>
-                </span>
-              </Link>
+                )}
+              </button>
 
               {/* Contests Hover Dropdown - WebNovel Style */}
               {isContestsHovered && (
                 <div className="absolute top-full right-0 pt-2 z-50">
                   <div className="w-[300px] bg-[#1a1a1a] rounded-lg shadow-2xl overflow-hidden">
                     
-                    {/* Hot Ongoing Section - Different Background */}
-                    {ongoingContests.length > 0 && (
+                    {/* Loading State */}
+                    {isLoadingCompetitions && (
+                      <div className="p-4 text-center text-gray-400">
+                        <div className="animate-spin w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full mx-auto"></div>
+                      </div>
+                    )}
+
+                    {/* Featured Contest Section - Shows first active contest with image */}
+                    {!isLoadingCompetitions && activeCompetitions.length > 0 && (
                       <div className="p-4 pb-3 bg-[#252525]">
-                        <p className="text-white text-xl font-bold mb-3 noto-sans-arabic-extrabold">المسابقات الجارية</p>
+                        <p className="text-white text-xl font-bold mb-3 noto-sans-arabic-extrabold">
+                          {activeCompetitions[0].status === CompetitionStatus.Upcoming ? 'مسابقة قادمة' : 'المسابقات الجارية'}
+                        </p>
                         
                         <Link 
-                          to={`/contests/${ongoingContests[0].id}`}
+                          to={`/contests/${activeCompetitions[0].slug || activeCompetitions[0].id}`}
                           className="block rounded overflow-hidden group"
                         >
                           {/* Contest Banner Image */}
-                          <div className="relative w-full">
+                          <div className="relative w-full h-40 overflow-hidden rounded">
                             <img 
-                              src={ongoingContests[0].image} 
-                              alt={ongoingContests[0].title}
-                              className="w-full h-auto object-cover rounded transition-transform duration-200 group-hover:opacity-90"
+                              src={activeCompetitions[0].imageUrl} 
+                              alt={activeCompetitions[0].name}
+                              className="w-full h-full object-cover transition-transform duration-200 group-hover:opacity-90"
                             />
+                            {/* Prize badge on image */}
+                            {activeCompetitions[0].totalPrize > 0 && (
+                              <span className="absolute top-2 left-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                                {formatPrize(activeCompetitions[0].totalPrize)}
+                              </span>
+                            )}
                           </div>
                           {/* Title Below Image - Underline on hover */}
                           <p className="text-white text-[15px] leading-5 mt-3 line-clamp-2 noto-sans-arabic-medium group-hover:underline transition-all">
-                            {ongoingContests[0].title}
+                            {activeCompetitions[0].name}
                           </p>
                         </Link>
                       </div>
                     )}
 
-                    {/* Other Contests List - Blue background on hover */}
-                    <div className="px-4 pb-4 pt-3 space-y-1">
-                      {upcomingContests.map((contest) => (
-                        <Link
-                          key={contest.id}
-                          to={`/contests/${contest.id}`}
-                          className="block py-2 px-3 -mx-3 text-white text-base font-semibold noto-sans-arabic-semibold rounded-lg hover:bg-[#4A9EFF] transition-colors"
-                        >
-                          {contest.title}
-                        </Link>
-                      ))}
-                    </div>
+                    {/* Other Active Contests List - Blue background on hover */}
+                    {!isLoadingCompetitions && activeCompetitions.length > 1 && (
+                      <div className="px-4 pb-4 pt-3 space-y-1">
+                        {activeCompetitions.slice(1).map((contest) => (
+                          <Link
+                            key={contest.id}
+                            to={`/contests/${contest.slug || contest.id}`}
+                            className="block py-2 px-3 -mx-3 text-white text-base font-semibold noto-sans-arabic-semibold rounded-lg hover:bg-[#4A9EFF] transition-colors"
+                          >
+                            {contest.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Completed Contests at bottom */}
+                    {!isLoadingCompetitions && completedCompetitions.length > 0 && (
+                      <div className="px-4 pb-4 pt-2 border-t border-[#3C3C3C]">
+                        <p className="text-gray-500 text-xs mb-2 noto-sans-arabic-medium">منتهية</p>
+                        {completedCompetitions.slice(0, 3).map((contest) => (
+                          <Link
+                            key={contest.id}
+                            to={`/contests/${contest.slug || contest.id}`}
+                            className="block py-1.5 px-3 -mx-3 text-gray-400 text-sm noto-sans-arabic-medium rounded-lg hover:bg-[#3C3C3C] hover:text-white transition-colors"
+                          >
+                            {contest.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Empty state */}
+                    {!isLoadingCompetitions && activeCompetitions.length === 0 && completedCompetitions.length === 0 && (
+                      <div className="p-4 text-center text-gray-400 noto-sans-arabic-medium">
+                        لا توجد مسابقات حالياً
+                      </div>
+                    )}
 
                   </div>
                 </div>
