@@ -173,9 +173,12 @@ const NovelPage = () => {
           property="og:description"
           content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? "..." : "")}
         />
-        <meta property="og:image" content={novel.coverImageUrl} />
+        <meta property="og:image" content={`https://www.sardnovels.com/api/og/novel/${novelSlug}`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:url" content={`https://www.sardnovels.com/novel/${novelSlug}`} />
         <meta property="og:locale" content="ar_AR" />
+        <meta property="og:site_name" content="سرد" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -184,7 +187,7 @@ const NovelPage = () => {
           name="twitter:description"
           content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? "..." : "")}
         />
-        <meta name="twitter:image" content={novel.coverImageUrl} />
+        <meta name="twitter:image" content={`https://www.sardnovels.com/api/og/novel/${novelSlug}`} />
 
         <link rel="canonical" href={`https://www.sardnovels.com/novel/${novelSlug}`} />
 

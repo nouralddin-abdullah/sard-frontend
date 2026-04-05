@@ -358,9 +358,12 @@ const ChapterReaderPage = () => {
         <meta property="og:type" content="article" />
         <meta property="og:title" content={`${chapter?.title || 'الفصل'} - ${novel?.title || 'رواية'}`} />
         <meta property="og:description" content={`اقرأ ${chapter?.title || 'الفصل'} من رواية ${novel?.title || ''}`} />
-        <meta property="og:image" content={novel?.coverImageUrl || ''} />
+        <meta property="og:image" content={`https://www.sardnovels.com/api/og/novel/${novelSlug}`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:url" content={`https://www.sardnovels.com/novel/${novelSlug}/chapter/${chapterId}`} />
         <meta property="og:locale" content="ar_AR" />
+        <meta property="og:site_name" content="سرد" />
         <meta property="article:author" content={novel?.author?.displayName || ''} />
         <meta property="article:published_time" content={chapter?.createdAt || ''} />
         
@@ -368,7 +371,7 @@ const ChapterReaderPage = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${chapter?.title || 'الفصل'} - ${novel?.title || 'رواية'}`} />
         <meta name="twitter:description" content={`اقرأ ${chapter?.title || 'الفصل'} من رواية ${novel?.title || ''}`} />
-        <meta name="twitter:image" content={novel?.coverImageUrl || ''} />
+        <meta name="twitter:image" content={`https://www.sardnovels.com/api/og/novel/${novelSlug}`} />
         
         {/* Canonical URL */}
         <link rel="canonical" href={`https://www.sardnovels.com/novel/${novelSlug}/chapter/${chapterId}`} />
