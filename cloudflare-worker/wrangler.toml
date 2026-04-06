@@ -14,3 +14,7 @@ zone_name = "sardnovels.com"
 [[routes]]
 pattern = "www.sardnovels.com/api/og/*"
 zone_name = "sardnovels.com"
+
+[[routes]]
+pattern = "www.sardnovels.com/sitemap.xml"
+zone_name = "sardnovels.com"

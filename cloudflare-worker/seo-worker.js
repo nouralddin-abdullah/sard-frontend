@@ -7,6 +7,11 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     
+    // ─── Dynamic Sitemap Route ───
+    if (url.pathname === '/sitemap.xml') {
+      return handleSitemap(url, env);
+    }
+    
     // Handle static assets (images, icons, etc.) - pass through directly
     const isStaticAsset = /\.(ico|png|jpg|jpeg|gif|svg|webp|css|js|woff|woff2|ttf|eot|json|xml|txt)$/i.test(url.pathname);
     
@@ -343,4 +348,68 @@ function translateGenre(genre) {
     'FanFiction': 'فان فيكشن',
   };
   return genreMap[genre] || genre;
+}
+
+// ─── Dynamic Sitemap Generation ───
+async function handleSitemap(url, env) {
+  const cacheKey = new Request(url.toString(), { method: 'GET' });
+  const cache = caches.default;
+  
+  let cached = await cache.match(cacheKey);
+  if (cached) {
+    console.log('Serving sitemap from cache');
+    return cached;
+  }
+  
+  try {
+    const response = await fetch(`${env.API_URL}/api/novel?pageNumber=1&pageSize=1000`);
+    if (!response.ok) throw new Error(`API returned status: ${response.status}`);
+    const data = await response.json();
+    const novels = data.items || [];
+    
+    const BASE_URL = 'https://www.sardnovels.com';
+    const staticPages = [
+      { url: '', priority: '1.0', changefreq: 'daily' },
+      { url: '/home', priority: '0.9', changefreq: 'daily' },
+      { url: '/leaderboard', priority: '0.7', changefreq: 'weekly' },
+    ];
+    
+    const staticUrls = staticPages.map(page => `
+  <url>
+    <loc>${BASE_URL}${page.url}</loc>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>`).join('');
+    
+    const novelUrls = novels.map(novel => `
+  <url>
+    <loc>${BASE_URL}/novel/${novel.slug}</loc>
+    <lastmod>${new Date(novel.updatedAt || novel.createdAt).toISOString()}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('');
+    
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${staticUrls}
+  ${novelUrls}
+</urlset>`;
+    
+    const res = new Response(sitemap, {
+      headers: {
+        'Content-Type': 'application/xml; charset=utf-8',
+        'Cache-Control': 'public, max-age=7200',
+        'X-Rendered-By': 'Cloudflare-Worker'
+      }
+    });
+    
+    await cache.put(cacheKey, res.clone());
+    return res;
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+    return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>', {
+      status: 500,
+      headers: { 'Content-Type': 'application/xml' }
+    });
+  }
 }
