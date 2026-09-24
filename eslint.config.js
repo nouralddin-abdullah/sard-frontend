@@ -5,7 +5,8 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // Build output and local tool state, anywhere in the repo (e.g. cloudflare-worker/dist, cloudflare-worker/.wrangler).
+  globalIgnores(['**/dist', '**/.wrangler', 'test-results', 'playwright-report']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
