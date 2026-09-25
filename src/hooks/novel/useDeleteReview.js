@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { BASE_URL } from "../../constants/base-url";
 import { TOKEN_KEY } from "../../constants/token-key";
+import { invalidateNovelDetails } from "./invalidateNovelDetails";
 
 const deleteReview = async (novelId) => {
 	if (!novelId) throw new Error("Missing novel identifier");
@@ -38,7 +39,7 @@ export const useDeleteReview = () => {
 			if (novelId) {
 				queryClient.invalidateQueries({ queryKey: ["novel-reviews", novelId] });
 				// Also invalidate novel details to update rating stats
-				queryClient.invalidateQueries({ queryKey: ["novel", novelId] });
+				invalidateNovelDetails(queryClient, novelId);
 			}
 		},
 	});
