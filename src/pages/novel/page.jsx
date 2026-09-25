@@ -157,7 +157,7 @@ const NovelPage = () => {
     <>
       {/* SEO Meta Tags */}
       <Helmet>
-        <title>{novel.title} - سرد | منصة الروايات العربية</title>
+        <title>{`${novel.title} - سرد | منصة الروايات العربية`}</title>
         <meta
           name="description"
           content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? "..." : "")}

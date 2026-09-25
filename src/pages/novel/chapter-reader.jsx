@@ -358,7 +358,7 @@ const ChapterReaderPage = () => {
   return (
     <div className="relative" style={{ backgroundColor: currentTheme.bg }} dir="rtl">
       <Helmet>
-        <title>{chapter?.title || 'الفصل'} - {novel?.title || 'رواية'} | سرد</title>
+        <title>{`${chapter?.title || 'الفصل'} - ${novel?.title || 'رواية'} | سرد`}</title>
         <meta 
           name="description" 
           content={`اقرأ ${chapter?.title || 'الفصل'} من رواية ${novel?.title || ''} بقلم ${novel?.author?.displayName || ''}. ${chapter?.content?.substring(0, 120) || ''}...`}
