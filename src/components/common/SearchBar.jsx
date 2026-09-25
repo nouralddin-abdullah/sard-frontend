@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useSearchSuggestions } from "../../hooks/search/useSearchSuggestions";
 
 const SearchBar = ({ className = "" }) => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
   const searchRef = useRef(null);
 
-  const { data: suggestions = [], isLoading } = useSearchSuggestions(debouncedQuery);
+  const { data: suggestions = [], isLoading, isError } = useSearchSuggestions(debouncedQuery);
 
   // Debounce search input
   useEffect(() => {
@@ -92,11 +94,16 @@ const SearchBar = ({ className = "" }) => {
       </form>
 
       {/* Suggestions Dropdown */}
-      {showSuggestions && debouncedQuery.trim().length >= 3 && (
+      {showSuggestions && debouncedQuery.trim().length >= 2 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-[#2C2C2C] rounded-xl shadow-2xl overflow-hidden z-50 border border-gray-700">
           {isLoading ? (
             <div className="p-4 text-center text-gray-400 noto-sans-arabic-medium">
               جاري البحث...
+            </div>
+          ) : isError ? (
+            // A failed request is not "no results": say so, so an outage can't pass for an empty catalogue.
+            <div className="p-4 text-center text-red-400 noto-sans-arabic-medium" role="alert" dir="auto">
+              {t("search.suggestionsError")}
             </div>
           ) : suggestions.length > 0 ? (
             <>

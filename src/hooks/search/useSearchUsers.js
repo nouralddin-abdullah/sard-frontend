@@ -1,31 +1,30 @@
 import { useQuery } from "@tanstack/react-query";
+import Cookies from "js-cookie";
 import { BASE_URL } from "../../constants/base-url";
+import { TOKEN_KEY } from "../../constants/token-key";
 
-export const useSearchUsers = ({ query, pageNumber = 1, pageSize = 20 }) => {
+export const useSearchUsers = ({ query, pageNumber = 1, pageSize = 20, enabled = true }) => {
+  const trimmedQuery = query?.trim() ?? "";
+  // Signed in, the API also says whom the caller already follows (isFollowing), so the key depends on it.
+  const accessToken = Cookies.get(TOKEN_KEY);
+
   return useQuery({
-    queryKey: ["searchUsers", query, pageNumber, pageSize],
+    queryKey: ["searchUsers", trimmedQuery, pageNumber, pageSize, !!accessToken],
     queryFn: async () => {
-      if (!query || query.trim().length === 0) {
-        return {
-          items: [],
-          totalPages: 0,
-          totalItemsCount: 0,
-          itemsFrom: 0,
-          itemsTo: 0,
-        };
-      }
-
       const params = new URLSearchParams({
-        query: query.trim(),
+        query: trimmedQuery,
         pageNumber: pageNumber.toString(),
         pageSize: pageSize.toString(),
       });
 
+      const headers = { accept: "*/*" };
+      if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
+      }
+
       const response = await fetch(`${BASE_URL}/api/search/users?${params}`, {
         method: "GET",
-        headers: {
-          accept: "*/*",
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -35,6 +34,6 @@ export const useSearchUsers = ({ query, pageNumber = 1, pageSize = 20 }) => {
       return response.json();
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
-    enabled: query.trim().length > 0,
+    enabled: enabled && trimmedQuery.length > 0,
   });
 };
