@@ -28,6 +28,8 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
 import "swiper/css/effect-cards";
+import NovelCover from "../../components/common/NovelCover";
+import { coverThumbnailUrl } from "../../utils/cover-image";
 
 const HomePage = () => {
   const [mounted, setMounted] = useState(false);
@@ -222,16 +224,19 @@ const HomePage = () => {
                     <div 
                       key={`bg-${currentFeaturedIndex}`}
                       className="absolute inset-0 bg-cover bg-center opacity-50 blur-lg scale-110 transition-all duration-300"
-                      style={{ backgroundImage: `url("${featuredNovels[currentFeaturedIndex]?.coverImageUrl}")` }}
+                      style={{ backgroundImage: featuredNovels[currentFeaturedIndex]?.coverImageUrl ? `url("${coverThumbnailUrl(featuredNovels[currentFeaturedIndex].coverImageUrl)}")` : undefined }}
                     />
                     
                     {/* Content */}
                     <div className="relative z-10 flex flex-row items-stretch gap-4 md:gap-8 w-full">
                       <Link to={`/novel/${featuredNovels[currentFeaturedIndex]?.slug}`} className="w-28 md:w-40 flex-shrink-0">
-                        <img 
+                        <NovelCover
                           src={featuredNovels[currentFeaturedIndex]?.coverImageUrl}
-                          alt={featuredNovels[currentFeaturedIndex]?.title}
-                          className="w-full h-40 md:h-56 object-cover rounded-xl shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
+                          title={featuredNovels[currentFeaturedIndex]?.title}
+                          priority
+                          rounded="rounded-xl"
+                          className="w-full shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
+                          sizes="(min-width: 768px) 160px, 112px"
                         />
                       </Link>
                       
@@ -354,14 +359,14 @@ const HomePage = () => {
                       className="group flex-shrink-0"
                       style={{ scrollSnapAlign: 'start', width: '120px' }}
                     >
-                      <div className="relative rounded-lg overflow-hidden mb-2 shadow-lg transition-transform duration-300 group-hover:scale-105" style={{ width: '120px', height: '180px' }}>
-                        <img
-                          src={novel.coverImageUrl}
-                          alt={novel.title}
-                          className="w-full h-full object-cover"
-                        />
+                      <NovelCover
+                        src={novel.coverImageUrl}
+                        title={novel.title}
+                        className="mb-2 w-[120px] shadow-lg transition-transform duration-300 group-hover:scale-105"
+                        sizes="120px"
+                      >
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
+                      </NovelCover>
                       <h3 className="text-white text-xs noto-sans-arabic-bold line-clamp-2 text-center">
                         {novel.title}
                       </h3>
@@ -377,14 +382,14 @@ const HomePage = () => {
                       to={`/novel/${novel.slug}`}
                       className="group w-full max-w-[160px]"
                     >
-                      <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-3 shadow-lg transition-transform duration-300 group-hover:scale-105">
-                        <img
-                          src={novel.coverImageUrl}
-                          alt={novel.title}
-                          className="w-full h-full object-cover"
-                        />
+                      <NovelCover
+                        src={novel.coverImageUrl}
+                        title={novel.title}
+                        className="mb-3 w-full shadow-lg transition-transform duration-300 group-hover:scale-105"
+                        sizes="160px"
+                      >
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
+                      </NovelCover>
                       <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 mb-2 text-center">
                         {novel.title}
                       </h3>
@@ -417,14 +422,14 @@ const HomePage = () => {
                     className="group flex-shrink-0"
                     style={{ scrollSnapAlign: 'start', width: '120px' }}
                   >
-                    <div className="relative rounded-lg overflow-hidden mb-2 shadow-lg transition-transform duration-300 group-hover:scale-105" style={{ width: '120px', height: '180px' }}>
-                      <img
-                        src={novel.coverImageUrl}
-                        alt={novel.title}
-                        className="w-full h-full object-cover"
-                      />
+                    <NovelCover
+                      src={novel.coverImageUrl}
+                      title={novel.title}
+                      className="mb-2 w-[120px] shadow-lg transition-transform duration-300 group-hover:scale-105"
+                      sizes="120px"
+                    >
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
+                    </NovelCover>
                     <h3 className="text-white text-xs noto-sans-arabic-bold line-clamp-2 text-center">
                       {novel.title}
                     </h3>
@@ -440,14 +445,14 @@ const HomePage = () => {
                     to={`/novel/${novel.slug}`}
                     className="group w-full max-w-[160px]"
                   >
-                    <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-3 shadow-lg transition-transform duration-300 group-hover:scale-105">
-                      <img
-                        src={novel.coverImageUrl}
-                        alt={novel.title}
-                        className="w-full h-full object-cover"
-                      />
+                    <NovelCover
+                      src={novel.coverImageUrl}
+                      title={novel.title}
+                      className="mb-3 w-full shadow-lg transition-transform duration-300 group-hover:scale-105"
+                      sizes="160px"
+                    >
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
+                    </NovelCover>
                     <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 mb-2 text-center">
                       {novel.title}
                     </h3>
@@ -487,16 +492,13 @@ const HomePage = () => {
                             ? "ring-1 ring-[#4A9EFF] scale-105"
                             : "hover:scale-105 hover:ring-1 hover:ring-gray-600"
                         }`}
-                        style={{ width: "120px", height: "180px" }}
+                        style={{ width: "120px" }}
                       >
-                        <img
-                          src={novel.coverImageUrl}
-                          alt={novel.title}
-                          className="w-full h-full object-cover"
-                        />
-                        {selectedArrival?.id === novel.id && (
-                          <div className="absolute inset-0 border border-[#4A9EFF]" />
-                        )}
+                        <NovelCover src={novel.coverImageUrl} title={novel.title} rounded="rounded-2xl" className="w-full" sizes="120px">
+                          {selectedArrival?.id === novel.id && (
+                            <div className="absolute inset-0 rounded-2xl border border-[#4A9EFF]" />
+                          )}
+                        </NovelCover>
                       </button>
                     ))}
                   </div>
@@ -508,13 +510,13 @@ const HomePage = () => {
                     <div className="flex flex-col md:flex-row gap-6 p-6">
                       {/* Large Cover Image */}
                       <div className="flex-shrink-0 mx-auto md:mx-0">
-                        <div className="w-48 h-72 rounded-xl overflow-hidden border-2 border-gray-700 shadow-2xl">
-                          <img
-                            src={selectedArrival.coverImageUrl}
-                            alt={selectedArrival.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
+                        <NovelCover
+                          src={selectedArrival.coverImageUrl}
+                          title={selectedArrival.title}
+                          rounded="rounded-xl"
+                          className="w-48 border-2 border-gray-700 shadow-2xl"
+                          sizes="192px"
+                        />
                       </div>
 
                       {/* Novel Info */}
@@ -600,13 +602,14 @@ const HomePage = () => {
                   <Link key={novel.novelId} to={`/novel/${novel.slug}/chapter/${novel.lastReadChapterId}`}>
                     <div className="group relative bg-[#2C2C2C] rounded-2xl overflow-hidden border border-gray-700 hover:border-[#4A9EFF] transition-all duration-300 shadow-lg hover:shadow-blue-500/20">
                       <div className="flex gap-4 p-4">
-                        <div className="w-32 h-44 rounded-xl overflow-hidden flex-shrink-0 border border-slate-700/50">
-                          <img
-                            src={novel.coverImageUrl}
-                            alt={novel.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                        </div>
+                        <NovelCover
+                          src={novel.coverImageUrl}
+                          title={novel.title}
+                          rounded="rounded-xl"
+                          className="w-28 flex-shrink-0 self-start border border-slate-700/50"
+                          imgClassName="group-hover:scale-110 transition-transform duration-500"
+                          sizes="112px"
+                        />
                         <div className="flex-1 space-y-3">
                           <h3 className="text-xl font-bold text-white noto-sans-arabic-bold group-hover:text-[#4A9EFF] transition-colors line-clamp-2">
                             {novel.title}
@@ -689,22 +692,22 @@ const HomePage = () => {
                       <SwiperSlide key={novel.id} style={{ width: '120px', height: 'auto' }}>
                         <Link to={`/novel/${novel.slug}`} className="block">
                           <div className="group relative">
-                            {/* Cover Image with 3:4 aspect ratio like Trending Now */}
-                            <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-3 shadow-lg transition-transform duration-300 group-hover:scale-105">
-                              <img
-                                src={novel.coverImageUrl}
-                                alt={novel.title}
-                                className="w-full h-full object-cover"
-                              />
+                            {/* Cover in the site-wide 2:3 frame */}
+                            <NovelCover
+                              src={novel.coverImageUrl}
+                              title={novel.title}
+                              className="mb-3 w-full shadow-lg transition-transform duration-300 group-hover:scale-105"
+                              sizes="120px"
+                            >
                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                              
+
                               {/* Rank Badge */}
-                              <div className="absolute top-1.5 right-1.5 px-2 py-0.5 bg-[#4A9EFF] backdrop-blur-sm rounded-md">
+                              <div className="absolute top-1.5 start-1.5 px-2 py-0.5 bg-[#4A9EFF] backdrop-blur-sm rounded-md">
                                 <span className="text-[10px] font-bold text-white noto-sans-arabic-bold">
                                   #{section.data.items.indexOf(novel) + 1}
                                 </span>
                               </div>
-                            </div>
+                            </NovelCover>
 
                             {/* Novel Title */}
                             <h3 className="text-white text-sm noto-sans-arabic-bold line-clamp-2 text-center">

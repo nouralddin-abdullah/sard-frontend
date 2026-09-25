@@ -34,6 +34,7 @@ import SendGiftModal from "../../components/novel/SendGiftModal";
 import ShareModal from "../../components/common/ShareModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import UnlockPrivilegeModal from "../../components/novel/UnlockPrivilegeModal";
+import { coverThumbnailUrl, encodeImageUrl, novelShareImageUrl } from "../../utils/cover-image";
 
 const NovelPage = () => {
   const { t } = useTranslation();
@@ -156,7 +157,7 @@ const NovelPage = () => {
     <>
       {/* SEO Meta Tags */}
       <Helmet>
-        <title>{novel.title} - سرد | منصة الروايات العربية</title>
+        <title>{`${novel.title} - سرد | منصة الروايات العربية`}</title>
         <meta
           name="description"
           content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? "..." : "")}
@@ -168,26 +169,28 @@ const NovelPage = () => {
 
         {/* Open Graph */}
         <meta property="og:type" content="book" />
-        <meta property="og:title" content={`${novel.title} - ${novel.author.displayName}`} />
+        <meta property="og:title" content={`${novel.title.trim()} - ${novel.author.displayName.trim()}`} />
         <meta
           property="og:description"
           content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? "..." : "")}
         />
-        <meta property="og:image" content={`https://www.sardnovels.com/api/og/novel/${novelSlug}`} />
+        <meta property="og:image" content={novelShareImageUrl(novelSlug, novel.coverImageUrl)} />
+        <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={`غلاف رواية ${novel.title}`} />
         <meta property="og:url" content={`https://www.sardnovels.com/novel/${novelSlug}`} />
         <meta property="og:locale" content="ar_AR" />
         <meta property="og:site_name" content="سرد" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${novel.title} - ${novel.author.displayName}`} />
+        <meta name="twitter:title" content={`${novel.title.trim()} - ${novel.author.displayName.trim()}`} />
         <meta
           name="twitter:description"
           content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? "..." : "")}
         />
-        <meta name="twitter:image" content={`https://www.sardnovels.com/api/og/novel/${novelSlug}`} />
+        <meta name="twitter:image" content={novelShareImageUrl(novelSlug, novel.coverImageUrl)} />
 
         <link rel="canonical" href={`https://www.sardnovels.com/novel/${novelSlug}`} />
 
@@ -198,7 +201,7 @@ const NovelPage = () => {
             "@type": "Book",
             name: novel.title,
             description: novel.summary,
-            image: novel.coverImageUrl,
+            image: encodeImageUrl(novel.coverImageUrl) || undefined,
             author: {
               "@type": "Person",
               name: novel.author.displayName,
@@ -367,7 +370,7 @@ const NovelPage = () => {
         onClose={() => setIsShareModalOpen(false)}
         title={novel?.title}
         description={novel?.summary}
-        imageUrl={novel?.coverImageUrl}
+        imageUrl={coverThumbnailUrl(novel?.coverImageUrl)}
         shareUrl={`${window.location.origin}/novel/${novelSlug}`}
         itemType="novel"
       />

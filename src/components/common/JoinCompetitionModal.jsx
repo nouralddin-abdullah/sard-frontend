@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, BookOpen, Check, Loader2, AlertCircle, Trophy } from 'lucide-react';
 import { useGetEligibleNovels } from '../../hooks/competition/useGetEligibleNovels';
 import { useJoinCompetition } from '../../hooks/competition/useJoinCompetition';
+import NovelCover from "../common/NovelCover";
 
 const JoinCompetitionModal = ({ isOpen, onClose, competitionId, competitionName }) => {
   const [selectedNovelId, setSelectedNovelId] = useState(null);
@@ -182,19 +183,7 @@ const JoinCompetitionModal = ({ isOpen, onClose, competitionId, competitionName 
                     }`}
                   >
                     {/* Cover Image */}
-                    <div className="w-14 h-20 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
-                      {novel.coverImageUrl ? (
-                        <img
-                          src={novel.coverImageUrl}
-                          alt={novel.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <BookOpen className="w-6 h-6 text-gray-600" />
-                        </div>
-                      )}
-                    </div>
+                    <NovelCover src={novel.coverImageUrl} title={novel.title} className="w-14 flex-shrink-0" sizes="56px" />
 
                     {/* Novel Info */}
                     <div className="flex-1 text-right">
@@ -232,19 +221,7 @@ const JoinCompetitionModal = ({ isOpen, onClose, competitionId, competitionName 
                         key={novel.id}
                         className="flex items-center gap-3 p-3 rounded-lg bg-white/5 opacity-50"
                       >
-                        <div className="w-10 h-14 rounded overflow-hidden bg-white/5 flex-shrink-0">
-                          {novel.coverImageUrl ? (
-                            <img
-                              src={novel.coverImageUrl}
-                              alt={novel.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <BookOpen className="w-4 h-4 text-gray-600" />
-                            </div>
-                          )}
-                        </div>
+                        <NovelCover src={novel.coverImageUrl} title={novel.title} rounded="rounded" className="w-10 flex-shrink-0" sizes="40px" />
                         <div className="flex-1">
                           <h4 className="text-sm font-medium text-gray-400 noto-sans-arabic-medium line-clamp-1">
                             {novel.title}

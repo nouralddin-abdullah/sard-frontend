@@ -6,6 +6,8 @@ import { useState, useEffect, useRef } from "react";
 import AddNovelToReadingListModal from "./AddNovelToReadingListModal";
 import AuthRequiredModal from "../common/AuthRequiredModal";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
+import NovelCover from "../common/NovelCover";
+import { coverThumbnailUrl } from "../../utils/cover-image";
 
 const NovelCard = ({ novel }) => {
   const [showFullSummary, setShowFullSummary] = useState(false);
@@ -41,14 +43,19 @@ const NovelCard = ({ novel }) => {
 
   return (
     <div className="relative flex flex-col items-stretch justify-between rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
-      {/* Background Cover Image */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src={novel.coverImageUrl}
-          alt={novel.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          loading="lazy"
-        />
+      {/* Background: the smallest cover file, blurred under the overlay (decorative) */}
+      <div className="absolute inset-0 z-0 overflow-hidden bg-[#2C2C2C]">
+        {novel.coverImageUrl && (
+          <img
+            src={coverThumbnailUrl(novel.coverImageUrl)}
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover scale-110 blur-sm transition-transform duration-500 group-hover:scale-125"
+            loading="lazy"
+            decoding="async"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+          />
+        )}
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/98 via-[#2C2C2C]/90 to-[#2C2C2C]/80" />
       </div>
@@ -56,11 +63,11 @@ const NovelCard = ({ novel }) => {
       <div className="relative z-10 flex flex-col md:flex-row gap-4 md:gap-6 p-6 md:p-8">
         {/* Cover Image Card - Like Novel Details Page */}
         <Link to={`/novel/${novel.slug}`} className="flex-shrink-0 mx-auto md:mx-0">
-          <img
+          <NovelCover
             src={novel.coverImageUrl}
-            alt={novel.title}
-            className="w-32 md:w-40 h-auto object-cover rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300"
-            loading="lazy"
+            title={novel.title}
+            className="w-32 md:w-40 shadow-xl hover:shadow-2xl transition-shadow duration-300"
+            sizes="(min-width: 768px) 160px, 128px"
           />
         </Link>
 
