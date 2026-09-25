@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2, BookOpen, Info, ListPlus, LogIn } from "lucide-react";
 import AddNovelToReadingListModal from "../novel/AddNovelToReadingListModal";
-import { useGetReadingHistory } from "../../hooks/novel/useGetReadingHistory";
+import { useGetReadingHistoryPages } from "../../hooks/novel/useGetReadingHistory";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
@@ -114,13 +115,23 @@ const ReadingHistoryCard = ({ novel, onAddToList }) => {
 };
 
 const LibraryReadingHistory = () => {
+  const { t } = useTranslation();
   const [selectedNovel, setSelectedNovel] = useState(null);
   const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
   const navigate = useNavigate();
   
   const token = Cookies.get(TOKEN_KEY);
   const { data: currentUser } = useGetLoggedInUser();
-  const { data, isLoading, error } = useGetReadingHistory(1, 20);
+  // Every page of the library, not just the first 20 novels
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useGetReadingHistoryPages(20);
 
   const handleAddToList = (novel) => {
     setSelectedNovel(novel);
@@ -159,7 +170,7 @@ const LibraryReadingHistory = () => {
     );
   }
 
-  if (error) {
+  if (error && !data) {
     return (
       <div className="min-h-screen bg-[#2C2C2C] flex items-center justify-center text-white">
         <p className="noto-sans-arabic-medium">حدث خطأ في تحميل سجل القراءة</p>
@@ -167,7 +178,7 @@ const LibraryReadingHistory = () => {
     );
   }
 
-  const novels = data?.items || [];
+  const novels = data?.pages.flatMap((page) => page.items) || [];
 
   return (
     <div className="min-h-screen bg-[#2C2C2C] text-white py-8 px-4 sm:px-6 lg:px-12">
@@ -190,7 +201,7 @@ const LibraryReadingHistory = () => {
               لم تبدأ بقراءة أي رواية بعد
             </p>
             <p className="text-[#888888] noto-sans-arabic-medium text-sm mt-2">
-              ابحث عن روايات مثيرة واب دأ رحلتك في القراءة
+              ابحث عن روايات مثيرة وابدأ رحلتك في القراءة
             </p>
           </div>
         ) : (
@@ -202,6 +213,29 @@ const LibraryReadingHistory = () => {
                 onAddToList={handleAddToList}
               />
             ))}
+          </div>
+        )}
+
+        {/* Load more */}
+        {hasNextPage && (
+          <div className="mt-10 flex flex-col items-center gap-3">
+            {isFetchNextPageError && (
+              <p className="text-red-400 noto-sans-arabic-medium text-sm">
+                {t("profilePage.readingHistory.loadMoreError")}
+              </p>
+            )}
+            <button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              className="px-6 py-3 bg-[#0077FF] hover:bg-[#0066DD] disabled:opacity-60 text-white rounded-lg noto-sans-arabic-medium transition-colors flex items-center gap-2"
+            >
+              {isFetchingNextPage && <Loader2 className="w-4 h-4 animate-spin" />}
+              <span>
+                {isFetchingNextPage
+                  ? t("profilePage.readingHistory.loadingMore")
+                  : t("profilePage.readingHistory.loadMore")}
+              </span>
+            </button>
           </div>
         )}
 

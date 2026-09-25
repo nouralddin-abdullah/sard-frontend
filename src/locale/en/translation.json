@@ -160,6 +160,11 @@
       "noNovelsMessage": "You haven't created any novels yet. Start your writing journey by creating your first story!",
       "novelsErrorTitle": "Error Loading Novels",
       "novelsErrorMessage": "Failed to load your novels. Please try again later."
+    },
+    "readingHistory": {
+      "loadMore": "Load more",
+      "loadingMore": "Loading...",
+      "loadMoreError": "Couldn't load more. Please try again."
     }
   },
   "workPage": {
