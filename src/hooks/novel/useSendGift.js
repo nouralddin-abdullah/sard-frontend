@@ -35,10 +35,13 @@ export const useSendGift = () => {
     mutationFn: sendGift,
     onSuccess: (data, variables) => {
       // Invalidate relevant queries after sending a gift
+      // The gift was paid from the sender's wallet
+      queryClient.invalidateQueries({ queryKey: ["walletBalance"] });
       if (variables?.novelId) {
         queryClient.invalidateQueries({ queryKey: ["novel", variables.novelId] });
         // Refresh latest gifts list
         queryClient.invalidateQueries({ queryKey: ["recent-gifts", variables.novelId] });
+        queryClient.invalidateQueries({ queryKey: ["top-supporters", variables.novelId] });
       }
     },
   });

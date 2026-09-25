@@ -4,9 +4,11 @@ import { Search, SlidersHorizontal, X, Eye, Star } from "lucide-react";
 import Header from "../../components/common/Header";
 import GenreBadge from "../../components/common/GenreBadge";
 import FollowToggle from "../../components/common/FollowToggle";
+import { DEFAULT_AVATAR_SVG } from "../../components/common/SafeImage";
 import { useSearchNovels } from "../../hooks/search/useSearchNovels";
 import { useSearchUsers } from "../../hooks/search/useSearchUsers";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
+import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import { translateGenre } from "../../utils/translate-genre";
 
 const SORT_OPTIONS = [
@@ -34,8 +36,9 @@ const SearchPage = () => {
   // Get query from URL
   const queryFromUrl = searchParams.get("q") || "";
 
-  // Search state
+  // Search state: searchQuery follows the input, debouncedQuery is what gets searched (not every keystroke)
   const [searchQuery, setSearchQuery] = useState(queryFromUrl);
+  const [debouncedQuery, setDebouncedQuery] = useState(queryFromUrl.trim());
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedChapterRanges, setSelectedChapterRanges] = useState([]);
   const [showCompletedOnly, setShowCompletedOnly] = useState(false);
@@ -44,6 +47,7 @@ const SearchPage = () => {
 
   // Fetch genres list
   const { data: genresList = [] } = useGetGenresList();
+  const { data: currentUser } = useGetLoggedInUser();
 
   // Search novels query
   const {
@@ -51,7 +55,7 @@ const SearchPage = () => {
     isLoading: isLoadingNovels,
     error: novelsError,
   } = useSearchNovels({
-    query: searchQuery,
+    query: debouncedQuery,
     genres: selectedGenres,
     status: showCompletedOnly ? "Completed" : "",
     chapterRanges: selectedChapterRanges,
@@ -66,9 +70,10 @@ const SearchPage = () => {
     isLoading: isLoadingUsers,
     error: usersError,
   } = useSearchUsers({
-    query: searchQuery,
+    query: debouncedQuery,
     pageNumber: currentPage,
     pageSize: 20,
+    enabled: searchType === "users",
   });
 
   // Update search query when URL changes
@@ -77,11 +82,26 @@ const SearchPage = () => {
     setSearchQuery(newQuery);
   }, [searchParams]);
 
+  // Search 300ms after typing stops; a new query starts again from page 1
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const trimmed = searchQuery.trim();
+      if (trimmed !== debouncedQuery) {
+        setDebouncedQuery(trimmed);
+        setCurrentPage(1);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, debouncedQuery]);
+
   // Handle search submit
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      setSearchParams({ q: searchQuery.trim() });
+    const trimmed = searchQuery.trim();
+    if (trimmed) {
+      setSearchParams({ q: trimmed });
+      setDebouncedQuery(trimmed); // Enter searches right away, without waiting for the debounce
       setCurrentPage(1);
     }
   };
@@ -302,14 +322,14 @@ const SearchPage = () => {
             {/* Search Results */}
             <div className="flex-1">
               {/* Results Header */}
-              {searchQuery && (
+              {debouncedQuery && (
                 <div className="mb-6">
                   <h1 className="text-white noto-sans-arabic-bold text-2xl mb-2">
-                    نتائج البحث عن: "{searchQuery}"
+                    نتائج البحث عن: "{debouncedQuery}"
                   </h1>
                   {searchType === "novels" && searchResults && (
                     <p className="text-gray-400 noto-sans-arabic-medium">
-                      {searchResults.totalCount} رواية
+                      {searchResults.totalItemsCount} رواية
                     </p>
                   )}
                   {searchType === "users" && usersResults && (
@@ -540,7 +560,7 @@ const SearchPage = () => {
                                   >
                                     <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-700 hover:border-[#4A9EFF] transition-colors">
                                       <img
-                                        src={user.profilePhoto || "https://via.placeholder.com/150"}
+                                        src={user.profilePhoto || DEFAULT_AVATAR_SVG}
                                         alt={user.displayName}
                                         className="w-full h-full object-cover"
                                       />
@@ -591,13 +611,15 @@ const SearchPage = () => {
                                     </div>
                                   </Link>
 
-                                  {/* Follow Button */}
-                                  <div className="flex-shrink-0">
-                                    <FollowToggle
-                                      isFollowing={user.isFollowing || false}
-                                      userId={user.id}
-                                    />
-                                  </div>
+                                  {/* Follow Button (not on your own result) */}
+                                  {user.id !== currentUser?.id && (
+                                    <div className="flex-shrink-0">
+                                      <FollowToggle
+                                        isFollowing={user.isFollowing || false}
+                                        userId={user.id}
+                                      />
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             ))}

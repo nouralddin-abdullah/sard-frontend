@@ -10,6 +10,7 @@ import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import AddNovelToReadingListModal from "../novel/AddNovelToReadingListModal";
 import { toast } from "sonner";
 import { getTimeAgo } from "../../utils/date";
+import { DEFAULT_AVATAR_SVG } from "./SafeImage";
 
 const AboutMePost = ({ 
   content, 
@@ -107,7 +108,7 @@ const AboutMePost = ({
         <div className="flex items-start gap-4">
           <Link to={`/profile/${author?.userName || ""}`}>
             <img
-              src={author?.profilePhoto || "/default-avatar.png"}
+              src={author?.profilePhoto || DEFAULT_AVATAR_SVG}
               alt={author?.displayName}
               className="h-12 w-12 rounded-full object-cover flex-shrink-0"
             />

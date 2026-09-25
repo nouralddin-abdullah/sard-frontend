@@ -3,6 +3,7 @@ import { ThumbsUp, MessageCircle, Flag, Trash2, Loader2, X } from "lucide-react"
 import { useCommentReplies } from "../../hooks/comment/useCommentReplies";
 import { getTimeAgo } from "../../utils/date";
 import ConfirmModal from "../common/ConfirmModal";
+import { DEFAULT_AVATAR_SVG } from "../common/SafeImage";
 
 const CommentReplies = ({
   parentCommentId,
@@ -95,7 +96,7 @@ const CommentReplies = ({
             {/* Reply User Info */}
             <div className="flex items-start gap-3 mb-2">
               <img
-                src={reply.user.profilePhoto || "/profilePicture.jpg"}
+                src={reply.user.profilePhoto || DEFAULT_AVATAR_SVG}
                 alt={reply.user.displayName}
                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
               />

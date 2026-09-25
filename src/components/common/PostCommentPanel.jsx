@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import CommentReplies from "../novel/CommentReplies";
 import ConfirmModal from "./ConfirmModal";
 import AuthRequiredModal from "./AuthRequiredModal";
+import { DEFAULT_AVATAR_SVG } from "./SafeImage";
 
 const PostCommentPanel = ({ isOpen, postId, onCommentCountChange }) => {
   const [expandedReplies, setExpandedReplies] = useState({});
@@ -294,7 +295,7 @@ const PostCommentPanel = ({ isOpen, postId, onCommentCountChange }) => {
                     {/* User Info */}
                     <div className="flex items-start gap-3 mb-2">
                       <img
-                        src={comment.user?.profilePhoto || "/default-avatar.png"}
+                        src={comment.user?.profilePhoto || DEFAULT_AVATAR_SVG}
                         alt={comment.user?.displayName}
                         className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                       />
@@ -440,7 +441,7 @@ const PostCommentPanel = ({ isOpen, postId, onCommentCountChange }) => {
 
           <div className="flex items-end gap-2">
             <img
-              src={currentUser?.profilePhoto || "/profilePicture.jpg"}
+              src={currentUser?.profilePhoto || DEFAULT_AVATAR_SVG}
               alt="أنت"
               className="w-10 h-10 rounded-full object-cover flex-shrink-0"
             />

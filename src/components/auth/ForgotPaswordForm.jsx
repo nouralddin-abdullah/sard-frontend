@@ -2,12 +2,17 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Mail, ArrowRight } from "lucide-react";
 import { useForgotPassword } from "../../hooks/auth/useForgotPassword";
-// import { useForgotPassword } from "../../hooks/auth/useForgotPassword"; // Uncomment when hook is available
 
 export default function ForgotPasswordForm() {
   const { t } = useTranslation();
 
-  const { mutateAsync: forgotPassword, isSuccess } = useForgotPassword();
+  const {
+    mutateAsync: forgotPassword,
+    isSuccess,
+    isPending,
+    isError,
+    error,
+  } = useForgotPassword();
 
   const [formFields, setFormFields] = useState({
     email: "",
@@ -105,20 +110,20 @@ export default function ForgotPasswordForm() {
           {errors.email && <p className="text-red-600 my-3 noto-sans-arabic-medium">{errors.email}</p>}
         </div>
 
-        {forgotPassword.isError && (
-          <p className="text-red-600 my-3 noto-sans-arabic-medium">{forgotPassword.error}</p>
+        {isError && (
+          <p className="text-red-600 my-3 noto-sans-arabic-medium">{error?.message}</p>
         )}
 
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={forgotPassword.isLoading}
+          disabled={isPending}
           className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 group noto-sans-arabic-bold"
           style={{
-            backgroundColor: forgotPassword.isLoading ? "#4F46E5" : "#2563EB",
+            backgroundColor: isPending ? "#4F46E5" : "#2563EB",
           }}
         >
-          {forgotPassword.isLoading ? (
+          {isPending ? (
             <div className="flex items-center">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
               {t("auth.forgotPassword.sendingResetLink")}

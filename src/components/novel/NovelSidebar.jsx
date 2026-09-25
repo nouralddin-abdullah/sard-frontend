@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Plus, AlertTriangle, Share2 } from "lucide-react";
 import { getTimeAgo } from "../../utils/date";
 import CustomStar from "../common/CustomStar";
@@ -37,10 +38,15 @@ const NovelSidebar = ({
   onGiftClick,
   onSendGift,
 }) => {
+  const { t } = useTranslation();
+
   // Fetch recommendations with 1-hour cache
   const { 
     data: recommendations, 
-    isLoading: recommendationsLoading 
+    isLoading: recommendationsLoading,
+    isError: recommendationsFailed,
+    refetch: refetchRecommendations,
+    isFetching: recommendationsRefetching,
   } = useGetNovelRecommendations(novelId, 10, !!novelId);
 
   return (
@@ -162,6 +168,21 @@ const NovelSidebar = ({
                 </div>
               </div>
             ))}
+          </div>
+        ) : recommendationsFailed ? (
+          <div className="flex flex-col items-center gap-3 py-4 text-center" role="alert">
+            <AlertTriangle className="w-6 h-6 text-[#FF6B6B]" aria-hidden="true" />
+            <p className="text-[#B0B0B0] text-sm noto-sans-arabic-medium">
+              {t("novelPage.recommendations.loadError")}
+            </p>
+            <button
+              type="button"
+              onClick={() => refetchRecommendations()}
+              disabled={recommendationsRefetching}
+              className="px-4 py-1.5 rounded-lg bg-[#2C2C2C] text-white text-sm noto-sans-arabic-medium hover:bg-[#4A4A4A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t("novelPage.recommendations.retry")}
+            </button>
           </div>
         ) : recommendations && recommendations.length > 0 ? (
           <div className="space-y-4">

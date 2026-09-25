@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 import { 
   TrendingUp, 
   Star, 
@@ -17,7 +19,6 @@ import NovelCard from "../../components/novel/NovelCard";
 import NovelCardSkeleton from "../../components/novel/NovelCardSkeleton";
 import { useGetGenreNovels } from "../../hooks/genre/useGetGenreNovels";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
-import { formatViews } from "../../utils/format-views";
 import { translateGenre } from "../../utils/translate-genre";
 
 const SORTING_OPTIONS = [
@@ -30,6 +31,8 @@ const SORTING_OPTIONS = [
   { value: "top_rated", label: "الأفضل", icon: Star },
 ];
 
+const SITE_URL = "https://www.sardnovels.com";
+
 const COMPLETION_OPTIONS = [
   { value: null, label: "الكل" },
   { value: false, label: "مستمرة" },
@@ -37,6 +40,7 @@ const COMPLETION_OPTIONS = [
 ];
 
 const GenrePage = () => {
+  const { t, i18n } = useTranslation();
   const { genreSlug } = useParams();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -55,7 +59,7 @@ const GenrePage = () => {
   const pageSize = 20;
 
   // Fetch genre data
-  const { data: genres } = useGetGenresList();
+  const { data: genres, isPending: isGenresPending } = useGetGenresList();
   const currentGenre = genres?.find((g) => g.slug === genreSlug);
 
   // Fetch novels
@@ -77,17 +81,15 @@ const GenrePage = () => {
     setSearchParams(params, { replace: true });
   }, [currentPage, sorting, isCompleted, setSearchParams]);
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [sorting, isCompleted]);
-
+  // A filter change starts again from page 1 (done here, not in an effect, so a ?page= link survives the first render).
   const handleSortingChange = (newSorting) => {
     setSorting(newSorting);
+    setCurrentPage(1);
   };
 
   const handleCompletionChange = (value) => {
     setIsCompleted(value);
+    setCurrentPage(1);
   };
 
   const handlePageChange = (newPage) => {
@@ -95,9 +97,23 @@ const GenrePage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (!currentGenre && !isLoading) {
+  const genreLabel = currentGenre
+    ? i18n.language?.startsWith("en")
+      ? currentGenre.name
+      : translateGenre(currentGenre.name)
+    : genreSlug;
+  const isDefaultView = sorting === "popular" && isCompleted === null;
+  const canonicalUrl = `${SITE_URL}/genre/${genreSlug}${isDefaultView && currentPage > 1 ? `?page=${currentPage}` : ""}`;
+  const metaTitle = t("genrePage.meta.title", { genre: genreLabel });
+  const metaDescription = t("genrePage.meta.description", { genre: genreLabel });
+
+  if (!isGenresPending && !currentGenre) {
     return (
       <div className="min-h-screen bg-[#1A1A1A]">
+        <Helmet>
+          <title>{t("genrePage.meta.notFoundTitle")}</title>
+          <meta name="robots" content="noindex" />
+        </Helmet>
         <Header />
         <div className="flex items-center justify-center h-[60vh]">
           <div className="text-center">
@@ -118,6 +134,19 @@ const GenrePage = () => {
 
   return (
     <div className="min-h-screen bg-[#1A1A1A]">
+      <Helmet>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:site_name" content={t("genrePage.meta.siteName")} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+      </Helmet>
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 py-8 md:mt-20">
@@ -215,7 +244,7 @@ const GenrePage = () => {
               <span className="bg-[#4A9EFF] text-white px-3 py-1 rounded-full text-xs noto-sans-arabic-medium flex items-center gap-1">
                 {SORTING_OPTIONS.find(o => o.value === sorting)?.label}
                 <button
-                  onClick={() => setSorting("popular")}
+                  onClick={() => handleSortingChange("popular")}
                   className="hover:bg-white/20 rounded-full p-0.5"
                 >
                   ×
@@ -226,7 +255,7 @@ const GenrePage = () => {
               <span className="bg-[#4A9EFF] text-white px-3 py-1 rounded-full text-xs noto-sans-arabic-medium flex items-center gap-1">
                 {COMPLETION_OPTIONS.find(o => o.value === isCompleted)?.label}
                 <button
-                  onClick={() => setIsCompleted(null)}
+                  onClick={() => handleCompletionChange(null)}
                   className="hover:bg-white/20 rounded-full p-0.5"
                 >
                   ×

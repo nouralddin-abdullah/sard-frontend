@@ -94,6 +94,8 @@ const UnlockPrivilegeModal = ({ isOpen, onClose, privilegeCost, lockedChaptersCo
         queryClient.invalidateQueries({ queryKey: ["novel", novelId, "chapters"] });
         // Refresh privilege info to update subscription status
         queryClient.invalidateQueries({ queryKey: ["novel-privilege", novelId] });
+        // The subscription was paid from the reader's wallet
+        queryClient.invalidateQueries({ queryKey: ["walletBalance"] });
         setTimeout(() => {
           onSubscribeSuccess?.();
           onClose();

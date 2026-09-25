@@ -48,7 +48,8 @@
       "sendResetLink": "إرسال رابط إعادة التعيين",
       "sendingResetLink": "جاري إرسال رابط إعادة التعيين...",
       "backToLogin": "العودة لتسجيل الدخول",
-      "resetLinkSent": "تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني"
+      "resetLinkSent": "تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني",
+      "sendFailed": "تعذّر إرسال رابط إعادة التعيين. يُرجى المحاولة مرة أخرى."
     },
     "changePassword": {
       "title": "تغيير كلمة المرور",
@@ -95,7 +96,11 @@
       "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
       "newPasswordRequired": "كلمة المرور الجديدة مطلوبة",
       "confirmNewPasswordRequired": "يرجى تأكيد كلمة المرور الجديدة",
-      "newPasswordsDoNotMatch": "كلمات المرور الجديدة غير متطابقة"
+      "newPasswordsDoNotMatch": "كلمات المرور الجديدة غير متطابقة",
+      "newPasswordTooShort": "يجب أن تحتوي كلمة المرور الجديدة على 8 أحرف على الأقل"
+    },
+    "errors": {
+      "tooManyRequests": "محاولات كثيرة جدًا. يُرجى الانتظار بضع دقائق ثم المحاولة مرة أخرى."
     }
   },
   "testPage": {
@@ -160,6 +165,11 @@
       "noNovelsMessage": "لم تقم بإنشاء أي روايات بعد. ابدأ رحلتك في الكتابة بإنشاء قصتك الأولى!",
       "novelsErrorTitle": "خطأ في تحميل الروايات",
       "novelsErrorMessage": "فشل تحميل رواياتك. يرجى المحاولة مرة أخرى لاحقاً."
+    },
+    "readingHistory": {
+      "loadMore": "تحميل المزيد",
+      "loadingMore": "جارٍ التحميل...",
+      "loadMoreError": "تعذر تحميل المزيد. حاول مرة أخرى."
     }
   },
   "workPage": {
@@ -184,24 +194,25 @@
         "summaryLabel": "الملخص *",
         "summaryPlaceholder": "اكتب ملخصًا جذابًا لروايتك...",
         "summaryCounter": "{{count}} / {{max}} حرف",
-        "coverLabel": "صورة الغلاف (اختياري)",
+        "coverLabel": "صورة الغلاف *",
         "coverPreviewAlt": "معاينة الغلاف",
         "coverRemove": "إزالة الغلاف",
         "coverUploadTitle": "ارفع صورة الغلاف",
         "coverUploadSubtitle": "اسحب وأسقط الصورة هنا أو انقر للاختيار",
-        "coverUploadHelp": "PNG أو JPG أو GIF حتى 10 ميجابايت"
+        "coverUploadHelp": "JPG أو PNG أو WebP حتى 5 ميجابايت"
       },
       "actions": {
         "submit": "إنشاء رواية",
         "submitting": "جاري الإنشاء..."
       },
       "validation": {
-        "invalidImage": "يرجى اختيار ملف صورة صالح",
-        "maxSize": "يجب أن يكون حجم الصورة أقل من 10 ميجابايت",
+        "invalidImage": "يرجى اختيار صورة بصيغة JPG أو PNG أو WebP",
+        "maxSize": "يجب ألا يتجاوز حجم الصورة 5 ميجابايت",
         "title": "عنوان الرواية مطلوب",
         "summary": "الملخص مطلوب",
         "genre": "اختر تصنيفًا واحدًا على الأقل",
-        "maxGenres": "الحد الأقصى للأنواع هو 4"
+        "maxGenres": "الحد الأقصى للأنواع هو 4",
+        "cover": "صورة الغلاف مطلوبة"
       },
       "toast": {
         "success": "تم إنشاء الرواية بنجاح!",
@@ -399,6 +410,21 @@
     "youMayLike": "قد يعجبك",
     "suggestedNovelTitle": "الحمار المتهور",
     "writer": "الكاتب",
-    "writerName": "هاني"
+    "writerName": "هاني",
+    "recommendations": {
+      "loadError": "تعذّر تحميل التوصيات",
+      "retry": "إعادة المحاولة"
+    }
+  },
+  "search": {
+    "suggestionsError": "تعذّر تحميل الاقتراحات. حاول مرة أخرى."
+  },
+  "genrePage": {
+    "meta": {
+      "title": "روايات {{genre}} | سرد",
+      "description": "اكتشف أفضل روايات {{genre}} العربية على سرد: الأكثر رواجاً والأعلى تقييماً والأحدث.",
+      "notFoundTitle": "النوع غير موجود | سرد",
+      "siteName": "سرد"
+    }
   }
 }

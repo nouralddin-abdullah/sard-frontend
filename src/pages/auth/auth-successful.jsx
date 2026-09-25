@@ -1,18 +1,26 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import useAuthStore from "../../store/authTokenStore";
+
+// The API redirects here with the JWT in the URL fragment (#token=...), which browsers never
+// send to servers. The query form (?token=...) is still accepted while an older API is deployed.
+const readTokenFromUrl = () => {
+  const fromHash = new URLSearchParams(window.location.hash.slice(1)).get("token");
+  if (fromHash) return fromHash;
+  return new URLSearchParams(window.location.search).get("token");
+};
 
 const AuthSuccess = () => {
   const { t } = useTranslation();
   const { setToken } = useAuthStore();
 
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const token = searchParams.get("token");
   const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
+    const token = readTokenFromUrl();
+
     // Only handle port redirect in development
     if (import.meta.env.DEV) {
       const currentPort = window.location.port;
@@ -20,15 +28,19 @@ const AuthSuccess = () => {
       
       if (currentPort !== expectedPort && token) {
         // Redirect to the correct dev port with the token
-        const correctUrl = `${window.location.protocol}//${window.location.hostname}:${expectedPort}/auth/success?token=${token}`;
-        window.location.href = correctUrl;
+        const correctUrl = `${window.location.protocol}//${window.location.hostname}:${expectedPort}/auth/success#token=${encodeURIComponent(token)}`;
+        window.location.replace(correctUrl);
         return;
       }
     }
 
     if (token) {
-      console.log("Token received:", token);
       setToken(token);
+    }
+
+    // Strip the token from the address bar and history so it can't be copied, shared or leaked.
+    if (window.location.hash || window.location.search) {
+      window.history.replaceState(window.history.state, "", window.location.pathname);
     }
 
     // Countdown timer

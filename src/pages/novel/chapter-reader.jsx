@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { Menu, Settings, X, ChevronRight, ChevronLeft, BookOpen, MessageCircle, MessagesSquare, Facebook, Twitter, Link as LinkIcon, Copy, Check, Lock, Unlock } from 'lucide-react';
 import { useGetLoggedInUser } from '../../hooks/user/useGetLoggedInUser';
@@ -16,10 +17,12 @@ import AuthRequiredModal from '../../components/common/AuthRequiredModal';
 import UnlockPrivilegeModal from '../../components/novel/UnlockPrivilegeModal';
 import Cookies from 'js-cookie';
 import { TOKEN_KEY } from '../../constants/token-key';
+import { DEFAULT_AVATAR_SVG } from '../../components/common/SafeImage';
 
 const ChapterReaderPage = () => {
   const { novelSlug, chapterId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: currentUser } = useGetLoggedInUser();
   const token = Cookies.get(TOKEN_KEY);
   
@@ -154,6 +157,8 @@ const ChapterReaderPage = () => {
 
   // Calculate reading progress and auto-load next chapter
   useEffect(() => {
+    // One pending auto-navigation at most: every scroll event past 98% used to queue another navigate().
+    let autoNextTimer = null;
     const handleScroll = () => {
       // Use window scroll for proper mobile browser behavior
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -163,8 +168,8 @@ const ChapterReaderPage = () => {
       setScrollProgress(Math.min(progress, 100));
       
       // Auto-navigate to next chapter when reaching 98% with continuous reading enabled
-      if (continueReading && progress >= 98 && nextChapterId) {
-        setTimeout(() => {
+      if (continueReading && progress >= 98 && nextChapterId && autoNextTimer === null) {
+        autoNextTimer = setTimeout(() => {
           navigate(`/novel/${novelSlug}/chapter/${nextChapterId}`);
         }, 500); // Small delay for better UX
       }
@@ -174,13 +179,17 @@ const ChapterReaderPage = () => {
     handleScroll();
     
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(autoNextTimer);
+    };
   }, [continueReading, nextChapterId, navigate, novelSlug, chapter]);
 
   // Track reading progress (only for authenticated users)
   useEffect(() => {
-    // Only track if user is logged in and chapter is loaded
-    if (token && chapterId && chapter) {
+    // Only track if user is logged in and chapter is loaded. A chapter that is locked for this reader
+    // (no content returned) wasn't read, so it must not become their "stopped at" chapter.
+    if (token && chapterId && chapter && !chapter.isLocked) {
       // Wait 3 seconds before tracking to ensure user is actually reading
       const trackTimer = setTimeout(() => {
         trackProgressMutation.mutate(chapterId);
@@ -611,7 +620,7 @@ const ChapterReaderPage = () => {
             {/* Author Avatar */}
             <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#4A9EFF]">
               <img 
-                src={novel.author.profilePhoto || '/default-avatar.png'} 
+                src={novel.author.profilePhoto || DEFAULT_AVATAR_SVG} 
                 alt={novel.author.username}
                 className="w-full h-full object-cover"
               />
@@ -1209,8 +1218,9 @@ const ChapterReaderPage = () => {
           lockedChaptersCount={privilegeInfo.lockedChaptersCount}
           novelId={novel?.id}
           onSubscribeSuccess={() => {
-            // Refetch privilege info to update subscription status
-            fetchPrivilegeInfo();
+            // The modal already refreshes privilege info and the chapter list; reload this novel's chapters
+            // too so the chapter that was locked shows its content without a page reload.
+            queryClient.invalidateQueries({ queryKey: ["novel", novel?.id, "chapter"] });
           }}
         />
       )}

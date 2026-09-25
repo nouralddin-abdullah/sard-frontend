@@ -12,6 +12,10 @@ import castleGift from "../../assets/gifts/Castle-2000.png";
 import dragonGift from "../../assets/gifts/Dragon-5000.png";
 import universeGift from "../../assets/gifts/Universe-10000.png";
 
+// The API accepts 1 to 100 of a gift per send.
+const MIN_QUANTITY = 1;
+const MAX_QUANTITY = 100;
+
 const SendGiftModal = ({ isOpen, onClose, novelTitle, novelId, preselectedGiftId = null }) => {
   const [selectedGift, setSelectedGift] = useState(preselectedGiftId);
   const [quantity, setQuantity] = useState(1);
@@ -79,10 +83,9 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle, novelId, preselectedGiftId
   };
 
   const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value);
-    if (value >= 1) {
-      setQuantity(value);
-    }
+    const value = parseInt(e.target.value, 10);
+    if (Number.isNaN(value)) return;
+    setQuantity(Math.min(MAX_QUANTITY, Math.max(MIN_QUANTITY, value)));
   };
 
   if (!isOpen) return null;
@@ -160,7 +163,8 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle, novelId, preselectedGiftId
               <input
                 id="quantity"
                 type="number"
-                min="1"
+                min={MIN_QUANTITY}
+                max={MAX_QUANTITY}
                 value={quantity}
                 onChange={handleQuantityChange}
                 className="w-full rounded-lg border border-[#3C3C3C] bg-[#2C2C2C] p-2.5 text-white placeholder:text-[#B0B0B0] focus:border-[#4A9EFF] focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]/20 noto-sans-arabic-medium"

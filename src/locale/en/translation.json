@@ -48,7 +48,8 @@
       "sendResetLink": "Send Reset Link",
       "sendingResetLink": "Sending reset link...",
       "backToLogin": "Back to Login",
-      "resetLinkSent": "Reset link sent to your email"
+      "resetLinkSent": "Reset link sent to your email",
+      "sendFailed": "Couldn't send the reset link. Please try again."
     },
     "changePassword": {
       "title": "Change Password",
@@ -95,7 +96,11 @@
       "passwordsDoNotMatch": "Passwords do not match",
       "newPasswordRequired": "New password is required",
       "confirmNewPasswordRequired": "Please confirm your new password",
-      "newPasswordsDoNotMatch": "New passwords do not match"
+      "newPasswordsDoNotMatch": "New passwords do not match",
+      "newPasswordTooShort": "New password must be at least 8 characters long"
+    },
+    "errors": {
+      "tooManyRequests": "Too many attempts. Please wait a few minutes and try again."
     }
   },
   "testPage": {
@@ -160,6 +165,11 @@
       "noNovelsMessage": "You haven't created any novels yet. Start your writing journey by creating your first story!",
       "novelsErrorTitle": "Error Loading Novels",
       "novelsErrorMessage": "Failed to load your novels. Please try again later."
+    },
+    "readingHistory": {
+      "loadMore": "Load more",
+      "loadingMore": "Loading...",
+      "loadMoreError": "Couldn't load more. Please try again."
     }
   },
   "workPage": {
@@ -180,24 +190,25 @@
         "summaryLabel": "Summary *",
         "summaryPlaceholder": "Write a compelling summary of your novel...",
         "summaryCounter": "{{count}} / {{max}} characters",
-        "coverLabel": "Cover Image (Optional)",
+        "coverLabel": "Cover Image *",
         "coverPreviewAlt": "Cover preview",
         "coverRemove": "Remove cover",
         "coverUploadTitle": "Upload Cover Image",
         "coverUploadSubtitle": "Drag and drop an image here, or click to select",
-        "coverUploadHelp": "PNG, JPG, GIF up to 10MB"
+        "coverUploadHelp": "JPG, PNG or WebP up to 5 MB"
       },
       "actions": {
         "submit": "Create Novel",
         "submitting": "Creating..."
       },
       "validation": {
-        "invalidImage": "Please select a valid image file",
-        "maxSize": "Image must be less than 10MB",
+        "invalidImage": "Please choose a JPG, PNG or WebP image",
+        "maxSize": "Image must be 5 MB or smaller",
         "title": "Novel title is required",
         "summary": "Summary is required",
         "genre": "Select at least one genre",
-        "maxGenres": "Maximum 4 genres allowed"
+        "maxGenres": "Maximum 4 genres allowed",
+        "cover": "A cover image is required"
       },
       "toast": {
         "success": "Novel created successfully!",
@@ -395,6 +406,21 @@
     "youMayLike": "You may like",
     "suggestedNovelTitle": "The Reckless Donkey",
     "writer": "Writer",
-    "writerName": "Hany"
+    "writerName": "Hany",
+    "recommendations": {
+      "loadError": "Couldn't load recommendations",
+      "retry": "Try again"
+    }
+  },
+  "search": {
+    "suggestionsError": "Couldn't load suggestions. Please try again."
+  },
+  "genrePage": {
+    "meta": {
+      "title": "{{genre}} novels | Sard",
+      "description": "Discover the best Arabic {{genre}} novels on Sard: trending, top rated and newest.",
+      "notFoundTitle": "Genre not found | Sard",
+      "siteName": "Sard"
+    }
   }
 }

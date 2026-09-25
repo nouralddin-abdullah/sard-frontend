@@ -13,6 +13,7 @@ import { useRemoveNovelFromReadingList } from "../../hooks/reading-list/useRemov
 import { useDeleteReadingList } from "../../hooks/reading-list/useDeleteReadingList";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import AuthRequiredModal from "../../components/common/AuthRequiredModal";
+import { DEFAULT_AVATAR_SVG } from "../../components/common/SafeImage";
 
 const ReadingListPage = () => {
   const { username, listId } = useParams();
@@ -249,7 +250,7 @@ const ReadingListPage = () => {
                   className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                 >
                   <img
-                    src={listData.ownerProfilePhoto || "/profilePicture.jpg"}
+                    src={listData.ownerProfilePhoto || DEFAULT_AVATAR_SVG}
                     alt={listData.ownerDisplayName || listData.ownerUserName}
                     className="w-12 h-12 rounded-full object-cover"
                     style={{ boxShadow: "0 4px 4px 0 rgba(0, 0, 0, 0.25)" }}
