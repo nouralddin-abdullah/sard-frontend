@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      # Lint is reported but not blocking yet: ~126 existing problems in src need fixing first
+      # (planned with the server-side rendering migration). Make it blocking once it's clean.
+      - name: Lint (non-blocking)
+        run: npm run lint || echo "::warning::ESLint found problems (non-blocking for now)"
