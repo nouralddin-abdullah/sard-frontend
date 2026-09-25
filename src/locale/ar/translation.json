@@ -400,5 +400,8 @@
     "suggestedNovelTitle": "الحمار المتهور",
     "writer": "الكاتب",
     "writerName": "هاني"
+  },
+  "search": {
+    "suggestionsError": "تعذّر تحميل الاقتراحات. حاول مرة أخرى."
   }
 }

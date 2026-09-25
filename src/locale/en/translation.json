@@ -396,5 +396,8 @@
     "suggestedNovelTitle": "The Reckless Donkey",
     "writer": "Writer",
     "writerName": "Hany"
+  },
+  "search": {
+    "suggestionsError": "Couldn't load suggestions. Please try again."
   }
 }

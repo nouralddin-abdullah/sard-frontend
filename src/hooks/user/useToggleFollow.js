@@ -48,6 +48,10 @@ export const useToggleFollow = () => {
   return useMutation({
     mutationKey: ["follow-user"],
     mutationFn: toggleFollow,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["user-data"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-data"] });
+      // User search results carry isFollowing; refetch so they don't show a stale follow button.
+      queryClient.invalidateQueries({ queryKey: ["searchUsers"] });
+    },
   });
 };
