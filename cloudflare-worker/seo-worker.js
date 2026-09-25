@@ -97,7 +97,7 @@ async function renderNovel(slug, env) {
   const url = `${SITE}/novel/${slug}`;
   const image = shareImageUrl(slug, novel.coverImageUrl);
   const cover = coverImageUrl(novel.coverImageUrl);
-  const author = novel.author?.displayName || '';
+  const author = (novel.author?.displayName || '').trim();
   const genres = (novel.genresList || []).map((g) => translateGenre(g.name));
 
   const jsonLd = {
@@ -121,7 +121,7 @@ async function renderNovel(slug, env) {
   return html({
     title: `${novel.title} - سرد`,
     // Link previews show og:title and og:description under the image, which carries no text.
-    ogTitle: author ? `${novel.title} - ${author}` : novel.title,
+    ogTitle: author ? `${novel.title.trim()} - ${author}` : novel.title.trim(),
     description: truncate(novel.summary, 160),
     url,
     image,
@@ -362,7 +362,8 @@ async function renderOgImage(slug, env) {
 
 async function fallbackShareImage() {
   const res = await fetch(DEFAULT_SHARE_IMAGE);
-  if (!res.ok) {
+  // The site answers unknown paths with the app's HTML, so check that this really is the image.
+  if (!res.ok || !(res.headers.get('content-type') || '').startsWith('image/')) {
     return Response.redirect(`${SITE}/logo.png`, 302);
   }
   return new Response(res.body, { headers: { 'Content-Type': 'image/jpeg' } });

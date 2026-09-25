@@ -169,7 +169,7 @@ const NovelPage = () => {
 
         {/* Open Graph */}
         <meta property="og:type" content="book" />
-        <meta property="og:title" content={`${novel.title} - ${novel.author.displayName}`} />
+        <meta property="og:title" content={`${novel.title.trim()} - ${novel.author.displayName.trim()}`} />
         <meta
           property="og:description"
           content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? "..." : "")}
@@ -185,7 +185,7 @@ const NovelPage = () => {
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${novel.title} - ${novel.author.displayName}`} />
+        <meta name="twitter:title" content={`${novel.title.trim()} - ${novel.author.displayName.trim()}`} />
         <meta
           name="twitter:description"
           content={novel.summary.substring(0, 160) + (novel.summary.length > 160 ? "..." : "")}
