@@ -368,7 +368,7 @@ const ReadingListPage = () => {
                       src={novel.coverImageUrl}
                       title={novel.title}
                       rounded="rounded"
-                      className="w-36 flex-shrink-0 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                      className="w-36 flex-shrink-0 self-start shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
                       sizes="144px"
                     />
 

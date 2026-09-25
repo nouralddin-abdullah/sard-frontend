@@ -113,7 +113,7 @@ const CoverPicker = ({ value, onChange, title = "", currentUrl = null, disabled 
               >
                 <ImagePlus className="h-7 w-7 text-zinc-400" aria-hidden="true" />
                 <span className="noto-sans-arabic-bold text-xs text-zinc-300">{t("cover.upload.title")}</span>
-                <span className="noto-sans-arabic-medium text-[11px] text-zinc-500">{t("cover.upload.help")}</span>
+                <span className="noto-sans-arabic-medium text-[11px] text-zinc-500">{t("cover.upload.helpShort")}</span>
               </button>
             )}
           </div>

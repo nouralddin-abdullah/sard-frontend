@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Cropper from "react-easy-crop";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, Crop, Loader2, Maximize, ZoomIn, ZoomOut } from "lucide-react";
@@ -26,8 +26,17 @@ const CoverCropModal = ({ file, isOpen, title = "", onCancel, onConfirm }) => {
   const [busy, setBusy] = useState(false);
   const previewTimer = useRef(null);
 
-  const objectUrl = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
-  useEffect(() => () => objectUrl && URL.revokeObjectURL(objectUrl), [objectUrl]);
+  // Created and revoked by the same effect, so a remount (StrictMode, fast refresh) never leaves a revoked URL.
+  const [objectUrl, setObjectUrl] = useState(null);
+  useEffect(() => {
+    if (!file) {
+      setObjectUrl(null);
+      return undefined;
+    }
+    const url = URL.createObjectURL(file);
+    setObjectUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
 
   // A new file starts from a clean state.
   useEffect(() => {
@@ -118,7 +127,7 @@ const CoverCropModal = ({ file, isOpen, title = "", onCancel, onConfirm }) => {
       isOpen={isOpen}
       onClose={busy ? undefined : onCancel}
       unstyled
-      contentClassName="w-full max-w-3xl mx-3 sm:mx-4 max-h-[92vh] overflow-y-auto rounded-2xl bg-zinc-800 p-4 sm:p-6 shadow-2xl transition-all duration-200"
+      contentClassName="w-full max-w-3xl mx-3 sm:mx-4 max-h-[92vh] overflow-y-auto rounded-2xl bg-zinc-800 px-4 pt-4 sm:px-6 sm:pt-6 shadow-2xl transition-all duration-200"
     >
       <div className="space-y-4 text-start">
         <div className="space-y-1">
@@ -138,7 +147,7 @@ const CoverCropModal = ({ file, isOpen, title = "", onCancel, onConfirm }) => {
                 {modeButton("fit", Maximize, t("cover.crop.modeFit"))}
               </div>
 
-              <div className="relative h-[52vh] max-h-[440px] min-h-[260px] overflow-hidden rounded-xl bg-zinc-950">
+              <div className="relative h-[42vh] max-h-[440px] min-h-[240px] overflow-hidden rounded-xl bg-zinc-950 md:h-[52vh]">
                 {!image && (
                   <div className="absolute inset-0 flex items-center justify-center text-zinc-400">
                     <Loader2 className="h-6 w-6 animate-spin" aria-label={t("cover.crop.loading")} />
@@ -224,7 +233,8 @@ const CoverCropModal = ({ file, isOpen, title = "", onCancel, onConfirm }) => {
           </p>
         )}
 
-        <div className="flex flex-col-reverse gap-2 border-t border-zinc-700 pt-4 sm:flex-row sm:justify-end">
+        {/* Kept in view while the modal scrolls on small screens. */}
+        <div className="sticky bottom-0 z-10 -mx-4 flex flex-col-reverse gap-2 border-t border-zinc-700 bg-zinc-800 px-4 pb-4 pt-3 sm:-mx-6 sm:flex-row sm:justify-end sm:px-6 sm:pb-6 sm:pt-4">
           <Button variant="ghost" onClick={onCancel} disabled={busy} className="text-zinc-300 hover:bg-white/5 hover:text-white">
             {t("cover.crop.cancel")}
           </Button>

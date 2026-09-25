@@ -195,7 +195,7 @@ const NovelSidebar = ({
                 <NovelCover
                   src={rec.coverImageUrl}
                   title={rec.title}
-                  className="w-16 flex-shrink-0"
+                  className="w-16 flex-shrink-0 self-start"
                   rounded="rounded"
                   sizes="64px"
                 />

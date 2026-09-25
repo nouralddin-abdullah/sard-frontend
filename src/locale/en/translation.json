@@ -460,6 +460,7 @@
       "title": "Choose a cover image",
       "subtitle": "Drag an image here or click to choose",
       "help": "JPG, PNG or WebP; ideally 960×1440 px (2:3)",
+      "helpShort": "2:3, ideally 960×1440 px",
       "change": "Change image",
       "adjust": "Adjust crop",
       "remove": "Remove",
