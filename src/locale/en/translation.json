@@ -399,5 +399,13 @@
   },
   "search": {
     "suggestionsError": "Couldn't load suggestions. Please try again."
+  },
+  "genrePage": {
+    "meta": {
+      "title": "{{genre}} novels | Sard",
+      "description": "Discover the best Arabic {{genre}} novels on Sard: trending, top rated and newest.",
+      "notFoundTitle": "Genre not found | Sard",
+      "siteName": "Sard"
+    }
   }
 }
