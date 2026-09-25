@@ -18,6 +18,7 @@ import UnlockPrivilegeModal from '../../components/novel/UnlockPrivilegeModal';
 import Cookies from 'js-cookie';
 import { TOKEN_KEY } from '../../constants/token-key';
 import { DEFAULT_AVATAR_SVG } from '../../components/common/SafeImage';
+import NovelCover from "../../components/common/NovelCover";
 
 const ChapterReaderPage = () => {
   const { novelSlug, chapterId } = useParams();
@@ -473,10 +474,12 @@ const ChapterReaderPage = () => {
                   to={`/novel/${novelSlug}`}
                   className="hover:opacity-80 transition-opacity"
                 >
-                  <img 
-                    src={novel.coverImageUrl || '/default-cover.png'} 
-                    alt={novel.title}
-                    className="h-12 w-9 object-cover rounded"
+                  <NovelCover
+                    src={novel.coverImageUrl}
+                    title={novel.title}
+                    rounded="rounded"
+                    className="w-8"
+                    sizes="32px"
                   />
                 </Link>
                 <Link 

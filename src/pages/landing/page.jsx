@@ -10,6 +10,7 @@ import landingSImage from "../../assets/Landing-S.png";
 import landingTextImage from "../../assets/Landing-textinmiddleofit.png";
 import landing3Image from "../../assets/Landing-3.png";
 import picture1Image from "../../assets/Picture1.png";
+import NovelCover from "../../components/common/NovelCover";
 
 // Icon mapping for genres
 const GENRE_ICONS = {
@@ -223,18 +224,19 @@ const LandingPage = () => {
                     to={`/novel/${novel.slug}`}
                     className="group cursor-pointer"
                   >
-                    <div className="relative overflow-hidden rounded-xl mb-2 transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl shadow-lg aspect-[3/4]">
-                      <img
-                        src={novel.coverImageUrl}
-                        alt={novel.title}
-                        className="w-full h-full object-cover"
-                      />
+                    <NovelCover
+                      src={novel.coverImageUrl}
+                      title={novel.title}
+                      rounded="rounded-xl"
+                      className="mb-2 w-full transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl shadow-lg"
+                      sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw"
+                    >
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
                         <span className="text-white text-sm noto-sans-arabic-bold line-clamp-2">
                           {novel.title}
                         </span>
                       </div>
-                    </div>
+                    </NovelCover>
                   </Link>
                 ))}
               </div>

@@ -5,6 +5,7 @@ import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import { useGetMyReadingLists } from "../../hooks/reading-list/useGetMyReadingLists";
 import { useGetMyWorks } from "../../hooks/work/useGetMyWorks";
 import { useGetReadingHistory } from "../../hooks/novel/useGetReadingHistory";
+import NovelCover from "../common/NovelCover";
 
 const CreatePostModal = ({ isOpen, onClose }) => {
   const [content, setContent] = useState("");
@@ -265,10 +266,12 @@ const CreatePostModal = ({ isOpen, onClose }) => {
                   </button>
                 </div>
                 <div className="flex items-center gap-3">
-                  <img
+                  <NovelCover
                     src={selectedNovel.coverImageUrl}
-                    alt={selectedNovel.title}
-                    className="w-12 h-16 object-cover rounded"
+                    title={selectedNovel.title}
+                    rounded="rounded"
+                    className="w-12 flex-shrink-0"
+                    sizes="48px"
                   />
                   <div className="flex-1">
                     <p className="text-white font-bold text-sm noto-sans-arabic-extrabold">
@@ -338,10 +341,12 @@ const CreatePostModal = ({ isOpen, onClose }) => {
                             onClick={() => handleNovelSelect(novel.id)}
                             className="w-full flex items-center gap-3 p-2 bg-[#1A1A1A] hover:bg-[#3C3C3C] rounded-lg transition-colors"
                           >
-                            <img
+                            <NovelCover
                               src={novel.coverImageUrl}
-                              alt={novel.title}
-                              className="w-10 h-14 object-cover rounded"
+                              title={novel.title}
+                              rounded="rounded"
+                              className="w-10 flex-shrink-0"
+                              sizes="40px"
                             />
                             <div className="flex-1 text-right">
                               <p className="text-white text-sm font-bold noto-sans-arabic-extrabold truncate">

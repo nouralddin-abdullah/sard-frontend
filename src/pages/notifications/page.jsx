@@ -7,6 +7,7 @@ import { useMarkNotificationRead } from "../../hooks/notification/useMarkNotific
 import { useMarkAllNotificationsRead } from "../../hooks/notification/useMarkAllNotificationsRead";
 import { getTimeAgo } from "../../utils/date";
 import { toast } from "sonner";
+import NovelCover from "../../components/common/NovelCover";
 
 // Map notification types to icons
 const getNotificationIcon = (type) => {
@@ -58,10 +59,12 @@ const NotificationItem = ({ notification, onMarkRead }) => {
         {notification.actorProfilePhoto ? (
           // Novel-related notifications show rectangular cover, others show circular avatar
           notification.type === "NewChapterInLibrary" || notification.type === "ReviewOnNovel" ? (
-            <img
+            <NovelCover
               src={notification.actorProfilePhoto}
-              alt={notification.actorDisplayName}
-              className="w-10 h-14 rounded object-cover"
+              title={notification.actorDisplayName}
+              rounded="rounded"
+              className="w-10"
+              sizes="40px"
             />
           ) : (
             <img

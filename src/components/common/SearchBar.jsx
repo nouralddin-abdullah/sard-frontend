@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSearchSuggestions } from "../../hooks/search/useSearchSuggestions";
+import NovelCover from "../common/NovelCover";
 
 const SearchBar = ({ className = "" }) => {
   const { t } = useTranslation();
@@ -115,10 +116,12 @@ const SearchBar = ({ className = "" }) => {
                     onClick={() => handleSuggestionClick(novel.slug)}
                     className="w-full flex items-center gap-3 p-3 hover:bg-[#3C3C3C] transition-colors text-right"
                   >
-                    <img
+                    <NovelCover
                       src={novel.coverImageUrl}
-                      alt={novel.title}
-                      className="w-12 h-16 object-cover rounded flex-shrink-0"
+                      title={novel.title}
+                      rounded="rounded"
+                      className="w-12 flex-shrink-0"
+                      sizes="48px"
                     />
                     <div className="flex-1 min-w-0">
                       <h4 className="text-white noto-sans-arabic-bold text-sm line-clamp-2">

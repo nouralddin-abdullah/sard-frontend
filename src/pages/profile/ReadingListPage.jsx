@@ -14,6 +14,7 @@ import { useDeleteReadingList } from "../../hooks/reading-list/useDeleteReadingL
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import AuthRequiredModal from "../../components/common/AuthRequiredModal";
 import { DEFAULT_AVATAR_SVG } from "../../components/common/SafeImage";
+import NovelCover from "../../components/common/NovelCover";
 
 const ReadingListPage = () => {
   const { username, listId } = useParams();
@@ -363,14 +364,13 @@ const ReadingListPage = () => {
                     className="flex flex-col md:flex-row gap-6 flex-1"
                   >
                     {/* Novel Cover */}
-                    <div className="flex-shrink-0">
-                      <img
-                        src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
-                        alt={novel.title}
-                        className="w-36 h-48 object-cover rounded"
-                        style={{ boxShadow: "0 4px 4px 0 rgba(0, 0, 0, 0.25)" }}
-                      />
-                    </div>
+                    <NovelCover
+                      src={novel.coverImageUrl}
+                      title={novel.title}
+                      rounded="rounded"
+                      className="w-36 flex-shrink-0 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                      sizes="144px"
+                    />
 
                     {/* Novel Details */}
                     <div className="flex-1 text-white">
