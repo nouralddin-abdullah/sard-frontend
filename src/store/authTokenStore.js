@@ -2,6 +2,13 @@ import { create } from "zustand";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../constants/token-key";
 
+// `secure` only on https so the cookie still works on http://localhost during development.
+const TOKEN_COOKIE_OPTIONS = {
+  expires: 30,
+  sameSite: "lax",
+  secure: typeof window !== "undefined" && window.location.protocol === "https:",
+};
+
 const useAuthStore = create((set, get) => ({
   // State to hold the tokens
   token: Cookies.get(TOKEN_KEY) || null,
@@ -11,7 +18,7 @@ const useAuthStore = create((set, get) => ({
   setToken: (value) => {
     console.log("Setting token:", value ? "***TOKEN***" : "null");
     if (value) {
-      Cookies.set(TOKEN_KEY, value, { expires: 30 });
+      Cookies.set(TOKEN_KEY, value, TOKEN_COOKIE_OPTIONS);
       set({ token: value, isAuthenticated: true });
     } else {
       Cookies.remove(TOKEN_KEY);
@@ -32,7 +39,7 @@ const useAuthStore = create((set, get) => ({
   updateToken: (newToken) => {
     console.log("Updating token:", newToken ? "***NEW_TOKEN***" : "null");
     if (newToken) {
-      Cookies.set(TOKEN_KEY, newToken, { expires: 30 });
+      Cookies.set(TOKEN_KEY, newToken, TOKEN_COOKIE_OPTIONS);
       set({ token: newToken, isAuthenticated: true });
     } else {
       get().deleteToken();

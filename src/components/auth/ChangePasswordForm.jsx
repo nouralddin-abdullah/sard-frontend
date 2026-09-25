@@ -5,6 +5,9 @@ import { Eye, EyeOff, Lock, ArrowRight, CheckCircle, XCircle } from "lucide-reac
 import { useResetPassword } from "../../hooks/auth/useResetPassword";
 import { toast } from "sonner";
 
+// Must match the API's ResetPasswordCommandValidator.
+const MIN_NEW_PASSWORD_LENGTH = 8;
+
 export default function ChangePasswordForm() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -64,9 +67,9 @@ export default function ChangePasswordForm() {
     if (!formFields.newPassword.trim()) {
       isValid = false;
       newErrors.newPassword = t("auth.validation.newPasswordRequired");
-    } else if (formFields.newPassword.length < 6) {
+    } else if (formFields.newPassword.length < MIN_NEW_PASSWORD_LENGTH) {
       isValid = false;
-      newErrors.newPassword = t("auth.validation.passwordTooShort");
+      newErrors.newPassword = t("auth.validation.newPasswordTooShort");
     }
 
     // Confirm new password validation

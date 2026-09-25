@@ -7,6 +7,7 @@ import { useGetReadingHistoryPages } from "../../hooks/novel/useGetReadingHistor
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
+import { DEFAULT_AVATAR_SVG } from "../common/SafeImage";
 
 const ReadingHistoryCard = ({ novel, onAddToList }) => {
   const [showActions, setShowActions] = useState(false);
@@ -101,7 +102,7 @@ const ReadingHistoryCard = ({ novel, onAddToList }) => {
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
           <img 
-            src={novel.author.profilePhoto || "/profilePicture.jpg"} 
+            src={novel.author.profilePhoto || DEFAULT_AVATAR_SVG} 
             alt={novel.author.displayName}
             className="w-6 h-6 rounded-full object-cover"
           />

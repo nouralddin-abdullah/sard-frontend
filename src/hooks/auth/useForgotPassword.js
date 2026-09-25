@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../constants/base-url";
+import i18n from "../../i18n";
+import { throwIfRateLimited } from "../../utils/rate-limit";
 
 const forgotPassword = async (formData) => {
   try {
@@ -11,8 +13,10 @@ const forgotPassword = async (formData) => {
       },
     });
 
+    throwIfRateLimited(response);
+
     if (!response.ok) {
-      throw new Error("Operation failed");
+      throw new Error(i18n.t("auth.forgotPassword.sendFailed"));
     }
 
     const data = await response.json();

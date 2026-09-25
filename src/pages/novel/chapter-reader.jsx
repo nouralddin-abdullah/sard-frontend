@@ -17,6 +17,7 @@ import AuthRequiredModal from '../../components/common/AuthRequiredModal';
 import UnlockPrivilegeModal from '../../components/novel/UnlockPrivilegeModal';
 import Cookies from 'js-cookie';
 import { TOKEN_KEY } from '../../constants/token-key';
+import { DEFAULT_AVATAR_SVG } from '../../components/common/SafeImage';
 
 const ChapterReaderPage = () => {
   const { novelSlug, chapterId } = useParams();
@@ -619,7 +620,7 @@ const ChapterReaderPage = () => {
             {/* Author Avatar */}
             <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#4A9EFF]">
               <img 
-                src={novel.author.profilePhoto || '/default-avatar.png'} 
+                src={novel.author.profilePhoto || DEFAULT_AVATAR_SVG} 
                 alt={novel.author.username}
                 className="w-full h-full object-cover"
               />

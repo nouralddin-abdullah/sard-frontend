@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Camera, Loader2, Save, ArrowRight, User, Link as LinkIcon, Lock } from "lucide-react";
 import Header from "../../components/common/Header";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
@@ -7,7 +8,11 @@ import { useUpdateMe } from "../../hooks/user/useUpdateMe";
 import { useUpdatePassword } from "../../hooks/user/useUpdatePassword";
 import { toast } from "sonner";
 
+// Must match the API's ChangePasswordValidator.
+const MIN_NEW_PASSWORD_LENGTH = 8;
+
 const SettingsPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: userData, isPending } = useGetLoggedInUser();
   const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateMe();
@@ -237,8 +242,8 @@ const SettingsPage = () => {
       return;
     }
 
-    if (passwordData.newPassword.length < 6) {
-      toast.error("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+    if (passwordData.newPassword.length < MIN_NEW_PASSWORD_LENGTH) {
+      toast.error(t("auth.validation.newPasswordTooShort"));
       return;
     }
 
@@ -670,7 +675,7 @@ const SettingsPage = () => {
                         className="w-full bg-[#2C2C2C] text-white rounded-lg px-4 py-3 noto-sans-arabic-medium focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] border border-gray-700"
                         placeholder="أدخل كلمة المرور الجديدة"
                       />
-                      <p className="text-sm text-gray-400 noto-sans-arabic-medium">يجب أن تكون كلمة المرور 6 أحرف على الأقل</p>
+                      <p className="text-sm text-gray-400 noto-sans-arabic-medium">{t("auth.validation.newPasswordTooShort")}</p>
                     </div>
 
                     {/* Confirm New Password */}

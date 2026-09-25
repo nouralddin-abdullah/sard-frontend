@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import CommentReplies from "./CommentReplies";
 import ConfirmModal from "../common/ConfirmModal";
 import AuthRequiredModal from "../common/AuthRequiredModal";
+import { DEFAULT_AVATAR_SVG } from "../common/SafeImage";
 
 const CommentPanel = ({ 
   isOpen, 
@@ -373,7 +374,7 @@ const CommentPanel = ({
                 {/* User Info */}
                 <div className="flex items-start gap-3 mb-2">
                   <img
-                    src={comment.user.profilePhoto || "/profilePicture.jpg"}
+                    src={comment.user.profilePhoto || DEFAULT_AVATAR_SVG}
                     alt={comment.user.displayName}
                     className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                   />
@@ -576,7 +577,7 @@ const CommentPanel = ({
 
           <div className="flex items-end gap-2">
             <img
-              src={currentUser?.profilePhoto || "/profilePicture.jpg"}
+              src={currentUser?.profilePhoto || DEFAULT_AVATAR_SVG}
               alt="أنت"
               className="w-10 h-10 rounded-full object-cover flex-shrink-0"
             />

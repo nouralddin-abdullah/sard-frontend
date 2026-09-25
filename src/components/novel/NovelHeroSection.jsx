@@ -4,6 +4,7 @@ import { BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import { translateGenre } from "../../utils/translate-genre";
 import StarRating from "../common/StarRating";
 import PenIcon from "../common/PenIcon";
+import { DEFAULT_AVATAR_SVG } from "../common/SafeImage";
 
 // Character limit for summary before showing "show more"
 const SUMMARY_CHAR_LIMIT = 300;
@@ -98,7 +99,7 @@ const NovelHeroSection = ({
                 className="flex items-center gap-3 group"
               >
                 <img
-                  src={novel.author.profilePhoto || "/default-avatar.png"}
+                  src={novel.author.profilePhoto || DEFAULT_AVATAR_SVG}
                   alt={novel.author.displayName}
                   className="w-10 h-10 rounded-full object-cover ring-2 ring-transparent group-hover:ring-[#4A9EFF] transition-all"
                 />
