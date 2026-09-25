@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../constants/base-url";
+import { throwIfRateLimited } from "../../utils/rate-limit";
 
 const resetPassword = async (formData) => {
   try {
@@ -10,6 +11,8 @@ const resetPassword = async (formData) => {
         "Content-Type": "application/json",
       },
     });
+
+    throwIfRateLimited(response);
 
     if (!response.ok) {
       throw new Error("Reset Password failed");

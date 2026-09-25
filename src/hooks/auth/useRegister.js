@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "../../constants/base-url";
+import { throwIfRateLimited } from "../../utils/rate-limit";
 
 export const useRegister = () => {
   const queryClient = useQueryClient();
@@ -12,6 +13,8 @@ export const useRegister = () => {
           method: "POST",
           body: formData,
         });
+
+        throwIfRateLimited(response);
 
         const data = await response.json();
 

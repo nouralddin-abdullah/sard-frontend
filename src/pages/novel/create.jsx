@@ -8,6 +8,7 @@ import { Image, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { translateGenre } from "../../utils/translate-genre";
 import ProtectedRoute from "../../components/auth/protected-route";
+import { COVER_IMAGE_ACCEPT, getCoverImageError } from "../../utils/cover-image";
 
 const SUMMARY_MAX = 2000;
 
@@ -68,12 +69,9 @@ export default function CreateNovel() {
 
   const handleCoverSelection = (file) => {
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error(t("workPage.create.validation.invalidImage"));
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error(t("workPage.create.validation.maxSize"));
+    const coverError = getCoverImageError(file);
+    if (coverError) {
+      toast.error(t(coverError));
       return;
     }
     setFormData((prev) => ({
@@ -142,13 +140,19 @@ export default function CreateNovel() {
       return;
     }
 
+    // The API needs a cover: every novel is stored with one.
+    if (!formData.cover) {
+      toast.error(t("workPage.create.validation.cover"));
+      return;
+    }
+
     const multipartForm = new FormData();
     multipartForm.append("Title", formData.title);
     multipartForm.append("Summary", formData.summary);
     for (let i = 0; i < formData.genreIds.length; i++) {
       multipartForm.append(`GenreIds[${i}]`, formData.genreIds[i]);
     }
-    if (formData.cover) multipartForm.append("CoverImageUrl", formData.cover);
+    multipartForm.append("CoverImageUrl", formData.cover);
 
     try {
       const response = await createWork(multipartForm);
@@ -321,7 +325,7 @@ export default function CreateNovel() {
               >
                 <input
                   type="file"
-                  accept="image/*"
+                  accept={COVER_IMAGE_ACCEPT}
                   onChange={handleFileChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />

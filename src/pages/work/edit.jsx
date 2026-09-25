@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowDown,
   ArrowLeft,
@@ -34,6 +35,7 @@ import { useUpdateWork } from "../../hooks/work/useUpdateWork";
 import { useUpdateWorkCover } from "../../hooks/work/useUpdateWorkCover";
 import { useDeleteChapter } from "../../hooks/work/useDeleteChapter";
 import PrivilegeSystemSetup from "../../components/work/PrivilegeSystemSetup";
+import { COVER_IMAGE_ACCEPT, getCoverImageError } from "../../utils/cover-image";
 
 const STATUS_OPTIONS = [
   { value: "Ongoing", label: "Ongoing" },
@@ -132,6 +134,7 @@ const MENU_HEIGHT = 112;
 const VIEWPORT_MARGIN = 12;
 
 const EditWorkPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { workId } = useParams();
@@ -291,12 +294,9 @@ const EditWorkPage = () => {
 
   const handleCoverChange = (file) => {
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("ارفع صورة (PNG، JPG، GIF)");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("يجب أن يكون حجم الصورة أقل من 10 ميجابايت");
+    const coverError = getCoverImageError(file);
+    if (coverError) {
+      toast.error(t(coverError));
       return;
     }
     setCoverFile(file);
@@ -824,11 +824,11 @@ const EditWorkPage = () => {
                           <UploadCloud className="h-10 w-10" />
                           <div className="space-y-2">
                             <p className="noto-sans-arabic-bold text-white">اسحب الصورة هنا أو اضغط للرفع</p>
-                            <p className="noto-sans-arabic-medium text-xs" style={{ color: '#797979' }}>PNG / JPG / GIF · 1600px كحد أدنى · أقصى حجم 10 ميجابايت</p>
+                            <p className="noto-sans-arabic-medium text-xs" style={{ color: '#797979' }}>{t("workPage.create.form.coverUploadHelp")}</p>
                           </div>
                           <input
                             type="file"
-                            accept="image/*"
+                            accept={COVER_IMAGE_ACCEPT}
                             onChange={(event) => handleCoverChange(event.target.files?.[0] ?? null)}
                             className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                           />

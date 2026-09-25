@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../constants/base-url";
+import { throwIfRateLimited } from "../../utils/rate-limit";
 
 const login = async (formData) => {
   try {
@@ -10,6 +11,9 @@ const login = async (formData) => {
         "Content-Type": "application/json",
       },
     });
+
+    // 429 - account temporarily locked after failed sign-ins, or too many requests from this IP
+    throwIfRateLimited(response);
 
     // Handle 403 - Invalid credentials (before parsing JSON)
     if (response.status === 403) {
