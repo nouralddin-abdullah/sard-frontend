@@ -44,8 +44,9 @@ export const useTrackReadingProgress = () => {
       return data;
     },
     onSuccess: () => {
-      // Invalidate reading history to show updated progress
+      // Invalidate reading history and the novel page's "continue reading" so both show the new position
       queryClient.invalidateQueries({ queryKey: ["readingHistory"] });
+      queryClient.invalidateQueries({ queryKey: ["novelReadingProgress"] });
     },
     onError: (error) => {
       // Silently fail for unauthenticated users or other errors

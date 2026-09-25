@@ -79,8 +79,9 @@ const CreateReadingListModal = ({ isOpen, onClose }) => {
           onClose();
         },
         onError: (error) => {
-          const errorMessage = error.response?.data?.message;
-          if (errorMessage?.toLowerCase().includes("duplicate")) {
+          const errorMessage = error.response?.data?.message?.toLowerCase();
+          // The API answers 400 "You already have a reading list named '...'"
+          if (errorMessage?.includes("already") || errorMessage?.includes("duplicate")) {
             toast.error("لديك قائمة بنفس الاسم بالفعل");
           } else {
             toast.error("حدث خطأ أثناء إنشاء القائمة");
