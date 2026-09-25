@@ -1,10 +1,8 @@
 // Cloudflare Worker for sardnovels.com:
 //   /sitemap.xml                         -> sitemap with every public novel and published chapter
-//   /api/og/novel/:slug                  -> dynamic Open Graph image
+//   /api/og/novel/:slug                  -> the novel's share image (og.jpg made by the API with its cover)
 //   /novel/:slug, /novel/:slug/chapter/:id -> server-rendered HTML for crawlers (everyone else gets the React app)
 // Crawler HTML is cached for a day; the sitemap for an hour.
-
-import { ImageResponse } from 'workers-og';
 
 const SITE = 'https://www.sardnovels.com';
 
@@ -17,6 +15,10 @@ const API_HEADERS = { 'User-Agent': 'SardSeoWorker/1.0 (+https://www.sardnovels.
 const HTML_CACHE_SECONDS = 86400;
 const SITEMAP_CACHE_SECONDS = 3600;
 const OG_CACHE_SECONDS = 604800;
+
+// Share images are 1200x630 JPEGs. Novels without a cover in the standard format (not converted yet, or no cover)
+// get the site's branded default (the web app's public/og-default.jpg).
+const DEFAULT_SHARE_IMAGE = `${SITE}/og-default.jpg`;
 
 export default {
   async fetch(request, env, ctx) {
@@ -93,7 +95,8 @@ async function renderNovel(slug, env) {
   const chapters = chaptersRes.ok ? await chaptersRes.json() : [];
 
   const url = `${SITE}/novel/${slug}`;
-  const image = `${SITE}/api/og/novel/${slug}`;
+  const image = shareImageUrl(slug, novel.coverImageUrl);
+  const cover = coverImageUrl(novel.coverImageUrl);
   const author = novel.author?.displayName || '';
   const genres = (novel.genresList || []).map((g) => translateGenre(g.name));
 
@@ -102,7 +105,7 @@ async function renderNovel(slug, env) {
     '@type': 'Book',
     name: novel.title,
     url,
-    image,
+    image: cover || image,
     author: { '@type': 'Person', name: author },
     description: novel.summary || '',
     genre: genres,
@@ -117,10 +120,12 @@ async function renderNovel(slug, env) {
 
   return html({
     title: `${novel.title} - سرد`,
+    // Link previews show og:title and og:description under the image, which carries no text.
+    ogTitle: author ? `${novel.title} - ${author}` : novel.title,
     description: truncate(novel.summary, 160),
     url,
     image,
-    imageAlt: `${novel.title} - سرد`,
+    imageAlt: `غلاف رواية ${novel.title}`,
     ogType: 'book',
     jsonLd: [jsonLd, breadcrumbs([{ name: novel.title, url }])],
     body: `
@@ -129,7 +134,7 @@ async function renderNovel(slug, env) {
     <h1>${escapeHtml(novel.title)}</h1>
     <p>بقلم: ${escapeHtml(author)}</p>
     ${genres.length ? `<p>التصنيف: ${genres.map(escapeHtml).join('، ')}</p>` : ''}
-    <img src="${escapeHtml(cleanImageUrl(novel.coverImageUrl))}" alt="${escapeHtml(novel.title)}" width="260" height="390">
+    ${cover ? `<img src="${escapeHtml(cover)}" alt="${escapeHtml(`غلاف رواية ${novel.title}`)}" width="320" height="480">` : ''}
     <p>${escapeHtml(novel.summary || '')}</p>
     ${chapters.length ? `<h2>الفصول (${chapters.length})</h2>\n    <ol>\n${chapterLinks}\n    </ol>` : ''}
   </main>`,
@@ -200,8 +205,8 @@ async function renderChapter(slug, chapterId, env) {
     title: `${chapter.title} - ${novel.title} | سرد`,
     description: truncate(chapter.isLocked ? novel.summary : paragraphs.join(' '), 160),
     url,
-    image: `${SITE}/api/og/novel/${slug}`,
-    imageAlt: `${novel.title} - سرد`,
+    image: shareImageUrl(slug, novel.coverImageUrl),
+    imageAlt: `غلاف رواية ${novel.title}`,
     ogType: 'article',
     jsonLd: [jsonLd, breadcrumbs([{ name: novel.title, url: novelUrl }, { name: chapter.title, url }])],
     body: `
@@ -219,7 +224,7 @@ async function renderChapter(slug, chapterId, env) {
 
 // ─── Shared HTML ───
 
-function html({ title, description, url, image, imageAlt, ogType, jsonLd, body }) {
+function html({ title, ogTitle, description, url, image, imageAlt, ogType, jsonLd, body }) {
   const scripts = jsonLd
     .map((data) => `<script type="application/ld+json">${safeJson(data)}</script>`)
     .join('\n  ');
@@ -232,10 +237,10 @@ function html({ title, description, url, image, imageAlt, ogType, jsonLd, body }
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}">
   <link rel="canonical" href="${url}">
-  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:title" content="${escapeHtml(ogTitle || title)}">
   <meta property="og:description" content="${escapeHtml(description)}">
-  <meta property="og:image" content="${image}">
-  <meta property="og:image:type" content="image/png">
+  <meta property="og:image" content="${escapeHtml(image)}">
+  <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="${escapeHtml(imageAlt)}">
@@ -245,6 +250,9 @@ function html({ title, description, url, image, imageAlt, ogType, jsonLd, body }
   <meta property="og:site_name" content="سرد">
   <meta property="fb:app_id" content="966242223397117">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${escapeHtml(ogTitle || title)}">
+  <meta name="twitter:description" content="${escapeHtml(description)}">
+  <meta name="twitter:image" content="${escapeHtml(image)}">
   ${scripts}
 </head>
 <body>${body}
@@ -327,91 +335,61 @@ ${lines.join('\n')}
   });
 }
 
-// ─── OG image ───
+// ─── Share image ───
+
+// The API stores each cover as novel-covers/{novelId}/{coverId}/{width}.webp next to og.jpg, a ready-made 1200x630
+// share image (the cover on a blurred copy of itself, with the Sard wordmark). This route serves that file from the
+// site's own domain so previews show sardnovels.com and the edge caches it; the ?v= in og:image changes with the
+// cover, so a new cover is a new cache entry for Cloudflare and for Facebook/WhatsApp.
+const STANDARD_COVER = /\/novel-covers\/[0-9a-fA-F-]{36}\/([0-9a-f]{32})\/[1-9][0-9]{1,3}\.webp$/;
 
 async function renderOgImage(slug, env) {
-  try {
-    const novelRes = await api(env, `/api/novel/${slug}`);
-    if (!novelRes.ok) {
-      return new Response('Novel not found', { status: 404 });
+  const novelRes = await api(env, `/api/novel/${slug}`);
+  if (!novelRes.ok) {
+    return novelRes.status === 404 ? new Response('Novel not found', { status: 404 }) : fallbackShareImage();
+  }
+  const novel = await novelRes.json();
+  const shareUrl = standardShareImage(novel.coverImageUrl);
+  if (shareUrl) {
+    const res = await fetch(shareUrl);
+    if (res.ok) {
+      return new Response(res.body, { headers: { 'Content-Type': 'image/jpeg' } });
     }
-    const novel = await novelRes.json();
+    console.error(`Share image missing for ${slug}: ${res.status} ${shareUrl}`);
+  }
+  return fallbackShareImage();
+}
 
-    const title = escapeHtml(novel.title || '');
-    const author = escapeHtml(novel.author?.displayName || '');
-    const genre = escapeHtml(novel.genresList?.[0]?.name || '');
-    const coverUrl = cleanImageUrl(novel.coverImageUrl);
-
-    // Noto Sans Arabic Bold
-    const fontUrl = 'https://fonts.gstatic.com/s/notosansarabic/v18/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfyG2vu3CBFQLaig.ttf';
-    const fontData = await fetch(fontUrl).then((r) => r.arrayBuffer());
-
-    let coverBase64 = '';
-    try {
-      const coverRes = await fetch(coverUrl);
-      if (coverRes.ok) {
-        const bytes = new Uint8Array(await coverRes.arrayBuffer());
-        let binary = '';
-        for (let i = 0; i < bytes.length; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
-        coverBase64 = `data:image/jpeg;base64,${btoa(binary)}`;
-      }
-    } catch (e) {
-      console.error('Error fetching cover:', e);
-    }
-
-    // Book showcase card (RTL)
-    const card = `
-    <div style="display: flex; width: 1200px; height: 630px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); font-family: 'Noto Sans Arabic'; direction: rtl;">
-      <div style="display: flex; align-items: center; justify-content: center; width: 380px; height: 630px; padding: 40px 30px 40px 0;">
-        ${coverBase64 ? `
-        <div style="display: flex; position: relative;">
-          <div style="display: flex; position: absolute; top: 8px; right: -8px; width: 260px; height: 390px; background: rgba(0,0,0,0.4); border-radius: 4px;"></div>
-          <div style="display: flex; position: absolute; right: -4px; top: 0; width: 8px; height: 390px; background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.3) 100%); border-radius: 2px 0 0 2px;"></div>
-          <img src="${coverBase64}" width="260" height="390" style="border-radius: 4px; border: 2px solid rgba(255,255,255,0.15); object-fit: cover;" />
-        </div>
-        ` : `
-        <div style="display: flex; align-items: center; justify-content: center; width: 260px; height: 390px; background: rgba(255,255,255,0.1); border-radius: 4px; border: 2px solid rgba(255,255,255,0.15); color: white; font-size: 24px;">
-          سرد
-        </div>
-        `}
-      </div>
-      <div style="display: flex; flex-direction: column; justify-content: center; flex: 1; padding: 50px 40px 50px 50px; gap: 0;">
-        <div style="display: flex; font-size: ${title.length > 40 ? '36' : title.length > 25 ? '42' : '50'}px; font-weight: 700; color: #ffffff; line-height: 1.3; margin-bottom: 20px; text-align: right; max-height: 200px; overflow: hidden;">
-          ${title}
-        </div>
-        <div style="display: flex; width: 80px; height: 4px; background: linear-gradient(90deg, #e94560, #c23152); border-radius: 2px; margin-bottom: 24px;"></div>
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-          <div style="display: flex; font-size: 24px; color: #e94560; font-weight: 600;">بقلم</div>
-          <div style="display: flex; font-size: 28px; color: #d4d4d4; font-weight: 500;">${author}</div>
-        </div>
-        ${genre ? `
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div style="display: flex; padding: 8px 20px; background: rgba(233, 69, 96, 0.15); border: 1px solid rgba(233, 69, 96, 0.3); border-radius: 20px; font-size: 18px; color: #e94560;">
-            ${translateGenre(genre)}
-          </div>
-        </div>
-        ` : ''}
-        <div style="display: flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 30px;">
-          <div style="display: flex; font-size: 20px; color: rgba(255,255,255,0.4); font-weight: 400;">sardnovels.com</div>
-        </div>
-      </div>
-    </div>`;
-
-    const image = new ImageResponse(card, {
-      width: 1200,
-      height: 630,
-      fonts: [{ name: 'Noto Sans Arabic', data: fontData, weight: 700, style: 'normal' }],
-    });
-
-    const response = new Response(image.body, image);
-    response.headers.set('Content-Type', 'image/png');
-    return response;
-  } catch (error) {
-    console.error('Error generating OG image:', error);
+async function fallbackShareImage() {
+  const res = await fetch(DEFAULT_SHARE_IMAGE);
+  if (!res.ok) {
     return Response.redirect(`${SITE}/logo.png`, 302);
   }
+  return new Response(res.body, { headers: { 'Content-Type': 'image/jpeg' } });
+}
+
+/** og.jpg next to a standard cover, or null for a legacy (not yet converted) cover. */
+function standardShareImage(url) {
+  const clean = String(url || '').replace(INVISIBLE, '');
+  return STANDARD_COVER.test(clean) ? clean.slice(0, clean.lastIndexOf('/') + 1) + 'og.jpg' : null;
+}
+
+/** og:image for a novel: this worker's route, versioned by the cover so a changed cover is fetched again. */
+function shareImageUrl(slug, coverUrl) {
+  return `${SITE}/api/og/novel/${slug}?v=${coverVersion(coverUrl)}`;
+}
+
+function coverVersion(url) {
+  if (!url) return 'none';
+  const match = String(url).match(STANDARD_COVER);
+  if (match) return match[1];
+  // Legacy cover: a short hash of its URL (FNV-1a).
+  let hash = 0x811c9dc5;
+  for (const ch of String(url)) {
+    hash ^= ch.codePointAt(0);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(16);
 }
 
 // ─── Utilities ───
@@ -460,22 +438,33 @@ function toIso(value) {
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
 
-function cleanImageUrl(url) {
-  if (!url) return `${SITE}/logo.png`;
+// Invisible direction marks and zero-width characters that sometimes end up in pasted titles (and so in legacy keys).
+const INVISIBLE = /[\u200B-\u200D\u202A-\u202E\u2066-\u2069\uFEFF]/g;
 
-  try {
-    // Remove invisible Unicode characters (RTL marks, zero-width characters, etc.)
-    const cleanUrl = url.replace(/[\u200B-\u200D\u202A-\u202E\uFEFF]/g, '').trim();
-    const urlObj = new URL(cleanUrl);
-    urlObj.pathname = urlObj.pathname
-      .split('/')
-      .map((segment) => (segment ? encodeURIComponent(decodeURIComponent(segment)) : segment))
-      .join('/');
-    return urlObj.toString();
-  } catch (e) {
-    console.error('Error cleaning image URL:', e);
-    return `${SITE}/logo.png`;
-  }
+/**
+ * A cover URL crawlers load exactly as stored. Legacy keys contain spaces (sometimes trailing), Arabic and brackets;
+ * URL parsers drop a raw trailing space, which asks the bucket for another key, so each path segment is encoded here.
+ * Standard covers (plain ASCII keys) pass through unchanged. Null when there is no usable URL.
+ */
+function coverImageUrl(url) {
+  if (!url) return null;
+  const cleaned = String(url).replace(INVISIBLE, '');
+  const match = cleaned.match(/^(https?:\/\/[^/?#]+)([^?#]*)(.*)$/i);
+  if (!match) return null;
+  const [, origin, path, rest] = match;
+  const encoded = path
+    .split('/')
+    .map((segment) => {
+      let decoded = segment;
+      try {
+        decoded = decodeURIComponent(segment);
+      } catch {
+        // A lone "%" in a legacy key: encode it as it is.
+      }
+      return encodeURIComponent(decoded);
+    })
+    .join('/');
+  return `${origin}${encoded}${rest}`;
 }
 
 function translateGenre(genre) {

@@ -101,6 +101,27 @@ export const coverThumbnailUrl = (url) => {
 export const coverShareImageUrl = (url) =>
   isStandardCover(url) ? `${url.slice(0, url.lastIndexOf("/") + 1)}og.jpg` : null;
 
+/**
+ * og:image for a novel page: the SEO worker's route, which serves the API's og.jpg share image (or the branded
+ * default). The version changes with the cover, so a new cover is fetched again by the edge cache and by Facebook or
+ * WhatsApp. Must match `shareImageUrl` in cloudflare-worker/seo-worker.js.
+ */
+export const novelShareImageUrl = (slug, coverUrl) =>
+  `https://www.sardnovels.com/api/og/novel/${encodeURIComponent(slug)}?v=${coverVersion(coverUrl)}`;
+
+const coverVersion = (url) => {
+  if (!url) return "none";
+  const match = String(url).match(/\/novel-covers\/[0-9a-fA-F-]{36}\/([0-9a-f]{32})\/[1-9][0-9]{1,3}\.webp$/);
+  if (match) return match[1];
+  // Legacy cover: a short hash of its URL (FNV-1a), as the worker computes it.
+  let hash = 0x811c9dc5;
+  for (const ch of String(url)) {
+    hash ^= ch.codePointAt(0);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(16);
+};
+
 /** Maps an API cover error code (CoverErrorCodes in the backend) to its i18n key. */
 export const coverErrorKey = (code) =>
   ({

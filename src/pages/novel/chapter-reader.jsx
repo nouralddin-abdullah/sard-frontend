@@ -19,6 +19,7 @@ import Cookies from 'js-cookie';
 import { TOKEN_KEY } from '../../constants/token-key';
 import { DEFAULT_AVATAR_SVG } from '../../components/common/SafeImage';
 import NovelCover from "../../components/common/NovelCover";
+import { encodeImageUrl, novelShareImageUrl } from "../../utils/cover-image";
 
 const ChapterReaderPage = () => {
   const { novelSlug, chapterId } = useParams();
@@ -368,7 +369,8 @@ const ChapterReaderPage = () => {
         <meta property="og:type" content="article" />
         <meta property="og:title" content={`${chapter?.title || 'الفصل'} - ${novel?.title || 'رواية'}`} />
         <meta property="og:description" content={`اقرأ ${chapter?.title || 'الفصل'} من رواية ${novel?.title || ''}`} />
-        <meta property="og:image" content={`https://www.sardnovels.com/api/og/novel/${novelSlug}`} />
+        <meta property="og:image" content={novelShareImageUrl(novelSlug, novel?.coverImageUrl)} />
+        <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:url" content={`https://www.sardnovels.com/novel/${novelSlug}/chapter/${chapterId}`} />
@@ -381,7 +383,7 @@ const ChapterReaderPage = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${chapter?.title || 'الفصل'} - ${novel?.title || 'رواية'}`} />
         <meta name="twitter:description" content={`اقرأ ${chapter?.title || 'الفصل'} من رواية ${novel?.title || ''}`} />
-        <meta name="twitter:image" content={`https://www.sardnovels.com/api/og/novel/${novelSlug}`} />
+        <meta name="twitter:image" content={novelShareImageUrl(novelSlug, novel?.coverImageUrl)} />
         
         {/* Canonical URL */}
         <link rel="canonical" href={`https://www.sardnovels.com/novel/${novelSlug}/chapter/${chapterId}`} />
@@ -393,7 +395,7 @@ const ChapterReaderPage = () => {
             "@type": "Article",
             "headline": chapter?.title || 'الفصل',
             "description": `اقرأ ${chapter?.title || 'الفصل'} من رواية ${novel?.title || ''}`,
-            "image": novel?.coverImageUrl || '',
+            "image": encodeImageUrl(novel?.coverImageUrl) || '',
             "author": {
               "@type": "Person",
               "name": novel?.author?.displayName || '',
