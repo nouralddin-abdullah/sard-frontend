@@ -94,6 +94,14 @@
       "passwordTooShort": "يجب أن تحتوي كلمة المرور على 6 أحرف على الأقل",
       "confirmPasswordRequired": "يرجى تأكيد كلمة المرور",
       "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+      "passwordsMatch": "كلمتا المرور متطابقتان",
+      "passwordStrength": {
+        "weak": "ضعيفة",
+        "fair": "مقبولة",
+        "good": "جيدة",
+        "strong": "قوية",
+        "excellent": "ممتازة"
+      },
       "newPasswordRequired": "كلمة المرور الجديدة مطلوبة",
       "confirmNewPasswordRequired": "يرجى تأكيد كلمة المرور الجديدة",
       "newPasswordsDoNotMatch": "كلمات المرور الجديدة غير متطابقة",

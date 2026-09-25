@@ -31,6 +31,7 @@ const CharacterCounter = ({ current, min, max }) => {
 
 // Password strength indicator
 const PasswordStrength = ({ password }) => {
+  const { t } = useTranslation();
   const getStrength = () => {
     if (!password) return { level: 0, label: '', color: '' };
     
@@ -41,11 +42,11 @@ const PasswordStrength = ({ password }) => {
     if (/[0-9]/.test(password)) strength++;
     if (/[^A-Za-z0-9]/.test(password)) strength++;
     
-    if (strength <= 1) return { level: 1, label: 'Weak', color: '#FF6B6B' };
-    if (strength <= 2) return { level: 2, label: 'Fair', color: '#FFA94D' };
-    if (strength <= 3) return { level: 3, label: 'Good', color: '#FFD43B' };
-    if (strength <= 4) return { level: 4, label: 'Strong', color: '#69DB7C' };
-    return { level: 5, label: 'Excellent', color: '#51CF66' };
+    if (strength <= 1) return { level: 1, label: t("auth.validation.passwordStrength.weak"), color: '#FF6B6B' };
+    if (strength <= 2) return { level: 2, label: t("auth.validation.passwordStrength.fair"), color: '#FFA94D' };
+    if (strength <= 3) return { level: 3, label: t("auth.validation.passwordStrength.good"), color: '#FFD43B' };
+    if (strength <= 4) return { level: 4, label: t("auth.validation.passwordStrength.strong"), color: '#69DB7C' };
+    return { level: 5, label: t("auth.validation.passwordStrength.excellent"), color: '#51CF66' };
   };
   
   const { level, label, color } = getStrength();
@@ -553,10 +554,12 @@ export default function RegisterForm() {
             )}
           </button>
         </div>
-        {touched.confirmPassword && validationState.confirmPassword?.isValid && (
+        {/* Shown as soon as the passwords match (not on blur), so the submit button does not jump
+            under the pointer when the field loses focus and swallow the first click. */}
+        {formFields.confirmPassword && validationState.confirmPassword?.isValid && (
           <p className="text-emerald-400 text-[13px] mt-1.5 flex items-center gap-1">
             <Check className="h-3 w-3" />
-            Passwords match
+            {t("auth.validation.passwordsMatch")}
           </p>
         )}
         {(errors.confirmPassword || (touched.confirmPassword && !validationState.confirmPassword?.isValid && formFields.confirmPassword)) && (

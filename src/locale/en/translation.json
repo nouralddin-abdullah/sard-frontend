@@ -94,6 +94,14 @@
       "passwordTooShort": "Password must be at least 6 characters long",
       "confirmPasswordRequired": "Please confirm your password",
       "passwordsDoNotMatch": "Passwords do not match",
+      "passwordsMatch": "Passwords match",
+      "passwordStrength": {
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good",
+        "strong": "Strong",
+        "excellent": "Excellent"
+      },
       "newPasswordRequired": "New password is required",
       "confirmNewPasswordRequired": "Please confirm your new password",
       "newPasswordsDoNotMatch": "New passwords do not match",
