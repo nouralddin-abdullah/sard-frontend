@@ -3,11 +3,9 @@ import AppRouter from "./components/common/AppRouter";
 import ScrollToTop from "./components/common/ScrollToTop";
 
 function App() {
-  document.dir =
-    !localStorage.getItem("language") ||
-    localStorage.getItem("language") === "ar"
-      ? "rtl"
-      : "ltr";
+  // Arabic-only site: always right-to-left (index.html also sets lang="ar" dir="rtl").
+  document.documentElement.lang = "ar";
+  document.dir = "rtl";
 
   return (
     <>

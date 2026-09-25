@@ -7,7 +7,7 @@ Load the `sard` skill for platform context: API, production data, SEO audit, roa
 
 Vite 7 SPA, React 19, React Router 7 (routes in the config used by `src/components/common/AppRouter.jsx`),
 TanStack Query (hooks per domain in `src/hooks/<domain>/`), Zustand (`src/store/`), Tailwind 4, i18next
-(`src/locale/ar`, `src/locale/en`), react-helmet-async for page meta, Tiptap for the author editor. ES modules only.
+(`src/locale/ar`; the `src/locale/en` leftovers are unused), react-helmet-async for page meta, Tiptap for the author editor. ES modules only.
 API base URL: `src/constants/base-url.js`. Cloudflare Worker for SEO/OG/sitemap: `cloudflare-worker/`.
 
 ## Commands
@@ -22,8 +22,11 @@ cd cloudflare-worker && npx wrangler deploy     # SEO worker (see cloudflare-wor
 
 ## Rules
 
-- Arabic-first, RTL by default. Use logical CSS (`ms-`/`me-`/`ps-`/`pe-`, `start`/`end`), not left/right.
-  Every user-facing string goes through i18next with both `ar` and `en` entries.
+- **Sard is Arabic-only; there is no English version and none is planned.** The UI is always Arabic and RTL
+  (`src/i18n.js` forces `ar`). Don't build, translate or test English. New user-facing strings go in
+  `src/locale/ar/translation.json` via i18next (or inline Arabic where the surrounding code does that); an `en`
+  entry is not required. The unused `src/locale/en` and remaining English plumbing can be removed later.
+- Use logical CSS (`ms-`/`me-`/`ps-`/`pe-`, `start`/`end`), not left/right.
 - Correctness and stability over speed; no shortcuts. UI work runs as a Design -> Debug -> Redesign loop until no
   issues remain, and is never left half-finished. (From the project's original Copilot instructions.)
 - Every indexable page sets its own `<title>`, description, canonical, and OG tags. Never hard-code a canonical in
@@ -34,5 +37,5 @@ cd cloudflare-worker && npx wrangler deploy     # SEO worker (see cloudflare-wor
 
 ## Before you say it's done
 
-`npm run build` and `npm run lint` pass; UI checked in the browser in Arabic (RTL) and English; for SEO work, the
+`npm run build` and `npm run lint` pass; UI checked in the browser in Arabic (RTL), on mobile and desktop widths; for SEO work, the
 Googlebot curl check above passes.
