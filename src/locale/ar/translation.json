@@ -400,5 +400,13 @@
     "suggestedNovelTitle": "الحمار المتهور",
     "writer": "الكاتب",
     "writerName": "هاني"
+  },
+  "genrePage": {
+    "meta": {
+      "title": "روايات {{genre}} | سرد",
+      "description": "اكتشف أفضل روايات {{genre}} العربية على سرد: الأكثر رواجاً والأعلى تقييماً والأحدث.",
+      "notFoundTitle": "النوع غير موجود | سرد",
+      "siteName": "سرد"
+    }
   }
 }

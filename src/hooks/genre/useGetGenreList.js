@@ -2,13 +2,11 @@ import { BASE_URL } from "../../constants/base-url";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
 import { useQuery } from "@tanstack/react-query";
+import { GENRES } from "../../utils/genreSections";
 
-const FALLBACK_GENRES = [
-  { id: 1, name: "Adventure" },
-  { id: 2, name: "Fantasy" },
-  { id: 3, name: "Drama" },
-  { id: 4, name: "Science Fiction" },
-];
+// Same ids, slugs and names as the API's genres (the author forms submit these ids), so a failed request
+// can't make the create/edit forms assign the wrong genre or send genre links to /genre/undefined.
+const FALLBACK_GENRES = GENRES;
 
 const getGenres = async () => {
   const accessToken = Cookies.get(TOKEN_KEY);

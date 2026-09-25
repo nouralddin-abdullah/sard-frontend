@@ -24,7 +24,9 @@ const getGenreNovels = async ({ genreSlug, pageNumber = 1, pageSize = 20, sortin
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch genre novels");
+    const error = new Error("Failed to fetch genre novels");
+    error.status = response.status; // 404 = unknown genre
+    throw error;
   }
 
   return response.json();
@@ -35,5 +37,7 @@ export const useGetGenreNovels = ({ genreSlug, pageNumber, pageSize, sorting, is
     queryKey: ["genre-novels", genreSlug, pageNumber, pageSize, sorting, isCompleted],
     queryFn: () => getGenreNovels({ genreSlug, pageNumber, pageSize, sorting, isCompleted }),
     enabled: !!genreSlug,
+    // An unknown genre won't appear on a retry.
+    retry: (failureCount, error) => error?.status !== 404 && failureCount < 1,
   });
 };
