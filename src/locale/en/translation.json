@@ -61,7 +61,12 @@
       "updatePassword": "Update Password",
       "updatingPassword": "Updating password...",
       "backToLogin": "Back to Login",
-      "passwordUpdated": "Password updated successfully"
+      "passwordUpdated": "Password updated successfully",
+      "invalidLinkToast": "Invalid link. Please request a new password reset link",
+      "invalidLinkShort": "Invalid link",
+      "resetFailed": "Couldn't change the password. The link may have expired; request a new one.",
+      "invalidLinkDetail": "This link is invalid or has expired",
+      "requestNewLink": "Request a new link"
     },
     "success": {
       "title": "Authentication Successful!",
