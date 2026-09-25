@@ -6,6 +6,7 @@ import { useGetMyReadingLists } from "../../hooks/reading-list/useGetMyReadingLi
 import { useGetUserReadingLists } from "../../hooks/reading-list/useGetUserReadingLists";
 import { useGetFollowedReadingLists } from "../../hooks/reading-list/useGetFollowedReadingLists";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
+import NovelCover from "../common/NovelCover";
 
 // Placeholder data - fallback only
 const placeholderData = {
@@ -235,28 +236,27 @@ const Library = ({ username }) => {
                               {/* Show +X on 3rd card if more than 2 novels exist */}
                               {index === 2 && list.novelsCount > 2 ? (
                                 <Link to={`/reading-list/${list.id}`}>
-                                  <div className="aspect-[3/4] rounded-lg overflow-hidden relative" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                                    <img
-                                      src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
-                                      alt={novel.title}
-                                      className="w-full h-full object-cover"
-                                    />
+                                  <NovelCover
+                                    src={novel.coverImageUrl}
+                                    title={novel.title}
+                                    className="w-full shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                                    sizes="(min-width: 768px) 180px, 30vw"
+                                  >
                                     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center">
                                       <span className="text-xl font-bold noto-sans-arabic-extrabold text-white">
                                         +{list.novelsCount - 2}
                                       </span>
                                     </div>
-                                  </div>
+                                  </NovelCover>
                                 </Link>
                               ) : (
                                 <Link to={`/novel/${novel.slug}`}>
-                                  <div className="aspect-[3/4] rounded-lg overflow-hidden transition-all duration-300" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                                    <img
-                                      src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
-                                      alt={novel.title}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  </div>
+                                  <NovelCover
+                                    src={novel.coverImageUrl}
+                                    title={novel.title}
+                                    className="w-full shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                                    sizes="(min-width: 768px) 180px, 30vw"
+                                  />
                                 </Link>
                               )}
                             </div>
@@ -269,28 +269,28 @@ const Library = ({ username }) => {
                               {/* Show +X on 3rd card if more than 2 novels exist */}
                               {index === 2 && list.novelsCount > 2 ? (
                                 <Link to={`/reading-list/${list.id}`}>
-                                  <div className="aspect-[3/4] rounded-lg overflow-hidden relative" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                                    <img
-                                      src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
-                                      alt={novel.title}
-                                      className="w-full h-full object-cover"
-                                    />
+                                  <NovelCover
+                                    src={novel.coverImageUrl}
+                                    title={novel.title}
+                                    className="w-full shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                                    sizes="(min-width: 768px) 180px, 30vw"
+                                  >
                                     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-lg flex items-center justify-center cursor-pointer hover:bg-black/90 transition-colors">
                                       <span className="text-3xl font-bold noto-sans-arabic-extrabold text-white">
                                         +{list.novelsCount - 2}
                                       </span>
                                     </div>
-                                  </div>
+                                  </NovelCover>
                                 </Link>
                               ) : (
                                 <Link to={`/novel/${novel.slug}`}>
-                                  <div className="aspect-[3/4] rounded-lg overflow-hidden transition-all duration-300" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                                    <img
-                                      src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
-                                      alt={novel.title}
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                    />
-                                  </div>
+                                  <NovelCover
+                                    src={novel.coverImageUrl}
+                                    title={novel.title}
+                                    className="w-full shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                                    imgClassName="group-hover:scale-105 transition-transform duration-300"
+                                    sizes="(min-width: 768px) 180px, 30vw"
+                                  />
                                 </Link>
                               )}
                             </div>
@@ -361,28 +361,27 @@ const Library = ({ username }) => {
                                   {/* Show +X on 3rd card if more than 2 novels exist */}
                                   {index === 2 && list.novelsCount > 2 ? (
                                     <Link to={`/reading-list/${list.id}`}>
-                                      <div className="aspect-[3/4] rounded-lg overflow-hidden relative" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                                        <img
-                                          src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
-                                          alt={novel.title}
-                                          className="w-full h-full object-cover"
-                                        />
+                                      <NovelCover
+                                        src={novel.coverImageUrl}
+                                        title={novel.title}
+                                        className="w-full shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                                        sizes="(min-width: 768px) 180px, 30vw"
+                                      >
                                         <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center">
                                           <span className="text-xl font-bold noto-sans-arabic-extrabold text-white">
                                             +{list.novelsCount - 2}
                                           </span>
                                         </div>
-                                      </div>
+                                      </NovelCover>
                                     </Link>
                                   ) : (
                                     <Link to={`/novel/${novel.slug}`}>
-                                      <div className="aspect-[3/4] rounded-lg overflow-hidden transition-all duration-300" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                                        <img
-                                          src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
-                                          alt={novel.title}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      </div>
+                                      <NovelCover
+                                        src={novel.coverImageUrl}
+                                        title={novel.title}
+                                        className="w-full shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                                        sizes="(min-width: 768px) 180px, 30vw"
+                                      />
                                     </Link>
                                   )}
                                 </div>
@@ -395,28 +394,28 @@ const Library = ({ username }) => {
                                   {/* Show +X on 3rd card if more than 2 novels exist */}
                                   {index === 2 && list.novelsCount > 2 ? (
                                     <Link to={`/reading-list/${list.id}`}>
-                                      <div className="aspect-[3/4] rounded-lg overflow-hidden relative" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                                        <img
-                                          src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
-                                          alt={novel.title}
-                                          className="w-full h-full object-cover"
-                                        />
+                                      <NovelCover
+                                        src={novel.coverImageUrl}
+                                        title={novel.title}
+                                        className="w-full shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                                        sizes="(min-width: 768px) 180px, 30vw"
+                                      >
                                         <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-lg flex items-center justify-center cursor-pointer hover:bg-black/90 transition-colors">
                                           <span className="text-3xl font-bold noto-sans-arabic-extrabold text-white">
                                             +{list.novelsCount - 2}
                                           </span>
                                         </div>
-                                      </div>
+                                      </NovelCover>
                                     </Link>
                                   ) : (
                                     <Link to={`/novel/${novel.slug}`}>
-                                      <div className="aspect-[3/4] rounded-lg overflow-hidden transition-all duration-300" style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}>
-                                        <img
-                                          src={novel.coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop"}
-                                          alt={novel.title}
-                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                        />
-                                      </div>
+                                      <NovelCover
+                                        src={novel.coverImageUrl}
+                                        title={novel.title}
+                                        className="w-full shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                                        imgClassName="group-hover:scale-105 transition-transform duration-300"
+                                        sizes="(min-width: 768px) 180px, 30vw"
+                                      />
                                     </Link>
                                   )}
                                 </div>

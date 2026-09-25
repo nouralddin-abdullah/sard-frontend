@@ -10,6 +10,7 @@ import { useSearchUsers } from "../../hooks/search/useSearchUsers";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import { translateGenre } from "../../utils/translate-genre";
+import NovelCover from "../../components/common/NovelCover";
 
 const SORT_OPTIONS = [
   { value: "Relevance", label: "الأكثر صلة" },
@@ -372,13 +373,13 @@ const SearchPage = () => {
                             <div className="bg-[#2C2C2C] rounded-xl overflow-hidden border border-gray-700 hover:border-[#4A9EFF] transition-all duration-300 shadow-lg hover:shadow-blue-500/20">
                               <div className="flex gap-4 p-4">
                                 {/* Cover Image */}
-                                <div className="flex-shrink-0 w-32 h-44 rounded-lg overflow-hidden border border-gray-700 shadow-lg">
-                                  <img
-                                    src={novel.coverImageUrl}
-                                    alt={novel.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                  />
-                                </div>
+                                <NovelCover
+                                  src={novel.coverImageUrl}
+                                  title={novel.title}
+                                  className="w-32 flex-shrink-0 self-start border border-gray-700 shadow-lg"
+                                  imgClassName="group-hover:scale-105 transition-transform duration-300"
+                                  sizes="128px"
+                                />
 
                                 {/* Novel Info */}
                                 <div className="flex-1 flex flex-col min-w-0">

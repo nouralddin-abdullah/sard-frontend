@@ -37,9 +37,9 @@ export default function ChangePasswordForm() {
     // Validate URL parameters
     if (!userId || !token) {
       setInvalidLink(true);
-      toast.error("رابط غير صالح. الرجاء طلب رابط جديد لإعادة تعيين كلمة المرور");
+      toast.error(t("auth.changePassword.invalidLinkToast"));
     }
-  }, [userId, token]);
+  }, [userId, token, t]);
 
   const handleChange = (e) => {
     setFormFields({
@@ -95,7 +95,7 @@ export default function ChangePasswordForm() {
     if (!validateFields()) return;
 
     if (!userId || !token) {
-      toast.error("رابط غير صالح");
+      toast.error(t("auth.changePassword.invalidLinkShort"));
       return;
     }
 
@@ -107,7 +107,7 @@ export default function ChangePasswordForm() {
       });
       
       setIsSuccess(true);
-      toast.success("تم تغيير كلمة المرور بنجاح");
+      toast.success(t("auth.changePassword.passwordUpdated"));
 
       // Redirect to login after 3 seconds
       setTimeout(() => {
@@ -115,7 +115,7 @@ export default function ChangePasswordForm() {
       }, 3000);
     } catch (error) {
       console.error(error);
-      toast.error(error.message || "حدث خطأ أثناء تغيير كلمة المرور");
+      toast.error(error.message || t("auth.changePassword.resetFailed"));
     }
   };
 
@@ -128,16 +128,16 @@ export default function ChangePasswordForm() {
             <XCircle className="h-8 w-8 text-red-600" />
           </div>
           <h3 className="text-xl text-white mb-2 noto-sans-arabic-bold">
-            رابط غير صالح
+            {t("auth.changePassword.invalidLinkShort")}
           </h3>
           <p className="text-gray-400 text-sm mb-4 noto-sans-arabic-medium">
-            هذا الرابط غير صالح أو منتهي الصلاحية
+            {t("auth.changePassword.invalidLinkDetail")}
           </p>
           <button
             onClick={() => navigate("/forgot-password")}
             className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors noto-sans-arabic-bold"
           >
-            طلب رابط جديد
+            {t("auth.changePassword.requestNewLink")}
           </button>
         </div>
       </div>

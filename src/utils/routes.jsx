@@ -22,7 +22,6 @@ import LibraryPage from "../pages/profile/LibraryPage";
 import SearchPage from "../pages/search/page";
 import LeaderboardPage from "../pages/leaderboard/page";
 import NotificationsPage from "../pages/notifications/page";
-import Test from "../pages/test";
 import EditWorkPage from "../pages/work/edit";
 import WorkDashboardPage from "../pages/work/dashboard";
 import ChapterEditorPage from "../pages/work/chapter-editor";
@@ -77,10 +76,6 @@ const routes = [
   {
     url: "/authorsbenefits",
     component: <MetsardPage />,
-  },
-  {
-    url: "/test",
-    component: <Test />,
   },
   {
     url: "/library",

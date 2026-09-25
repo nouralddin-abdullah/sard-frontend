@@ -4,11 +4,12 @@ import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
 import { useCreateWork } from "../../hooks/work/useCreateWork";
 import { toast } from "sonner";
 import Button from "../../components/ui/button";
-import { Image, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { translateGenre } from "../../utils/translate-genre";
 import ProtectedRoute from "../../components/auth/protected-route";
-import { COVER_IMAGE_ACCEPT, getCoverImageError } from "../../utils/cover-image";
+import CoverPicker from "../../components/work/CoverPicker";
+import { coverErrorKey } from "../../utils/cover-image";
 
 const SUMMARY_MAX = 2000;
 
@@ -19,12 +20,10 @@ export default function CreateNovel() {
     title: "",
     summary: "",
     genreIds: [], // Store genre IDs for backend
-    cover: null,
+    cover: null, // { file, previewUrl, source } from CoverPicker
   });
 
   const [selectedGenres, setSelectedGenres] = useState([]); // Store full genre objects for UI
-
-  const [dragActive, setDragActive] = useState(false);
 
   const { data: genres } = useGetGenresList();
 
@@ -65,44 +64,6 @@ export default function CreateNovel() {
     setSelectedGenres((prev) =>
       prev.filter((genre) => genre.id !== genreIdToRemove)
     );
-  };
-
-  const handleCoverSelection = (file) => {
-    if (!file) return;
-    const coverError = getCoverImageError(file);
-    if (coverError) {
-      toast.error(t(coverError));
-      return;
-    }
-    setFormData((prev) => ({
-      ...prev,
-      cover: file,
-    }));
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    handleCoverSelection(file);
-  };
-
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleCoverSelection(e.dataTransfer.files[0]);
-    }
   };
 
   const { mutateAsync: createWork, isPending: isCreatingNovel } =
@@ -152,7 +113,7 @@ export default function CreateNovel() {
     for (let i = 0; i < formData.genreIds.length; i++) {
       multipartForm.append(`GenreIds[${i}]`, formData.genreIds[i]);
     }
-    multipartForm.append("CoverImageUrl", formData.cover);
+    multipartForm.append("CoverImageUrl", formData.cover.file);
 
     try {
       const response = await createWork(multipartForm);
@@ -170,7 +131,8 @@ export default function CreateNovel() {
       }
     } catch (error) {
       console.error(error);
-      toast.error(error?.message || t("workPage.create.toast.error"));
+      const coverKey = coverErrorKey(error?.code);
+      toast.error(coverKey ? t(coverKey) : error?.message || t("workPage.create.toast.error"));
     }
   };
 
@@ -238,7 +200,7 @@ export default function CreateNovel() {
                         <button
                           type="button"
                           onClick={() => removeGenre(genre.id)}
-                          className="ml-2 hover:text-zinc-400 transition-colors"
+                          className="ms-2 hover:text-zinc-400 transition-colors"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -312,68 +274,12 @@ export default function CreateNovel() {
                 {t("workPage.create.form.coverLabel")}
               </label>
 
-              <div
-                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all ${
-                  dragActive
-                    ? "border-zinc-400 bg-zinc-700"
-                    : "border-zinc-600 bg-zinc-750"
-                } hover:border-zinc-500 hover:bg-zinc-700`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-              >
-                <input
-                  type="file"
-                  accept={COVER_IMAGE_ACCEPT}
-                  onChange={handleFileChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-
-                {formData.cover ? (
-                  <div className="space-y-4">
-                    <div className="w-32 h-48 mx-auto bg-zinc-600 rounded-lg overflow-hidden">
-                      <img
-                        src={URL.createObjectURL(formData.cover)}
-                        alt={t("workPage.create.form.coverPreviewAlt")}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <p className="text-zinc-300 font-medium">
-                        {formData.cover.name}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFormData((prev) => ({ ...prev, cover: null }));
-                        }}
-                        className="text-zinc-500 hover:text-zinc-300 text-sm mt-1 transition-colors"
-                      >
-                        {t("workPage.create.form.coverRemove")}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="w-32 h-48 mx-auto bg-zinc-600 rounded-lg flex items-center justify-center">
-                      <Image className="w-12 h-12 text-zinc-500" />
-                    </div>
-                    <div>
-                      <p className="text-zinc-300 font-medium mb-2">
-                        {t("workPage.create.form.coverUploadTitle")}
-                      </p>
-                      <p className="text-zinc-500 text-sm">
-                        {t("workPage.create.form.coverUploadSubtitle")}
-                      </p>
-                      <p className="text-zinc-600 text-xs mt-1">
-                        {t("workPage.create.form.coverUploadHelp")}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <CoverPicker
+                value={formData.cover}
+                onChange={(cover) => setFormData((prev) => ({ ...prev, cover }))}
+                title={formData.title}
+                disabled={isCreatingNovel}
+              />
             </div>
           </div>
 

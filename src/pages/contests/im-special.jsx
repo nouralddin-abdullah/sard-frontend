@@ -62,6 +62,7 @@ import returnedMercImage from '../../assets/contest/im-special/returned-merc.png
 import systemCheatingImage from '../../assets/contest/im-special/system-cheating.png';
 import singleSpellImage from '../../assets/contest/im-special/single-spell.png';
 import girlSoundsImage from '../../assets/contest/im-special/gril-sounds.png';
+import NovelCover from "../../components/common/NovelCover";
 
 // Competition themes data - "I'm Special" themed
 const competitionThemes = [
@@ -471,13 +472,12 @@ const ImSpecialContestPage = () => {
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     {/* Novel Cover */}
-                    {entry.novelCoverImageUrl && (
-                      <img 
-                        src={entry.novelCoverImageUrl} 
-                        alt={entry.novelTitle}
-                        className="w-12 h-16 object-cover rounded-lg flex-shrink-0 border border-white/10"
-                      />
-                    )}
+                    <NovelCover
+                      src={entry.novelCoverImageUrl}
+                      title={entry.novelTitle}
+                      className="w-12 flex-shrink-0 border border-white/10"
+                      sizes="48px"
+                    />
                     <div className="min-w-0">
                       <Link 
                         to={`/novel/${entry.novelSlug}`}
@@ -614,13 +614,13 @@ const ImSpecialContestPage = () => {
                       
                       {/* Novel Info with Cover */}
                       <div className="md:col-span-7 w-full flex items-center gap-3">
-                        {entry.novelCoverImageUrl && (
-                          <img 
-                            src={entry.novelCoverImageUrl} 
-                            alt={entry.novelTitle}
-                            className="w-10 h-14 object-cover rounded-md flex-shrink-0 border border-white/10"
-                          />
-                        )}
+                        <NovelCover
+                          src={entry.novelCoverImageUrl}
+                          title={entry.novelTitle}
+                          rounded="rounded-md"
+                          className="w-10 flex-shrink-0 border border-white/10"
+                          sizes="40px"
+                        />
                         <div className="min-w-0 flex-1">
                           <Link 
                             to={`/novel/${entry.novelSlug}`} 

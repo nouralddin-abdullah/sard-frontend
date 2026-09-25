@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../constants/base-url";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
+import { coverUploadErrorFrom } from "./coverUploadError";
 
 const createWork = async (formData) => {
   const accessToken = Cookies.get(TOKEN_KEY);
@@ -15,7 +16,7 @@ const createWork = async (formData) => {
       },
     });
 
-    if (!response.ok) throw new Error("Error creating Novel");
+    if (!response.ok) throw await coverUploadErrorFrom(response, "Error creating Novel");
 
     const data = await response.json();
     return data;

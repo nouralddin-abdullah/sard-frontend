@@ -8,6 +8,7 @@ import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
 import { DEFAULT_AVATAR_SVG } from "../common/SafeImage";
+import NovelCover from "../common/NovelCover";
 
 const ReadingHistoryCard = ({ novel, onAddToList }) => {
   const [showActions, setShowActions] = useState(false);
@@ -28,12 +29,12 @@ const ReadingHistoryCard = ({ novel, onAddToList }) => {
       onMouseLeave={() => setShowActions(false)}
     >
       {/* Novel Cover with Progress Bar */}
-      <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-lg">
-        <img
-          src={novel.coverImageUrl}
-          alt={novel.title}
-          className="w-full h-full object-cover"
-        />
+      <NovelCover
+        src={novel.coverImageUrl}
+        title={novel.title}
+        className="w-full shadow-lg"
+        sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw"
+      >
         
         {/* Progress Bar at bottom of cover */}
         <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-2">
@@ -78,7 +79,7 @@ const ReadingHistoryCard = ({ novel, onAddToList }) => {
             </button>
           </div>
         )}
-      </div>
+      </NovelCover>
 
       {/* Novel Info Below Cover */}
       <div className="mt-3 space-y-2">

@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { Eye, Layers, Sparkles, Star } from "lucide-react";
 import { getTimeAgo } from "../../utils/date";
-import mainPicture from "../../assets/mainPicture.jpg";
+import NovelCover from "../common/NovelCover";
+import { coverThumbnailUrl } from "../../utils/cover-image";
 import GenreBadge from "../common/GenreBadge";
 
 const STATUS_STYLES = {
@@ -34,7 +35,6 @@ const WorkCard = ({ work }) => {
       : "—";
   const lastUpdatedLabel = work?.lastUpdatedAt ? getTimeAgo(work.lastUpdatedAt) : "—";
 
-  const coverImage = work?.coverImageUrl || mainPicture;
   const workspaceUrl = work?.id ? `/dashboard/works/${work.id}/edit` : undefined;
 
   return (
@@ -43,15 +43,31 @@ const WorkCard = ({ work }) => {
         className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#5A5A5A] bg-[#3C3C3C] transition-all duration-300 hover:shadow-xl hover:border-[#0077FF]/50"
         data-testid={`work-card-${work?.id ?? "unknown"}`}
       >
-        <div className="relative h-40 md:h-52 overflow-hidden">
-          <img
-            src={coverImage}
-            alt={work?.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/90 via-transparent to-[#2C2C2C]/30" />
+        <div className="relative h-40 md:h-52 overflow-hidden bg-[#2C2C2C]">
+          {/* Banner: the smallest cover file, blurred (decorative); the cover itself sits on it at 2:3. */}
+          {work?.coverImageUrl && (
+            <img
+              src={coverThumbnailUrl(work.coverImageUrl)}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              decoding="async"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
+              className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-md"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/90 via-[#2C2C2C]/40 to-[#2C2C2C]/30" />
 
-          <div className="absolute inset-x-4 md:inset-x-6 bottom-3 md:bottom-5 flex items-center justify-between">
+          <div className="absolute start-4 top-4 md:start-6 md:top-5 w-20 md:w-28 transition-transform duration-500 group-hover:scale-105">
+            <NovelCover
+              src={work?.coverImageUrl}
+              title={work?.title}
+              className="w-full shadow-xl"
+              sizes="(min-width: 768px) 112px, 80px"
+            />
+          </div>
+
+          <div className="absolute end-4 md:end-6 bottom-3 md:bottom-5 flex flex-col items-end gap-1.5">
             <span
               className={`inline-flex items-center gap-1.5 md:gap-2 rounded-full px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs noto-sans-arabic-bold ${statusStyle}`}
             >

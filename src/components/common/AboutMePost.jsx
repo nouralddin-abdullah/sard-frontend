@@ -11,6 +11,7 @@ import AddNovelToReadingListModal from "../novel/AddNovelToReadingListModal";
 import { toast } from "sonner";
 import { getTimeAgo } from "../../utils/date";
 import { DEFAULT_AVATAR_SVG } from "./SafeImage";
+import NovelCover from "../common/NovelCover";
 
 const AboutMePost = ({ 
   content, 
@@ -181,10 +182,12 @@ const AboutMePost = ({
               to={`/novel/${attachedNovel.slug}`}
               className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-lg hover:bg-white/10 transition-colors"
             >
-              <img
-                src={attachedNovel.coverImageUrl || "/default-cover.png"}
-                alt={attachedNovel.title}
-                className="w-16 h-24 object-cover rounded-md shadow-md flex-shrink-0"
+              <NovelCover
+                src={attachedNovel.coverImageUrl}
+                title={attachedNovel.title}
+                rounded="rounded-md"
+                className="w-16 shadow-md flex-shrink-0"
+                sizes="64px"
               />
               <div className="flex-1 min-w-0">
                 <h5 className="text-base font-bold truncate text-white noto-sans-arabic-extrabold">

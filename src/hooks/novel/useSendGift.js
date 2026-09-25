@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { BASE_URL } from "../../constants/base-url";
 import { TOKEN_KEY } from "../../constants/token-key";
+import { invalidateNovelDetails } from "./invalidateNovelDetails";
 
 const sendGift = async ({ giftId, novelId, count }) => {
   const accessToken = Cookies.get(TOKEN_KEY);
@@ -38,7 +39,7 @@ export const useSendGift = () => {
       // The gift was paid from the sender's wallet
       queryClient.invalidateQueries({ queryKey: ["walletBalance"] });
       if (variables?.novelId) {
-        queryClient.invalidateQueries({ queryKey: ["novel", variables.novelId] });
+        invalidateNovelDetails(queryClient, variables.novelId);
         // Refresh latest gifts list
         queryClient.invalidateQueries({ queryKey: ["recent-gifts", variables.novelId] });
         queryClient.invalidateQueries({ queryKey: ["top-supporters", variables.novelId] });

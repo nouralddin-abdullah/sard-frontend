@@ -61,7 +61,12 @@
       "updatePassword": "Update Password",
       "updatingPassword": "Updating password...",
       "backToLogin": "Back to Login",
-      "passwordUpdated": "Password updated successfully"
+      "passwordUpdated": "Password updated successfully",
+      "invalidLinkToast": "Invalid link. Please request a new password reset link",
+      "invalidLinkShort": "Invalid link",
+      "resetFailed": "Couldn't change the password. The link may have expired; request a new one.",
+      "invalidLinkDetail": "This link is invalid or has expired",
+      "requestNewLink": "Request a new link"
     },
     "success": {
       "title": "Authentication Successful!",
@@ -94,6 +99,14 @@
       "passwordTooShort": "Password must be at least 6 characters long",
       "confirmPasswordRequired": "Please confirm your password",
       "passwordsDoNotMatch": "Passwords do not match",
+      "passwordsMatch": "Passwords match",
+      "passwordStrength": {
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good",
+        "strong": "Strong",
+        "excellent": "Excellent"
+      },
       "newPasswordRequired": "New password is required",
       "confirmNewPasswordRequired": "Please confirm your new password",
       "newPasswordsDoNotMatch": "New passwords do not match",
@@ -421,6 +434,57 @@
       "description": "Discover the best Arabic {{genre}} novels on Sard: trending, top rated and newest.",
       "notFoundTitle": "Genre not found | Sard",
       "siteName": "Sard"
+    }
+  },
+  "cover": {
+    "alt": "Cover of {{title}}",
+    "altUntitled": "Novel cover",
+    "brand": "Sard",
+    "errors": {
+      "type": "Choose a JPG, PNG or WebP image.",
+      "inputTooLarge": "The image is too large (25 MB at most).",
+      "unreadable": "The image couldn't be read; the file may be damaged. Try another image.",
+      "tooSmall": "The image is too small. A cover needs at least 300×450 pixels.",
+      "tooManyPixels": "The image dimensions are too large. Make it smaller and try again.",
+      "fileTooLarge": "The cover file is larger than 5 MB.",
+      "generic": "The cover couldn't be uploaded. Please try again."
+    },
+    "crop": {
+      "title": "Adjust cover",
+      "subtitle": "Covers are shown at 2:3 everywhere on Sard. Drag and zoom to choose the visible part.",
+      "modeLabel": "How the image fits",
+      "modeCrop": "Crop",
+      "modeFit": "Show whole image",
+      "loading": "Loading image",
+      "zoom": "Zoom",
+      "hintCrop": "Drag to move the image; use the slider or mouse wheel to zoom. Make sure the title is fully visible.",
+      "hintFit": "The whole image sits on a blurred backdrop of its own colours; good for wide images.",
+      "previewTitle": "Preview",
+      "previewPage": "On the novel page",
+      "previewCard": "In lists",
+      "previewUntitled": "Your novel's title",
+      "useFit": "The image is too small to crop. Choose \"Show whole image\" or use a larger image.",
+      "zoomedTooFar": "The selected area is too small (under 300 px wide). Zoom out.",
+      "lowResolution": "The selected area is only {{width}} px wide, so the cover may look soft. 960 px or more is best.",
+      "cancel": "Cancel",
+      "confirm": "Use this cover"
+    },
+    "upload": {
+      "title": "Choose a cover image",
+      "subtitle": "Drag an image here or click to choose",
+      "help": "JPG, PNG or WebP; ideally 960×1440 px (2:3)",
+      "helpShort": "2:3, ideally 960×1440 px",
+      "change": "Change image",
+      "adjust": "Adjust crop",
+      "remove": "Remove",
+      "current": "Current cover",
+      "new": "New cover",
+      "save": "Save cover",
+      "saved": "Cover updated",
+      "pickFirst": "Choose a cover image before saving",
+      "sectionTitle": "Cover",
+      "sectionSubtitle": "Upload a cover that fits the tone of your story.",
+      "previewHint": "Choose an image to preview it next to the current cover."
     }
   }
 }
