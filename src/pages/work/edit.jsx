@@ -9,13 +9,11 @@ import {
   Clock3,
   Filter,
   FileText,
-  Image as ImageIcon,
   Loader2,
   MoreVertical,
   PenSquare,
   Search,
   Sparkles,
-  UploadCloud,
   X,
   Trash2,
 } from "lucide-react";
@@ -24,7 +22,6 @@ import Header from "../../components/common/Header";
 import Button from "../../components/ui/button";
 import Select from "../../components/ui/select";
 import { Modal } from "../../components/ui/modal";
-import mainPicture from "../../assets/mainPicture.jpg";
 import { formatSmart } from "../../utils/date";
 import { translateGenre } from "../../utils/translate-genre";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
@@ -35,7 +32,8 @@ import { useUpdateWork } from "../../hooks/work/useUpdateWork";
 import { useUpdateWorkCover } from "../../hooks/work/useUpdateWorkCover";
 import { useDeleteChapter } from "../../hooks/work/useDeleteChapter";
 import PrivilegeSystemSetup from "../../components/work/PrivilegeSystemSetup";
-import { COVER_IMAGE_ACCEPT, getCoverImageError } from "../../utils/cover-image";
+import CoverPicker from "../../components/work/CoverPicker";
+import { coverErrorKey } from "../../utils/cover-image";
 
 const STATUS_OPTIONS = [
   { value: "Ongoing", label: "Ongoing" },
@@ -163,8 +161,7 @@ const EditWorkPage = () => {
     genreIds: [],
   });
   const [selectedGenres, setSelectedGenres] = useState([]);
-  const [coverFile, setCoverFile] = useState(null);
-  const [dragActive, setDragActive] = useState(false);
+  const [newCover, setNewCover] = useState(null); // { file, previewUrl, source } from CoverPicker
   const [chapterOrder, setChapterOrder] = useState([]);
   const getInitialTab = () => {
     if (location.state?.focusTab && TAB_OPTIONS.some((tab) => tab.id === location.state.focusTab)) {
@@ -215,15 +212,6 @@ const EditWorkPage = () => {
     if (!rawChapters) return;
     setChapterOrder(normalizeChapters(rawChapters));
   }, [rawChapters]);
-
-  const coverPreview = useMemo(() => {
-    if (coverFile) return URL.createObjectURL(coverFile);
-    return null;
-  }, [coverFile]);
-
-  useEffect(() => () => {
-    if (coverFile) URL.revokeObjectURL(coverPreview);
-  }, [coverFile, coverPreview]);
 
   const handleGenreSelect = (event) => {
     const genreId = Number(event.target.value);
@@ -292,49 +280,22 @@ const EditWorkPage = () => {
     }
   };
 
-  const handleCoverChange = (file) => {
-    if (!file) return;
-    const coverError = getCoverImageError(file);
-    if (coverError) {
-      toast.error(t(coverError));
-      return;
-    }
-    setCoverFile(file);
-  };
-
   const handleCoverSubmit = async (event) => {
     event.preventDefault();
-    if (!workId || !coverFile) {
-      toast.error("اختر صورة غلاف قبل الحفظ");
+    if (!workId || !newCover) {
+      toast.error(t("cover.upload.pickFirst"));
       return;
     }
 
     try {
-      await updateCover({ workId, coverFile });
-      toast.success("تم تحديث الغلاف");
-      setCoverFile(null);
+      await updateCover({ workId, coverFile: newCover.file });
+      toast.success(t("cover.upload.saved"));
+      setNewCover(null);
       refetchWork();
     } catch (error) {
-      toast.error(error?.message || "فشل تحديث الغلاف");
+      const coverKey = coverErrorKey(error?.code);
+      toast.error(coverKey ? t(coverKey) : error?.message || t("cover.errors.generic"));
     }
-  };
-
-  const handleDrag = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    if (event.type === "dragenter" || event.type === "dragover") {
-      setDragActive(true);
-    } else if (event.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setDragActive(false);
-    const file = event.dataTransfer?.files?.[0];
-    if (file) handleCoverChange(file);
   };
 
   useEffect(() => {
@@ -562,7 +523,6 @@ const EditWorkPage = () => {
   );
 
   const isLoading = isWorkLoading;
-  const coverSource = work?.coverImageUrl || mainPicture;
 
   if (isError) {
     return (
@@ -800,76 +760,21 @@ const EditWorkPage = () => {
                   <div className="space-y-6 rounded-xl border px-8 py-9" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
                     <section className="space-y-4">
                       <div className="space-y-1">
-                        <h2 className="noto-sans-arabic-extrabold text-lg text-white">غلاف العمل</h2>
-                        <p className="noto-sans-arabic-medium text-sm" style={{ color: '#B8B8B8' }}>ارفع صورة غلاف تناسب نبرة قصتك.</p>
+                        <h2 className="noto-sans-arabic-extrabold text-lg text-white">{t("cover.upload.sectionTitle")}</h2>
+                        <p className="noto-sans-arabic-medium text-sm" style={{ color: '#B8B8B8' }}>{t("cover.upload.sectionSubtitle")}</p>
                       </div>
 
                       <form onSubmit={handleCoverSubmit} className="space-y-4">
-                        <div
-                          className="relative flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed px-6 py-10 text-center transition"
-                          style={dragActive ? {
-                            borderColor: '#0077FF',
-                            backgroundColor: 'rgba(0, 119, 255, 0.1)',
-                            color: '#FFFFFF'
-                          } : {
-                            borderColor: '#5A5A5A',
-                            backgroundColor: '#2C2C2C',
-                            color: '#B8B8B8'
-                          }}
-                          onDragEnter={handleDrag}
-                          onDragOver={handleDrag}
-                          onDragLeave={handleDrag}
-                          onDrop={handleDrop}
-                        >
-                          <UploadCloud className="h-10 w-10" />
-                          <div className="space-y-2">
-                            <p className="noto-sans-arabic-bold text-white">اسحب الصورة هنا أو اضغط للرفع</p>
-                            <p className="noto-sans-arabic-medium text-xs" style={{ color: '#797979' }}>{t("workPage.create.form.coverUploadHelp")}</p>
-                          </div>
-                          <input
-                            type="file"
-                            accept={COVER_IMAGE_ACCEPT}
-                            onChange={(event) => handleCoverChange(event.target.files?.[0] ?? null)}
-                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                          />
-                        </div>
+                        <CoverPicker
+                          value={newCover}
+                          onChange={setNewCover}
+                          title={detailsState.title}
+                          currentUrl={work?.coverImageUrl}
+                          disabled={isSavingCover}
+                        />
 
-                        <div className="grid gap-4 text-right lg:grid-cols-2">
-                          <div className="rounded-xl border p-4" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C' }}>
-                            <p className="noto-sans-arabic-bold text-xs" style={{ color: '#797979' }}>الغلاف الحالي</p>
-                            <div className="mt-3 aspect-[3/4] max-h-48 overflow-hidden rounded-xl border" style={{ borderColor: '#5A5A5A' }}>
-                              <img src={coverSource} alt={detailsState.title} className="h-full w-full object-cover" />
-                            </div>
-                          </div>
-                          {coverFile ? (
-                            <div className="rounded-xl border p-4" style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)' }}>
-                              <p className="noto-sans-arabic-bold text-xs" style={{ color: '#0077FF' }}>رفع جديد</p>
-                              <div className="mt-3 aspect-[3/4] max-h-48 overflow-hidden rounded-xl border" style={{ borderColor: '#0077FF' }}>
-                                <img src={coverPreview} alt="New cover preview" className="h-full w-full object-cover" />
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => setCoverFile(null)}
-                                className="noto-sans-arabic-medium mt-3 text-xs underline-offset-4 transition hover:underline"
-                                style={{ color: '#0077FF' }}
-                              >
-                                إزالة الاختيار
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="rounded-xl border p-4 text-sm" style={{ borderColor: '#5A5A5A', backgroundColor: '#2C2C2C', color: '#B8B8B8' }}>
-                              <p className="noto-sans-arabic-bold flex items-center gap-2 text-xs" style={{ color: '#797979' }}>
-                                <ImageIcon className="h-4 w-4" /> معاينة مؤقتة
-                              </p>
-                              <p className="noto-sans-arabic-medium mt-2 text-xs">
-                                ارفع غلافاً لرؤية معاينة مباشرة بجانب الصورة الحالية.
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        <Button type="submit" isLoading={isSavingCover} disabled={!coverFile}>
-                          حفظ تحديث الغلاف
+                        <Button type="submit" isLoading={isSavingCover} disabled={!newCover}>
+                          {t("cover.upload.save")}
                         </Button>
                       </form>
                     </section>
@@ -885,7 +790,7 @@ const EditWorkPage = () => {
                                 label={item.label}
                                 complete={item.isComplete(
                                   detailsState,
-                                  { hasCover: Boolean(work?.coverImageUrl) || Boolean(coverFile) },
+                                  { hasCover: Boolean(work?.coverImageUrl) || Boolean(newCover) },
                                   chapterOrder
                                 )}
                               />

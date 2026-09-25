@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { BASE_URL } from "../../constants/base-url";
 import { TOKEN_KEY } from "../../constants/token-key";
+import { coverUploadErrorFrom } from "./coverUploadError";
 
 const patchCover = async ({ workId, coverFile }) => {
 	if (!workId) throw new Error("Missing work identifier");
@@ -23,7 +24,7 @@ const patchCover = async ({ workId, coverFile }) => {
 	});
 
 	if (!response.ok) {
-		throw new Error("Failed to update cover");
+		throw await coverUploadErrorFrom(response, "Failed to update cover");
 	}
 
 	return response.json();
@@ -39,6 +40,9 @@ export const useUpdateWorkCover = () => {
 			if (variables?.workId) {
 				queryClient.invalidateQueries({ queryKey: ["my-works", variables.workId] });
 			}
+			// Lists and the novel page show the cover too.
+			queryClient.invalidateQueries({ queryKey: ["my-works"] });
+			queryClient.invalidateQueries({ queryKey: ["novel"] });
 		},
 	});
 };
