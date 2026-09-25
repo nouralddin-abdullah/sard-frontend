@@ -5,7 +5,6 @@ import { Plus, AlertTriangle, Share2 } from "lucide-react";
 import { getTimeAgo } from "../../utils/date";
 import CustomStar from "../common/CustomStar";
 import { useGetNovelRecommendations } from "../../hooks/novel/useGetNovelRecommendations";
-import SafeImage from "../common/SafeImage";
 
 // Gift imports
 import flowerGift from "../../assets/gifts/flower-100.png";
@@ -16,6 +15,7 @@ import scepterGift from "../../assets/gifts/Scepter-1500.png";
 import castleGift from "../../assets/gifts/Castle-2000.png";
 import dragonGift from "../../assets/gifts/Dragon-5000.png";
 import universeGift from "../../assets/gifts/Universe-10000.png";
+import NovelCover from "../common/NovelCover";
 
 const GIFTS = [
   { id: "ec16dfde-71b8-4e23-8ff5-d1846cdf2036", image: flowerGift, name: "وردة", cost: 100 },
@@ -192,11 +192,12 @@ const NovelSidebar = ({
                 to={`/novel/${rec.slug}`}
                 className="flex gap-4 hover:bg-[#2C2C2C] p-2 -mx-2 rounded-lg transition-colors"
               >
-                <SafeImage
+                <NovelCover
                   src={rec.coverImageUrl}
-                  alt={rec.title}
-                  className="w-16 h-24 rounded object-cover flex-shrink-0"
-                  fallback="https://ui-avatars.com/api/?name=Novel&background=4A9EFF&color=fff&size=200"
+                  title={rec.title}
+                  className="w-16 flex-shrink-0"
+                  rounded="rounded"
+                  sizes="64px"
                 />
                 <div className="flex flex-col min-w-0 flex-1">
                   <h4 className="font-bold text-white noto-sans-arabic-extrabold text-sm line-clamp-2">

@@ -5,6 +5,7 @@ import { translateGenre } from "../../utils/translate-genre";
 import StarRating from "../common/StarRating";
 import PenIcon from "../common/PenIcon";
 import { DEFAULT_AVATAR_SVG } from "../common/SafeImage";
+import NovelCover from "../common/NovelCover";
 
 // Character limit for summary before showing "show more"
 const SUMMARY_CHAR_LIMIT = 300;
@@ -29,11 +30,14 @@ const NovelHeroSection = ({
     <div className="bg-[#3C3C3C] rounded-xl p-6 md:p-8 shadow-lg">
       <div className="flex flex-col md:flex-row gap-8">
         {/* Cover Image */}
-        <div className="flex-shrink-0 mx-auto md:mx-0">
-          <img
+        <div className="flex-shrink-0 mx-auto md:mx-0 w-[min(250px,70vw)] md:w-64">
+          {/* The page's main image (LCP): loaded eagerly with high priority. */}
+          <NovelCover
             src={novel.coverImageUrl}
-            alt={novel.title}
-            className="w-full max-w-[250px] md:w-64 h-auto object-cover rounded-lg shadow-xl"
+            title={novel.title}
+            priority
+            className="w-full shadow-xl"
+            sizes="(min-width: 768px) 256px, min(250px, 70vw)"
           />
         </div>
 
