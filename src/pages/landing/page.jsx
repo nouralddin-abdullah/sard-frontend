@@ -345,11 +345,12 @@ const LandingPage = () => {
                 {genres?.map((genre) => {
                   const IconComponent = GENRE_ICONS[genre.slug] || Compass;
                   
+                  // A real link, so crawlers can follow it to the genre page.
                   return (
-                    <button
+                    <Link
                       key={genre.id}
-                      onClick={() => navigate(`/genre/${genre.slug}`)}
-                      className="group relative bg-gradient-to-br from-[#3A3A3A] to-[#2A2A2A] rounded-2xl p-6 hover:from-[#4A9EFF] hover:to-[#3A7EDF] transition-all duration-500 transform hover:scale-105 hover:shadow-2xl overflow-hidden"
+                      to={`/genre/${genre.slug}`}
+                      className="group relative block bg-gradient-to-br from-[#3A3A3A] to-[#2A2A2A] rounded-2xl p-6 hover:from-[#4A9EFF] hover:to-[#3A7EDF] transition-all duration-500 transform hover:scale-105 hover:shadow-2xl overflow-hidden"
                       style={{ 
                         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
                         border: '1px solid rgba(74, 158, 255, 0.1)'
@@ -384,7 +385,7 @@ const LandingPage = () => {
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
                       </div>
-                    </button>
+                    </Link>
                   );
                 })}
               </div>
