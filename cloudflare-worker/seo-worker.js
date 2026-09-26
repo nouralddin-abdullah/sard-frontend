@@ -13,11 +13,20 @@
 
 import { translateGenre } from '../src/utils/translate-genre.js';
 import { GENRES } from '../src/utils/genreSections.js';
-import { countLetters, hasRealWikiName, isIndexableWikiEntity } from '../src/utils/wiki-pages.js';
-
-const SITE = 'https://www.sardnovels.com';
-const SITE_NAME = 'سرد';
-const SITE_TITLE = 'سرد - منصة القراءة والكتابة العربية';
+import { countLetters, hasRealWikiName, isIndexableWikiEntity, isIndexableWikiListEntry } from '../src/utils/wiki-pages.js';
+import {
+  SITE_URL as SITE,
+  SITE_NAME,
+  SITE_TITLE,
+  DEFAULT_SHARE_IMAGE,
+  LANDING_DESCRIPTION,
+  HOME_TITLE,
+  HOME_DESCRIPTION,
+  genrePageTitle,
+  genrePageDescription,
+  profileTitle,
+  websiteJsonLd,
+} from '../src/utils/seo.js';
 
 // Search engines, Search Console's live test, and link-preview bots.
 const CRAWLER = /googlebot|google-inspectiontool|googleother|storebot-google|bingbot|bingpreview|yandex|baiduspider|duckduckbot|applebot|petalbot|twitterbot|facebookexternalhit|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkshare|whatsapp|telegrambot|discordbot|w3c_validator/i;
@@ -42,7 +51,6 @@ const PROFILE_NOVELS = 50;
 
 // Share images are 1200x630 JPEGs. Novels without a cover in the standard format (not converted yet, or no cover)
 // get the site's branded default (the web app's public/og-default.jpg), as do the other pages.
-const DEFAULT_SHARE_IMAGE = `${SITE}/og-default.jpg`;
 const DEFAULT_IMAGE = { url: DEFAULT_SHARE_IMAGE, type: 'image/jpeg', width: 1200, height: 630, alt: SITE_TITLE };
 
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -146,12 +154,6 @@ async function publicNovels(env) {
 
 // ─── Landing and home pages ───
 
-const LANDING_DESCRIPTION =
-  'سرد منصة عربية لقراءة الروايات وكتابتها: روايات أصلية يكتبها كتّاب عرب في الفانتازيا والرومانسية والغموض والأكشن والخيال العلمي، تُنشر فصلاً بعد فصل.';
-const HOME_TITLE = 'سرد - منصة الروايات العربية | اكتشف وشارك قصصك المفضلة';
-const HOME_DESCRIPTION =
-  'تابع أحدث الروايات العربية وأكثرها رواجاً على سرد، وتصفح الفانتازيا والرومانسية والغموض والأكشن والخيال العلمي وغيرها، واقرأ الفصول الجديدة فور نشرها.';
-
 async function renderLanding(env) {
   const [trending, newest, genres] = await Promise.all([
     getJson(env, `/api/rankings/site-wide/Trending?PageSize=${HOME_LIST_SIZE}&PageNumber=1`),
@@ -210,31 +212,6 @@ async function renderHome(env) {
     ${genreSection(genresOrDefault(genres.data))}
   </main>`,
   });
-}
-
-function websiteJsonLd() {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    '@id': `${SITE}/#website`,
-    name: SITE_NAME,
-    alternateName: ['Sard', 'Sard Novels'],
-    url: `${SITE}/`,
-    description: LANDING_DESCRIPTION,
-    inLanguage: 'ar',
-    publisher: {
-      '@type': 'Organization',
-      '@id': `${SITE}/#organization`,
-      name: SITE_NAME,
-      url: `${SITE}/`,
-      logo: { '@type': 'ImageObject', url: `${SITE}/logo.png` },
-    },
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: { '@type': 'EntryPoint', urlTemplate: `${SITE}/search?q={search_term_string}` },
-      'query-input': 'required name=search_term_string',
-    },
-  };
 }
 
 function novelSection(heading, novels) {
@@ -310,8 +287,8 @@ async function renderGenre(rawSlug, params, env) {
   const label = translateGenre(genre.name);
   const pageUrl = (n) => `${SITE}${genrePath(slug)}${n > 1 ? `?page=${n}` : ''}`;
   const url = isDefaultView ? pageUrl(page) : pageUrl(1);
-  const title = page > 1 ? `روايات ${label} - صفحة ${page} | سرد` : `روايات ${label} | سرد`;
-  const description = `اكتشف أفضل روايات ${label} العربية على سرد: الأكثر رواجاً والأعلى تقييماً والأحدث.${page > 1 ? ` صفحة ${page} من ${totalPages}.` : ''}`;
+  const title = genrePageTitle(label, page);
+  const description = genrePageDescription(label, page, totalPages);
   const offset = (page - 1) * GENRE_PAGE_SIZE;
 
   const collection = {
@@ -400,7 +377,7 @@ async function renderProfile(rawUserName, env) {
   const photo = httpUrl(user.profilePhoto);
   const sameAs = [user.facebookUrl, user.twitterUrl].map(httpUrl).filter(Boolean);
   const isAuthor = novels.length > 0;
-  const title = isAuthor ? `روايات ${name} | سرد` : `${name} | سرد`;
+  const title = profileTitle(name, isAuthor);
   const description = truncate(bio, 160)
     || (isAuthor
       ? truncate(`${name} على سرد: ${novels.map((n) => n.title).join('، ')}`, 160)
@@ -707,7 +684,7 @@ ${list.map((e) => `        <li><a href="/novel/${novelId}/wikipedia/${e.id}">${e
     description,
     url,
     // Worth indexing once at least one entry is (see src/utils/wiki-pages.js); otherwise the list is only a way in.
-    robots: entries.some(wikiListEntryIsIndexable) ? undefined : 'noindex, follow',
+    robots: entries.some(isIndexableWikiListEntry) ? undefined : 'noindex, follow',
     jsonLd: [collection, breadcrumbs([{ name: novel.title, url: novelUrl }, { name: 'موسوعة الرواية', url }])],
     body: `
   ${siteHeader([{ name: novel.title, path: novelPath(novel.slug) }, { name: 'موسوعة الرواية' }])}
@@ -717,17 +694,6 @@ ${list.map((e) => `        <li><a href="/novel/${novelId}/wikipedia/${e.id}">${e
     ${sectionHtml || '<p>لا توجد مداخل في هذه الموسوعة بعد.</p>'}
   </main>`,
   });
-}
-
-/**
- * Whether a list entry is worth indexing. The API sends isIndexable; an older API doesn't, and its list has no
- * descriptions, so a real short description (40+ letters) or an article stands in until the API is updated.
- */
-function wikiListEntryIsIndexable(entry) {
-  if (typeof entry.isIndexable === 'boolean') {
-    return entry.isIndexable;
-  }
-  return hasRealWikiName(entry.name) && (countLetters(entry.shortDescription) >= 40 || entry.articlesCount > 0);
 }
 
 async function renderWikiEntry(rawNovelId, rawEntityId, env) {

@@ -3,6 +3,9 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowRight, Pen, ChevronLeft, ChevronRight, X } from "lucide-react";
 import Header from "../../components/common/Header";
 import { useGetEntity } from "../../hooks/entity/useGetEntity";
+import PageMeta from "../../components/common/PageMeta";
+import { clip } from "../../utils/seo";
+import { hasRealWikiName, isIndexableWikiEntity } from "../../utils/wiki-pages";
 
 const EntityDetailsPage = () => {
   const { novelId, entityId } = useParams();
@@ -37,6 +40,21 @@ const EntityDetailsPage = () => {
     }))
   } : null;
 
+  // Page meta, as the SEO worker renders this entry for crawlers: entries without real content are noindex.
+  const entityName = hasRealWikiName(entityData?.name) ? entityData.name.trim() : "مدخل بلا اسم";
+  const entityMeta = entityData ? (
+    <PageMeta
+      title={`${entityName} - موسوعة الرواية | سرد`}
+      description={clip(entityData.shortDescription || entityData.description || `${entityName} في موسوعة الرواية على سرد.`)}
+      path={`/novel/${novelId}/wikipedia/${entityId}`}
+      robots={isIndexableWikiEntity(entityData) ? undefined : "noindex, follow"}
+      image={entityData.imageUrl || undefined}
+      type="article"
+    />
+  ) : (
+    <PageMeta title="موسوعة الرواية | سرد" robots={error ? "noindex" : undefined} />
+  );
+
   const openImageZoomModal = (index) => {
     setCurrentImageIndex(index);
     setImageZoomModalOpen(true);
@@ -70,6 +88,7 @@ const EntityDetailsPage = () => {
   if (error) {
     return (
       <>
+        {entityMeta}
         <Header />
         <div className="bg-[#2C2C2C] min-h-screen flex items-center justify-center" dir="rtl">
           <div className="text-red-500 text-xl noto-sans-arabic-medium">
@@ -94,6 +113,7 @@ const EntityDetailsPage = () => {
 
   return (
     <>
+      {entityMeta}
       <Header />
       <div className="bg-[#2C2C2C] min-h-screen" dir="rtl">
         {/* Hero Banner */}

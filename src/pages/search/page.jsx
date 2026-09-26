@@ -8,6 +8,7 @@ import { DEFAULT_AVATAR_SVG } from "../../components/common/SafeImage";
 import { useSearchNovels } from "../../hooks/search/useSearchNovels";
 import { useSearchUsers } from "../../hooks/search/useSearchUsers";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
+import PageMeta from "../../components/common/PageMeta";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import { translateGenre } from "../../utils/translate-genre";
 import NovelCover from "../../components/common/NovelCover";
@@ -152,6 +153,12 @@ const SearchPage = () => {
 
   return (
     <div className="min-h-screen bg-[#1C1C1C]">
+      {/* Search results aren't pages for search engines; their links are still followed. */}
+      <PageMeta
+        title={queryFromUrl ? `نتائج البحث عن "${queryFromUrl}" | سرد` : "البحث في الروايات | سرد"}
+        description="ابحث في روايات سرد وكتّابها."
+        robots="noindex, follow"
+      />
       <Header />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

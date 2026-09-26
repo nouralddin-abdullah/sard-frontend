@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import PageMeta from '../../components/common/PageMeta';
 
 const WinningRulesPage = () => {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ const WinningRulesPage = () => {
 
   return (
     <div className="min-h-screen bg-[#1E1E1E] text-white font-sans" dir="rtl">
+      <PageMeta title="قواعد الفوز - المسابقات | سرد" description="قواعد الفوز في مسابقات الكتابة على سرد: إرشادات المحتوى، وحظر الانتحال، وآلية تحديد الفائزين، والتوقيع الحصري." path="/contests/winning-rules" />
       {/* Back Button Header */}
       <div className="sticky top-0 z-50 bg-[#1E1E1E]/95 backdrop-blur-sm border-b border-[#3C3C3C]">
         <div className="max-w-[960px] mx-auto px-4 md:px-10 py-4">

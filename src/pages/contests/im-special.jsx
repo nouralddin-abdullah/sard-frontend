@@ -63,6 +63,8 @@ import systemCheatingImage from '../../assets/contest/im-special/system-cheating
 import singleSpellImage from '../../assets/contest/im-special/single-spell.png';
 import girlSoundsImage from '../../assets/contest/im-special/gril-sounds.png';
 import NovelCover from "../../components/common/NovelCover";
+import PageMeta from "../../components/common/PageMeta";
+import { clip } from "../../utils/seo";
 
 // Competition themes data - "I'm Special" themed
 const competitionThemes = [
@@ -168,6 +170,11 @@ const ImSpecialContestPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans" dir="rtl">
+      <PageMeta
+        title={`مسابقة ${competition?.name || "أنا مميز"} | سرد`}
+        description={clip(competition?.description) || "مسابقة الكتابة «أنا مميز» على سرد: الشروط والجوائز والروايات المشاركة."}
+        path="/contests/im-special"
+      />
       <Header />
       
       {/* Hero Section */}

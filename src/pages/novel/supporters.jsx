@@ -68,8 +68,9 @@ const NovelSupportersPage = () => {
   return (
     <>
       <Helmet>
-        <title>لوحة الداعمين - {novel?.title || "رواية"}</title>
+        <title>{`لوحة الداعمين - ${novel?.title || "رواية"} | سرد`}</title>
         <meta name="description" content={`لوحة الداعمين لرواية ${novel?.title || ""}`} />
+        <meta name="robots" content="noindex, follow" />
       </Helmet>
 
       <Header />

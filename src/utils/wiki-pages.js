@@ -52,3 +52,13 @@ export const isIndexableWikiEntity = (entity) =>
   typeof entity?.isIndexable === "boolean"
     ? entity.isIndexable
     : hasRealWikiName(entity?.name) && wikiEntityLetters(entity) >= WIKI_MIN_LETTERS;
+
+/**
+ * Whether an entry from the wiki's list (GET /api/novels/:id/entities) is worth indexing: the API's verdict when sent.
+ * An older API's list carries no descriptions, so there a real short description (40+ letters) or an article stands in.
+ * A wiki's list page is worth indexing when one of its entries is.
+ */
+export const isIndexableWikiListEntry = (entry) =>
+  typeof entry?.isIndexable === "boolean"
+    ? entry.isIndexable
+    : hasRealWikiName(entry?.name) && (countLetters(entry?.shortDescription) >= 40 || entry?.articlesCount > 0);

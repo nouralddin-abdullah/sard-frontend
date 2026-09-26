@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "../../components/common/Header";
+import PageMeta from "../../components/common/PageMeta";
 
 const HelpCenterPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -190,6 +191,11 @@ const HelpCenterPage = () => {
   // Main Help Center View
   return (
     <>
+      <PageMeta
+        title="مركز المساعدة | سرد"
+        description="إجابات عن أسئلتك حول سرد: إنشاء الحساب، القراءة وقوائم القراءة، الكتابة والنشر، المحفظة والنقاط، وحل المشكلات."
+        path="/help"
+      />
       <Header />
       <div className="bg-[#1e1f22] min-h-screen">
         {/* Hero Section */}

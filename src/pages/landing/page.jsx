@@ -11,6 +11,8 @@ import landingTextImage from "../../assets/Landing-textinmiddleofit.png";
 import landing3Image from "../../assets/Landing-3.png";
 import picture1Image from "../../assets/Picture1.png";
 import NovelCover from "../../components/common/NovelCover";
+import PageMeta from "../../components/common/PageMeta";
+import { LANDING_DESCRIPTION, SITE_TITLE, websiteJsonLd } from "../../utils/seo";
 
 // Icon mapping for genres
 const GENRE_ICONS = {
@@ -98,6 +100,7 @@ const LandingPage = () => {
 
   return (
     <>
+      <PageMeta title={SITE_TITLE} description={LANDING_DESCRIPTION} path="/" jsonLd={websiteJsonLd()} />
       <Header />
       <div className="min-h-screen bg-[#1C1C1C]">
         {/* Hero Section with S Image on Left and Text on Right */}

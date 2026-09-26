@@ -7,6 +7,9 @@ import CreateEntityModal from "../../components/novel/CreateEntityModal";
 import { useGetCategories } from "../../hooks/entity/useGetCategories";
 import { useGetEntities } from "../../hooks/entity/useGetEntities";
 import { ICON_COMPONENTS, DEFAULT_ICON_COMPONENT } from "../../constants/category-icons";
+import PageMeta from "../../components/common/PageMeta";
+import { clip } from "../../utils/seo";
+import { hasRealWikiName, isIndexableWikiListEntry } from "../../utils/wiki-pages";
 
 // Fallback icon mapping for old string-based categories (temporary - for backwards compatibility)
 const LEGACY_CATEGORY_ICONS = {
@@ -43,6 +46,19 @@ const NovelWikipediaPage = () => {
     section: selectedCategory, // Pass as 'section' instead of 'categoryName'
     pageSize: 50 // Load 50 entities initially
   });
+
+  // Page meta for the whole wiki, as the SEO worker renders it for crawlers: indexable once one entry is worth it.
+  // (Same query as the first load above, before a section is picked, so nothing extra is fetched.)
+  const { data: allEntries } = useGetEntities(novelId, { section: null, pageSize: 50 });
+  const wikiNames = (allEntries?.items || []).filter((e) => hasRealWikiName(e.name)).map((e) => e.name.trim());
+  const wikiMeta = (
+    <PageMeta
+      title={wikiNames.length ? `موسوعة الرواية: ${wikiNames.slice(0, 3).join("، ")} | سرد` : "موسوعة الرواية | سرد"}
+      description={clip(wikiNames.length ? `موسوعة الرواية على سرد: ${wikiNames.join("، ")}.` : "موسوعة الرواية على سرد.")}
+      path={`/novel/${novelId}/wikipedia`}
+      robots={allEntries && !(allEntries.items || []).some(isIndexableWikiListEntry) ? "noindex, follow" : undefined}
+    />
+  );
 
   // Set first section as default
   useEffect(() => {
@@ -93,6 +109,7 @@ const NovelWikipediaPage = () => {
 
   return (
     <>
+      {wikiMeta}
       <Header />
       <div className="bg-[#2C2C2C] min-h-screen" dir="rtl">
         <div className="max-w-7xl mx-auto px-4 py-8">

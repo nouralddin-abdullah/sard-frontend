@@ -15,6 +15,8 @@ import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import AuthRequiredModal from "../../components/common/AuthRequiredModal";
 import { DEFAULT_AVATAR_SVG } from "../../components/common/SafeImage";
 import NovelCover from "../../components/common/NovelCover";
+import PageMeta from "../../components/common/PageMeta";
+import { clip } from "../../utils/seo";
 
 const ReadingListPage = () => {
   const { username, listId } = useParams();
@@ -145,6 +147,7 @@ const ReadingListPage = () => {
   if (error) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: "#2C2C2C" }}>
+        <PageMeta title="قائمة القراءة | سرد" robots="noindex" />
         <Header />
         <div className="flex items-center justify-center min-h-[60vh]">
           <p className="text-white noto-sans-arabic-medium text-xl">
@@ -158,6 +161,7 @@ const ReadingListPage = () => {
   if (!listData) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: "#2C2C2C" }}>
+        <PageMeta title="القائمة غير موجودة | سرد" robots="noindex" />
         <Header />
         <div className="flex items-center justify-center min-h-[60vh]">
           <p className="text-white noto-sans-arabic-medium text-xl">
@@ -170,6 +174,11 @@ const ReadingListPage = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#2C2C2C" }}>
+      <PageMeta
+        title={`${listData.name} - قائمة قراءة | سرد`}
+        description={clip(listData.description) || `قائمة قراءة «${listData.name}» على سرد.`}
+        path={`/reading-list/${listId}`}
+      />
       <Header />
 
       {/* Return to Profile Button - Only show if username is in URL */}
