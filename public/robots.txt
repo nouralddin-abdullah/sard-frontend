@@ -3,6 +3,9 @@ User-agent: *
 Allow: /
 
 # Disallow admin/private pages (if any)
+# ...but link-preview bots (Facebook, WhatsApp, X) must be able to load the share images under /api/og/.
+# The more specific Allow wins over Disallow: /api/ (and comes first for parsers that take the first match).
+Allow: /api/og/
 Disallow: /api/
 Disallow: /admin/
 
