@@ -98,7 +98,7 @@ const AddRelationshipModal = ({ isOpen, onClose, onSave, currentEntity, novelId 
               حدد العلاقة بين {currentEntity?.name || 'الشخصية'} وكيان آخر
             </p>
           </div>
-          <button
+          <button aria-label="إغلاق"
             onClick={onClose}
             className="text-[#797979] hover:text-white transition-colors"
           >

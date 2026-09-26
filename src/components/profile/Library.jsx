@@ -179,7 +179,7 @@ const Library = ({ username }) => {
               {isOwnProfile ? "قوائم قرائتك" : `قوائم ${truncateUsername(username)}`}
             </h2>
             {isOwnProfile && (
-              <button 
+              <button aria-label="إنشاء قائمة قراءة" 
                 onClick={() => setIsCreateModalOpen(true)}
                 className="hover:opacity-80 transition-opacity duration-300"
               >

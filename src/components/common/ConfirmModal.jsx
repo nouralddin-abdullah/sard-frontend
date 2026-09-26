@@ -28,7 +28,7 @@ const ConfirmModal = ({
           <h3 className="text-white noto-sans-arabic-bold text-lg">
             {title}
           </h3>
-          <button
+          <button aria-label="إغلاق"
             onClick={onClose}
             disabled={isLoading}
             className="text-[#B8B8B8] hover:text-white transition-colors disabled:opacity-50"

@@ -156,7 +156,7 @@ const WithdrawPointsModal = ({ isOpen, onClose, onSuccess, currentBalance = 0 })
                   اسحب نقاطك واستلم المبلغ بطريقتك المفضلة
                 </p>
               </div>
-              <button
+              <button aria-label="إغلاق"
                 onClick={onClose}
                 className="p-2 text-[#B8B8B8] hover:text-white transition-colors flex-shrink-0"
               >
@@ -393,7 +393,7 @@ const WithdrawPointsModal = ({ isOpen, onClose, onSuccess, currentBalance = 0 })
                   أدخل بياناتك لاستلام المبلغ
                 </p>
               </div>
-              <button
+              <button aria-label="إغلاق"
                 onClick={onClose}
                 className="p-2 text-[#B8B8B8] hover:text-white transition-colors flex-shrink-0"
               >

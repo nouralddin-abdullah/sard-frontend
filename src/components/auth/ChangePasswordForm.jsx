@@ -189,7 +189,7 @@ export default function ChangePasswordForm() {
               className="w-full pl-10 pr-12 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 noto-sans-arabic-medium"
               placeholder={t("auth.changePassword.newPasswordPlaceholder")}
             />
-            <button
+            <button aria-label={showNewPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
               type="button"
               onClick={() => setShowNewPassword(!showNewPassword)}
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
@@ -229,7 +229,7 @@ export default function ChangePasswordForm() {
                 "auth.changePassword.confirmNewPasswordPlaceholder"
               )}
             />
-            <button
+            <button aria-label={showConfirmNewPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
               type="button"
               onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300 transition-colors"

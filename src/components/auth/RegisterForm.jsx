@@ -493,7 +493,7 @@ export default function RegisterForm() {
             className={`w-full pl-12 pr-12 py-3 bg-[#2C2C2C] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-200 ${getInputBorderClasses('password')}`}
             placeholder={t("auth.register.passwordPlaceholder")}
           />
-          <button
+          <button aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white transition-colors"
@@ -542,7 +542,7 @@ export default function RegisterForm() {
             className={`w-full pl-12 pr-12 py-3 bg-[#2C2C2C] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-200 ${getInputBorderClasses('confirmPassword')}`}
             placeholder={t("auth.register.confirmPasswordPlaceholder")}
           />
-          <button
+          <button aria-label={showConfirmPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white transition-colors"

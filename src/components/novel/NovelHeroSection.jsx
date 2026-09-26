@@ -120,7 +120,7 @@ const NovelHeroSection = ({
                   <span className="font-bold text-white text-sm noto-sans-arabic-extrabold">
                     {novel.totalAverageScore.toFixed(1)} ({novel.reviewCount.toLocaleString()})
                   </span>
-                  <button
+                  <button aria-label="قيّم الرواية"
                     onClick={onRateClick}
                     className="text-[#B0B0B0] hover:text-[#4A9EFF] transition-colors cursor-pointer"
                   >

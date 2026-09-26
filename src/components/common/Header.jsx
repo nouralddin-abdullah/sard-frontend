@@ -105,7 +105,7 @@ const Header = () => {
           </Link>
           {/* User Profile Dropdown */}
           <div className="relative flex-shrink-0" ref={dropdownRef}>
-            <button
+            <button aria-label={unreadCount > 0 ? `قائمة الحساب، ${unreadCount} إشعارات غير مقروءة` : "قائمة الحساب"}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="hover:opacity-80 transition-opacity flex items-center gap-2 focus:outline-none relative"
             >

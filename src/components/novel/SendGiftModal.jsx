@@ -98,7 +98,7 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle, novelId, preselectedGiftId
           <h3 className="text-white text-lg font-bold noto-sans-arabic-extrabold">
             إرسال هدية إلى {novelTitle}
           </h3>
-          <button
+          <button aria-label="إغلاق"
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2C2C2C] text-[#B0B0B0] hover:bg-[#3C3C3C] transition-colors"
           >

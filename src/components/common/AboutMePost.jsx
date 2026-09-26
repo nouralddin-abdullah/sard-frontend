@@ -129,7 +129,7 @@ const AboutMePost = ({
               </div>
               {isOwnPost && (
                 <div className="relative" ref={menuRef}>
-                  <button 
+                  <button aria-label="خيارات المنشور" 
                     onClick={() => setShowMenu(!showMenu)}
                     className="text-[#B0B0B0] hover:text-white transition-colors"
                   >

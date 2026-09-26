@@ -67,7 +67,7 @@ const ShareModal = ({
               شارك "{title}" مع أصدقائك
             </p>
           </div>
-          <button 
+          <button aria-label="إغلاق" 
             onClick={onClose}
             className="text-[#B0B0B0] hover:text-white transition-colors"
           >

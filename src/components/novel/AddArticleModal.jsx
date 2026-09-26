@@ -221,7 +221,7 @@ const AddArticleModal = ({ isOpen, onClose, onSave, articleType = 'articles', in
           <h3 className="text-xl font-bold noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
             {isEditMode ? `تعديل ${articleTypeLabels[articleType]}` : `إضافة ${articleTypeLabels[articleType]}`}
           </h3>
-          <button
+          <button aria-label="إغلاق"
             onClick={onClose}
             className="text-[#797979] hover:text-white transition-colors"
           >

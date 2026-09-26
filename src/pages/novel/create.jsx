@@ -197,7 +197,7 @@ export default function CreateNovel() {
                         title={genre.description}
                       >
                         {translateGenre(genre.name)}
-                        <button
+                        <button aria-label={`إزالة ${translateGenre(genre.name)}`}
                           type="button"
                           onClick={() => removeGenre(genre.id)}
                           className="ms-2 hover:text-zinc-400 transition-colors"

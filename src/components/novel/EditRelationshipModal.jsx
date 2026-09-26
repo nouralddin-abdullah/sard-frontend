@@ -76,7 +76,7 @@ const EditRelationshipModal = ({ isOpen, onClose, onSave, relationship, currentE
               تحديث العلاقة بين {currentEntity?.name || 'الشخصية'} و {relationship.targetEntityName}
             </p>
           </div>
-          <button
+          <button aria-label="إغلاق"
             onClick={handleClose}
             disabled={isLoading}
             className="text-[#797979] hover:text-white transition-colors disabled:opacity-50"

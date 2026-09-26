@@ -129,7 +129,7 @@ export default function LoginForm() {
             className="w-full pl-12 pr-12 py-3.5 bg-[#2C2C2C] border border-gray-600/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]/50 focus:border-[#4A9EFF] transition-all duration-200 hover:border-gray-500"
             placeholder={t("auth.login.passwordPlaceholder")}
           />
-          <button
+          <button aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white transition-colors"

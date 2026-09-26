@@ -140,7 +140,7 @@ const ReviewModal = ({ isOpen, onClose, novelTitle, novelId }) => {
     >
       <div className="bg-[#2C2C2C] rounded-2xl w-full max-w-[1000px] max-h-[90vh] overflow-y-auto m-4 shadow-[0px_4px_4px_rgba(0,0,0,0.25)] scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative">
         {/* Header - Novel Title and Close Button */}
-        <button
+        <button aria-label="إغلاق"
           onClick={onClose}
           className="absolute right-6 top-6 text-white hover:text-[#AAAAAA] transition-colors cursor-pointer z-50"
         >
@@ -188,7 +188,7 @@ const ReviewModal = ({ isOpen, onClose, novelTitle, novelId }) => {
                       const isFilled = starIndex < displayRating;
 
                       return (
-                        <button
+                        <button aria-label={`${starIndex} من 5`}
                           key={starIndex}
                           onClick={() =>
                             handleStarClick(category.key, starIndex)
@@ -258,7 +258,7 @@ const ReviewModal = ({ isOpen, onClose, novelTitle, novelId }) => {
               <label className="text-white noto-sans-arabic-extrabold text-[16px] ">
                 يحتوي على حرق
               </label>
-              <button
+              <button aria-label="المراجعة تحتوي على حرق" aria-pressed={isSpoiler}
                 onClick={() => setIsSpoiler(!isSpoiler)}
                 className={` cursor-pointer relative w-14 h-7 rounded-full transition-colors duration-300 ease-in-out ${
                   isSpoiler ? "bg-[#4A9EFF]" : "bg-[#797979]"

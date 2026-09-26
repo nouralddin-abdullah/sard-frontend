@@ -83,7 +83,7 @@ const FollowersModal = ({ isOpen, onClose, userId, initialTab = "followers" }) =
           <h2 className="text-xl font-bold noto-sans-arabic-extrabold">
             {activeTab === "followers" ? "المتابِعون" : "المتابَعين"}
           </h2>
-          <button
+          <button aria-label="إغلاق"
             onClick={onClose}
             className="text-white/60 hover:text-white transition-colors"
           >

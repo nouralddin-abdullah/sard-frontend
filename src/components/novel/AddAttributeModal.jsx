@@ -48,7 +48,7 @@ const AddAttributeModal = ({ isOpen, onClose, onAdd }) => {
           <h3 className="text-xl font-bold noto-sans-arabic-bold" style={{ color: '#B8B8B8' }}>
             إضافة سمة مخصصة
           </h3>
-          <button
+          <button aria-label="إغلاق"
             onClick={onClose}
             className="text-[#797979] hover:text-white transition-colors"
           >

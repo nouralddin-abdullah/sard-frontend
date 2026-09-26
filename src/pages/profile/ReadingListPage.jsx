@@ -336,7 +336,7 @@ const ReadingListPage = () => {
                   {/* Three-dot menu - Only show if owner */}
                   {isOwner && (
                     <div data-novel-menu={novel.novelId} className="absolute top-4 left-4 z-10">
-                      <button
+                      <button aria-label="خيارات"
                         onClick={(e) => {
                           e.stopPropagation();
                           setOpenMenuNovelId(openMenuNovelId === novel.novelId ? null : novel.novelId);
