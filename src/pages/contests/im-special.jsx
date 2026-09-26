@@ -58,10 +58,10 @@ const getStatusInfo = (status) => {
 };
 
 // Import contest theme images
-import returnedMercImage from '../../assets/contest/im-special/returned-merc.png';
-import systemCheatingImage from '../../assets/contest/im-special/system-cheating.png';
-import singleSpellImage from '../../assets/contest/im-special/single-spell.png';
-import girlSoundsImage from '../../assets/contest/im-special/gril-sounds.png';
+import returnedMercImage from '../../assets/contest/im-special/returned-merc.webp';
+import systemCheatingImage from '../../assets/contest/im-special/system-cheating.webp';
+import singleSpellImage from '../../assets/contest/im-special/single-spell.webp';
+import girlSoundsImage from '../../assets/contest/im-special/gril-sounds.webp';
 import NovelCover from "../../components/common/NovelCover";
 import PageMeta from "../../components/common/PageMeta";
 import { clip } from "../../utils/seo";
@@ -430,6 +430,8 @@ const ImSpecialContestPage = () => {
                     <img 
                       src={theme.image} 
                       alt={theme.title}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>

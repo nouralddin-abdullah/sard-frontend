@@ -1,4 +1,12 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+// Reading fonts readers can pick (fontFamilyMap below); Tajawal and Noto Sans Arabic are loaded for the whole app.
+import "@fontsource/amiri/400.css";
+import "@fontsource/amiri/700.css";
+import "@fontsource/cairo/400.css";
+import "@fontsource/cairo/600.css";
+import "@fontsource/cairo/700.css";
+import "@fontsource/scheherazade-new/400.css";
+import "@fontsource/scheherazade-new/700.css";
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';

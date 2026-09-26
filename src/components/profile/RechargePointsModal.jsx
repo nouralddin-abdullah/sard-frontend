@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { X, Upload, Image as ImageIcon, Info, ArrowRight, ArrowLeft, Copy } from "lucide-react";
 import vodafoneLogo from "../../assets/vodaphonecash.png";
 import instapayLogo from "../../assets/InstaPay_Logo.png";
-import paypalLogo from "../../assets/Paypal_2014_logo.png";
+import paypalLogo from "../../assets/Paypal_2014_logo.webp";
 import { BASE_URL } from "../../constants/base-url";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";

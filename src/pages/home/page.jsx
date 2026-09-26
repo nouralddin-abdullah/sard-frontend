@@ -19,9 +19,9 @@ import { formatViews } from "../../utils/format-views";
 import { translateGenre } from "../../utils/translate-genre";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
-import screenshot8 from "../../assets/Screenshot_8.png";
-import earningsRoute from "../../assets/earningsRoute.png";
-import metwekpediaImage from "../../assets/metwekpedia.png";
+import screenshot8 from "../../assets/Screenshot_8.webp";
+import earningsRoute from "../../assets/earningsRoute.webp";
+import metwekpediaImage from "../../assets/metwekpedia.webp";
 
 // Import Swiper styles
 import "swiper/css";
@@ -240,6 +240,10 @@ const HomePage = () => {
                       </div>
                       <img 
                         alt="نظام الأرباح" 
+                        width={96}
+                        height={64}
+                        loading="lazy"
+                        decoding="async"
                         className="w-24 h-16 object-cover rounded flex-shrink-0" 
                         src={earningsRoute}
                       />
@@ -257,6 +261,10 @@ const HomePage = () => {
                       </div>
                       <img 
                         alt="مميزات الكتّاب" 
+                        width={96}
+                        height={64}
+                        loading="lazy"
+                        decoding="async"
                         className="w-24 h-16 object-cover rounded flex-shrink-0" 
                         src={screenshot8}
                       />
@@ -274,6 +282,10 @@ const HomePage = () => {
                       </div>
                       <img 
                         alt="موسوعة ويكبيديا" 
+                        width={96}
+                        height={64}
+                        loading="lazy"
+                        decoding="async"
                         className="w-24 h-16 object-cover rounded flex-shrink-0" 
                         src={metwekpediaImage}
                       />

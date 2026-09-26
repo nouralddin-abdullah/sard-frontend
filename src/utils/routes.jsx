@@ -1,41 +1,45 @@
-import AuthFailure from "../pages/auth/auth-failed";
-import AuthSuccess from "../pages/auth/auth-successful";
-import ChangePasswordPage from "../pages/auth/change-password";
-import ForgotPasswordPage from "../pages/auth/forgot-password";
-import LoginPage from "../pages/auth/login";
-import RegisterPage from "../pages/auth/register";
-import HomePage from "../pages/home/page";
-import LandingPage from "../pages/landing/page";
-import MetsardPage from "../pages/authorsbenefits/page";
-import CreateNovelPage from "../pages/novel/create";
-import NovelPage from "../pages/novel/page";
-import ChapterReaderPage from "../pages/novel/chapter-reader";
-import NovelLeaderboardPage from "../pages/novel/leaderboard";
-import NovelSupportersPage from "../pages/novel/supporters";
-import NovelWikipediaPage from "../pages/novel/wikipedia";
-import EntityDetailsPage from "../pages/novel/entity-details";
-import EntityEditPage from "../pages/novel/entity-edit";
-import ProfilePage from "../pages/profile/page";
-import SettingsPage from "../pages/profile/settings";
-import ReadingListPage from "../pages/profile/ReadingListPage";
-import LibraryPage from "../pages/profile/LibraryPage";
-import SearchPage from "../pages/search/page";
-import LeaderboardPage from "../pages/leaderboard/page";
-import NotificationsPage from "../pages/notifications/page";
-import EditWorkPage from "../pages/work/edit";
-import WorkDashboardPage from "../pages/work/dashboard";
-import ChapterEditorPage from "../pages/work/chapter-editor";
-import GenrePage from "../pages/genre/GenrePage";
-import HelpCenterPage from "../pages/help/page";
-import HelpArticlePage from "../pages/help/article";
-import EarningsPage from "../pages/earnings/page";
-import WekipeidaTutorial from "../pages/wekipeida/page";
-import GlobalNotFoundPage from "../pages/not-found/page";
-import ImSpecialContestPage from "../pages/contests/im-special";
-import JudgingCriteriaPage from "../pages/contests/judging-criteria";
-import WinningRulesPage from "../pages/contests/winning-rules";
-import ImportantNotesPage from "../pages/contests/important-notes";
+import { lazy } from "react";
 
+// Every page is its own chunk, so a reader downloads the code of the page they open (not the editor, the
+// dashboard or the contests). AppRouter shows a placeholder while a chunk loads; main.jsx reloads the page
+// once if a chunk from an older deploy is gone.
+const AuthFailure = lazy(() => import("../pages/auth/auth-failed"));
+const AuthSuccess = lazy(() => import("../pages/auth/auth-successful"));
+const ChangePasswordPage = lazy(() => import("../pages/auth/change-password"));
+const ForgotPasswordPage = lazy(() => import("../pages/auth/forgot-password"));
+const LoginPage = lazy(() => import("../pages/auth/login"));
+const RegisterPage = lazy(() => import("../pages/auth/register"));
+const HomePage = lazy(() => import("../pages/home/page"));
+const LandingPage = lazy(() => import("../pages/landing/page"));
+const MetsardPage = lazy(() => import("../pages/authorsbenefits/page"));
+const CreateNovelPage = lazy(() => import("../pages/novel/create"));
+const NovelPage = lazy(() => import("../pages/novel/page"));
+const ChapterReaderPage = lazy(() => import("../pages/novel/chapter-reader"));
+const NovelLeaderboardPage = lazy(() => import("../pages/novel/leaderboard"));
+const NovelSupportersPage = lazy(() => import("../pages/novel/supporters"));
+const NovelWikipediaPage = lazy(() => import("../pages/novel/wikipedia"));
+const EntityDetailsPage = lazy(() => import("../pages/novel/entity-details"));
+const EntityEditPage = lazy(() => import("../pages/novel/entity-edit"));
+const ProfilePage = lazy(() => import("../pages/profile/page"));
+const SettingsPage = lazy(() => import("../pages/profile/settings"));
+const ReadingListPage = lazy(() => import("../pages/profile/ReadingListPage"));
+const LibraryPage = lazy(() => import("../pages/profile/LibraryPage"));
+const SearchPage = lazy(() => import("../pages/search/page"));
+const LeaderboardPage = lazy(() => import("../pages/leaderboard/page"));
+const NotificationsPage = lazy(() => import("../pages/notifications/page"));
+const EditWorkPage = lazy(() => import("../pages/work/edit"));
+const WorkDashboardPage = lazy(() => import("../pages/work/dashboard"));
+const ChapterEditorPage = lazy(() => import("../pages/work/chapter-editor"));
+const GenrePage = lazy(() => import("../pages/genre/GenrePage"));
+const HelpCenterPage = lazy(() => import("../pages/help/page"));
+const HelpArticlePage = lazy(() => import("../pages/help/article"));
+const EarningsPage = lazy(() => import("../pages/earnings/page"));
+const WekipeidaTutorial = lazy(() => import("../pages/wekipeida/page"));
+const GlobalNotFoundPage = lazy(() => import("../pages/not-found/page"));
+const ImSpecialContestPage = lazy(() => import("../pages/contests/im-special"));
+const JudgingCriteriaPage = lazy(() => import("../pages/contests/judging-criteria"));
+const WinningRulesPage = lazy(() => import("../pages/contests/winning-rules"));
+const ImportantNotesPage = lazy(() => import("../pages/contests/important-notes"));
 
 const routes = [
   // auth

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import metsardBg from "../../assets/metsard-1.jpg";
+import metsardBg from "../../assets/metsard-1.webp";
 import sardAuthorImg from "../../assets/sard-author.png";
 
 const MetsardPage = () => {
