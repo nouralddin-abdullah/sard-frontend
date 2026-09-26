@@ -9,7 +9,8 @@
 //   /novel/:novelId/wikipedia[/:entityId]     -> the novel's wiki (موسوعة الرواية) and its entries
 // Crawler HTML and the sitemap are cached for an hour, share images for a week. Anything made without all of its data
 // (an API call failed) is cached for five minutes only, so a hiccup isn't served as the real page for long.
-// Genre names and the wiki thin-page rule come from the web app's own modules, so both always agree.
+// Page titles and descriptions, genre names and the wiki thin-page rule come from the web app's own modules (src/utils),
+// so the app and the crawler pages always agree.
 
 import { translateGenre } from '../src/utils/translate-genre.js';
 import { GENRES } from '../src/utils/genreSections.js';
