@@ -4,6 +4,12 @@ import { Link, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Header from "../../components/common/Header";
+import PageMeta from "../../components/common/PageMeta";
+import { clip } from "../../utils/seo";
+
+// The articles are bundled with the app: the site has no /src/docs/ in production, where fetching one returned the
+// app's own index.html instead of the article.
+const ARTICLE_FILES = import.meta.glob("../../docs/**/*.md", { query: "?raw", import: "default" });
 
 const HelpArticlePage = () => {
   const { articleId } = useParams();
@@ -94,10 +100,10 @@ const HelpArticlePage = () => {
       }
 
       try {
-        const response = await fetch(`/src/docs/${metadata.file}`);
-        if (!response.ok) throw new Error("فشل تحميل المقال");
-        
-        const content = await response.text();
+        const loadFile = ARTICLE_FILES[`../../docs/${metadata.file}`];
+        if (!loadFile) throw new Error("فشل تحميل المقال");
+
+        const content = await loadFile();
         
         setArticle({
           id: articleId,
@@ -169,6 +175,7 @@ const HelpArticlePage = () => {
   if (error || !article) {
     return (
       <>
+        <PageMeta title="مركز المساعدة | سرد" robots="noindex" />
         <Header />
         <div className="bg-[#36393f] min-h-screen flex items-center justify-center">
           <div className="text-center">
@@ -197,6 +204,13 @@ const HelpArticlePage = () => {
 
   return (
     <>
+      <PageMeta
+        title={`${article.title} - مركز المساعدة | سرد`}
+        // The article's opening text, without Markdown marks.
+        description={clip(article.content.replace(/[#>*_`|[\]()!-]+/g, " ")) || article.title}
+        path={`/help/article/${articleId}`}
+        type="article"
+      />
       <Header />
       <div className="bg-[#36393f] min-h-screen">
         <div className="max-w-4xl mx-auto px-6 py-12">

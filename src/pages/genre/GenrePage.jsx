@@ -20,6 +20,7 @@ import NovelCardSkeleton from "../../components/novel/NovelCardSkeleton";
 import { useGetGenreNovels } from "../../hooks/genre/useGetGenreNovels";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
 import { translateGenre } from "../../utils/translate-genre";
+import { genrePageDescription, genrePageTitle } from "../../utils/seo";
 
 const SORTING_OPTIONS = [
   { value: "popular", label: "الأكثر مشاهدة", icon: Eye },
@@ -104,8 +105,12 @@ const GenrePage = () => {
     : genreSlug;
   const isDefaultView = sorting === "popular" && isCompleted === null;
   const canonicalUrl = `${SITE_URL}/genre/${genreSlug}${isDefaultView && currentPage > 1 ? `?page=${currentPage}` : ""}`;
-  const metaTitle = t("genrePage.meta.title", { genre: genreLabel });
-  const metaDescription = t("genrePage.meta.description", { genre: genreLabel });
+  // Same titles as the SEO worker's crawler page: page 2 onwards is its own page (filtered views are the first page).
+  const metaPage = isDefaultView ? currentPage : 1;
+  const metaTitle = genrePageTitle(genreLabel, metaPage);
+  const metaDescription = genrePageDescription(genreLabel, metaPage, novelsData?.totalPages);
+  // A genre with no novels yet has nothing for search to show.
+  const isEmptyGenre = novelsData?.totalItemsCount === 0 && isDefaultView;
 
   if (!isGenresPending && !currentGenre) {
     return (
@@ -137,6 +142,7 @@ const GenrePage = () => {
       <Helmet>
         <title>{metaTitle}</title>
         <meta name="description" content={metaDescription} />
+        <meta name="robots" content={isEmptyGenre ? "noindex, follow" : "index, follow"} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:title" content={metaTitle} />

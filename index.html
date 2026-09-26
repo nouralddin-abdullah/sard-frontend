@@ -7,27 +7,28 @@
     <link rel="apple-touch-icon" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="سرد - منصة القراءة والكتابة العربية. اكتشف آلاف الروايات والقصص العربية المميزة" />
-    <meta name="keywords" content="روايات عربية، قصص، كتابة، قراءة، سرد، روايات، أدب عربي" />
-    <meta name="author" content="سرد" />
-    <meta name="robots" content="index, follow" />
+    <!-- Defaults for pages that set none. data-rh marks them as react-helmet-async's, so a page's own tags replace
+         them instead of being added after them (crawlers read the first description / og:title they find). -->
+    <meta data-rh="true" name="description" content="سرد منصة عربية لقراءة الروايات وكتابتها: روايات أصلية يكتبها كتّاب عرب في الفانتازيا والرومانسية والغموض والأكشن والخيال العلمي، تُنشر فصلاً بعد فصل." />
+    <meta data-rh="true" name="keywords" content="روايات عربية، قصص، كتابة، قراءة، سرد، روايات، أدب عربي" />
+    <meta data-rh="true" name="author" content="سرد" />
+    <meta data-rh="true" name="robots" content="index, follow" />
     
     <!-- Open Graph Meta Tags for Social Media -->
-    <meta property="og:title" content="سرد - منصة القراءة والكتابة العربية" />
-    <meta property="og:description" content="اكتشف آلاف الروايات والقصص العربية المميزة على منصة سرد" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://www.sardnovels.com/og-default.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:site_name" content="سرد" />
-    <meta property="og:locale" content="ar_AR" />
+    <meta data-rh="true" property="og:title" content="سرد - منصة القراءة والكتابة العربية" />
+    <meta data-rh="true" property="og:description" content="سرد منصة عربية لقراءة الروايات وكتابتها: روايات أصلية يكتبها كتّاب عرب في الفانتازيا والرومانسية والغموض والأكشن والخيال العلمي، تُنشر فصلاً بعد فصل." />
+    <meta data-rh="true" property="og:type" content="website" />
+    <meta data-rh="true" property="og:image" content="https://www.sardnovels.com/og-default.jpg" />
+    <meta data-rh="true" property="og:image:width" content="1200" />
+    <meta data-rh="true" property="og:image:height" content="630" />
+    <meta data-rh="true" property="og:site_name" content="سرد" />
+    <meta data-rh="true" property="og:locale" content="ar_AR" />
     
     <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="سرد - منصة القراءة والكتابة العربية" />
-    <meta name="twitter:description" content="اكتشف آلاف الروايات والقصص العربية المميزة" />
-    <meta name="twitter:image" content="https://www.sardnovels.com/og-default.jpg" />
+    <meta data-rh="true" name="twitter:card" content="summary_large_image" />
+    <meta data-rh="true" name="twitter:title" content="سرد - منصة القراءة والكتابة العربية" />
+    <meta data-rh="true" name="twitter:description" content="سرد منصة عربية لقراءة الروايات وكتابتها: روايات أصلية يكتبها كتّاب عرب في الفانتازيا والرومانسية والغموض والأكشن والخيال العلمي، تُنشر فصلاً بعد فصل." />
+    <meta data-rh="true" name="twitter:image" content="https://www.sardnovels.com/og-default.jpg" />
     
     <!-- No canonical/og:url here: this shell is served for every URL, so a fixed value would tell Google that
          every page is a copy of the home page. Each page sets its own through react-helmet-async. -->

@@ -15,6 +15,7 @@ const EarningsPage = () => {
       <Helmet>
         <title>نظام الأرباح للكتّاب - سرد</title>
         <meta name="description" content="حوّل كلماتك إلى مصدر دخل. نظام مبتكر يمكّن الكتّاب من تحقيق الربح مباشرة من دعم قرائهم على سرد" />
+        <link rel="canonical" href="https://www.sardnovels.com/earnings" />
       </Helmet>
 
       {/* Hero Section */}

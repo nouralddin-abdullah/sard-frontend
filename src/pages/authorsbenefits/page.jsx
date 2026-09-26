@@ -20,6 +20,7 @@ const MetsardPage = () => {
           name="description"
           content="اكتشف مميزات الكتابة في سرد - نظام الهدايا، المسابقات، حقوق النشر والمزيد. انضم لأكثر من 400,000 كاتب عربي."
         />
+        <link rel="canonical" href="https://www.sardnovels.com/authorsbenefits" />
       </Helmet>
 
       {/* Top Banner with Tabs */}

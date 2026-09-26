@@ -9,8 +9,8 @@ Allow: /api/og/
 Disallow: /api/
 Disallow: /admin/
 
-# We don't need entity pages indexed (only novels and chapters)
-Disallow: /novel/*/wikipedia/
+# Novel wikis (/novel/:id/wikipedia) are open to crawlers: the SEO worker serves them as real pages, returns 404 for
+# drafts and deleted novels, and marks entries without real content noindex.
 
 # Sitemap location
 Sitemap: https://www.sardnovels.com/sitemap.xml

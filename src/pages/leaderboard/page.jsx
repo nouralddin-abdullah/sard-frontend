@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import { Trophy } from 'lucide-react';
 import { useGetGlobalLeaderboard } from '../../hooks/gift/useGetGlobalLeaderboard';
+import PageMeta from '../../components/common/PageMeta';
 
 const LeaderboardPage = () => {
   // Fetch All Time leaderboard (10 users)
@@ -115,6 +116,11 @@ const LeaderboardPage = () => {
 
   return (
     <div className="min-h-screen bg-[#1A1A1A]" dir="rtl">
+      <PageMeta
+        title="لوحة المتصدرين | سرد"
+        description="أكثر أعضاء سرد دعماً للكتّاب بالهدايا: المتصدرون على مر الزمان وهذا الأسبوع."
+        path="/leaderboard"
+      />
       <Header />
       
       <main className="px-4 sm:px-10 lg:px-20 py-10">

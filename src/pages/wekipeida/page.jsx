@@ -59,6 +59,7 @@ const WekipeidaTutorial = () => {
       <Helmet>
         <title>دليل ويكبيديا - سرد</title>
         <meta name="description" content="تعلم كيفية استخدام ويكبيديا سرد بكل سهولة" />
+        <link rel="canonical" href="https://www.sardnovels.com/metwekpeida" />
       </Helmet>
 
       <div className="fixed inset-0 text-[#3D2817] overflow-hidden">

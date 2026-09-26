@@ -12,6 +12,9 @@ import profilePicture from "../../assets/profilePicture.jpg";
 import { useGetUserByUsername } from "../../hooks/user/useGetUserByUsername";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import FollowToggle from "../../components/common/FollowToggle";
+import PageMeta from "../../components/common/PageMeta";
+import { useGetUserWorks } from "../../hooks/work/useGetUserWorks";
+import { clip, profileTitle } from "../../utils/seo";
 import { FaFacebook, FaDiscord } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { toast } from "sonner";
@@ -37,6 +40,21 @@ const ProfilePage = () => {
   // Use loggedInUser data for own profile, fetched data for others
   const userData = isOwnProfile ? loggedInUser : fetchedUserData;
   const isPending = isOwnProfile ? isLoadingLoggedIn : isFetchingUser;
+
+  // Page meta, as the SEO worker renders this page for crawlers: authors are listed under their novels; members without
+  // a public novel, and unknown users, are noindex. (Same query as the works tab, so it is fetched once.)
+  const { data: publicWorks } = useGetUserWorks({ userId: userData?.id, enabled: !isOwnProfile && !!userData?.id });
+  const publicNovelCount = publicWorks?.pages?.[0]?.totalItemsCount;
+  const profileName = (userData?.displayName || "").trim() || userData?.userName || username;
+  const profileMeta = (
+    <PageMeta
+      title={profileTitle(profileName, publicNovelCount > 0)}
+      description={clip(userData?.userBio) || `${profileName} على سرد، منصة القراءة والكتابة العربية.`}
+      path={userData?.userName ? `/profile/${encodeURIComponent(userData.userName)}` : undefined}
+      robots={!isPending && (!userData || publicNovelCount === 0) ? "noindex, follow" : undefined}
+      type="profile"
+    />
+  );
 
   // Cache-busting for images (in case backend replaces with same filename)
   const getCacheBustedUrl = (url, timestamp) => {
@@ -170,6 +188,7 @@ const ProfilePage = () => {
 
   return (
     <>
+      {profileMeta}
       <Header />
       <div className="bg-zinc-800 min-h-screen">
         {/* profile image, username */}
