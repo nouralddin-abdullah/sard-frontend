@@ -1,4 +1,5 @@
-@import "tailwindcss";
+/* index.css already emits Tailwind; this file only needs it to resolve @apply. */
+@reference "tailwindcss";
 .btn-underline {
   @apply relative cursor-pointer before:content-[''] before:absolute before:bottom-0 before:left-1/2
          before:-translate-x-1/2 before:w-0 before:h-[2px] before:bg-white before:transition-all before:duration-300

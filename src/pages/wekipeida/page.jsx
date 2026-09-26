@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
+import "@fontsource/markazi-text/400.css";
+import "@fontsource/markazi-text/500.css";
+import "@fontsource/markazi-text/600.css";
+import "@fontsource/markazi-text/700.css";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import AuthRequiredModal from "../../components/common/AuthRequiredModal";
-import backgroundImage from "../../assets/wekipedia-background.jpg";
+import backgroundImage from "../../assets/wekipedia-background.webp";
 import step1Image from "../../assets/wekepdia-step1.png";
 import step1Video from "../../assets/Timelinsde 1.mp4";
 import step3Video from "../../assets/step3-video.mp4";
-import step4Image from "../../assets/step4-entitypreview.png";
+import step4Image from "../../assets/step4-entitypreview.webp";
 
 const WekipeidaTutorial = () => {
   const [activeSection, setActiveSection] = useState(0);
@@ -203,9 +207,13 @@ const WekipeidaTutorial = () => {
                   </p>
                 </div>
                 <div className="order-1 md:order-2 w-full h-auto rounded-lg overflow-hidden">
-                  <img 
+                  <img
                     src={step4Image}
                     alt="هكذا يرى القراء عالمك"
+                    width={1200}
+                    height={1577}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                 </div>

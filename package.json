@@ -11,6 +11,13 @@
     "test:e2e": "playwright test --reporter=line"
   },
   "dependencies": {
+    "@fontsource/amiri": "^5.3.0",
+    "@fontsource/cairo": "^5.3.0",
+    "@fontsource/markazi-text": "^5.3.0",
+    "@fontsource/material-symbols-outlined": "^5.3.7",
+    "@fontsource/noto-sans-arabic": "^5.3.0",
+    "@fontsource/scheherazade-new": "^5.3.0",
+    "@fontsource/tajawal": "^5.3.0",
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-query": "^5.83.0",
     "@tiptap/extension-bold": "^3.10.4",

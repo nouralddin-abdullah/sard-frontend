@@ -8,7 +8,7 @@ import Library from "../../components/profile/Library";
 import BadgesList from "../../components/profile/BadgesList";
 import PointsWallet from "../../components/profile/PointsWallet";
 import Header from "../../components/common/Header";
-import profilePicture from "../../assets/profilePicture.jpg";
+import profilePicture from "../../assets/profilePicture.webp";
 import { useGetUserByUsername } from "../../hooks/user/useGetUserByUsername";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import FollowToggle from "../../components/common/FollowToggle";

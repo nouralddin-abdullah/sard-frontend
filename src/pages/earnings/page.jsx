@@ -1,10 +1,14 @@
 import React from "react";
+import "@fontsource/markazi-text/400.css";
+import "@fontsource/markazi-text/500.css";
+import "@fontsource/markazi-text/600.css";
+import "@fontsource/markazi-text/700.css";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import vodafoneLogo from "../../assets/vodaphonecash.png";
 import instapayLogo from "../../assets/InstaPay_Logo.png";
-import paypalLogo from "../../assets/Paypal_2014_logo.png";
-import earningsBackground from "../../assets/earnings-background.png";
+import paypalLogo from "../../assets/Paypal_2014_logo.webp";
+import earningsBackground from "../../assets/earnings-background.webp";
 
 const EarningsPage = () => {
   return (

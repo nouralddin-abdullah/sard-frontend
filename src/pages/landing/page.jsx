@@ -6,10 +6,10 @@ import { useGetRankings } from "../../hooks/novel/useGetRankings";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import { translateGenre } from "../../utils/translate-genre";
-import landingSImage from "../../assets/Landing-S.png";
-import landingTextImage from "../../assets/Landing-textinmiddleofit.png";
-import landing3Image from "../../assets/Landing-3.png";
-import picture1Image from "../../assets/Picture1.png";
+import landingSImage from "../../assets/Landing-S.webp";
+import landingTextImage from "../../assets/Landing-textinmiddleofit.webp";
+import landing3Image from "../../assets/Landing-3.webp";
+import picture1Image from "../../assets/Picture1.webp";
 import NovelCover from "../../components/common/NovelCover";
 import PageMeta from "../../components/common/PageMeta";
 import { LANDING_DESCRIPTION, SITE_TITLE, websiteJsonLd } from "../../utils/seo";
@@ -116,6 +116,9 @@ const LandingPage = () => {
                   <img 
                     src={landingSImage} 
                     alt="Sard Logo" 
+                    width={1024}
+                    height={904}
+                    fetchPriority="high"
                     className="w-full h-auto object-contain"
                   />
                   
@@ -278,6 +281,10 @@ const LandingPage = () => {
                 <img 
                   src={landing3Image} 
                   alt="Search" 
+                  width={1024}
+                  height={1024}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-auto object-contain"
                 />
                 

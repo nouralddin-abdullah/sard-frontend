@@ -1,5 +1,12 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+// Fonts come from our own domain, so the first paint doesn't wait on Google Fonts. Same families and weights as the
+// old Google Fonts links: Tajawal is the body font and Noto Sans Arabic 800 the heading font. The reader's extra fonts
+// load with the chapter reader, Markazi with the pages that use it, and the icon font is declared in index.css.
+import "@fontsource/tajawal/400.css";
+import "@fontsource/tajawal/500.css";
+import "@fontsource/tajawal/700.css";
+import "@fontsource/noto-sans-arabic/800.css";
 import "./index.css";
 import App from "./App.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -58,6 +65,21 @@ document.addEventListener("error", (e) => {
     }
   }
 }, true);
+
+// Pages load as separate chunks. Each Cloudflare Pages deploy only serves its own files, so a tab opened before a
+// deploy can't load the next page's chunk: reload once to get the current app. The timestamp stops a reload loop
+// when the chunk still can't load (e.g. the connection dropped); the page's error screen shows then.
+window.addEventListener("vite:preloadError", (event) => {
+  try {
+    const lastReload = Number(sessionStorage.getItem("sard-chunk-reload") || 0);
+    if (Date.now() - lastReload < 10_000) return;
+    sessionStorage.setItem("sard-chunk-reload", String(Date.now()));
+  } catch {
+    return;
+  }
+  event.preventDefault();
+  window.location.reload();
+});
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
