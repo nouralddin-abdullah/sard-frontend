@@ -225,7 +225,7 @@ const UpdateUserModal = ({ userData, isOpen, onClose }) => {
           <h2 className="text-2xl md:text-3xl font-bold text-white noto-sans-arabic-extrabold">
             تحديث الملف الشخصي
           </h2>
-          <button
+          <button aria-label="إغلاق"
             onClick={handleClose}
             className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-neutral-600 rounded-lg"
           >
@@ -250,7 +250,7 @@ const UpdateUserModal = ({ userData, isOpen, onClose }) => {
                     style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}
                   />
                   {formData.profilePhoto && (
-                    <button
+                    <button aria-label="إزالة الصورة الشخصية"
                       type="button"
                       onClick={() => removeFile("profilePhoto")}
                       className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors shadow-lg"
@@ -298,7 +298,7 @@ const UpdateUserModal = ({ userData, isOpen, onClose }) => {
                   style={{ boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)' }}
                 />
                 {formData.profileBanner && (
-                  <button
+                  <button aria-label="إزالة صورة الغلاف"
                     type="button"
                     onClick={() => removeFile("profileBanner")}
                     className="absolute top-3 right-3 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors shadow-lg"

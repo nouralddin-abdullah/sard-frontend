@@ -92,7 +92,7 @@ const CreateEntityModal = ({ isOpen, onClose, categoryName = "شخصية", categ
               املأ التفاصيل أدناه لإنشاء كيان جديد
             </p>
           </div>
-          <button
+          <button aria-label="إغلاق"
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-[#B8B8B8] transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#0077FF] focus:ring-offset-2 focus:ring-offset-[#3C3C3C]"
           >
@@ -153,7 +153,7 @@ const CreateEntityModal = ({ isOpen, onClose, categoryName = "شخصية", categ
                   alt="Preview"
                   className="w-full h-auto rounded-lg"
                 />
-                <button
+                <button aria-label="إزالة الصورة"
                   onClick={() => {
                     setImageFile(null);
                     setImagePreview(null);

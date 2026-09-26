@@ -114,7 +114,7 @@ const ArticleCard = ({
             <Pencil size={16} />
             <span>تعديل</span>
           </button>
-          <button
+          <button aria-label="إغلاق"
             onClick={onCollapse}
             className="p-2 text-[#797979] hover:text-white transition-colors"
           >
@@ -1032,7 +1032,7 @@ const EntityEditPage = () => {
                       <label className="text-sm noto-sans-arabic-medium" style={{ color: '#797979' }}>
                         {attr.name}
                       </label>
-                      <button
+                      <button aria-label="حذف الخاصية"
                         onClick={() => handleDeleteAttribute(attr.id)}
                         className="text-[#797979] hover:text-red-500 transition-colors"
                       >
@@ -1190,7 +1190,7 @@ const EntityEditPage = () => {
                         style={{ backgroundImage: `url(${image.imageUrl})` }}
                       ></div>
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-                        <button
+                        <button aria-label="تعديل الصورة"
                           onClick={(e) => {
                             e.stopPropagation();
                             openImageZoomModal(index);
@@ -1199,7 +1199,7 @@ const EntityEditPage = () => {
                         >
                           <Pencil size={18} />
                         </button>
-                        <button
+                        <button aria-label="حذف الصورة"
                           onClick={(e) => {
                             e.stopPropagation();
                             openDeleteGalleryImageModal(image.id);
@@ -1255,7 +1255,7 @@ const EntityEditPage = () => {
                         </Link>
                       </div>
                     </div>
-                    <button 
+                    <button aria-label="خيارات العلاقة" 
                       data-relationship-menu-trigger
                       onClick={(e) => handleRelationshipMenuToggle(e, rel.id)}
                       className="text-[#9db9a6] hover:text-white transition-colors"
@@ -1417,7 +1417,7 @@ const EntityEditPage = () => {
                     alt="Preview"
                     className="w-full h-full object-cover"
                   />
-                  <button
+                  <button aria-label="إزالة الصورة"
                     onClick={() => {
                       setSelectedImageFile(null);
                       setImagePreview(null);
@@ -1489,7 +1489,7 @@ const EntityEditPage = () => {
               ></div>
               
               {/* Close Button */}
-              <button
+              <button aria-label="إغلاق"
                 onClick={closeImageZoomModal}
                 className="absolute top-4 right-4 text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors"
               >
@@ -1499,13 +1499,13 @@ const EntityEditPage = () => {
               {/* Navigation Buttons */}
               {localEntityData.galleryImages.length > 1 && (
                 <>
-                  <button
+                  <button aria-label="الصورة السابقة"
                     onClick={navigateToPreviousImage}
                     className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors"
                   >
                     <ChevronLeft size={24} />
                   </button>
-                  <button
+                  <button aria-label="الصورة التالية"
                     onClick={navigateToNextImage}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors"
                   >

@@ -50,7 +50,7 @@ const AddNovelToReadingListModal = ({ isOpen, onClose, novelId, novelTitle }) =>
         {/* Header with buttons and title */}
         <div className="flex items-center justify-between mb-6">
           {/* Close button on left */}
-          <button
+          <button aria-label="إغلاق"
             onClick={onClose}
             className="text-white hover:text-[#4A9EFF] transition-colors duration-300 flex-shrink-0"
           >

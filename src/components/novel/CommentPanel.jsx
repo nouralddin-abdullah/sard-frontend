@@ -413,7 +413,7 @@ const CommentPanel = ({
                 <div className="flex items-center gap-4 pr-13">
                   {/* Like button - show count for everyone, but only allow click if not own comment */}
                   {comment.user.id !== currentUserId ? (
-                    <button
+                    <button aria-label={`إعجاب (${comment.likesCount ?? 0})`} aria-pressed={!!comment.isLikedByCurrentUser}
                       onClick={() => handleLike(comment.id, comment.isLikedByCurrentUser)}
                       disabled={likingCommentId === comment.id}
                       className={`flex items-center gap-1 transition-colors disabled:opacity-50 ${
@@ -527,7 +527,7 @@ const CommentPanel = ({
 
                       {/* Reply Actions */}
                       <div className="flex items-center gap-4 pr-11">
-                        <button
+                        <button aria-label={`إعجاب (${reply.likes ?? 0})`} aria-pressed={!!reply.isLiked}
                           onClick={() => handleLike(reply.id, true, comment.id)}
                           className={`flex items-center gap-1 transition-colors ${
                             reply.isLiked ? "text-[#FF4444]" : "text-[#686868] hover:text-[#FF4444]"
@@ -566,7 +566,7 @@ const CommentPanel = ({
               <span className="text-[#686868] noto-sans-arabic-medium text-sm">
                 الرد على {comments.find(c => c.id === replyingTo)?.user?.displayName || "..."}
               </span>
-              <button
+              <button aria-label="إلغاء الرد"
                 onClick={() => setReplyingTo(null)}
                 className="text-[#686868] hover:text-white transition-colors"
               >
@@ -590,7 +590,7 @@ const CommentPanel = ({
                     alt="Preview" 
                     className="max-w-full h-auto rounded-lg max-h-40 object-cover"
                   />
-                  <button
+                  <button aria-label="إزالة الصورة"
                     onClick={handleRemoveImage}
                     className="absolute top-2 left-2 bg-black bg-opacity-60 text-white rounded-full p-1 hover:bg-opacity-80 transition-colors"
                   >

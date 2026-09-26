@@ -261,7 +261,7 @@ const ReviewCard = ({
           <span className="text-[#AAAAAA] noto-sans-arabic-medium text-xs">{getTimeAgo(review.createdAt)}</span>
           {isCurrentUser && setShowReviewMenu && (
             <div className="relative">
-              <button
+              <button aria-label="خيارات المراجعة"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowReviewMenu(!showReviewMenu);
@@ -321,7 +321,7 @@ const ReviewCard = ({
 
         {/* Like Button */}
         {(!currentUser || currentUser.id !== review.reviewer?.id) && !isCurrentUser && (
-          <button
+          <button aria-label={`إعجاب (${review.likeCount ?? 0})`} aria-pressed={!!review.isLikedByCurrentUser}
             onClick={() => {
               if (!currentUser) {
                 onAuthRequired("للإعجاب بالمراجعة");

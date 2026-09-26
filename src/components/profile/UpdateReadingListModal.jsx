@@ -100,7 +100,7 @@ const UpdateReadingListModal = ({ isOpen, onClose, readingList }) => {
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-[#3A3A3A] rounded-2xl w-full max-w-md p-5 relative">
         {/* Close button */}
-        <button
+        <button aria-label="إغلاق"
           onClick={handleClose}
           className="absolute top-3 left-3 text-white hover:text-[#4A9EFF] transition-colors duration-300"
           disabled={updateMutation.isPending}

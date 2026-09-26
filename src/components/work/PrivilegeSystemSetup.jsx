@@ -281,7 +281,7 @@ const PrivilegeSystemSetup = ({ workId }) => {
                 السماح للقراء بالوصول المبكر للفصول مقابل نقاط
               </p>
             </div>
-            <button
+            <button aria-label="تفعيل نظام الامتيازات" aria-pressed={isEnabled}
               type="button"
               onClick={() => {
                 // Only allow enabling, not disabling once enabled

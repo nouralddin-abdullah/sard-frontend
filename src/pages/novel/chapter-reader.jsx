@@ -431,7 +431,7 @@ const ChapterReaderPage = () => {
             
             {/* User Dropdown - Hidden on mobile */}
             <div className="relative hidden md:block" ref={dropdownRef}>
-              <button
+              <button aria-label="قائمة الحساب"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="hover:opacity-80 transition-opacity focus:outline-none"
               >
@@ -541,7 +541,7 @@ const ChapterReaderPage = () => {
               )}
             </button>
             {/* Table of Contents Button */}
-            <button
+            <button aria-label="فهرس الفصول" aria-expanded={showTOC}
               onClick={() => {
                 if (!showTOC) {
                   openTOC();
@@ -558,7 +558,7 @@ const ChapterReaderPage = () => {
             </button>
 
             {/* Settings Button */}
-            <button
+            <button aria-label="إعدادات القراءة" aria-expanded={showSettings}
               onClick={() => {
                 setShowSettings(!showSettings);
                 setShowTOC(false);
@@ -572,7 +572,7 @@ const ChapterReaderPage = () => {
           </div>
           
           {/* Toggle Button - Always visible */}
-          <button
+          <button aria-label={showMobileMenu ? "إخفاء أدوات القراءة" : "إظهار أدوات القراءة"} aria-expanded={showMobileMenu}
             onClick={() => setShowMobileMenu(!showMobileMenu)}
             className="w-12 h-12 rounded-full flex items-center justify-center bg-[#3C3C3C] shadow-xl transition-all hover:scale-110 active:scale-95 border-2 border-[#4A4A4A]"
           >
@@ -591,7 +591,7 @@ const ChapterReaderPage = () => {
       {/* Desktop Left Sidebar with Controls */}
       <div className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 z-40 flex-col gap-6">
         {/* Table of Contents Button */}
-        <button
+        <button aria-label="فهرس الفصول" aria-expanded={showTOC}
           onClick={() => {
             if (!showTOC) {
               openTOC();
@@ -607,7 +607,7 @@ const ChapterReaderPage = () => {
         </button>
 
         {/* Settings Button */}
-        <button
+        <button aria-label="إعدادات القراءة" aria-expanded={showSettings}
           onClick={() => {
             setShowSettings(!showSettings);
             setShowTOC(false);
@@ -634,7 +634,7 @@ const ChapterReaderPage = () => {
             <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#4A9EFF]">
               <img 
                 src={novel.author.profilePhoto || DEFAULT_AVATAR_SVG} 
-                alt={novel.author.username}
+                alt={novel.author.displayName || novel.author.userName}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -645,7 +645,7 @@ const ChapterReaderPage = () => {
               <span className="text-white noto-sans-arabic-medium text-[13px]">بقلم</span>
             </div>
             <span className="text-white noto-sans-arabic-bold text-[14px] text-center px-2 break-words w-full leading-tight">
-              {novel.author.displayName || novel.author.username}
+              {novel.author.displayName || novel.author.userName}
             </span>
           </div>
 
@@ -692,7 +692,7 @@ const ChapterReaderPage = () => {
         <div className="fixed right-0 top-0 bottom-0 w-[400px] bg-[#3C3C3C] z-50 shadow-2xl overflow-hidden">
           <div className="flex items-center justify-between p-6 border-b border-gray-600">
             <h2 className="text-white noto-sans-arabic-extrabold text-[20px]">جدول المحتويات</h2>
-            <button onClick={() => setShowTOC(false)} className="text-white hover:text-gray-300 transition-colors">
+            <button aria-label="إغلاق الفهرس" onClick={() => setShowTOC(false)} className="text-white hover:text-gray-300 transition-colors">
               <X size={24} />
             </button>
           </div>
@@ -786,7 +786,7 @@ const ChapterReaderPage = () => {
         <div className="fixed right-0 top-0 bottom-0 w-[350px] bg-[#3C3C3C] z-50 shadow-2xl flex flex-col">
           <div className="flex items-center justify-between p-6 border-b border-gray-600 flex-shrink-0">
             <h2 className="text-white noto-sans-arabic-extrabold text-[20px]">إعدادات القراءة</h2>
-            <button onClick={() => setShowSettings(false)} className="text-white hover:text-gray-300 transition-colors">
+            <button aria-label="إغلاق الإعدادات" onClick={() => setShowSettings(false)} className="text-white hover:text-gray-300 transition-colors">
               <X size={24} />
             </button>
           </div>
@@ -795,7 +795,7 @@ const ChapterReaderPage = () => {
             <div>
               <h3 className="text-white noto-sans-arabic-medium text-[16px] mb-4">الخلفية</h3>
               <div className="flex gap-3">
-                <button
+                <button aria-label="مظهر فاتح" aria-pressed={theme === 'light'}
                   onClick={() => setTheme('light')}
                   className={`w-16 h-16 rounded-xl border-2 transition-all ${
                     theme === 'light' ? 'border-[#4A9EFF]' : 'border-gray-600'
@@ -808,7 +808,7 @@ const ChapterReaderPage = () => {
                     </div>
                   )}
                 </button>
-                <button
+                <button aria-label="مظهر ورقي" aria-pressed={theme === 'sepia'}
                   onClick={() => setTheme('sepia')}
                   className={`w-16 h-16 rounded-xl border-2 transition-all ${
                     theme === 'sepia' ? 'border-[#4A9EFF]' : 'border-gray-600'
@@ -821,7 +821,7 @@ const ChapterReaderPage = () => {
                     </div>
                   )}
                 </button>
-                <button
+                <button aria-label="مظهر داكن" aria-pressed={theme === 'dark'}
                   onClick={() => setTheme('dark')}
                   className={`w-16 h-16 rounded-xl border-2 transition-all ${
                     theme === 'dark' ? 'border-[#4A9EFF]' : 'border-gray-600'
@@ -967,7 +967,7 @@ const ChapterReaderPage = () => {
             <div>
               <h3 className="text-white noto-sans-arabic-medium text-[16px] mb-4">حجم الخط</h3>
               <div className="flex items-center gap-4">
-                <button
+                <button aria-label="تصغير الخط"
                   onClick={() => setFontSize(Math.max(14, fontSize - 2))}
                   className="w-10 h-10 rounded-lg bg-[#4A4A4A] text-white hover:bg-[#5A5A5A] transition-colors flex items-center justify-center"
                 >
@@ -976,7 +976,7 @@ const ChapterReaderPage = () => {
                 <div className="flex-1 text-center">
                   <span className="text-white noto-sans-arabic-medium text-[18px]">{fontSize}</span>
                 </div>
-                <button
+                <button aria-label="تكبير الخط"
                   onClick={() => setFontSize(Math.min(32, fontSize + 2))}
                   className="w-10 h-10 rounded-lg bg-[#4A4A4A] text-white hover:bg-[#5A5A5A] transition-colors flex items-center justify-center"
                 >
@@ -1049,12 +1049,13 @@ const ChapterReaderPage = () => {
           WebkitTouchCallout: 'none'
         }}
       >
+        {/* Distinct keys: React must not reuse the loading box as the chapter column (the browser counts that as a layout shift). */}
         {chapterLoading || novelLoading ? (
-          <div className="flex items-center justify-center min-h-[60vh]">
+          <div key="loading" className="flex items-center justify-center min-h-[60vh]">
             <span className="text-white noto-sans-arabic-medium text-[18px]">جاري تحميل الفصل...</span>
           </div>
         ) : chapterError || novelError ? (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <div key="error" className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
             <span className="text-red-500 noto-sans-arabic-medium text-[18px]">حدث خطأ في تحميل الفصل</span>
             <button 
               onClick={() => navigate(-1)}
@@ -1064,7 +1065,7 @@ const ChapterReaderPage = () => {
             </button>
           </div>
         ) : chapter ? (
-          <div className="max-w-[800px] mx-auto flex flex-col min-h-[calc(100vh-120px)]">
+          <div key="chapter" className="max-w-[800px] mx-auto flex flex-col min-h-[calc(100vh-120px)]">
             {/* Chapter Title */}
             <h1 
               className="noto-sans-arabic-extrabold mb-8 text-center"

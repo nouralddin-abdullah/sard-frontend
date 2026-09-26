@@ -118,7 +118,7 @@ const UnlockPrivilegeModal = ({ isOpen, onClose, privilegeCost, lockedChaptersCo
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
       <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="relative flex flex-col overflow-hidden rounded-[1.5rem] bg-[#252528] shadow-2xl">
-          <button 
+          <button aria-label="إغلاق" 
             onClick={onClose}
             className="absolute top-4 left-4 text-[#B0B0B0] hover:text-white transition-colors z-10"
             type="button"

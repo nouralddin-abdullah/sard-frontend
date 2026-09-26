@@ -215,7 +215,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
               شارك أفكارك مع المتابعين
             </p>
           </div>
-          <button
+          <button aria-label="إغلاق"
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2C2C2C] text-[#B0B0B0] hover:bg-[#3C3C3C] transition-colors"
           >
@@ -242,7 +242,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
                   alt="Preview"
                   className="w-full max-h-[300px] object-cover rounded-lg"
                 />
-                <button
+                <button aria-label="إزالة الصورة"
                   onClick={handleRemoveImage}
                   className="absolute top-2 left-2 p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
                 >
@@ -258,7 +258,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
                   <h4 className="text-sm font-bold text-[#B0B0B0] noto-sans-arabic-extrabold">
                     رواية مرفقة
                   </h4>
-                  <button
+                  <button aria-label="إزالة الرواية"
                     onClick={handleRemoveNovel}
                     className="text-[#B0B0B0] hover:text-white transition-colors"
                   >
@@ -383,7 +383,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
                   className="hidden"
                 />
               </label>
-              <button
+              <button aria-label="إرفاق رواية"
                 onClick={() => setShowNovelSelector(!showNovelSelector)}
                 className="flex items-center justify-center p-2 rounded-full hover:bg-white/10 text-[#B0B0B0] hover:text-white transition-colors"
               >

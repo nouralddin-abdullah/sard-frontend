@@ -449,7 +449,7 @@ const ImSpecialContestPage = () => {
                         {theme.description}
                       </p>
                       {/* Arrow Button */}
-                      <button className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0 border border-white/10">
+                      <button aria-hidden="true" tabIndex={-1} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0 border border-white/10">
                         <ArrowRight className="w-5 h-5 text-white/70 rotate-[-135deg]" />
                       </button>
                     </div>
@@ -667,7 +667,7 @@ const ImSpecialContestPage = () => {
                 <div className="flex justify-center mt-8 gap-2 flex-wrap">
                   {/* Previous Button */}
                   {currentPage > 1 && (
-                    <button 
+                    <button aria-label="الصفحة السابقة" 
                       onClick={() => setCurrentPage(currentPage - 1)}
                       className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-500 text-sm"
                     >
@@ -718,7 +718,7 @@ const ImSpecialContestPage = () => {
                   
                   {/* Next Button */}
                   {currentPage < novelsData.totalPages && (
-                    <button 
+                    <button aria-label="الصفحة التالية" 
                       onClick={() => setCurrentPage(currentPage + 1)}
                       className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-500 text-sm"
                     >

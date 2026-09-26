@@ -173,7 +173,7 @@ const SearchPage = () => {
                 className="w-full bg-[#2C2C2C] text-white rounded-lg px-4 py-3 pr-12 noto-sans-arabic-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]"
                 dir="rtl"
               />
-              <button
+              <button aria-label="بحث"
                 type="submit"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
               >
@@ -228,7 +228,7 @@ const SearchPage = () => {
               {/* Sort By */}
               <div className="bg-[#2C2C2C] rounded-lg p-3 md:p-4">
                 <h3 className="text-white noto-sans-arabic-bold text-base md:text-lg mb-3 md:mb-4">ترتيب حسب</h3>
-                <select
+                <select aria-label="ترتيب حسب"
                   value={sortBy}
                   onChange={(e) => handleSortChange(e.target.value)}
                   className="w-full bg-[#3C3C3C] text-white rounded-lg px-3 py-2 noto-sans-arabic-medium text-sm focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]"

@@ -373,7 +373,7 @@ const EntityDetailsPage = () => {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
-            <button
+            <button aria-label="إغلاق"
               onClick={closeImageZoomModal}
               className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors z-10"
             >
@@ -401,7 +401,7 @@ const EntityDetailsPage = () => {
               {transformedData.gallery.length > 1 && (
                 <>
                   {/* Previous Button */}
-                  <button
+                  <button aria-label="الصورة السابقة"
                     onClick={navigateToPreviousImage}
                     className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-3 transition-colors"
                   >
@@ -409,7 +409,7 @@ const EntityDetailsPage = () => {
                   </button>
 
                   {/* Next Button */}
-                  <button
+                  <button aria-label="الصورة التالية"
                     onClick={navigateToNextImage}
                     className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-3 transition-colors"
                   >

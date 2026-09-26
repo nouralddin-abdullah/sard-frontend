@@ -249,7 +249,7 @@ const GenrePage = () => {
             {sorting !== "popular" && (
               <span className="bg-[#4A9EFF] text-white px-3 py-1 rounded-full text-xs noto-sans-arabic-medium flex items-center gap-1">
                 {SORTING_OPTIONS.find(o => o.value === sorting)?.label}
-                <button
+                <button aria-label="إزالة الترتيب"
                   onClick={() => handleSortingChange("popular")}
                   className="hover:bg-white/20 rounded-full p-0.5"
                 >
@@ -260,7 +260,7 @@ const GenrePage = () => {
             {isCompleted !== null && (
               <span className="bg-[#4A9EFF] text-white px-3 py-1 rounded-full text-xs noto-sans-arabic-medium flex items-center gap-1">
                 {COMPLETION_OPTIONS.find(o => o.value === isCompleted)?.label}
-                <button
+                <button aria-label="إزالة فلتر الحالة"
                   onClick={() => handleCompletionChange(null)}
                   className="hover:bg-white/20 rounded-full p-0.5"
                 >

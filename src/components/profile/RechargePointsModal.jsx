@@ -188,7 +188,7 @@ const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
                   ادعم كتّابك المفضلين من خلال شراء النقاط
                 </p>
               </div>
-              <button
+              <button aria-label="إغلاق"
                 onClick={onClose}
                 className="p-2 text-[#B8B8B8] hover:text-white transition-colors flex-shrink-0"
               >
@@ -417,7 +417,7 @@ const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
                   قم برفع لقطة شاشة للمعاملة الناجحة
                 </p>
               </div>
-              <button
+              <button aria-label="إغلاق"
                 onClick={onClose}
                 className="p-2 text-[#B8B8B8] hover:text-white transition-colors flex-shrink-0"
               >
@@ -508,7 +508,7 @@ const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
                         {formatFileSize(uploadedFile.size)}
                       </p>
                     </div>
-                    <button
+                    <button aria-label="إزالة الملف"
                       onClick={() => setUploadedFile(null)}
                       className="p-2 text-[#B8B8B8] transition-colors hover:text-white flex-shrink-0"
                     >

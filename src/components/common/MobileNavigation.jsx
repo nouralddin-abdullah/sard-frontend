@@ -255,7 +255,7 @@ const MobileNavigation = () => {
         {/* Drawer Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#3C3C3C]">
           <h3 className="text-lg font-bold text-white noto-sans-arabic-extrabold">القائمة</h3>
-          <button 
+          <button aria-label="إغلاق القائمة" 
             onClick={() => setIsDrawerOpen(false)}
             className="p-2 rounded-full text-[#9CA3AF] hover:bg-white/5 transition-colors"
           >

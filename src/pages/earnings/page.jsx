@@ -62,7 +62,7 @@ const EarningsPage = () => {
                   <span className="truncate">اكتشف المزيد</span>
                 </button>
               </div>
-              <button 
+              <button aria-label="انتقل للأسفل" 
                 onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
                 className="absolute bottom-10 animate-bounce text-white cursor-pointer bg-transparent border-none"
               >

@@ -135,7 +135,7 @@ const CommentReplies = ({
             <div className="flex items-center gap-4 pr-11">
               {/* Like button - show count for everyone, but only allow click if not own reply */}
               {reply.user.id !== currentUserId ? (
-                <button
+                <button aria-label={`إعجاب (${reply.likesCount ?? 0})`} aria-pressed={!!reply.isLikedByCurrentUser}
                   onClick={() => handleLike(reply.id, reply.isLikedByCurrentUser)}
                   disabled={likingReplyId === reply.id}
                   className={`flex items-center gap-1 transition-colors disabled:opacity-50 ${

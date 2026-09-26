@@ -1,0 +1,38 @@
+# سرد (Sard)
+
+> سرد منصة عربية لقراءة الروايات وكتابتها: روايات أصلية يكتبها كتّاب عرب وتُنشر فصلاً بعد فصل، في الفانتازيا والرومانسية والغموض والأكشن والخيال العلمي وغيرها. الموقع باللغة العربية فقط، وقراءة الفصول المجانية لا تحتاج حساباً.
+
+Sard is an Arabic-only platform for reading and writing original web novels, published chapter by chapter.
+
+- كل رواية لها صفحة على `https://www.sardnovels.com/novel/{slug}`، وكل فصل على `https://www.sardnovels.com/novel/{slug}/chapter/{chapterId}`.
+- موسوعة الرواية (الشخصيات والأماكن) على `https://www.sardnovels.com/novel/{novelId}/wikipedia`.
+- صفحة الكاتب على `https://www.sardnovels.com/profile/{username}`.
+- كل الصفحات العامة مذكورة في [خريطة الموقع](https://www.sardnovels.com/sitemap.xml).
+
+## تصفح الروايات
+
+- [الصفحة الرئيسية](https://www.sardnovels.com/home): الروايات الرائجة والجديدة ورواية الأسبوع
+- [المتصدرون](https://www.sardnovels.com/leaderboard): ترتيب الروايات والكتّاب
+- [البحث](https://www.sardnovels.com/search): البحث عن رواية أو كاتب
+
+## التصنيفات
+
+- [روايات فانتازيا](https://www.sardnovels.com/genre/fantasy)
+- [روايات رومانسية](https://www.sardnovels.com/genre/romance)
+- [روايات غموض](https://www.sardnovels.com/genre/mystery)
+- [روايات أكشن](https://www.sardnovels.com/genre/action)
+- [روايات خيال علمي](https://www.sardnovels.com/genre/science-fiction)
+- [روايات إثارة](https://www.sardnovels.com/genre/thriller)
+- [روايات دراما](https://www.sardnovels.com/genre/drama)
+- [روايات رعب](https://www.sardnovels.com/genre/horror)
+- [روايات مغامرة](https://www.sardnovels.com/genre/adventure)
+
+## للكتّاب
+
+- [مميزات الكتّاب في سرد](https://www.sardnovels.com/authorsbenefits)
+- [نظام الأرباح للكتّاب](https://www.sardnovels.com/earnings)
+- [دليل موسوعة الرواية](https://www.sardnovels.com/metwekpeida)
+
+## Optional
+
+- [مركز المساعدة](https://www.sardnovels.com/help)

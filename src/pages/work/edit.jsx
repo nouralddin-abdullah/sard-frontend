@@ -731,7 +731,7 @@ const EditWorkPage = () => {
                               style={{ borderColor: '#0077FF', backgroundColor: 'rgba(0, 119, 255, 0.1)', color: '#0077FF' }}
                             >
                               {translateGenre(genre.name)}
-                              <button
+                              <button aria-label={`إزالة ${translateGenre(genre.name)}`}
                                 type="button"
                                 onClick={() => removeGenre(genre.id)}
                                 className="rounded-full border p-1 transition"

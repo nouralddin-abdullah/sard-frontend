@@ -167,7 +167,7 @@ const CreateCategoryModal = ({
               {editMode ? 'قم بتعديل اسم الفئة أو الأيقونة' : 'أضف فئة جديدة لتنظيم كياناتك'}
             </p>
           </div>
-          <button
+          <button aria-label="إغلاق"
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-[#B8B8B8] transition-colors hover:bg-white/10 hover:text-white"
           >
@@ -198,7 +198,7 @@ const CreateCategoryModal = ({
             </h3>
             <div className="flex flex-wrap gap-2 justify-center">
               {AVAILABLE_ICONS.map(({ id, component: Icon }) => (
-                <button
+                <button aria-label={id} aria-pressed={selectedIcon === id}
                   key={id}
                   onClick={() => setSelectedIcon(id)}
                   className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-all ${

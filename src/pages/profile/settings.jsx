@@ -285,7 +285,7 @@ const SettingsPage = () => {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex items-center gap-4 px-6 py-4 border-b border-gray-800">
-            <button
+            <button aria-label="رجوع"
               onClick={() => navigate(`/profile/${userData?.userName}`)}
               className="text-gray-400 hover:text-white transition-colors"
             >
