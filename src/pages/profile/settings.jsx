@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Camera, Loader2, Save, ArrowRight, User, Link as LinkIcon, Lock } from "lucide-react";
+import { Camera, Loader2, Save, ArrowRight, User, Link as LinkIcon, Lock, Ban } from "lucide-react";
 import Header from "../../components/common/Header";
+import BlockedUsers from "../../components/profile/BlockedUsers";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import { useUpdateMe } from "../../hooks/user/useUpdateMe";
 import { useUpdatePassword } from "../../hooks/user/useUpdatePassword";
@@ -97,6 +98,7 @@ const SettingsPage = () => {
     { id: "account", label: "الحساب", icon: User },
     { id: "social", label: "وسائل التواصل", icon: LinkIcon },
     { id: "password", label: "كلمة المرور", icon: Lock },
+    { id: "blocked", label: "المحظورون", icon: Ban },
   ];
 
   // Initialize form data when userData loads
@@ -732,6 +734,9 @@ const SettingsPage = () => {
                     </div>
                   </form>
                 )}
+
+                {/* Blocked Users Section */}
+                {activeSection === "blocked" && <BlockedUsers />}
               </div>
             </main>
           </div>

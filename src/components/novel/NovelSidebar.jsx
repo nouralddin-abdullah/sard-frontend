@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Plus, AlertTriangle, Share2 } from "lucide-react";
@@ -16,6 +16,7 @@ import castleGift from "../../assets/gifts/Castle-2000.png";
 import dragonGift from "../../assets/gifts/Dragon-5000.png";
 import universeGift from "../../assets/gifts/Universe-10000.png";
 import NovelCover from "../common/NovelCover";
+import ReportModal from "../common/ReportModal";
 
 const GIFTS = [
   { id: "ec16dfde-71b8-4e23-8ff5-d1846cdf2036", image: flowerGift, name: "وردة", cost: 100 },
@@ -39,6 +40,9 @@ const NovelSidebar = ({
   onSendGift,
 }) => {
   const { t } = useTranslation();
+  const [isReporting, setIsReporting] = useState(false);
+  // An author doesn't report their own novel (the API refuses it).
+  const isAuthor = !!currentUser?.id && currentUser.id === novel?.author?.id;
 
   // Fetch recommendations with 1-hour cache
   const { 
@@ -62,12 +66,17 @@ const NovelSidebar = ({
           </span>
           <span>أضف لقائمة القراءة</span>
         </button>
-        <button className="flex items-center gap-3 text-base font-bold text-white hover:text-[#4A9EFF] transition-colors w-full py-2 noto-sans-arabic-extrabold">
-          <span className="bg-[#2C2C2C] p-2 rounded-full">
-            <AlertTriangle className="w-5 h-5" />
-          </span>
-          <span>قم بالتبليغ عن الرواية</span>
-        </button>
+        {!isAuthor && novelId && (
+          <button
+            onClick={() => setIsReporting(true)}
+            className="flex items-center gap-3 text-base font-bold text-white hover:text-[#4A9EFF] transition-colors w-full py-2 noto-sans-arabic-extrabold"
+          >
+            <span className="bg-[#2C2C2C] p-2 rounded-full">
+              <AlertTriangle className="w-5 h-5" />
+            </span>
+            <span>قم بالتبليغ عن الرواية</span>
+          </button>
+        )}
         <button
           onClick={onShare}
           className="flex items-center gap-3 text-base font-bold text-white hover:text-[#4A9EFF] transition-colors w-full py-2 noto-sans-arabic-extrabold"
@@ -229,6 +238,8 @@ const NovelSidebar = ({
           </p>
         )}
       </div>
+
+      <ReportModal target={isReporting ? { type: "Novel", id: novelId } : null} onClose={() => setIsReporting(false)} />
     </div>
   );
 };
