@@ -13,6 +13,7 @@ import profilePicture from "../../assets/profilePicture.webp";
 import { useGetUserByUsername } from "../../hooks/user/useGetUserByUsername";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import FollowToggle from "../../components/common/FollowToggle";
+import BlockToggle from "../../components/profile/BlockToggle";
 import PageMeta from "../../components/common/PageMeta";
 import { useGetUserWorks } from "../../hooks/work/useGetUserWorks";
 import { clip, profileTitle } from "../../utils/seo";
@@ -318,10 +319,22 @@ const ProfilePage = () => {
             </span>
           </Link>
         ) : (
-          <FollowToggle
-            isFollowing={userData?.isFollowing}
-            userId={userData?.id}
-          />
+          <div className="flex items-center gap-2">
+            {/* While blocked there is no following (the API refuses it); unblocking comes first. */}
+            {!userData?.isBlockedByMe && (
+              <FollowToggle
+                isFollowing={userData?.isFollowing}
+                userId={userData?.id}
+              />
+            )}
+            {loggedInUser?.id && userData?.id && (
+              <BlockToggle
+                userId={userData.id}
+                displayName={profileName}
+                isBlocked={!!userData.isBlockedByMe}
+              />
+            )}
+          </div>
         )}
       </div>
 
