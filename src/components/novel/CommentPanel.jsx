@@ -22,7 +22,8 @@ const CommentPanel = ({
   novelSlug,
   commentType = "chapter", // "chapter" or "paragraph"
   targetId = null, // chapterId or paragraphId depending on commentType
-  paragraphPreview = null // For paragraph comments, show preview text
+  paragraphPreview = null, // For paragraph comments, show preview text
+  onParagraphGone = null // Called when the paragraph no longer exists (the author edited the chapter)
 }) => {
   const [expandedReplies, setExpandedReplies] = useState({});
   const [sortBy, setSortBy] = useState("recent");
@@ -240,6 +241,11 @@ const CommentPanel = ({
         textareaRef.current.style.height = 'auto';
       }
     } catch (error) {
+      if (error.paragraphGone) {
+        // The draft stays in the box for the paragraph the reader picks next.
+        setReplyingTo(null);
+        onParagraphGone?.();
+      }
       toast.error(error.message || "فشل إضافة التعليق");
     }
   };
