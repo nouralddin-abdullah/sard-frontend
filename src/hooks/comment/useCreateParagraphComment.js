@@ -42,6 +42,13 @@ export const useCreateParagraphComment = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
+        // 404 without a missing parent comment: the paragraph is gone. The author changed or deleted it after
+        // this page loaded the chapter, so the chapter has to be loaded again.
+        if (response.status === 404 && !/parent/i.test(errorText)) {
+          const error = new Error("عدّل الكاتب هذه الفقرة أو حذفها، فأعدنا تحميل الفصل. اختر الفقرة من جديد لنشر تعليقك.");
+          error.paragraphGone = true;
+          throw error;
+        }
         throw new Error(errorText || "Failed to create comment");
       }
 
