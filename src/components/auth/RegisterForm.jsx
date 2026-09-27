@@ -140,6 +140,8 @@ export default function RegisterForm() {
         if (trimmed.length < 3) return { isValid: false, message: t("auth.validation.usernameTooShort") || "Minimum 3 characters" };
         if (trimmed.length > 20) return { isValid: false, message: t("auth.validation.usernameTooLong") || "Maximum 20 characters" };
         if (value.includes(" ")) return { isValid: false, message: t("auth.validation.usernameNoSpaces") || "No spaces allowed" };
+        // User names are public (@handle, profile links): never an email address.
+        if (value.includes("@")) return { isValid: false, message: t("auth.validation.usernameNoAt") };
         return { isValid: true, message: '' };
       }
       case 'email': {
@@ -238,6 +240,9 @@ export default function RegisterForm() {
     } else if (formFields.username.includes(" ")) {
       isValid = false;
       newErrors.username = t("auth.validation.usernameNoSpaces") || "Username cannot contain spaces";
+    } else if (formFields.username.includes("@")) {
+      isValid = false;
+      newErrors.username = t("auth.validation.usernameNoAt");
     }
 
     // Email validation
