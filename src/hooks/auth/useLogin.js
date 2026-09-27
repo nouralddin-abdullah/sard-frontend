@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../constants/base-url";
 import { throwIfRateLimited } from "../../utils/rate-limit";
+import { readApiError } from "../../utils/api-error";
 
 const login = async (formData) => {
   try {
@@ -15,9 +16,11 @@ const login = async (formData) => {
     // 429 - account temporarily locked after failed sign-ins, or too many requests from this IP
     throwIfRateLimited(response);
 
-    // Handle 403 - Invalid credentials (before parsing JSON)
+    // Handle 403 - Invalid credentials (plain text), or an account a moderator suspended: JSON with code
+    // AccountSuspended and an Arabic message saying until when (or that it is permanent).
     if (response.status === 403) {
-      throw new Error("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      const { code, message } = await readApiError(response);
+      throw new Error(code === "AccountSuspended" && message ? message : "البريد الإلكتروني أو كلمة المرور غير صحيحة");
     }
 
     // Try to parse JSON response

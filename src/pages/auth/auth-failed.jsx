@@ -2,9 +2,20 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
 
+// Google sign-in refused because a moderator suspended the account: the API sends
+// ?error=account_suspended&until=yyyy-MM-dd (UTC), or &permanent=1.
+const suspensionMessage = (urlParams) => {
+  const contact = "للاستفسار راسلنا على support@sardnovels.com";
+  const until = urlParams.get("until");
+  return urlParams.get("permanent") === "1" || !until
+    ? `تم إيقاف حسابك نهائياً لمخالفته قواعد سرد. ${contact}`
+    : `تم إيقاف حسابك مؤقتاً حتى ${until.replaceAll("-", "/")} لمخالفته قواعد سرد. ${contact}`;
+};
+
 const AuthFailure = () => {
   const { t } = useTranslation();
   const [error, setError] = useState("");
+  const [suspension, setSuspension] = useState(null);
 
   useEffect(() => {
     // Get error details from URL parameters if available
@@ -12,7 +23,9 @@ const AuthFailure = () => {
     const errorParam = urlParams.get("error");
     const errorDescription = urlParams.get("error_description");
 
-    if (errorParam) {
+    if (errorParam === "account_suspended") {
+      setSuspension(suspensionMessage(urlParams));
+    } else if (errorParam) {
       setError(errorDescription || errorParam);
     }
   }, []);
@@ -55,10 +68,10 @@ const AuthFailure = () => {
 
           {/* Error Message */}
           <h1 className="text-2xl font-bold text-white mb-4">
-            {t("auth.failure.title")}
+            {suspension ? "تم إيقاف حسابك" : t("auth.failure.title")}
           </h1>
 
-          <p className="text-gray-300 mb-6">{t("auth.failure.message")}</p>
+          <p className="text-gray-300 mb-6">{suspension || t("auth.failure.message")}</p>
 
           {/* Error Details */}
           {error && (
