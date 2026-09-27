@@ -1214,6 +1214,12 @@ const ChapterReaderPage = () => {
         commentType={commentContext.type}
         targetId={commentContext.targetId || chapterId}
         paragraphPreview={commentContext.preview}
+        onParagraphGone={() => {
+          // The author changed or deleted the paragraph after this page loaded: close it and load the chapter again.
+          setShowComments(false);
+          setCommentContext({ type: "chapter", targetId: null, preview: null });
+          queryClient.invalidateQueries({ queryKey: ["novel", novel?.id, "chapter", chapterId] });
+        }}
       />
 
       {/* Auth Required Modal */}

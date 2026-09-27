@@ -27,6 +27,7 @@ import { useUpdateChapter } from "../../hooks/work/useUpdateChapter";
 import { useDeleteChapter } from "../../hooks/work/useDeleteChapter";
 import mainPicture from "../../assets/mainPicture.jpg";
 import { formatSmart } from "../../utils/date";
+import { paragraphsToEditorHtml } from "../../utils/chapter-paragraphs";
 
 // Utility function to remove empty paragraphs from HTML content
 const cleanEmptyParagraphs = (html) => {
@@ -187,10 +188,7 @@ const ChapterEditorPage = () => {
     // ✅ Reconstruct content from paragraphs array (backend returns paragraphs now)
     let reconstructedContent = "";
     if (chapterData.paragraphs && chapterData.paragraphs.length > 0) {
-      reconstructedContent = chapterData.paragraphs
-        .sort((a, b) => a.orderIndex - b.orderIndex)
-        .map((p) => p.content)
-        .join("\n\n"); // Join with double newline for paragraph separation
+      reconstructedContent = paragraphsToEditorHtml(chapterData.paragraphs);
     } else if (chapterData.content) {
       // Fallback for old chapters (backward compatibility)
       reconstructedContent = chapterData.content;

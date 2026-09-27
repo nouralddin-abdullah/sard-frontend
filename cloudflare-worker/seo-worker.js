@@ -4,7 +4,7 @@
 //   Search engines and link-preview bots get server-rendered HTML of the public pages; everyone else gets the React app:
 //   /, /home                                  -> the landing and home pages
 //   /genre/:slug[?page=N]                     -> a genre's novels
-//   /profile/:username                        -> a member's profile (and novels, for authors)
+//   /profile/:username                        -> a member's profile (and novels, for authors); 301 from an old name
 //   /novel/:slug, /novel/:slug/chapter/:id    -> a novel and its chapters
 //   /novel/:novelId/wikipedia[/:entityId]     -> the novel's wiki (موسوعة الرواية) and its entries
 // Crawler HTML and the sitemap are cached for an hour, share images for a week. Anything made without all of its data
@@ -363,6 +363,11 @@ async function renderProfile(rawUserName, env) {
     return null;
   }
   const user = profileRes.data;
+  // An old user name (a renamed member, or an email address that was replaced by a handle): the API answers with the
+  // member's profile under their current name. Search engines move to that address for good.
+  if (user.userName && user.userName.toLowerCase() !== userName.toLowerCase()) {
+    return permanentRedirect(`${SITE}${profilePath(user.userName)}`);
+  }
 
   const worksRes = await getJson(env, `/api/myworks/user/${encodeURIComponent(user.id)}?pageSize=${PROFILE_NOVELS}&pageNumber=1`);
   if (!worksRes.data) {
@@ -877,6 +882,10 @@ function siteFooter() {
     <nav aria-label="الأنواع">تصفح الروايات حسب النوع: ${GENRES.map((g) => `<a href="${genrePath(g.slug)}">${escapeHtml(translateGenre(g.name))}</a>`).join(' | ')}</nav>
     <p><a href="/">سرد - منصة القراءة والكتابة العربية</a></p>
   </footer>`;
+}
+
+function permanentRedirect(location) {
+  return new Response(null, { status: 301, headers: { Location: location, 'X-Rendered-By': 'Cloudflare-Worker' } });
 }
 
 function notFound() {

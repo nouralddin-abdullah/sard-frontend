@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Settings, Loader2 } from "lucide-react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import AboutMe from "../../components/profile/AboutMe";
 import MyNovels from "../../components/profile/MyNovels";
 import Library from "../../components/profile/Library";
@@ -40,6 +41,19 @@ const ProfilePage = () => {
   // Use loggedInUser data for own profile, fetched data for others
   const userData = isOwnProfile ? loggedInUser : fetchedUserData;
   const isPending = isOwnProfile ? isLoadingLoggedIn : isFetchingUser;
+
+  // An old user name (the member renamed themselves, or had an email address as user name before it was replaced by
+  // a handle) still finds the member: the API answers with their profile under the current name. Move the address to
+  // it, without a reload and keeping the tab, so links, the canonical and shares use the current name.
+  const navigate = useNavigate();
+  const location = useLocation();
+  const queryClient = useQueryClient();
+  const currentUserName = fetchedUserData?.userName;
+  useEffect(() => {
+    if (!currentUserName || !username || currentUserName.toLowerCase() === username.toLowerCase()) return;
+    queryClient.setQueryData(["user-data", currentUserName], fetchedUserData);
+    navigate(`/profile/${encodeURIComponent(currentUserName)}${location.search}${location.hash}`, { replace: true });
+  }, [currentUserName, username, fetchedUserData, queryClient, navigate, location.search, location.hash]);
 
   // Page meta, as the SEO worker renders this page for crawlers: authors are listed under their novels; members without
   // a public novel, and unknown users, are noindex. (Same query as the works tab, so it is fetched once.)
