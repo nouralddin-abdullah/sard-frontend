@@ -185,6 +185,12 @@ const SettingsPage = () => {
       return;
     }
 
+    // User names are public (@handle, profile links): never an email address.
+    if (changedFields.userName?.includes("@")) {
+      toast.error(t("auth.validation.usernameNoAt"));
+      return;
+    }
+
     // Validate changed fields
     for (const field of Object.keys(changedFields)) {
       const validation = getFieldValidation(field, changedFields[field]);

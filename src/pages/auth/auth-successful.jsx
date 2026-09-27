@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import useAuthStore from "../../store/authTokenStore";
 
@@ -11,12 +11,19 @@ const readTokenFromUrl = () => {
   return new URLSearchParams(window.location.search).get("token");
 };
 
+// passwordReset=1: this Google sign-in took over an account whose email address was never verified (someone may have
+// registered it with this person's address), so the password on it was removed and its other sessions ended.
+const readPasswordResetFromUrl = () =>
+  new URLSearchParams(window.location.hash.slice(1)).get("passwordReset") === "1";
+
 const AuthSuccess = () => {
   const { t } = useTranslation();
   const { setToken } = useAuthStore();
 
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(3);
+  // Read before the effect strips the fragment from the address bar.
+  const [passwordReset] = useState(readPasswordResetFromUrl);
 
   useEffect(() => {
     const token = readTokenFromUrl();
@@ -28,7 +35,7 @@ const AuthSuccess = () => {
       
       if (currentPort !== expectedPort && token) {
         // Redirect to the correct dev port with the token
-        const correctUrl = `${window.location.protocol}//${window.location.hostname}:${expectedPort}/auth/success#token=${encodeURIComponent(token)}`;
+        const correctUrl = `${window.location.protocol}//${window.location.hostname}:${expectedPort}/auth/success#token=${encodeURIComponent(token)}${passwordReset ? "&passwordReset=1" : ""}`;
         window.location.replace(correctUrl);
         return;
       }
@@ -42,6 +49,9 @@ const AuthSuccess = () => {
     if (window.location.hash || window.location.search) {
       window.history.replaceState(window.history.state, "", window.location.pathname);
     }
+
+    // The notice about the removed password waits for the reader to continue.
+    if (passwordReset) return;
 
     // Countdown timer
     const timer = setInterval(() => {
@@ -90,23 +100,58 @@ const AuthSuccess = () => {
             {t("auth.success.title")}
           </h1>
 
-          <p className="text-gray-300 mb-6">{t("auth.success.message")}</p>
+          {passwordReset ? (
+            <>
+              <div
+                role="alert"
+                className="mb-6 rounded-lg border border-amber-400/40 bg-amber-400/10 p-4 text-start"
+              >
+                <p className="text-amber-300 font-bold mb-2">
+                  {t("auth.success.passwordRemovedTitle")}
+                </p>
+                <p className="text-gray-200 text-sm leading-7">
+                  {t("auth.success.passwordRemovedMessage")}
+                </p>
+              </div>
 
-          {/* Countdown */}
-          <div className="mb-6">
-            <div className="text-blue-400 font-semibold text-lg">
-              {t("auth.success.redirecting")} {countdown}{" "}
-              {countdown !== 1
-                ? t("auth.success.seconds")
-                : t("auth.success.second")}
-              ...
-            </div>
-          </div>
+              <div className="flex flex-col items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => navigate("/", { replace: true })}
+                  className="w-full rounded-lg bg-blue-500 py-3 font-semibold text-white transition-colors hover:bg-blue-600 cursor-pointer"
+                >
+                  {t("auth.success.continue")}
+                </button>
+                <Link
+                  to="/forgot-password"
+                  replace
+                  className="text-blue-400 hover:text-blue-300 hover:underline"
+                >
+                  {t("auth.success.setNewPassword")}
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-300 mb-6">{t("auth.success.message")}</p>
 
-          {/* Loading Animation */}
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          </div>
+              {/* Countdown */}
+              <div className="mb-6">
+                <div className="text-blue-400 font-semibold text-lg">
+                  {t("auth.success.redirecting")} {countdown}{" "}
+                  {countdown !== 1
+                    ? t("auth.success.seconds")
+                    : t("auth.success.second")}
+                  ...
+                </div>
+              </div>
+
+              {/* Loading Animation */}
+              <div className="flex justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
