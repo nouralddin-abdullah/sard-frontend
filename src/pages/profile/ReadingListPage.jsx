@@ -144,7 +144,8 @@ const ReadingListPage = () => {
     );
   }
 
-  if (error) {
+  // A 404 (no such list, or one whose owner blocked the viewer) is shown as not found below.
+  if (error && error.response?.status !== 404) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: "#2C2C2C" }}>
         <PageMeta title="قائمة القراءة | سرد" robots="noindex" />
