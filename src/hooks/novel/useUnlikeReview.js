@@ -25,7 +25,8 @@ const unlikeReview = async ({ novelId, reviewId }) => {
 		throw new Error(errorData.message || "Failed to unlike review");
 	}
 
-	return response.json();
+	// 204: the review wasn't liked, which is what was asked.
+	return response.status === 204 ? { success: true } : response.json();
 };
 
 export const useUnlikeReview = () => {
@@ -56,9 +57,10 @@ export const useUnlikeReview = () => {
 				queryClient.setQueryData(query.queryKey, (old) => {
 					if (!old) return old;
 					
+					// The page's reviews are in "reviews" (GET /api/{novelId}); a 204 (not liked) keeps this state too.
 					return {
 						...old,
-						items: old.items?.map((review) =>
+						reviews: old.reviews?.map((review) =>
 							review.id === reviewId
 								? {
 										...review,
