@@ -21,5 +21,7 @@ export const useGetReadingListById = (readingListId) => {
     },
     enabled: Boolean(readingListId),
     staleTime: 1000 * 60 * 5,
+    // 404: no such list, or its owner blocked the viewer. Retrying won't change that.
+    retry: (failureCount, error) => error?.response?.status !== 404 && failureCount < 3,
   });
 };
