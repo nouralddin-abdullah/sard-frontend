@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import CommentReplies from "./CommentReplies";
 import ConfirmModal from "../common/ConfirmModal";
 import AuthRequiredModal from "../common/AuthRequiredModal";
+import ReportModal from "../common/ReportModal";
 import { DEFAULT_AVATAR_SVG } from "../common/SafeImage";
 
 const CommentPanel = ({ 
@@ -37,6 +38,7 @@ const CommentPanel = ({
   const [likingCommentId, setLikingCommentId] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalAction, setAuthModalAction] = useState("لتنفيذ هذا الإجراء");
+  const [reportTarget, setReportTarget] = useState(null);
 
   const panelRef = useRef(null);
   const sortDropdownRef = useRef(null);
@@ -456,10 +458,15 @@ const CommentPanel = ({
                     </button>
                   )}
 
-                  <button className="flex items-center gap-1 text-[#686868] hover:text-red-500 transition-colors">
-                    <Flag size={16} />
-                    <span className="noto-sans-arabic-medium text-xs">إبلاغ</span>
-                  </button>
+                  {comment.user.id !== currentUserId && (
+                    <button
+                      onClick={() => setReportTarget({ type: "Comment", id: comment.id })}
+                      className="flex items-center gap-1 text-[#686868] hover:text-red-500 transition-colors"
+                    >
+                      <Flag size={16} />
+                      <span className="noto-sans-arabic-medium text-xs">إبلاغ</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -691,6 +698,8 @@ const CommentPanel = ({
         onClose={() => setIsAuthModalOpen(false)}
         action={authModalAction}
       />
+
+      <ReportModal target={reportTarget} onClose={() => setReportTarget(null)} />
     </>
   );
 };

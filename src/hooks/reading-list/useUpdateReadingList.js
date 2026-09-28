@@ -4,6 +4,7 @@ import { BASE_URL } from "../../constants/base-url";
 import { TOKEN_KEY } from "../../constants/token-key";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import { arabicMessage } from "../../utils/api-error";
 
 export const useUpdateReadingList = () => {
   const queryClient = useQueryClient();
@@ -40,7 +41,14 @@ export const useUpdateReadingList = () => {
       toast.success("تم تحديث قائمة القراءة بنجاح");
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "حدث خطأ أثناء تحديث القائمة");
+      const body = error?.response?.data;
+      // The API answers 400 with code DuplicateListName when the user already has a list with this name. Its other
+      // messages are mostly English, so only an Arabic one is shown.
+      toast.error(
+        body?.code === "DuplicateListName"
+          ? "لديك قائمة بنفس الاسم بالفعل"
+          : arabicMessage(body?.message) || "حدث خطأ أثناء تحديث القائمة"
+      );
     },
   });
 };

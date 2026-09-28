@@ -3,6 +3,7 @@ import { ThumbsUp, MessageCircle, Flag, Trash2, Loader2, X } from "lucide-react"
 import { useCommentReplies } from "../../hooks/comment/useCommentReplies";
 import { getTimeAgo } from "../../utils/date";
 import ConfirmModal from "../common/ConfirmModal";
+import ReportModal from "../common/ReportModal";
 import { DEFAULT_AVATAR_SVG } from "../common/SafeImage";
 
 const CommentReplies = ({
@@ -19,6 +20,7 @@ const CommentReplies = ({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [replyToDelete, setReplyToDelete] = useState(null);
   const [likingReplyId, setLikingReplyId] = useState(null);
+  const [reportTarget, setReportTarget] = useState(null);
 
   const {
     data: repliesData,
@@ -164,10 +166,15 @@ const CommentReplies = ({
                 </button>
               )}
 
-              <button className="flex items-center gap-1 text-[#686868] hover:text-red-500 transition-colors">
-                <Flag size={14} />
-                <span className="noto-sans-arabic-medium text-xs">إبلاغ</span>
-              </button>
+              {reply.user.id !== currentUserId && (
+                <button
+                  onClick={() => setReportTarget({ type: "Comment", id: reply.id })}
+                  className="flex items-center gap-1 text-[#686868] hover:text-red-500 transition-colors"
+                >
+                  <Flag size={14} />
+                  <span className="noto-sans-arabic-medium text-xs">إبلاغ</span>
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -191,6 +198,8 @@ const CommentReplies = ({
         cancelText="إلغاء"
         isLoading={deleteCommentMutation.isPending}
       />
+
+      <ReportModal target={reportTarget} onClose={() => setReportTarget(null)} />
     </div>
   );
 };

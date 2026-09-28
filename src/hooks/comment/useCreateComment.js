@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "../../constants/base-url";
 import { TOKEN_KEY } from "../../constants/token-key";
 import Cookies from "js-cookie";
+import { apiError } from "../../utils/api-error";
 
 /**
  * Hook to create a comment or reply
@@ -40,8 +41,8 @@ export const useCreateComment = () => {
       );
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to create comment");
+        // JSON {code, message} (the message only when Arabic).
+        throw await apiError(response, "تعذّر نشر التعليق");
       }
 
       // API returns 201 Created with no body

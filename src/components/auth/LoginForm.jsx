@@ -5,6 +5,7 @@ import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 import { useLogin } from "../../hooks/auth/useLogin";
 import useAuthStore from "../../store/authTokenStore";
 import { useNavigate } from "react-router-dom";
+import { takeReturnPath } from "../../utils/return-path";
 import Button from "../ui/button";
 
 export default function LoginForm() {
@@ -70,7 +71,8 @@ export default function LoginForm() {
 
       // If we get here, login was successful
       setToken(token);
-      navigate("/", { replace: true });
+      // A page that sent the reader to sign in (/delete-account) gets them back.
+      navigate(takeReturnPath() ?? "/", { replace: true });
     } catch (error) {
       console.error("Login error:", error);
     }

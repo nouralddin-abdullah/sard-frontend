@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "../../constants/base-url";
 import { TOKEN_KEY } from "../../constants/token-key";
 import Cookies from "js-cookie";
+import { apiError } from "../../utils/api-error";
 
 /**
  * Hook to delete a comment
@@ -28,9 +29,8 @@ export const useDeleteComment = () => {
       );
 
       if (!response.ok) {
-        // API returns plain text error messages
-        const errorText = await response.text();
-        throw new Error(errorText || "Failed to delete comment");
+        // JSON {code, message}: the message is Arabic, for people.
+        throw await apiError(response, "تعذّر حذف التعليق");
       }
 
       return commentId;

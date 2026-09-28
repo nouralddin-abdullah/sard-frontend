@@ -7,6 +7,7 @@ import { BASE_URL } from "../../constants/base-url";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
 import { toast } from "sonner";
+import { arabicMessage } from "../../utils/api-error";
 
 const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
   const [step, setStep] = useState(1); // 1: Amount & Payment, 2: Upload Proof
@@ -112,7 +113,8 @@ const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
         if (onSuccess) onSuccess();
         handleCancel();
       } else {
-        toast.error(data.message || 'فشل إرسال طلب الشحن. حاول مرة أخرى.');
+        // {success: false, code, message}; the message may still be English.
+        toast.error(arabicMessage(data.message) || 'فشل إرسال طلب الشحن. حاول مرة أخرى.');
       }
     } catch (error) {
       console.error('Network error:', error);
