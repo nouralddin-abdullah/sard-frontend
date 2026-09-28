@@ -9,7 +9,15 @@ import { TOKEN_KEY } from "../../constants/token-key";
 import { toast } from "sonner";
 import { arabicMessage, readApiError } from "../../utils/api-error";
 
-const WithdrawPointsModal = ({ isOpen, onClose, onSuccess, currentBalance = 0 }) => {
+const WithdrawPointsModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  currentBalance = 0,
+  withdrawable,
+  pendingEarnings = 0,
+  nextReleaseAt = null,
+}) => {
   const [step, setStep] = useState(1); // 1: Amount & Payment, 2: Payment Details
   const [withdrawPoints, setWithdrawPoints] = useState(1000);
   const [paymentMethod, setPaymentMethod] = useState("vodafone");
@@ -31,10 +39,29 @@ const WithdrawPointsModal = ({ isOpen, onClose, onSuccess, currentBalance = 0 })
 
   // Minimum withdrawal is 1000 points
   const minWithdraw = 1000;
-  const isValidAmount = withdrawPoints >= minWithdraw && withdrawPoints <= currentBalance;
+
+  // Only earnings whose hold has ended can be withdrawn, never bought points (the API's wallet says how much). An API
+  // without the field yet: the balance, as before; the API refuses what isn't withdrawable anyway.
+  const knowsWithdrawable = typeof withdrawable === "number";
+  const withdrawableNow = knowsWithdrawable ? withdrawable : currentBalance;
+  const releaseDate = nextReleaseAt && !Number.isNaN(new Date(nextReleaseAt).getTime())
+    ? new Date(nextReleaseAt).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })
+    : null;
+
+  const isValidAmount = withdrawPoints >= minWithdraw && withdrawPoints <= withdrawableNow;
+
+  const amountProblem = () => {
+    if (withdrawPoints < minWithdraw) {
+      return `الحد الأدنى للسحب هو ${minWithdraw.toLocaleString("ar-EG")} نقطة`;
+    }
+    if (withdrawableNow <= 0) {
+      return "لا توجد نقاط قابلة للسحب الآن";
+    }
+    return `يمكنك سحب ${withdrawableNow.toLocaleString("ar-EG")} نقطة فقط الآن`;
+  };
 
   const handleQuickAmount = (amount) => {
-    if (amount <= currentBalance) {
+    if (amount <= withdrawableNow) {
       setWithdrawPoints(amount);
     }
   };
@@ -169,10 +196,39 @@ const WithdrawPointsModal = ({ isOpen, onClose, onSuccess, currentBalance = 0 })
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column: Amount & Payment */}
               <div className="lg:col-span-2 flex flex-col gap-8">
-                {/* Current Balance Banner */}
+                {/* What can be withdrawn now, the balance, and earnings still on hold */}
                 <div className="bg-gradient-to-br from-[#16a34a]/20 to-[#15803d]/20 border border-[#16a34a]/30 rounded-xl p-5">
-                  <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular mb-1">رصيدك الحالي</p>
-                  <p className="text-white text-3xl font-bold noto-sans-arabic-bold">{currentBalance.toLocaleString("ar-EG")} نقطة</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular mb-1">
+                        {knowsWithdrawable ? "القابل للسحب الآن" : "رصيدك الحالي"}
+                      </p>
+                      <p className="text-white text-3xl font-bold noto-sans-arabic-bold">{withdrawableNow.toLocaleString("ar-EG")} نقطة</p>
+                    </div>
+                    {knowsWithdrawable && (
+                      <div>
+                        <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular mb-1">رصيدك الحالي</p>
+                        <p className="text-[#E0E0E0] text-2xl font-bold noto-sans-arabic-bold">{currentBalance.toLocaleString("ar-EG")} نقطة</p>
+                      </div>
+                    )}
+                  </div>
+                  {pendingEarnings > 0 && (
+                    <p className="text-[#B8B8B8] text-sm mt-4 noto-sans-arabic-regular">
+                      أرباح قيد الانتظار:{" "}
+                      <span className="text-white font-semibold noto-sans-arabic-medium">{pendingEarnings.toLocaleString("ar-EG")} نقطة</span>
+                      {releaseDate && (
+                        <>
+                          ، يصبح أولها قابلًا للسحب في{" "}
+                          <span className="text-white font-semibold noto-sans-arabic-medium">{releaseDate}</span>
+                        </>
+                      )}
+                    </p>
+                  )}
+                  {knowsWithdrawable && (
+                    <p className="text-[#9db9a6] text-xs leading-relaxed mt-3 noto-sans-arabic-regular">
+                      تُسحب أرباح الهدايا واشتراكات الوصول المبكر وحدها، بعد انتهاء فترة انتظارها. أما النقاط المشحونة أو المشتراة فتُستخدم داخل سرد ولا تُسحب.
+                    </p>
+                  )}
                 </div>
 
                 {/* Enter Amount */}
@@ -194,7 +250,7 @@ const WithdrawPointsModal = ({ isOpen, onClose, onSuccess, currentBalance = 0 })
                         placeholder="1000"
                         type="number"
                         min={minWithdraw}
-                        max={currentBalance}
+                        max={withdrawableNow}
                         value={withdrawPoints}
                         onChange={(e) => {
                           const value = e.target.value;
@@ -220,10 +276,7 @@ const WithdrawPointsModal = ({ isOpen, onClose, onSuccess, currentBalance = 0 })
                     </div>
                     {!isValidAmount && withdrawPoints > 0 && (
                       <p className="text-red-400 text-sm mt-3 noto-sans-arabic-regular">
-                        {withdrawPoints < minWithdraw 
-                          ? `الحد الأدنى للسحب هو ${minWithdraw.toLocaleString("ar-EG")} نقطة`
-                          : "الرصيد غير كافٍ"
-                        }
+                        {amountProblem()}
                       </p>
                     )}
                     <div className="mt-6 flex justify-center items-center gap-4 flex-wrap">
@@ -231,12 +284,12 @@ const WithdrawPointsModal = ({ isOpen, onClose, onSuccess, currentBalance = 0 })
                         <button
                           key={amount}
                           onClick={() => handleQuickAmount(amount)}
-                          disabled={amount > currentBalance}
+                          disabled={amount > withdrawableNow}
                           className={`px-5 py-2 rounded-lg font-semibold text-sm transition-colors duration-200 noto-sans-arabic-medium ${
-                            withdrawPoints === amount
-                              ? "bg-[#16a34a]/20 text-[#16a34a] border-2 border-[#16a34a]"
-                              : amount > currentBalance
+                            amount > withdrawableNow
                               ? "bg-[#3A3A3A] text-[#686868] cursor-not-allowed"
+                              : withdrawPoints === amount
+                              ? "bg-[#16a34a]/20 text-[#16a34a] border-2 border-[#16a34a]"
                               : "bg-[#3A3A3A] text-white hover:bg-[#4A4A4A]"
                           }`}
                         >

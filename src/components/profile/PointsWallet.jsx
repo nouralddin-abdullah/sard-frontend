@@ -473,10 +473,13 @@ const PointsWallet = ({ userId }) => {
         />
 
         {/* Withdraw Modal */}
-        <WithdrawPointsModal 
+        <WithdrawPointsModal
           isOpen={isWithdrawModalOpen}
           onClose={() => setIsWithdrawModalOpen(false)}
           currentBalance={currentBalance}
+          withdrawable={walletData?.withdrawable}
+          pendingEarnings={walletData?.pendingEarnings ?? 0}
+          nextReleaseAt={walletData?.nextReleaseAt ?? null}
           onSuccess={() => {
             refetchWithdraw();
             refetchBalance();
