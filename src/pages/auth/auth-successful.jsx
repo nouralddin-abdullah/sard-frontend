@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import useAuthStore from "../../store/authTokenStore";
+import { takeReturnPath } from "../../utils/return-path";
 
 // The API redirects here with the JWT in the URL fragment (#token=...), which browsers never
 // send to servers. The query form (?token=...) is still accepted while an older API is deployed.
@@ -24,6 +25,8 @@ const AuthSuccess = () => {
   const [countdown, setCountdown] = useState(3);
   // Read before the effect strips the fragment from the address bar.
   const [passwordReset] = useState(readPasswordResetFromUrl);
+  // A page that sent the reader to sign in (/delete-account) gets them back; everyone else goes home.
+  const [returnTo] = useState(() => takeReturnPath() ?? "/");
 
   useEffect(() => {
     const token = readTokenFromUrl();
@@ -58,7 +61,7 @@ const AuthSuccess = () => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          navigate("/", { replace: true });
+          navigate(returnTo, { replace: true });
           return 0;
         }
         return prev - 1;
@@ -117,7 +120,7 @@ const AuthSuccess = () => {
               <div className="flex flex-col items-center gap-4">
                 <button
                   type="button"
-                  onClick={() => navigate("/", { replace: true })}
+                  onClick={() => navigate(returnTo, { replace: true })}
                   className="w-full rounded-lg bg-blue-500 py-3 font-semibold text-white transition-colors hover:bg-blue-600 cursor-pointer"
                 >
                   {t("auth.success.continue")}

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Camera, Loader2, Save, ArrowRight, User, Link as LinkIcon, Lock, Ban } from "lucide-react";
+import { Camera, Loader2, Save, ArrowRight, User, Link as LinkIcon, Lock, Ban, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
 import BlockedUsers from "../../components/profile/BlockedUsers";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
@@ -323,6 +323,14 @@ const SettingsPage = () => {
                     </button>
                   );
                 })}
+                {/* Its own page (also for people who aren't signed in; Google Play lists it). */}
+                <Link
+                  to="/delete-account"
+                  className="flex items-center gap-2 md:gap-4 px-4 md:px-6 py-3 md:py-4 text-start transition-colors whitespace-nowrap md:w-full text-red-400 hover:bg-[#2C2C2C] hover:text-red-300"
+                >
+                  <Trash2 className="w-5 h-5" aria-hidden="true" />
+                  <span className="noto-sans-arabic-bold text-sm md:text-lg">حذف الحساب</span>
+                </Link>
               </nav>
             </aside>
 

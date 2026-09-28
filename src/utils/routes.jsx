@@ -22,6 +22,7 @@ const EntityDetailsPage = lazy(() => import("../pages/novel/entity-details"));
 const EntityEditPage = lazy(() => import("../pages/novel/entity-edit"));
 const ProfilePage = lazy(() => import("../pages/profile/page"));
 const SettingsPage = lazy(() => import("../pages/profile/settings"));
+const DeleteAccountPage = lazy(() => import("../pages/profile/delete-account"));
 const ReadingListPage = lazy(() => import("../pages/profile/ReadingListPage"));
 const LibraryPage = lazy(() => import("../pages/profile/LibraryPage"));
 const SearchPage = lazy(() => import("../pages/search/page"));
@@ -104,6 +105,11 @@ const routes = [
   {
     url: "/settings",
     component: <SettingsPage />,
+  },
+  // Account deletion: what it does, and the form for a signed-in member. Google Play lists this URL.
+  {
+    url: "/delete-account",
+    component: <DeleteAccountPage />,
   },
   {
     url: "/profile/:username/list/:listId",
