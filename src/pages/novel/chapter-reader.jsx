@@ -1090,10 +1090,7 @@ const ChapterReaderPage = () => {
                         هذا الفصل مقفل
                       </h3>
                       <p className="text-[#B0B0B0] text-sm noto-sans-arabic-medium leading-relaxed">
-                        {chapter.lockMessage === 'This chapter is locked by the privilege system. Subscribe to unlock all privilege chapters!' 
-                          ? 'هذا الفصل مقفل بنظام الامتيازات. اشترك لفتح جميع الفصول المقفلة!'
-                          : chapter.lockMessage || 'هذا الفصل مقفل بنظام الامتيازات. اشترك لفتح جميع الفصول المقفلة!'
-                        }
+                        {chapter.lockMessage || 'هذا الفصل مقفل بنظام الامتيازات. اشترك لفتح جميع الفصول المقفلة!'}
                       </p>
                       {privilegeInfo && (
                         <button

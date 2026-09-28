@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "../../constants/base-url";
 import { TOKEN_KEY } from "../../constants/token-key";
 import Cookies from "js-cookie";
+import { apiError } from "../../utils/api-error";
 import { useGetLoggedInUser } from "../user/useGetLoggedInUser";
 
 /**
@@ -41,15 +42,16 @@ export const useCreateParagraphComment = () => {
       );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        // 404 without a missing parent comment: the paragraph is gone. The author changed or deleted it after
-        // this page loaded the chapter, so the chapter has to be loaded again.
-        if (response.status === 404 && !/parent/i.test(errorText)) {
-          const error = new Error("عدّل الكاتب هذه الفقرة أو حذفها، فأعدنا تحميل الفصل. اختر الفقرة من جديد لنشر تعليقك.");
-          error.paragraphGone = true;
-          throw error;
+        const error = await apiError(response, "تعذّر نشر التعليق");
+        // The paragraph is gone: the author changed or deleted it after this page loaded the chapter, so the chapter
+        // has to be loaded again. (Without a code, from an older API: a 404 on a comment that isn't a reply can only
+        // be the paragraph.)
+        if (error.code === "ParagraphNotFound" || (!error.code && error.status === 404 && !parentCommentId)) {
+          const gone = new Error("عدّل الكاتب هذه الفقرة أو حذفها، فأعدنا تحميل الفصل. اختر الفقرة من جديد لنشر تعليقك.");
+          gone.paragraphGone = true;
+          throw gone;
         }
-        throw new Error(errorText || "Failed to create comment");
+        throw error;
       }
 
       // Backend returns 201 Created with no body
