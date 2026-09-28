@@ -657,7 +657,7 @@ const ChapterReaderPage = () => {
             <button
               onClick={shareOnFacebook}
               className="w-12 h-12 rounded-full bg-[#3C3C3C] flex items-center justify-center transition-all hover:bg-[#1877F2] hover:scale-110"
-              aria-label="Share on Facebook"
+              aria-label="مشاركة على فيسبوك"
             >
               <Facebook size={20} color="white" />
             </button>
@@ -666,7 +666,7 @@ const ChapterReaderPage = () => {
             <button
               onClick={shareOnTwitter}
               className="w-12 h-12 rounded-full bg-[#3C3C3C] flex items-center justify-center transition-all hover:bg-[#1DA1F2] hover:scale-110"
-              aria-label="Share on Twitter"
+              aria-label="مشاركة على إكس (تويتر)"
             >
               <Twitter size={20} color="white" />
             </button>
@@ -675,7 +675,7 @@ const ChapterReaderPage = () => {
             <button
               onClick={copyToClipboard}
               className="w-12 h-12 rounded-full bg-[#3C3C3C] flex items-center justify-center transition-all hover:bg-[#4A9EFF] hover:scale-110"
-              aria-label="Copy link"
+              aria-label="نسخ الرابط"
             >
               {copied ? (
                 <Check size={20} color="white" />
