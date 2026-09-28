@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { Loader2, Search, CreditCard, ArrowDownToLine } from "lucide-react";
+import { Loader2, Search, CreditCard, ArrowDownToLine, X } from "lucide-react";
+import { toast } from "sonner";
 import RechargePointsModal from "./RechargePointsModal";
 import WithdrawPointsModal from "./WithdrawPointsModal";
+import ConfirmModal from "../common/ConfirmModal";
 import { useGetWithdrawHistory } from "../../hooks/wallet/useGetWithdrawHistory";
+import { useCancelWithdrawal } from "../../hooks/wallet/useCancelWithdrawal";
 import { useGetRechargeHistory } from "../../hooks/wallet/useGetRechargeHistory";
 import { useGetTransactionHistory } from "../../hooks/wallet/useGetTransactionHistory";
 import { useGetWalletBalance } from "../../hooks/wallet/useGetWalletBalance";
@@ -14,6 +17,9 @@ const PointsWallet = ({ userId }) => {
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  // The pending withdrawal request whose cancelling is being confirmed.
+  const [cancelling, setCancelling] = useState(null);
+  const { mutateAsync: cancelWithdrawal, isPending: isCancelling } = useCancelWithdrawal();
   const pageSize = 10;
 
   // Fetch wallet balance
@@ -86,6 +92,9 @@ const PointsWallet = ({ userId }) => {
   // Map API withdrawal data to component format
   const withdrawHistory = withdrawData?.requests?.map((request) => ({
     id: `#${request.id.split('-')[0]}`,
+    requestId: request.id,
+    // Cancelled by the member: the API keeps it as rejected, with the reason «ألغاه صاحب الطلب».
+    cancelledByOwner: request.cancelledByOwner === true,
     date: request.requestedAt,
     points: request.pointsRequested,
     amount: request.netAmountEGP, // Amount after tax
@@ -111,7 +120,19 @@ const PointsWallet = ({ userId }) => {
     });
   };
 
-  const getStatusBadge = (status, rejectionReason = null) => {
+  const confirmCancel = async () => {
+    if (!cancelling) return;
+    try {
+      await cancelWithdrawal(cancelling.requestId);
+      toast.success("أُلغي طلب السحب، وعادت نقاطه متاحة للسحب.");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setCancelling(null);
+    }
+  };
+
+  const getStatusBadge = (status, rejectionReason = null, cancelledByOwner = false) => {
     const statusConfig = {
       approved: {
         bg: "bg-green-500/20",
@@ -132,17 +153,24 @@ const PointsWallet = ({ userId }) => {
         bg: "bg-yellow-500/20",
         text: "text-yellow-400",
         label: "قيد المراجعة"
+      },
+      cancelled: {
+        bg: "bg-zinc-500/20",
+        text: "text-zinc-300",
+        label: "ملغى"
       }
     };
 
-    const config = statusConfig[status];
+    const shown = cancelledByOwner ? "cancelled" : status;
+    // A status this page doesn't know yet is shown as the API names it rather than breaking the page.
+    const config = statusConfig[shown] ?? { bg: "bg-zinc-500/20", text: "text-zinc-300", label: status };
     return (
       <span className={`inline-flex items-center gap-x-1.5 rounded-full ${config.bg} px-3 py-1 text-xs font-medium ${config.text} noto-sans-arabic-medium`}>
         <svg className={`h-1.5 w-1.5 fill-current`} viewBox="0 0 6 6">
           <circle cx="3" cy="3" r="3" />
         </svg>
         {config.label}
-        {status === "rejected" && rejectionReason && (
+        {shown === "rejected" && rejectionReason && (
           <span className="relative group">
             <svg 
               className="h-3.5 w-3.5 cursor-help" 
@@ -431,7 +459,20 @@ const PointsWallet = ({ userId }) => {
                           </td>
                         )}
                         <td className="whitespace-nowrap px-6 py-5 text-sm">
-                          {getStatusBadge(item.status, item.rejectionReason)}
+                          <div className="flex items-center gap-3">
+                            {getStatusBadge(item.status, item.rejectionReason, item.cancelledByOwner)}
+                            {activeTab === "withdraw" && item.status === "pending" && (
+                              <button
+                                type="button"
+                                onClick={() => setCancelling(item)}
+                                disabled={isCancelling}
+                                className="inline-flex items-center gap-1 rounded-md border border-red-500/40 px-2.5 py-1 text-xs text-red-300 transition-colors hover:bg-red-500/10 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-50 noto-sans-arabic-medium"
+                              >
+                                <X size={14} aria-hidden="true" />
+                                <span>إلغاء الطلب</span>
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -470,6 +511,21 @@ const PointsWallet = ({ userId }) => {
             refetchBalance();
             setCurrentPage(1);
           }}
+        />
+
+        {/* Cancelling a pending withdrawal request */}
+        <ConfirmModal
+          isOpen={cancelling !== null}
+          onClose={() => !isCancelling && setCancelling(null)}
+          onConfirm={confirmCancel}
+          title="إلغاء طلب السحب؟"
+          message={cancelling
+            ? `سيُلغى طلب سحب ${cancelling.points.toLocaleString("ar-EG")} نقطة، وتعود نقاطه متاحة للسحب. يمكنك تقديم طلب جديد متى شئت.`
+            : ""}
+          confirmText="إلغاء الطلب"
+          cancelText="تراجع"
+          isLoading={isCancelling}
+          loadingText="جاري الإلغاء..."
         />
 
         {/* Withdraw Modal */}
