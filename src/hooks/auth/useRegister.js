@@ -20,8 +20,8 @@ export const useRegister = () => {
 
         // Check if the registration was successful
         if (!data.result?.success) {
-          // Throw an error with the message from the API
-          throw new Error(data.result?.message || "Registration failed");
+          // The API's message: the refused result's (code in data.result.code), or a refused form's (data.message).
+          throw new Error(data.result?.message || data.message || "تعذّر إنشاء الحساب، حاول مرة أخرى");
         }
 
         // Only return the token if registration was successful

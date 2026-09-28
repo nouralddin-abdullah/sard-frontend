@@ -7,6 +7,7 @@ import { BASE_URL } from "../../constants/base-url";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
 import { toast } from "sonner";
+import { arabicMessage, readApiError } from "../../utils/api-error";
 
 const WithdrawPointsModal = ({ isOpen, onClose, onSuccess, currentBalance = 0 }) => {
   const [step, setStep] = useState(1); // 1: Amount & Payment, 2: Payment Details
@@ -82,11 +83,12 @@ const WithdrawPointsModal = ({ isOpen, onClose, onSuccess, currentBalance = 0 })
           if (onSuccess) onSuccess();
           handleCancel();
         } else {
-          toast.error(data.message || 'فشل إرسال طلب السحب. حاول مرة أخرى.');
+          toast.error(arabicMessage(data.message) || 'فشل إرسال طلب السحب. حاول مرة أخرى.');
         }
       } else {
-        const errorData = await response.json().catch(() => ({ message: 'فشل إرسال طلب السحب' }));
-        toast.error(errorData.message || 'فشل إرسال طلب السحب. حاول مرة أخرى.');
+        // {success: false, code, message}; the message may still be English.
+        const { message } = await readApiError(response);
+        toast.error(message || 'فشل إرسال طلب السحب. حاول مرة أخرى.');
       }
     } catch (error) {
       console.error('Network error:', error);
