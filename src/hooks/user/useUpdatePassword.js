@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../constants/base-url";
 import useAuthTokenStore from "../../store/authTokenStore";
+import { readApiError } from "../../utils/api-error";
 
 export const useUpdatePassword = () => {
   const { token } = useAuthTokenStore();
@@ -19,8 +20,11 @@ export const useUpdatePassword = () => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || "فشل تحديث كلمة المرور");
+      // {code, message}: code PasswordMismatch when the current password is wrong; the message may still be English.
+      const { code, message } = await readApiError(response);
+      throw new Error(
+        code === "PasswordMismatch" ? "كلمة المرور الحالية غير صحيحة" : message || "فشل تحديث كلمة المرور"
+      );
     }
 
     return response.json();

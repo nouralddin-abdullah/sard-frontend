@@ -1,7 +1,10 @@
-// The API answers errors in three shapes: JSON {code, message} when the error has a stable code for clients to
-// branch on (AccountSuspended, Blocked, TargetNotFound, ...; the message is Arabic, for people), ASP.NET's
-// validation problem {errors: {Field: [messages]}} (Arabic messages), or plain text (often English, not for people).
-// Reads the body into {code, message}; message is null unless the API gave one meant for people.
+// The API answers errors as JSON {code, message} (a failed result adds success: false; a refused form keeps ASP.NET's
+// {errors: {Field: [messages]}} too), or, from older endpoints, plain text. Clients branch on the stable code. Many
+// messages are still English: only an Arabic one is meant for people here, so an English one counts as none.
+export const arabicMessage = (message) =>
+  typeof message === "string" && /[\u0600-\u06FF]/.test(message) ? message : null;
+
+// Reads the body into {code, message}; message is null unless the API gave an Arabic one.
 export const readApiError = async (response) => {
   let text = "";
   try {
@@ -18,7 +21,7 @@ export const readApiError = async (response) => {
         : null;
       return {
         code: typeof body.code === "string" ? body.code : null,
-        message: (body.code && body.message) || validationMessage || null,
+        message: arabicMessage(body.message) || arabicMessage(validationMessage),
       };
     }
   } catch {
