@@ -2,11 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "../../constants/base-url";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../../constants/token-key";
+import { apiError } from "../../utils/api-error";
 
 const toggleFollow = async (paramsObj) => {
   const accessToken = Cookies.get(TOKEN_KEY);
   const { isFollowed, userId } = paramsObj;
-  console.log(isFollowed);
 
   const conditionalBody = isFollowed
     ? {
@@ -16,30 +16,25 @@ const toggleFollow = async (paramsObj) => {
         userIdToFollow: userId,
       };
 
-  try {
-    const response = await fetch(
-      `${BASE_URL}/api/User/${isFollowed ? "unfollow" : "follow"}`,
-      {
-        method: isFollowed ? "DELETE" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(conditionalBody),
-      }
-    );
+  const response = await fetch(
+    `${BASE_URL}/api/User/${isFollowed ? "unfollow" : "follow"}`,
+    {
+      method: isFollowed ? "DELETE" : "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(conditionalBody),
+    }
+  );
 
-    if (!response.ok)
-      throw new Error(
-        `Failed to ${isFollowed ? "Unfollow" : "Follow"}, try again`
-      );
-
-    const data = await response.json();
-
-    return data;
-  } catch (error) {
-    console.error(error);
+  // A refusal (blocked, not signed in...) reaches the caller, which undoes its optimistic toggle.
+  if (!response.ok) {
+    throw await apiError(response, isFollowed ? "تعذّر إلغاء المتابعة، حاول مرة أخرى" : "تعذّرت المتابعة، حاول مرة أخرى");
   }
+
+  // 204: already following (or already not), which is what was asked.
+  return response.status === 204 ? { success: true } : response.json();
 };
 
 export const useToggleFollow = () => {

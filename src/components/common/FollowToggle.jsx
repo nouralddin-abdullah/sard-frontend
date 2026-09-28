@@ -40,7 +40,8 @@ const FollowToggle = ({ isFollowing, userId, compact = false }) => {
       await toggleFollow({ isFollowed: currentFollowState, userId });
     } catch (error) {
       console.error(error);
-      toast.error("حدث خطأ ما، يرجى المحاولة مرة أخرى");
+      // The API's Arabic reason (you can't follow this member...), or the hook's own.
+      toast.error(error?.message || "حدث خطأ ما، يرجى المحاولة مرة أخرى");
       // Revert on error
       setIsFollowedState((prev) => !prev);
     }
