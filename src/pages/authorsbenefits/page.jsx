@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import metsardBg from "../../assets/metsard-1.webp";
 import sardAuthorImg from "../../assets/sard-author.png";
-import { PAYOUT_RULES } from "../../constants/payout-rules";
+import { PAYOUT_RULES, WITHDRAWAL_REVIEW } from "../../constants/payout-rules";
 
 const MetsardPage = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -100,7 +100,7 @@ const MetsardPage = () => {
               <div className="flex flex-col items-center text-center mb-12">
                 <img
                   src={sardAuthorImg}
-                  alt="Sard Author"
+                  alt="كاتب في سرد"
                   className="w-96 md:w-[30rem] h-auto drop-shadow-2xl animate-fade-in"
                 />
               </div>
@@ -367,7 +367,7 @@ const GuideSection = () => {
                       <h2 className="text-3xl md:text-4xl font-bold text-white noto-sans-arabic-extrabold mb-2">
                         نظام الامتياز
                       </h2>
-                      <p className="text-[#4A9EFF] text-sm font-semibold tracking-wide">PRIVILEGE SYSTEM</p>
+                      <p className="text-[#4A9EFF] text-sm font-semibold">الوصول المبكر</p>
                     </div>
                   </div>
                 </div>
@@ -458,7 +458,7 @@ const GuideSection = () => {
                       <h2 className="text-3xl md:text-4xl font-bold text-white noto-sans-arabic-extrabold mb-2">
                         نظام الهدايا
                       </h2>
-                      <p className="text-[#FF4A8D] text-sm font-semibold tracking-wide">GIFTING SYSTEM</p>
+                      <p className="text-[#FF4A8D] text-sm font-semibold">دعم القرّاء لكتّابهم</p>
                     </div>
                   </div>
                 </div>
@@ -517,7 +517,7 @@ const GuideSection = () => {
                       <h2 className="text-3xl md:text-4xl font-bold text-white noto-sans-arabic-extrabold mb-2">
                         قواعد الدفع والسحب
                       </h2>
-                      <p className="text-[#4ADE80] text-sm font-semibold tracking-wide">PAYMENT RULES</p>
+                      <p className="text-[#4ADE80] text-sm font-semibold">برنامج أرباح الكتّاب</p>
                     </div>
                   </div>
                 </div>
@@ -530,13 +530,13 @@ const GuideSection = () => {
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 bg-[#4ADE80]/10 rounded-lg flex items-center justify-center flex-shrink-0">
                           <svg className="w-6 h-6 text-[#4ADE80]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         </div>
                         <div>
-                          <h4 className="text-lg font-bold text-white mb-2 noto-sans-arabic-bold">موعد الدفع</h4>
+                          <h4 className="text-lg font-bold text-white mb-2 noto-sans-arabic-bold">مدة المراجعة</h4>
                           <p className="text-gray-400 text-sm noto-sans-arabic-regular leading-relaxed">
-                            يتم إصدار المدفوعات في يوم 10 من الشهر التالي، بناءً على إحصائيات الشهر السابق.
+                            {WITHDRAWAL_REVIEW}
                           </p>
                         </div>
                       </div>
@@ -582,7 +582,7 @@ const GuideSection = () => {
                       طرق السحب المتاحة
                     </h4>
                     <div className="flex flex-wrap gap-3">
-                      {["Instapay", "Vodafone Cash", "PayPal"].map((method) => (
+                      {["InstaPay", "Vodafone Cash", "PayPal"].map((method) => (
                         <div key={method} className="px-6 py-3 bg-black/40 rounded-xl border border-white/10 text-white font-semibold flex items-center gap-2 hover:border-[#4ADE80]/50 hover:bg-[#4ADE80]/10 transition-all cursor-default group/method">
                           <div className="w-2 h-2 rounded-full bg-[#4ADE80] group-hover/method:animate-pulse"></div>
                           <span className="text-sm">{method}</span>

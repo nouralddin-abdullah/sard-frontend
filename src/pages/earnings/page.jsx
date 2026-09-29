@@ -9,7 +9,7 @@ import vodafoneLogo from "../../assets/vodaphonecash.png";
 import instapayLogo from "../../assets/InstaPay_Logo.png";
 import paypalLogo from "../../assets/Paypal_2014_logo.webp";
 import earningsBackground from "../../assets/earnings-background.webp";
-import { PAYOUT_RULES } from "../../constants/payout-rules";
+import { PAYOUT_RULES, WITHDRAWAL_REVIEW } from "../../constants/payout-rules";
 
 const EarningsPage = () => {
   return (
@@ -296,17 +296,17 @@ const EarningsPage = () => {
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={instapayLogo} 
-                  alt="InstaPay logo" 
+                  alt="شعار إنستاباي" 
                 />
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={vodafoneLogo} 
-                  alt="Vodafone Cash logo" 
+                  alt="شعار فودافون كاش" 
                 />
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={paypalLogo} 
-                  alt="PayPal logo" 
+                  alt="شعار باي بال" 
                 />
               </div>
             </div>
@@ -323,17 +323,17 @@ const EarningsPage = () => {
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={instapayLogo} 
-                  alt="InstaPay logo" 
+                  alt="شعار إنستاباي" 
                 />
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={vodafoneLogo} 
-                  alt="Vodafone Cash logo" 
+                  alt="شعار فودافون كاش" 
                 />
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={paypalLogo} 
-                  alt="PayPal logo" 
+                  alt="شعار باي بال" 
                 />
               </div>
             </div>
@@ -343,7 +343,7 @@ const EarningsPage = () => {
           <div className="bg-[#FFF8F0]/95 border border-[#B76E4F]/20 p-8 rounded-lg shadow-lg mt-8">
             <h3 className="text-[#B76E4F] text-2xl font-bold mb-6 text-center noto-sans-arabic-bold">شروط سحب الأرباح</h3>
             <ul className="flex flex-col gap-3">
-              {PAYOUT_RULES.map((rule) => (
+              {[...PAYOUT_RULES, WITHDRAWAL_REVIEW].map((rule) => (
                 <li key={rule} className="flex items-start gap-3">
                   <span aria-hidden="true" className="mt-2.5 h-2 w-2 flex-shrink-0 rounded-full bg-[#B76E4F]"></span>
                   <p className="text-[#4a4a4a] text-lg leading-relaxed" style={{ fontFamily: "'Markazi Text', serif", fontWeight: 400 }}>
