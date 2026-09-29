@@ -5,7 +5,7 @@ import { TOKEN_KEY } from "../../constants/token-key";
 import { apiError } from "../../utils/api-error";
 
 // Values are the API's names (POST /api/reports): never translate or rename them. Target types are Comment (replies
-// too), Review, Post, User, Novel and ReadingList.
+// too), Review, Post, User, Novel, ReadingList and GiftMessage (the gift's id: a message sent with a gift, #31).
 export const REPORT_REASONS = [
   { value: "Spam", label: "محتوى مزعج أو إعلاني" },
   { value: "Harassment", label: "إساءة أو تحرّش" },

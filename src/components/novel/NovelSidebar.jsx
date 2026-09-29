@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Plus, AlertTriangle, Share2 } from "lucide-react";
+import { Plus, AlertTriangle, Share2, Flag } from "lucide-react";
 import { getTimeAgo } from "../../utils/date";
 import CustomStar from "../common/CustomStar";
 import { useGetNovelRecommendations } from "../../hooks/novel/useGetNovelRecommendations";
@@ -40,9 +40,17 @@ const NovelSidebar = ({
   onSendGift,
 }) => {
   const { t } = useTranslation();
-  const [isReporting, setIsReporting] = useState(false);
+  // What the report dialog is open for: the novel, or a gift's message (#31).
+  const [reportTarget, setReportTarget] = useState(null);
   // An author doesn't report their own novel (the API refuses it).
   const isAuthor = !!currentUser?.id && currentUser.id === novel?.author?.id;
+  // Nor does a sender report their own message; signed-out readers aren't offered it. Gifts name their sender by user
+  // name (unique, whatever the letter case).
+  const canReportMessageOf = (giftEntry) =>
+    !!giftEntry.message &&
+    !!currentUser?.id &&
+    !!currentUser.userName &&
+    giftEntry.senderUserName?.toLowerCase() !== currentUser.userName.toLowerCase();
 
   // Fetch recommendations with 1-hour cache
   const { 
@@ -68,7 +76,7 @@ const NovelSidebar = ({
         </button>
         {!isAuthor && novelId && (
           <button
-            onClick={() => setIsReporting(true)}
+            onClick={() => setReportTarget({ type: "Novel", id: novelId })}
             className="flex items-center gap-3 text-base font-bold text-white hover:text-[#4A9EFF] transition-colors w-full py-2 noto-sans-arabic-extrabold"
           >
             <span className="bg-[#2C2C2C] p-2 rounded-full">
@@ -132,27 +140,53 @@ const NovelSidebar = ({
         ) : recentGiftsData?.items && recentGiftsData.items.length > 0 ? (
           <div className="space-y-3">
             {recentGiftsData.items.slice(0, 3).map((giftEntry) => (
-              <div key={giftEntry.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Link
-                    to={`/profile/${giftEntry.senderUserName}`}
-                    className="w-10 h-10 rounded-full bg-cover bg-center hover:ring-2 hover:ring-[#4A9EFF] transition-all"
-                    style={{
-                      backgroundImage: giftEntry.senderProfilePhoto
-                        ? `url("${giftEntry.senderProfilePhoto}")`
-                        : `url("https://ui-avatars.com/api/?name=${encodeURIComponent(giftEntry.senderDisplayName)}&background=4A9EFF&color=fff")`,
-                    }}
-                  />
-                  <div>
-                    <p className="text-white text-sm noto-sans-arabic-extrabold">
-                      {giftEntry.senderDisplayName}{" "}
-                      <span className="text-[#B0B0B0] noto-sans-arabic-medium">أهدى</span>
-                    </p>
+              <div key={giftEntry.id}>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Link
+                      to={`/profile/${giftEntry.senderUserName}`}
+                      className="w-10 h-10 shrink-0 rounded-full bg-cover bg-center hover:ring-2 hover:ring-[#4A9EFF] transition-all"
+                      style={{
+                        backgroundImage: giftEntry.senderProfilePhoto
+                          ? `url("${giftEntry.senderProfilePhoto}")`
+                          : `url("https://ui-avatars.com/api/?name=${encodeURIComponent(giftEntry.senderDisplayName)}&background=4A9EFF&color=fff")`,
+                      }}
+                    />
+                    <div className="min-w-0">
+                      <p className="text-white text-sm noto-sans-arabic-extrabold">
+                        {giftEntry.senderDisplayName}{" "}
+                        <span className="text-[#B0B0B0] noto-sans-arabic-medium">أهدى</span>
+                      </p>
+                    </div>
                   </div>
+                  <span className="shrink-0 text-xs text-[#B0B0B0] noto-sans-arabic-medium">
+                    {getTimeAgo(giftEntry.createdAt)}
+                  </span>
                 </div>
-                <span className="text-xs text-[#B0B0B0] noto-sans-arabic-medium">
-                  {getTimeAgo(giftEntry.createdAt)}
-                </span>
+
+                {/* The sender's message (#31): public, plain text, in its own direction; under the name. */}
+                {giftEntry.message && (
+                  <div className="mt-2 ps-12">
+                    <p
+                      dir="auto"
+                      title={giftEntry.message}
+                      className="w-fit max-w-full rounded-lg bg-[#2C2C2C] px-3 py-2 text-sm leading-relaxed text-[#E0E0E0] whitespace-pre-line break-words line-clamp-6 noto-sans-arabic-medium"
+                    >
+                      {giftEntry.message}
+                    </p>
+                    {canReportMessageOf(giftEntry) && (
+                      <button
+                        type="button"
+                        onClick={() => setReportTarget({ type: "GiftMessage", id: giftEntry.id })}
+                        aria-label={`الإبلاغ عن رسالة ${giftEntry.senderDisplayName}`}
+                        className="mt-1 flex items-center gap-1 text-xs text-[#B0B0B0] hover:text-red-400 transition-colors noto-sans-arabic-medium"
+                      >
+                        <Flag size={12} aria-hidden="true" />
+                        إبلاغ
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -239,7 +273,7 @@ const NovelSidebar = ({
         )}
       </div>
 
-      <ReportModal target={isReporting ? { type: "Novel", id: novelId } : null} onClose={() => setIsReporting(false)} />
+      <ReportModal target={reportTarget} onClose={() => setReportTarget(null)} />
     </div>
   );
 };
