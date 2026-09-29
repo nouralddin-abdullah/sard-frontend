@@ -197,20 +197,6 @@ const UnlockPrivilegeModal = ({ isOpen, onClose, privilegeCost, lockedChaptersCo
                   </p>
                 </div>
               </div>
-
-              <div className="col-span-2 grid grid-cols-subgrid border-t border-t-[#3C3C3C] py-4">
-                <div className="flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[#4A9EFF]">ad_off</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-[#F5F5F5] text-sm font-medium leading-normal noto-sans-arabic-extrabold">
-                    قراءة بدون إعلانات
-                  </p>
-                  <p className="text-[#B0B0B0] text-sm font-normal leading-normal noto-sans-arabic-medium">
-                    استمتع بتجربة قراءة دون انقطاع
-                  </p>
-                </div>
-              </div>
             </div>
 
             <div className="flex flex-col items-center gap-3">
