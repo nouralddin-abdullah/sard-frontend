@@ -3,6 +3,8 @@ import { X, Coins } from "lucide-react";
 import { toast } from "sonner";
 import { useSendGift } from "../../hooks/novel/useSendGift";
 import { useGetWalletBalance } from "../../hooks/wallet/useGetWalletBalance";
+import { useGiftMessageMaxLength } from "../../hooks/app/useAppConfig";
+import { countCharacters } from "../../utils/text-length";
 import flowerGift from "../../assets/gifts/flower-100.png";
 import pizzaGift from "../../assets/gifts/pizza-300.png";
 import bookGift from "../../assets/gifts/book-500.png";
@@ -16,12 +18,24 @@ import universeGift from "../../assets/gifts/Universe-10000.png";
 const MIN_QUANTITY = 1;
 const MAX_QUANTITY = 100;
 
+// Refusals of the message that are shown under its box as well (#31).
+const MESSAGE_REFUSALS = ["GiftMessageTooLong", "Blocked"];
+
 const SendGiftModal = ({ isOpen, onClose, novelTitle, novelId, preselectedGiftId = null }) => {
   const [selectedGift, setSelectedGift] = useState(preselectedGiftId);
   const [quantity, setQuantity] = useState(1);
+  const [message, setMessage] = useState("");
+  const [messageError, setMessageError] = useState(null);
   
   const { mutate: sendGift, isPending: isSending } = useSendGift();
-  const { data: walletData, isLoading: isLoadingWallet } = useGetWalletBalance(isOpen);
+  const { data: walletData } = useGetWalletBalance(isOpen);
+  // The optional message to the author (#31) only when the API says it accepts one: null from an older API.
+  const messageMaxLength = useGiftMessageMaxLength(isOpen);
+
+  // Counted as the API counts it: trimmed, in user-perceived characters (an emoji is one).
+  const trimmedMessage = messageMaxLength ? message.trim() : "";
+  const messageLength = countCharacters(trimmedMessage);
+  const messageTooLong = !!messageMaxLength && messageLength > messageMaxLength;
 
   // Update selected gift when preselectedGiftId changes
   useEffect(() => {
@@ -55,8 +69,15 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle, novelId, preselectedGiftId
     return gift ? gift.cost * quantity : 0;
   };
 
+  // Every opening starts without a message.
+  const handleClose = () => {
+    setMessage("");
+    setMessageError(null);
+    onClose();
+  };
+
   const handleSendGift = () => {
-    if (!selectedGift || !novelId) return;
+    if (!selectedGift || !novelId || messageTooLong) return;
 
     const selectedGiftData = gifts.find((g) => g.id === selectedGift);
 
@@ -65,21 +86,30 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle, novelId, preselectedGiftId
         giftId: selectedGift,
         novelId: novelId,
         count: quantity,
+        // Sent only when there is one.
+        message: trimmedMessage || undefined,
       },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           // Create custom Arabic success message
-          const message = `تم إرسال ${quantity}x ${selectedGiftData?.name} إلى ${novelTitle} بنجاح!`;
-          toast.success(message);
-          onClose();
+          toast.success(`تم إرسال ${quantity}x ${selectedGiftData?.name} إلى ${novelTitle} بنجاح!`);
+          handleClose();
           // Reset state
           setQuantity(1);
         },
         onError: (error) => {
           toast.error(error.message || "فشل إرسال الهدية");
+          if (MESSAGE_REFUSALS.includes(error.code)) {
+            setMessageError(error.message);
+          }
         },
       }
     );
+  };
+
+  const handleMessageChange = (e) => {
+    setMessage(e.target.value);
+    setMessageError(null);
   };
 
   const handleQuantityChange = (e) => {
@@ -92,22 +122,28 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle, novelId, preselectedGiftId
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" dir="rtl">
-      <div className="w-full max-w-lg rounded-xl bg-[#1A1A1A] border border-[#3C3C3C] shadow-2xl">
+      {/* At most the screen's height (minus the padding), the content scrolling within: the phone keyboard shrinks it. */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="send-gift-title"
+        className="flex w-full max-w-lg max-h-[calc(100dvh-2rem)] flex-col rounded-xl bg-[#1A1A1A] border border-[#3C3C3C] shadow-2xl"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#3C3C3C] p-3 sm:p-4">
-          <h3 className="text-white text-lg font-bold noto-sans-arabic-extrabold">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#3C3C3C] p-3 sm:p-4">
+          <h3 id="send-gift-title" className="min-w-0 text-white text-lg font-bold noto-sans-arabic-extrabold">
             إرسال هدية إلى {novelTitle}
           </h3>
           <button aria-label="إغلاق"
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2C2C2C] text-[#B0B0B0] hover:bg-[#3C3C3C] transition-colors"
+            onClick={handleClose}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2C2C2C] text-[#B0B0B0] hover:bg-[#3C3C3C] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-3 sm:p-4">
+        <div className="overflow-y-auto p-3 sm:p-4">
           <div className="space-y-3">
             {/* Current Balance */}
             <div className="flex items-center justify-between rounded-lg bg-[#2C2C2C] p-2.5 border border-[#3C3C3C]">
@@ -171,6 +207,54 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle, novelId, preselectedGiftId
               />
             </div>
 
+            {/* Message to the author (#31): optional and public */}
+            {messageMaxLength && (
+              <div>
+                <label
+                  htmlFor="gift-message"
+                  className="mb-1.5 block text-sm font-medium text-white noto-sans-arabic-extrabold"
+                >
+                  رسالة إلى الكاتب{" "}
+                  <span className="font-normal text-[#B0B0B0] noto-sans-arabic-medium">(اختيارية)</span>
+                </label>
+                <textarea
+                  id="gift-message"
+                  dir="auto"
+                  rows={3}
+                  value={message}
+                  onChange={handleMessageChange}
+                  placeholder="اكتب كلمة قصيرة للكاتب"
+                  aria-invalid={messageTooLong || !!messageError}
+                  aria-describedby="gift-message-note gift-message-count"
+                  className={`w-full resize-none rounded-lg border bg-[#2C2C2C] p-2.5 text-white placeholder:text-[#B0B0B0] focus:outline-none focus:ring-2 noto-sans-arabic-medium ${
+                    messageTooLong || messageError
+                      ? "border-red-500/70 focus:border-red-500 focus:ring-red-500/20"
+                      : "border-[#3C3C3C] focus:border-[#4A9EFF] focus:ring-[#4A9EFF]/20"
+                  }`}
+                />
+                <div className="mt-1 flex items-start justify-between gap-3 text-xs">
+                  <p id="gift-message-note" className="text-[#B0B0B0] noto-sans-arabic-medium">
+                    تظهر رسالتك للجميع تحت هدايا الرواية.
+                  </p>
+                  <span
+                    id="gift-message-count"
+                    dir="ltr"
+                    aria-label={`${messageLength} من ${messageMaxLength} حرف`}
+                    className={`shrink-0 tabular-nums noto-sans-arabic-medium ${messageTooLong ? "text-red-400" : "text-[#B0B0B0]"}`}
+                  >
+                    {messageLength}/{messageMaxLength}
+                  </span>
+                </div>
+                {(messageTooLong || messageError) && (
+                  <p role="alert" className="mt-1.5 text-sm text-red-400 noto-sans-arabic-medium">
+                    {messageTooLong
+                      ? `الرسالة أطول من ${messageMaxLength} حرف، اختصرها لتتمكن من الإرسال.`
+                      : messageError}
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Total Cost */}
             <div className="flex items-center justify-between rounded-lg bg-[#2C2C2C] p-2.5 border border-[#3C3C3C]">
               <div className="text-sm font-medium text-white noto-sans-arabic-extrabold">
@@ -193,16 +277,16 @@ const SendGiftModal = ({ isOpen, onClose, novelTitle, novelId, preselectedGiftId
         </div>
 
         {/* Footer */}
-        <div className="flex flex-col gap-2 border-t border-[#3C3C3C] p-3 sm:flex-row sm:justify-end sm:p-4">
+        <div className="flex shrink-0 flex-col gap-2 border-t border-[#3C3C3C] p-3 sm:flex-row sm:justify-end sm:p-4">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="flex items-center justify-center rounded-lg h-10 px-5 bg-[#2C2C2C] text-white text-base font-bold noto-sans-arabic-extrabold hover:bg-[#3C3C3C] transition-colors w-full sm:w-auto"
           >
             إلغاء
           </button>
           <button
             onClick={handleSendGift}
-            disabled={!selectedGift || getTotalCost() > userCoins || isSending}
+            disabled={!selectedGift || getTotalCost() > userCoins || messageTooLong || isSending}
             className="flex items-center justify-center rounded-lg h-10 px-5 bg-[#4A9EFF] text-white text-base font-bold noto-sans-arabic-extrabold hover:bg-[#3A8EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
           >
             {isSending ? "جاري الإرسال..." : "إرسال الهدية"}

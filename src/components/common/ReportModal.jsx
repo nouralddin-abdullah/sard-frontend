@@ -13,6 +13,7 @@ const TITLES = {
   User: "الإبلاغ عن مستخدم",
   Novel: "الإبلاغ عن رواية",
   ReadingList: "الإبلاغ عن قائمة قراءة",
+  GiftMessage: "الإبلاغ عن رسالة هدية",
 };
 
 const ReportDialog = ({ target, onClose }) => {
@@ -131,8 +132,8 @@ const ReportDialog = ({ target, onClose }) => {
   );
 };
 
-// Reports a comment, review, post, user, novel or reading list: target is {type, id} (type as the API names it), or
-// null when closed. Signed-out readers are asked to sign in first.
+// Reports a comment, review, post, user, novel, reading list or gift message: target is {type, id} (type as the API
+// names it; a gift message's id is its gift's), or null when closed. Signed-out readers are asked to sign in first.
 const ReportModal = ({ target, onClose }) => {
   const { data: currentUser } = useGetLoggedInUser();
 

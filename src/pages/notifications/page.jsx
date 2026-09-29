@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { Gift, BookOpen, UserPlus, Megaphone, MessageCircle, X, ThumbsUp, Heart, Loader2 } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Gift, BookOpen, UserPlus, Megaphone, MessageCircle, X, ThumbsUp, Heart, Loader2, Flag } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../../components/common/Header";
 import { useGetNotifications } from "../../hooks/notification/useGetNotifications";
@@ -8,6 +8,7 @@ import { useMarkAllNotificationsRead } from "../../hooks/notification/useMarkAll
 import { getTimeAgo } from "../../utils/date";
 import { toast } from "sonner";
 import NovelCover from "../../components/common/NovelCover";
+import ReportModal from "../../components/common/ReportModal";
 
 // Map notification types to icons
 const getNotificationIcon = (type) => {
@@ -18,15 +19,20 @@ const getNotificationIcon = (type) => {
     NewFollower: UserPlus,
     NewChapterInLibrary: BookOpen,
     ReviewOnNovel: Heart,
+    GiftReceived: Gift,
     Gift: Gift,
     Announcement: Megaphone,
   };
   return iconMap[type] || MessageCircle;
 };
 
-const NotificationItem = ({ notification, onMarkRead }) => {
+const NotificationItem = ({ notification, onMarkRead, onReport }) => {
   const Icon = getNotificationIcon(notification.type);
   const navigate = useNavigate();
+  // What a gift's sender wrote (#31), read from the gift: null once a moderator removed it. The author can report it,
+  // by the gift's id.
+  const giftMessage = notification.type === "GiftReceived" ? notification.giftMessage : null;
+  const canReportMessage = !!giftMessage && !!notification.giftTransactionId;
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -40,11 +46,8 @@ const NotificationItem = ({ notification, onMarkRead }) => {
   };
 
   return (
-    <Link
-      to={notification.actionUrl}
-      onClick={handleClick}
-      className="flex items-start gap-4 p-4 hover:bg-neutral-600/50 transition-colors"
-    >
+    // The whole row opens the notification (its link's ::after covers the row); the report button sits above that.
+    <div className="relative flex items-start gap-4 p-4 hover:bg-neutral-600/50 transition-colors">
       {/* Left side: New indicator dot */}
       <div className="flex-shrink-0 mt-1.5">
         {!notification.isRead ? (
@@ -83,13 +86,40 @@ const NotificationItem = ({ notification, onMarkRead }) => {
       {/* Content Section */}
       <div className="flex-1 min-w-0">
         <p className="text-white text-base mb-2 noto-sans-arabic-medium">
-          {notification.message}
+          <Link
+            to={notification.actionUrl}
+            onClick={handleClick}
+            className="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-[#4A9EFF]"
+          >
+            {notification.message}
+          </Link>
         </p>
-        <p className="text-neutral-400 text-sm noto-sans-arabic-regular">
-          {getTimeAgo(notification.createdAt)}
-        </p>
+        {giftMessage && (
+          <p
+            dir="auto"
+            title={giftMessage}
+            className="mb-2 w-fit max-w-full rounded-lg bg-neutral-800/70 px-3 py-2 text-sm leading-relaxed text-neutral-200 whitespace-pre-line break-words line-clamp-6 noto-sans-arabic-medium"
+          >
+            {giftMessage}
+          </p>
+        )}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <p className="text-neutral-400 text-sm noto-sans-arabic-regular">
+            {getTimeAgo(notification.createdAt)}
+          </p>
+          {canReportMessage && (
+            <button
+              type="button"
+              onClick={() => onReport({ type: "GiftMessage", id: notification.giftTransactionId })}
+              className="relative z-10 inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-red-400 transition-colors noto-sans-arabic-medium"
+            >
+              <Flag size={12} aria-hidden="true" />
+              إبلاغ عن الرسالة
+            </button>
+          )}
+        </div>
       </div>
-    </Link>
+    </div>
   );
 };
 
@@ -97,6 +127,7 @@ const NotificationsPage = () => {
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetNotifications();
   const markNotificationRead = useMarkNotificationRead();
   const markAllNotificationsRead = useMarkAllNotificationsRead();
+  const [reportTarget, setReportTarget] = useState(null);
 
   // Flatten all notifications from all pages
   const allNotifications = useMemo(() => {
@@ -200,6 +231,7 @@ const NotificationsPage = () => {
                         key={notification.id}
                         notification={notification}
                         onMarkRead={handleMarkRead}
+                        onReport={setReportTarget}
                       />
                     ))}
                   </div>
@@ -218,6 +250,7 @@ const NotificationsPage = () => {
                         key={notification.id}
                         notification={notification}
                         onMarkRead={handleMarkRead}
+                        onReport={setReportTarget}
                       />
                     ))}
                   </div>
@@ -247,6 +280,8 @@ const NotificationsPage = () => {
           )}
         </main>
       </div>
+
+      <ReportModal target={reportTarget} onClose={() => setReportTarget(null)} />
     </>
   );
 };
