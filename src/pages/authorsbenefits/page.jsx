@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import metsardBg from "../../assets/metsard-1.webp";
 import sardAuthorImg from "../../assets/sard-author.png";
+import { PAYOUT_RULES } from "../../constants/payout-rules";
 
 const MetsardPage = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -479,7 +480,7 @@ const GuideSection = () => {
                           كيف يعمل؟
                         </h4>
                         <p className="text-gray-300 leading-relaxed noto-sans-arabic-regular">
-                          يمكن للقراء استخدام العملات لإرسال هدايا كنوع من التقدير لعمل المؤلف. يحصل المؤلفون على حصة من الإيرادات الناتجة عن هذه الهدايا وتضاف مباشرة إلى محفظتهم.
+                          يمكن للقراء استخدام النقاط لإرسال هدايا كنوع من التقدير لعمل المؤلف. يحصل المؤلفون على قيمة هذه الهدايا كاملة بالنقاط، وتضاف مباشرة إلى محفظتهم، وتصبح قابلة للسحب بعد 30 يومًا من استلامها.
                         </p>
                       </div>
                     </div>
@@ -556,6 +557,22 @@ const GuideSection = () => {
                         </div>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Withdrawal rules, as the API enforces them (src/constants/payout-rules.js) */}
+                  <div className="bg-gradient-to-br from-[#4ADE80]/5 to-transparent rounded-2xl p-6 border border-[#4ADE80]/20">
+                    <h4 className="text-lg font-bold text-white mb-5 noto-sans-arabic-bold flex items-center gap-2">
+                      <span className="w-1 h-6 bg-[#4ADE80] rounded-full"></span>
+                      شروط سحب الأرباح
+                    </h4>
+                    <ul className="space-y-3">
+                      {PAYOUT_RULES.map((rule) => (
+                        <li key={rule} className="flex items-start gap-3">
+                          <span aria-hidden="true" className="mt-2 w-2 h-2 rounded-full bg-[#4ADE80] flex-shrink-0"></span>
+                          <p className="text-gray-300 text-sm noto-sans-arabic-regular leading-relaxed">{rule}</p>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
 
                   {/* Payment Methods */}
