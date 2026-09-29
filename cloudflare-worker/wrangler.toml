@@ -6,6 +6,12 @@ compatibility_date = "2024-11-12"
 [vars]
 API_URL = "https://api-sareed.runasp.net"
 
+# Before each bundle (deploy and dev): the legal pages' HTML from their texts in ../src/content/legal, into dist/. It
+# uses the repo root's node_modules, so run npm ci at the root first.
+[build]
+command = "node build-legal-pages.mjs"
+watch_dir = "../src/content/legal"
+
 # Routes: the worker answers crawlers on the public pages below and passes every other request (and every
 # non-crawler visitor) straight through to the web app. A pattern without a trailing * matches that exact URL only
 # (no query string), so "/" is the home page alone rather than the whole site.
@@ -38,4 +44,17 @@ zone_name = "sardnovels.com"
 # sitemap.xml, and sitemap-N.xml once there are more than 50,000 URLs.
 [[routes]]
 pattern = "www.sardnovels.com/sitemap*"
+zone_name = "sardnovels.com"
+
+# The legal pages: the privacy policy, the terms of use and the community guidelines.
+[[routes]]
+pattern = "www.sardnovels.com/privacy*"
+zone_name = "sardnovels.com"
+
+[[routes]]
+pattern = "www.sardnovels.com/terms*"
+zone_name = "sardnovels.com"
+
+[[routes]]
+pattern = "www.sardnovels.com/guidelines*"
 zone_name = "sardnovels.com"
