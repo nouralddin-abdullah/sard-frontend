@@ -12,6 +12,7 @@ import landing3Image from "../../assets/Landing-3.webp";
 import picture1Image from "../../assets/Picture1.webp";
 import NovelCover from "../../components/common/NovelCover";
 import PageMeta from "../../components/common/PageMeta";
+import SiteFooter from "../../components/common/SiteFooter";
 import { LANDING_DESCRIPTION, SITE_TITLE, websiteJsonLd } from "../../utils/seo";
 
 // Icon mapping for genres
@@ -433,14 +434,8 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="py-8 px-6 border-t border-gray-800">
-          <div className="max-w-7xl mx-auto text-center">
-            <p className="text-gray-500 noto-sans-arabic-medium">
-              © 2025 منصة الروايات العربية. جميع الحقوق محفوظة.
-            </p>
-          </div>
-        </footer>
+        {/* Footer: the legal pages and the copyright line */}
+        <SiteFooter />
       </div>
     </>
   );

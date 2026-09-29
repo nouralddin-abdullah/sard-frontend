@@ -23,6 +23,7 @@ const EntityEditPage = lazy(() => import("../pages/novel/entity-edit"));
 const ProfilePage = lazy(() => import("../pages/profile/page"));
 const SettingsPage = lazy(() => import("../pages/profile/settings"));
 const DeleteAccountPage = lazy(() => import("../pages/profile/delete-account"));
+const LegalPage = lazy(() => import("../pages/legal/page"));
 const ReadingListPage = lazy(() => import("../pages/profile/ReadingListPage"));
 const LibraryPage = lazy(() => import("../pages/profile/LibraryPage"));
 const SearchPage = lazy(() => import("../pages/search/page"));
@@ -110,6 +111,20 @@ const routes = [
   {
     url: "/delete-account",
     component: <DeleteAccountPage />,
+  },
+  // The legal pages, public: Google Play, the Google sign-in consent screen and the app link them. The texts are the
+  // owner's (src/content/legal); the SEO worker serves the same pages to crawlers.
+  {
+    url: "/privacy",
+    component: <LegalPage pageKey="privacy" />,
+  },
+  {
+    url: "/terms",
+    component: <LegalPage pageKey="terms" />,
+  },
+  {
+    url: "/guidelines",
+    component: <LegalPage pageKey="guidelines" />,
   },
   {
     url: "/profile/:username/list/:listId",
