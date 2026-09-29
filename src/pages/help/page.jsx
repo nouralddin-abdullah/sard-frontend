@@ -47,9 +47,6 @@ const HelpCenterPage = () => {
       articles: [
         { id: "recharge-points", title: "كيفية شحن النقاط", file: "wallet/recharge-points.md" },
         { id: "use-points", title: "استخدام النقاط لفتح الفصول المميزة", file: "wallet/use-points.md" },
-        { id: "gift-points", title: "إهداء النقاط للكتّاب", file: "wallet/gift-points.md" },
-        { id: "refund-policy", title: "سياسة الاسترجاع والإلغاء", file: "wallet/refund-policy.md" },
-        { id: "payment-methods", title: "طرق الدفع المتاحة", file: "wallet/payment-methods.md" },
       ]
     },
     {
@@ -61,7 +58,6 @@ const HelpCenterPage = () => {
       articles: [
         { id: "change-password", title: "تغيير كلمة المرور", file: "security/change-password.md" },
         { id: "two-factor-auth", title: "تفعيل المصادقة الثنائية", file: "security/two-factor-auth.md" },
-        { id: "recover-account", title: "استعادة حساب محذوف", file: "security/recover-account.md" },
         { id: "privacy-settings", title: "إدارة إعدادات الخصوصية", file: "security/privacy-settings.md" },
         { id: "report-security", title: "الإبلاغ عن مشكلة أمنية", file: "security/report-security.md" },
       ]

@@ -285,7 +285,7 @@ const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
                       />
                       <img
                         className="h-8 mb-2"
-                        alt="Vodafone Cash Logo"
+                        alt="شعار فودافون كاش"
                         src={vodafoneLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
@@ -309,7 +309,7 @@ const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
                       />
                       <img
                         className="h-8 mb-2"
-                        alt="InstaPay Logo"
+                        alt="شعار إنستاباي"
                         src={instapayLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
@@ -333,7 +333,7 @@ const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
                       />
                       <img
                         className="h-6 mb-2"
-                        alt="PayPal Logo"
+                        alt="شعار باي بال"
                         src={paypalLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
@@ -395,6 +395,10 @@ const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
                       }
                     </p>
                   </div>
+                  {/* Bought points are never paid out (#22): say so before the purchase. */}
+                  <p className="text-[#9db9a6] text-xs leading-relaxed mt-3 noto-sans-arabic-regular">
+                    تُستخدم النقاط المشتراة داخل سرد فقط، ولا يمكن سحبها.
+                  </p>
                   <button
                     onClick={handleNext}
                     className="mt-6 w-full h-12 px-6 bg-[#4A9EFF] text-white font-bold rounded-lg text-base hover:bg-[#3A8EEF] focus:outline-none focus:ring-2 focus:ring-[#4A9EFF]/50 transition-colors duration-200 flex items-center justify-center gap-2 noto-sans-arabic-bold"
