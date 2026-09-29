@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import RegisterForm from "../../components/auth/RegisterForm";
 import GoogleAuthButton from "../../components/auth/GoogleAuthButton";
+import { LegalLinks } from "../../components/common/SiteFooter";
 
 export default function RegisterPage() {
   const { t } = useTranslation();
@@ -77,8 +78,9 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-6">
+        {/* Footer: the legal pages and the copyright line */}
+        <div className="text-center mt-6 space-y-3">
+          <LegalLinks />
           <p className="text-gray-500 text-[13px]">© 2025 سَرْد - جميع الحقوق محفوظة</p>
         </div>
       </div>

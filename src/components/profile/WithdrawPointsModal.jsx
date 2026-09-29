@@ -182,7 +182,7 @@ const WithdrawPointsModal = ({
                   سحب النقاط
                 </h2>
                 <p className="text-[#9db9a6] text-base font-normal leading-normal noto-sans-arabic-regular">
-                  اسحب نقاطك واستلم المبلغ بطريقتك المفضلة
+                  اسحب أرباحك واستلم المبلغ بطريقتك المفضلة
                 </p>
               </div>
               <button aria-label="إغلاق"
@@ -226,7 +226,7 @@ const WithdrawPointsModal = ({
                   )}
                   {knowsWithdrawable && (
                     <p className="text-[#9db9a6] text-xs leading-relaxed mt-3 noto-sans-arabic-regular">
-                      تُسحب أرباح الهدايا واشتراكات الوصول المبكر وحدها، بعد انتهاء فترة انتظارها. أما النقاط المشحونة أو المشتراة فتُستخدم داخل سرد ولا تُسحب.
+                      تُسحب أرباح الهدايا واشتراكات الوصول المبكر وحدها، بعد 30 يومًا من استلامها. أما النقاط المشحونة أو المشتراة فتُستخدم داخل سرد ولا تُسحب.
                     </p>
                   )}
                 </div>
@@ -322,7 +322,7 @@ const WithdrawPointsModal = ({
                       />
                       <img
                         className="h-8 mb-2"
-                        alt="Vodafone Cash Logo"
+                        alt="شعار فودافون كاش"
                         src={vodafoneLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
@@ -346,7 +346,7 @@ const WithdrawPointsModal = ({
                       />
                       <img
                         className="h-8 mb-2"
-                        alt="InstaPay Logo"
+                        alt="شعار إنستاباي"
                         src={instapayLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
@@ -370,7 +370,7 @@ const WithdrawPointsModal = ({
                       />
                       <img
                         className="h-6 mb-2"
-                        alt="PayPal Logo"
+                        alt="شعار باي بال"
                         src={paypalLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
@@ -403,7 +403,7 @@ const WithdrawPointsModal = ({
                         </p>
                       </div>
                       <div className="flex justify-between items-center">
-                        <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">ضريبة (10%)</p>
+                        <p className="text-[#B8B8B8] text-sm noto-sans-arabic-regular">اقتطاع (10%)</p>
                         <p className="text-red-400 font-semibold noto-sans-arabic-medium">
                           - {isPayPal 
                             ? `$${(taxAmount / usdToEgp).toFixed(2)}`

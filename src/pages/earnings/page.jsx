@@ -9,6 +9,7 @@ import vodafoneLogo from "../../assets/vodaphonecash.png";
 import instapayLogo from "../../assets/InstaPay_Logo.png";
 import paypalLogo from "../../assets/Paypal_2014_logo.webp";
 import earningsBackground from "../../assets/earnings-background.webp";
+import { PAYOUT_RULES, WITHDRAWAL_REVIEW } from "../../constants/payout-rules";
 
 const EarningsPage = () => {
   return (
@@ -157,7 +158,7 @@ const EarningsPage = () => {
             <div className="flex flex-1 flex-col py-3">
               <p className="text-[#1a1a1a] text-lg font-medium leading-normal noto-sans-arabic-bold">تحقيق الأرباح</p>
               <p className="text-[#4a4a4a] text-base font-normal leading-normal" style={{ fontFamily: "'Markazi Text', serif", fontWeight: 400 }}>
-                يحصل الكاتب على 90% من قيمة الهدية كأرباح قابلة للسحب.
+                تصل قيمة الهدية كاملة إلى رصيد الكاتب بالنقاط، وتصبح قابلة للسحب بعد 30 يومًا من استلامها.
               </p>
             </div>
 
@@ -173,7 +174,7 @@ const EarningsPage = () => {
             <div className="flex flex-1 flex-col py-3">
               <p className="text-[#1a1a1a] text-lg font-medium leading-normal noto-sans-arabic-bold">سحب الأرباح</p>
               <p className="text-[#4a4a4a] text-base font-normal leading-normal" style={{ fontFamily: "'Markazi Text', serif", fontWeight: 400 }}>
-                يمكن للكتّاب سحب أرباحهم بسهولة وأمان.
+                يمكن للكتّاب سحب أرباحهم بسهولة وأمان ابتداءً من 1000 نقطة، ويستلمون 90% من قيمة النقاط المسحوبة.
               </p>
             </div>
           </div>
@@ -206,7 +207,7 @@ const EarningsPage = () => {
                 <div className="flex flex-col gap-1">
                   <h3 className="text-[#1a1a1a] text-lg font-bold leading-tight noto-sans-arabic-bold">أعلى نسبة ربح</h3>
                   <p className="text-[#4a4a4a] text-sm font-normal leading-normal" style={{ fontFamily: "'Markazi Text', serif", fontWeight: 400 }}>
-                    احصل على 90% من قيمة دعم القراء، وهي من أعلى النسب في المجال.
+                    يصلك دعم القراء كاملًا بالنقاط، وتستلم 90% من قيمتها عند السحب، وهي من أعلى النسب في المجال.
                   </p>
                 </div>
               </div>
@@ -295,17 +296,17 @@ const EarningsPage = () => {
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={instapayLogo} 
-                  alt="InstaPay logo" 
+                  alt="شعار إنستاباي" 
                 />
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={vodafoneLogo} 
-                  alt="Vodafone Cash logo" 
+                  alt="شعار فودافون كاش" 
                 />
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={paypalLogo} 
-                  alt="PayPal logo" 
+                  alt="شعار باي بال" 
                 />
               </div>
             </div>
@@ -322,20 +323,35 @@ const EarningsPage = () => {
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={instapayLogo} 
-                  alt="InstaPay logo" 
+                  alt="شعار إنستاباي" 
                 />
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={vodafoneLogo} 
-                  alt="Vodafone Cash logo" 
+                  alt="شعار فودافون كاش" 
                 />
                 <img 
                   className="h-8 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all" 
                   src={paypalLogo} 
-                  alt="PayPal logo" 
+                  alt="شعار باي بال" 
                 />
               </div>
             </div>
+          </div>
+
+          {/* Withdrawal rules, as the API enforces them (src/constants/payout-rules.js) */}
+          <div className="bg-[#FFF8F0]/95 border border-[#B76E4F]/20 p-8 rounded-lg shadow-lg mt-8">
+            <h3 className="text-[#B76E4F] text-2xl font-bold mb-6 text-center noto-sans-arabic-bold">شروط سحب الأرباح</h3>
+            <ul className="flex flex-col gap-3">
+              {[...PAYOUT_RULES, WITHDRAWAL_REVIEW].map((rule) => (
+                <li key={rule} className="flex items-start gap-3">
+                  <span aria-hidden="true" className="mt-2.5 h-2 w-2 flex-shrink-0 rounded-full bg-[#B76E4F]"></span>
+                  <p className="text-[#4a4a4a] text-lg leading-relaxed" style={{ fontFamily: "'Markazi Text', serif", fontWeight: 400 }}>
+                    {rule}
+                  </p>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>

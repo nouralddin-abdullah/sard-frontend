@@ -1,13 +1,14 @@
 # SEO worker: deployment
 
 `seo-worker.js` answers search engines and link-preview bots with server-rendered HTML for the public pages
-(home, genres, author profiles, novels, chapters, novel wikis), builds `sitemap.xml`, and serves the novels' share
-images under `/api/og/`. Every other visitor gets the React app exactly as before: for them the worker just passes
-the request through. It reads the public API (`API_URL` in `wrangler.toml`) with GET requests only.
+(home, genres, author profiles, novels, chapters, novel wikis, and the legal pages), builds `sitemap.xml`, and serves
+the novels' share images under `/api/og/`. Every other visitor gets the React app exactly as before: for them the
+worker just passes the request through. It reads the public API (`API_URL` in `wrangler.toml`) with GET requests only.
 
 ## Deploy
 
 ```bash
+npm ci                      # at the repo root: the worker's build step uses its node_modules
 cd cloudflare-worker
 npx wrangler login          # once
 npx wrangler deploy
@@ -24,8 +25,14 @@ npx wrangler deploy
 | `www.sardnovels.com/novel/*` | novels, chapters and novel wikis |
 | `www.sardnovels.com/api/og/*` | share images |
 | `www.sardnovels.com/sitemap*` | `sitemap.xml` (and `sitemap-N.xml` past 50,000 URLs) |
+| `www.sardnovels.com/privacy*` | the privacy policy |
+| `www.sardnovels.com/terms*` | the terms of use |
+| `www.sardnovels.com/guidelines*` | the community guidelines |
 
-The worker imports the genre names and the wiki thin-page rule from `../src/utils/`, so deploy from a full checkout.
+The worker imports the genre names, the wiki thin-page rule and the legal pages' titles from `../src/utils/`, so deploy
+from a full checkout. Before bundling, wrangler runs `build-legal-pages.mjs` (`[build]` in `wrangler.toml`): it makes
+the legal pages' HTML from the texts in `../src/content/legal/` with micromark (from the root's `node_modules`) into
+`dist/legal-pages.js`, which isn't committed. A change to a legal text reaches crawlers with the next `wrangler deploy`.
 
 ## Check it as Googlebot
 
@@ -34,6 +41,7 @@ UA="Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 curl -s -A "$UA" https://www.sardnovels.com/genre/fantasy | grep -E "<title>|canonical|robots"
 curl -s -A "$UA" -o /dev/null -w "%{http_code}\n" https://www.sardnovels.com/genre/unknown   # 404
 curl -s -A "$UA" https://www.sardnovels.com/sitemap.xml | head
+curl -s -A "$UA" https://www.sardnovels.com/privacy | grep -E "<title>|canonical|<h1>"
 curl -sI https://www.sardnovels.com/genre/fantasy       # a normal visitor: the app, no X-Rendered-By header
 ```
 
