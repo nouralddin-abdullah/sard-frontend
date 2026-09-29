@@ -285,7 +285,7 @@ const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
                       />
                       <img
                         className="h-8 mb-2"
-                        alt="Vodafone Cash Logo"
+                        alt="شعار فودافون كاش"
                         src={vodafoneLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
@@ -309,7 +309,7 @@ const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
                       />
                       <img
                         className="h-8 mb-2"
-                        alt="InstaPay Logo"
+                        alt="شعار إنستاباي"
                         src={instapayLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
@@ -333,7 +333,7 @@ const RechargePointsModal = ({ isOpen, onClose, onSuccess }) => {
                       />
                       <img
                         className="h-6 mb-2"
-                        alt="PayPal Logo"
+                        alt="شعار باي بال"
                         src={paypalLogo}
                       />
                       <p className="text-sm font-medium text-[#B8B8B8] noto-sans-arabic-medium">
