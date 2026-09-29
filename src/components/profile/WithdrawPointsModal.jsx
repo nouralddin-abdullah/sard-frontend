@@ -182,7 +182,7 @@ const WithdrawPointsModal = ({
                   سحب النقاط
                 </h2>
                 <p className="text-[#9db9a6] text-base font-normal leading-normal noto-sans-arabic-regular">
-                  اسحب نقاطك واستلم المبلغ بطريقتك المفضلة
+                  اسحب أرباحك واستلم المبلغ بطريقتك المفضلة
                 </p>
               </div>
               <button aria-label="إغلاق"
@@ -226,7 +226,7 @@ const WithdrawPointsModal = ({
                   )}
                   {knowsWithdrawable && (
                     <p className="text-[#9db9a6] text-xs leading-relaxed mt-3 noto-sans-arabic-regular">
-                      تُسحب أرباح الهدايا واشتراكات الوصول المبكر وحدها، بعد انتهاء فترة انتظارها. أما النقاط المشحونة أو المشتراة فتُستخدم داخل سرد ولا تُسحب.
+                      تُسحب أرباح الهدايا واشتراكات الوصول المبكر وحدها، بعد 30 يومًا من استلامها. أما النقاط المشحونة أو المشتراة فتُستخدم داخل سرد ولا تُسحب.
                     </p>
                   )}
                 </div>
