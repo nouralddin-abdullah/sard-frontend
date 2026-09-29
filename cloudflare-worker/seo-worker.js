@@ -7,14 +7,18 @@
 //   /profile/:username                        -> a member's profile (and novels, for authors); 301 from an old name
 //   /novel/:slug, /novel/:slug/chapter/:id    -> a novel and its chapters
 //   /novel/:novelId/wikipedia[/:entityId]     -> the novel's wiki (موسوعة الرواية) and its entries
+//   /privacy, /terms, /guidelines             -> the legal pages: the owner's texts in src/content/legal, in full
 // Crawler HTML and the sitemap are cached for an hour, share images for a week. Anything made without all of its data
 // (an API call failed) is cached for five minutes only, so a hiccup isn't served as the real page for long.
 // Page titles and descriptions, genre names and the wiki thin-page rule come from the web app's own modules (src/utils),
-// so the app and the crawler pages always agree.
+// so the app and the crawler pages always agree. The legal pages' HTML is made from the same text files the app shows,
+// before bundling (build-legal-pages.mjs, run by wrangler).
 
 import { translateGenre } from '../src/utils/translate-genre.js';
 import { GENRES } from '../src/utils/genreSections.js';
 import { countLetters, hasRealWikiName, isIndexableWikiEntity, isIndexableWikiListEntry } from '../src/utils/wiki-pages.js';
+import { LEGAL_PAGES, legalPageAt } from '../src/utils/legal-pages.js';
+import LEGAL_HTML from './dist/legal-pages.js';
 import {
   SITE_URL as SITE,
   SITE_NAME,
@@ -92,6 +96,8 @@ function crawlerPage(url, env) {
   let m;
   if (path === '/') return () => renderLanding(env);
   if (/^\/home\/?$/.test(path)) return () => renderHome(env);
+  const legal = legalPageAt(path);
+  if (legal) return () => renderLegal(legal);
   if ((m = path.match(/^\/genre\/([^/]+)\/?$/))) return () => renderGenre(m[1], url.searchParams, env);
   if ((m = path.match(/^\/profile\/([^/]+)\/?$/))) return () => renderProfile(m[1], env);
   if ((m = path.match(/^\/novel\/([^/]+)\/wikipedia\/?$/))) return () => renderWiki(m[1], env);
@@ -251,6 +257,26 @@ ${genres
 
 function genresOrDefault(apiGenres) {
   return Array.isArray(apiGenres) && apiGenres.length ? apiGenres : GENRES;
+}
+
+// ─── Legal pages ───
+
+/** The privacy policy, the terms of use or the community guidelines: the whole text, as the app shows it. */
+function renderLegal(page) {
+  const url = `${SITE}${page.path}`;
+  return html({
+    title: page.title,
+    description: page.description,
+    url,
+    jsonLd: [breadcrumbs([{ name: page.name, url }])],
+    body: `
+  ${siteHeader([{ name: page.name }])}
+  <main>
+    <article>
+${LEGAL_HTML[page.key]}
+    </article>
+  </main>`,
+  });
 }
 
 // ─── Genre page ───
@@ -880,6 +906,7 @@ function siteHeader(trail = []) {
 function siteFooter() {
   return `<footer>
     <nav aria-label="الأنواع">تصفح الروايات حسب النوع: ${GENRES.map((g) => `<a href="${genrePath(g.slug)}">${escapeHtml(translateGenre(g.name))}</a>`).join(' | ')}</nav>
+    <nav aria-label="الشروط والسياسات">${LEGAL_PAGES.map((p) => `<a href="${p.path}">${escapeHtml(p.name)}</a>`).join(' | ')}</nav>
     <p><a href="/">سرد - منصة القراءة والكتابة العربية</a></p>
   </footer>`;
 }
@@ -926,9 +953,9 @@ function profilePath(userName) {
 
 // ─── Sitemap ───
 
-// Everything a search engine should index: home pages, genres, novels and their chapters, the authors' profiles, and
-// the wiki pages with real content. An API from before the author/genre/wiki fields still gives novels and chapters,
-// with the genres from the genre list.
+// Everything a search engine should index: home pages, genres, novels and their chapters, the authors' profiles, the
+// wiki pages with real content, and the legal pages. An API from before the author/genre/wiki fields still gives novels
+// and chapters, with the genres from the genre list.
 async function renderSitemap(env, part) {
   const urls = await sitemapUrls(env);
   if (!urls) {
@@ -963,6 +990,7 @@ async function sitemapUrls(env) {
     { loc: `${SITE}/`, lastmod: newest, priority: '1.0' },
     { loc: `${SITE}/home`, lastmod: newest, priority: '0.9' },
     { loc: `${SITE}/leaderboard`, priority: '0.5' },
+    ...LEGAL_PAGES.map((page) => ({ loc: `${SITE}${page.path}`, priority: '0.3' })),
   ];
 
   // Genres: the ones that have novels, when the API says which; otherwise every genre.
