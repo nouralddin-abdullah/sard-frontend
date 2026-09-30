@@ -59,6 +59,8 @@ const LOCKED = chapter(3, "الفصل الثالث: السر", {
 // The author's list also has a draft never published (written 10 Sep) and a chapter out on 5 Sep, unpublished since.
 const DRAFT = chapter(4, "الفصل الرابع (مسودة)", { createdAt: "2026-09-10T21:30:00", publishedAt: null, status: "Draft" });
 const UNPUBLISHED = chapter(5, "فصل جانبي", { createdAt: "2026-09-04T10:00:00", publishedAt: "2026-09-05T23:00:00Z", status: "Draft" });
+// Published without a publish date, as only code from before publishedAt could leave one: dated, but not labelled.
+const UNDATED = chapter(6, "فصل بلا تاريخ نشر", { createdAt: "2026-09-03T10:00:00", publishedAt: null });
 
 /** A list as today's API sends it: no publishedAt. */
 const withoutPublishedAt = (chapters) => chapters.map(({ publishedAt, ...rest }) => (void publishedAt, rest));
@@ -153,7 +155,7 @@ for (const width of [390, 1440]) {
     });
 
     test("the author's list dates chapters by when they came out, drafts by when they were written", async ({ page, context }) => {
-      const workChapters = [FIRST, PUBLISHED_LATER, UNPUBLISHED, DRAFT];
+      const workChapters = [FIRST, PUBLISHED_LATER, UNPUBLISHED, DRAFT, UNDATED];
       await mockApi(page, { chapters: [FIRST, PUBLISHED_LATER], workChapters, signedIn: true });
       await signIn(context);
       await page.goto(`/dashboard/works/${NOVEL.id}/edit`);
@@ -165,6 +167,9 @@ for (const width of [390, 1440]) {
       await expect(card(page, DRAFT)).toContainText("أُنشئ 11 سبتمبر 2026");
       await expect(card(page, UNPUBLISHED)).toContainText("نُشر 6 سبتمبر 2026");
       await expect(card(page, FIRST)).toContainText("نُشر 1 سبتمبر 2026");
+      await expect(card(page, UNDATED)).toContainText("3 سبتمبر 2026");
+      await expect(card(page, UNDATED)).not.toContainText("نُشر");
+      await expect(card(page, UNDATED)).not.toContainText("أُنشئ");
       await card(page, FIRST).scrollIntoViewIfNeeded();
       await screenshot(page, "author-chapters", page.locator("ul.chapter-scroll"));
 
@@ -173,7 +178,9 @@ for (const width of [390, 1440]) {
       const order = await page.locator('[data-testid^="chapter-card-"][data-testid$="-container"]').evaluateAll((cards) =>
         cards.map((c) => c.getAttribute("data-testid"))
       );
-      expect(order).toEqual([PUBLISHED_LATER, DRAFT, UNPUBLISHED, FIRST].map((c) => `chapter-card-${c.id}-container`));
+      expect(order).toEqual(
+        [PUBLISHED_LATER, DRAFT, UNPUBLISHED, UNDATED, FIRST].map((c) => `chapter-card-${c.id}-container`)
+      );
       await screenshot(page, "author-chapters-newest", page.locator("ul.chapter-scroll"));
     });
 

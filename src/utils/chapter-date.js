@@ -10,10 +10,12 @@ export const chapterDate = (chapter) => toUtcIso(chapter?.publishedAt ?? chapter
 
 /**
  * What chapterDate is for a list that has drafts too (the author's): "نُشر" when the chapter has come out, even if it
- * is a draft again now, and "أُنشئ" for a draft never published, dated when it was created. Null from an API without
- * publishedAt, which can't tell the two apart.
+ * is a draft again now, and "أُنشئ" for a draft never published, dated when it was created. Null when it can't be
+ * told: from an API without publishedAt, or for a published chapter without one (only code from before it could
+ * publish one), whose creation date isn't when it came out.
  */
 export const chapterDateLabel = (chapter) => {
   if (!chapter || chapter.publishedAt === undefined) return null;
-  return chapter.publishedAt ? "نُشر" : "أُنشئ";
+  if (chapter.publishedAt) return "نُشر";
+  return (chapter.status ?? "").toLowerCase() === "published" ? null : "أُنشئ";
 };
