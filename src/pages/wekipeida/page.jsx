@@ -66,7 +66,8 @@ const WekipeidaTutorial = () => {
         <link rel="canonical" href="https://www.sardnovels.com/metwekpeida" />
       </Helmet>
 
-      <div className="fixed inset-0 text-[#3D2817] overflow-hidden">
+      {/* The guide fills the screen below the site banner (index.css: --site-banner-offset); its sections fill the box. */}
+      <div className="fixed inset-x-0 bottom-0 top-[var(--site-banner-offset,0px)] text-[#3D2817] overflow-hidden">
 
         {/* Navigation Dots */}
         <nav className="fixed top-1/2 left-4 md:left-8 -translate-y-1/2 z-50">
@@ -104,7 +105,7 @@ const WekipeidaTutorial = () => {
           `}</style>
           
           {/* Hero Section */}
-          <section id="section-0" className="scroll-snap-section px-4" style={{ scrollSnapAlign: 'start', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <section id="section-0" className="scroll-snap-section px-4" style={{ scrollSnapAlign: 'start', minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="flex min-h-[480px] w-full flex-col gap-6 items-center justify-center p-4 text-center">
               <div className="flex flex-col gap-4 backdrop-blur-xl bg-white/70 p-8 md:p-12 rounded-2xl shadow-xl">
                 <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tight noto-sans-arabic-extrabold text-[#3D2817]">
@@ -124,7 +125,7 @@ const WekipeidaTutorial = () => {
           </section>
 
           {/* Step 1 Section */}
-          <section id="section-1" className="scroll-snap-section px-4 py-16" style={{ scrollSnapAlign: 'start', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <section id="section-1" className="scroll-snap-section px-4 py-16" style={{ scrollSnapAlign: 'start', minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="container mx-auto max-w-6xl">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
                 <div className="order-2 md:order-1 text-center md:text-right backdrop-blur-xl bg-white/70 p-6 md:p-8 rounded-2xl shadow-xl">
@@ -146,7 +147,7 @@ const WekipeidaTutorial = () => {
           </section>
 
           {/* Step 2 Section */}
-          <section id="section-2" className="scroll-snap-section px-4 py-16" style={{ scrollSnapAlign: 'start', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <section id="section-2" className="scroll-snap-section px-4 py-16" style={{ scrollSnapAlign: 'start', minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="container mx-auto max-w-6xl">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
                 <div className="order-1 md:order-2 text-center md:text-right backdrop-blur-xl bg-white/70 p-6 md:p-8 rounded-2xl shadow-xl">
@@ -171,7 +172,7 @@ const WekipeidaTutorial = () => {
           </section>
 
           {/* Step 3 Section */}
-          <section id="section-3" className="scroll-snap-section px-4 py-16" style={{ scrollSnapAlign: 'start', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <section id="section-3" className="scroll-snap-section px-4 py-16" style={{ scrollSnapAlign: 'start', minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="container mx-auto max-w-6xl">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
                 <div className="order-2 md:order-1 text-center md:text-right backdrop-blur-xl bg-white/70 p-6 md:p-8 rounded-2xl shadow-xl">
@@ -196,7 +197,7 @@ const WekipeidaTutorial = () => {
           </section>
 
           {/* Step 4 Section */}
-          <section id="section-4" className="scroll-snap-section px-4 py-16" style={{ scrollSnapAlign: 'start', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <section id="section-4" className="scroll-snap-section px-4 py-16" style={{ scrollSnapAlign: 'start', minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="container mx-auto max-w-6xl">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
                 <div className="order-2 md:order-1 text-center md:text-right backdrop-blur-xl bg-white/70 p-6 md:p-8 rounded-2xl shadow-xl">
@@ -222,7 +223,7 @@ const WekipeidaTutorial = () => {
           </section>
 
           {/* Final CTA Section */}
-          <section id="section-5" className="scroll-snap-section px-4" style={{ scrollSnapAlign: 'start', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <section id="section-5" className="scroll-snap-section px-4" style={{ scrollSnapAlign: 'start', minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="flex min-h-[480px] w-full flex-col gap-6 items-center justify-center p-4 text-center">
               <div className="flex flex-col gap-4 backdrop-blur-xl bg-white/70 p-8 md:p-12 rounded-2xl shadow-xl">
                 <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tight text-[#3D2817] noto-sans-arabic-extrabold">

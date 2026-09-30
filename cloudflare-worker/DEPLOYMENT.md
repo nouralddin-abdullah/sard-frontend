@@ -1,9 +1,10 @@
 # SEO worker: deployment
 
 `seo-worker.js` answers search engines and link-preview bots with server-rendered HTML for the public pages
-(home, genres, author profiles, novels, chapters, novel wikis, and the legal pages), builds `sitemap.xml`, and serves
-the novels' share images under `/api/og/`. Every other visitor gets the React app exactly as before: for them the
-worker just passes the request through. It reads the public API (`API_URL` in `wrangler.toml`) with GET requests only.
+(home, genres, author profiles, novels, chapters, novel wikis, the legal pages, and the Android beta's join page),
+builds `sitemap.xml`, and serves the novels' share images under `/api/og/`. Every other visitor gets the React app
+exactly as before: for them the worker just passes the request through. It reads the public API (`API_URL` in
+`wrangler.toml`) with GET requests only.
 
 ## Deploy
 
@@ -28,11 +29,13 @@ npx wrangler deploy
 | `www.sardnovels.com/privacy*` | the privacy policy |
 | `www.sardnovels.com/terms*` | the terms of use |
 | `www.sardnovels.com/guidelines*` | the community guidelines |
+| `www.sardnovels.com/android*` | the Android beta's join page |
 
-The worker imports the genre names, the wiki thin-page rule and the legal pages' titles from `../src/utils/`, so deploy
-from a full checkout. Before bundling, wrangler runs `build-legal-pages.mjs` (`[build]` in `wrangler.toml`): it makes
-the legal pages' HTML from the texts in `../src/content/legal/` with micromark (from the root's `node_modules`) into
-`dist/legal-pages.js`, which isn't committed. A change to a legal text reaches crawlers with the next `wrangler deploy`.
+The worker imports the genre names, the wiki thin-page rule, the legal pages' titles and the Android beta page's texts
+from `../src/utils/`, so deploy from a full checkout. Before bundling, wrangler runs `build-legal-pages.mjs` (`[build]`
+in `wrangler.toml`): it makes the legal pages' HTML from the texts in `../src/content/legal/` with micromark (from the
+root's `node_modules`) into `dist/legal-pages.js`, which isn't committed. A change to a legal text reaches crawlers
+with the next `wrangler deploy`.
 
 ## Check it as Googlebot
 
@@ -42,6 +45,7 @@ curl -s -A "$UA" https://www.sardnovels.com/genre/fantasy | grep -E "<title>|can
 curl -s -A "$UA" -o /dev/null -w "%{http_code}\n" https://www.sardnovels.com/genre/unknown   # 404
 curl -s -A "$UA" https://www.sardnovels.com/sitemap.xml | head
 curl -s -A "$UA" https://www.sardnovels.com/privacy | grep -E "<title>|canonical|<h1>"
+curl -s -A "$UA" https://www.sardnovels.com/android | grep -E "<title>|canonical|<h1>|og:image\""
 curl -sI https://www.sardnovels.com/genre/fantasy       # a normal visitor: the app, no X-Rendered-By header
 ```
 

@@ -24,8 +24,17 @@ const MetsardPage = () => {
         <link rel="canonical" href="https://www.sardnovels.com/authorsbenefits" />
       </Helmet>
 
-      {/* Top Banner with Tabs */}
-      <div className="fixed top-0 left-0 right-0 z-50 border-b border-gray-800/50 backdrop-blur-sm">
+      {/* Background Image - behind the top bar, the hero and the guide section */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${metsardBg})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/90" />
+      </div>
+
+      {/* Top Banner with Tabs. It sticks to the top of the screen rather than being fixed, so it sits below the site
+          banner (components/common/AndroidBetaBanner) until that scrolls away, and covers none of the page. */}
+      <div className="sticky top-0 z-50 border-b border-gray-800/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           {/* Logo */}
           <Link to="/home" className="flex-shrink-0">
@@ -82,16 +91,8 @@ const MetsardPage = () => {
       </div>
 
       <main className="relative w-full min-h-screen">
-        {/* Background Image - Extended to cover guide section */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${metsardBg})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/90" />
-        </div>
-
         {/* Content Container */}
-        <div className="relative z-10 h-full flex flex-col items-center justify-center p-6 py-20 max-w-6xl mx-auto">
+        <div className="relative z-10 h-full flex flex-col items-center justify-center px-6 pt-2 pb-20 max-w-6xl mx-auto">
 
           {/* Tab Content Based on activeTab */}
           {activeTab === 0 && (

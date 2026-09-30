@@ -24,6 +24,7 @@ const ProfilePage = lazy(() => import("../pages/profile/page"));
 const SettingsPage = lazy(() => import("../pages/profile/settings"));
 const DeleteAccountPage = lazy(() => import("../pages/profile/delete-account"));
 const LegalPage = lazy(() => import("../pages/legal/page"));
+const AndroidBetaPage = lazy(() => import("../pages/android/page"));
 const ReadingListPage = lazy(() => import("../pages/profile/ReadingListPage"));
 const LibraryPage = lazy(() => import("../pages/profile/LibraryPage"));
 const SearchPage = lazy(() => import("../pages/search/page"));
@@ -125,6 +126,12 @@ const routes = [
   {
     url: "/guidelines",
     component: <LegalPage pageKey="guidelines" />,
+  },
+  // Join the Android beta (closed testing on Google Play). The site banner links here; the SEO worker serves the same
+  // page to crawlers.
+  {
+    url: "/android",
+    component: <AndroidBetaPage />,
   },
   {
     url: "/profile/:username/list/:listId",

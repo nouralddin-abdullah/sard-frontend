@@ -430,9 +430,10 @@ const ChapterReaderPage = () => {
           })}
         </script>
       </Helmet>
-      {/* Top Header Bar */}
+      {/* Top Header Bar. It sticks to the top of the screen rather than being fixed, so it sits below the site banner
+          (components/common/AndroidBetaBanner) until that scrolls away, and the text below it needs no room kept. */}
       {!focusMode && (
-        <div className="fixed top-0 left-0 right-0 z-40 flex items-center px-6 py-4 min-h-[72px]" style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8'}` }}>
+        <div className="sticky top-0 z-40 flex items-center px-6 py-4 min-h-[72px]" style={{ backgroundColor: currentTheme.bg, borderBottom: `1px solid ${theme === 'dark' ? '#3C3C3C' : theme === 'light' ? '#E5E5E5' : '#D4C4A8'}` }}>
           {/* Left: SARD Logo + User + Library */}
           <div className="flex items-center gap-6 flex-1">
             <Link to="/home" className="noto-sans-arabic-extrabold text-[24px] leading-none hover:opacity-80 transition-opacity" style={{ color: currentTheme.text }}>
@@ -1050,7 +1051,6 @@ const ChapterReaderPage = () => {
         className="pt-4 pb-8 px-6 transition-all duration-300 select-none"
         style={{ 
           minHeight: focusMode ? '100dvh' : 'calc(100dvh - 72px)',
-          paddingTop: focusMode ? '1rem' : 'calc(72px + 1rem)',
           fontFamily: fontFamilyMap[fontFamily],
           WebkitUserSelect: 'none',
           MozUserSelect: 'none',
