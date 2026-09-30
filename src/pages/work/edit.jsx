@@ -23,7 +23,7 @@ import Button from "../../components/ui/button";
 import Select from "../../components/ui/select";
 import { Modal } from "../../components/ui/modal";
 import { formatSmart } from "../../utils/date";
-import { chapterDate } from "../../utils/chapter-date";
+import { chapterDate, chapterDateLabel } from "../../utils/chapter-date";
 import { translateGenre } from "../../utils/translate-genre";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
 import { useGetWorkById } from "../../hooks/work/useGetWorkById";
@@ -1018,8 +1018,10 @@ const EditWorkPage = () => {
                           <ul className="chapter-scroll max-h-[24rem] md:max-h-[28rem] space-y-2 md:space-y-3 overflow-y-auto pl-1 md:pl-2">
                             {visibleChapters.map(({ chapter, orderIndex }) => {
                               const chapterKey = resolveChapterKey(chapter, orderIndex);
-                              // When it came out; a draft never published, when it was written.
+                              // When it came out; a draft never published, when it was created. Said which, as the
+                              // list has both (not by an API without publishedAt, which can't tell).
                               const timelineLabel = chapterDate(chapter);
+                              const timelineVerb = chapterDateLabel(chapter);
                               const sequenceNumber = orderIndex + 1;
                               return (
                                 <li key={chapterKey}>
@@ -1110,7 +1112,9 @@ const EditWorkPage = () => {
                                     <div className="noto-sans-arabic-medium flex flex-wrap items-center justify-between gap-1.5 md:gap-2 text-[10px] md:text-xs" style={{ color: '#797979' }}>
                                       <span className="flex items-center gap-0.5 md:gap-1">
                                         <Clock3 className="h-3 w-3 md:h-3.5 md:w-3.5" />
-                                        {timelineLabel ? formatSmart(timelineLabel) : "لا يوجد تاريخ"}
+                                        {timelineLabel
+                                          ? `${timelineVerb ? `${timelineVerb} ` : ""}${formatSmart(timelineLabel)}`
+                                          : "لا يوجد تاريخ"}
                                       </span>
                                       <div className="flex items-center gap-1.5 md:gap-2">
                                         <span className="noto-sans-arabic-bold rounded-full border px-1.5 md:px-2 py-0.5 text-[9px] md:text-[10px] hidden md:inline-block" style={{ borderColor: '#5A5A5A', color: '#797979' }}>
