@@ -167,7 +167,7 @@ const AboutMePost = ({
         <div className="px-2 sm:px-4 pb-4">
           <img
             src={attachedImage}
-            alt="Post attachment"
+            alt="صورة المنشور"
             className="w-full h-auto max-h-[500px] object-cover rounded-lg"
           />
         </div>

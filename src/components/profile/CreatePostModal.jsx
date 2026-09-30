@@ -10,9 +10,12 @@ import { useGetReadingHistory } from "../../hooks/novel/useGetReadingHistory";
 import { countCharacters } from "../../utils/text-length";
 import NovelCover from "../common/NovelCover";
 
+// A size in megabytes as the API writes it: 5 (5,242,880 bytes), or 1.5.
+const megabytes = (bytes) => Math.round((bytes / (1024 * 1024)) * 10) / 10;
+
 // The picture refusals, in the API's words (PostImageType, PostImageTooLarge), checked before uploading.
 const IMAGE_TYPE_MESSAGE = "صيغة الصورة غير مدعومة: اختر صورة JPEG أو PNG أو WebP.";
-const imageTooLargeMessage = (maxBytes) => `الصورة كبيرة: الحد الأقصى ${Math.round(maxBytes / (1024 * 1024))} ميغابايت.`;
+const imageTooLargeMessage = (maxBytes) => `الصورة كبيرة: الحد الأقصى ${megabytes(maxBytes)} ميغابايت.`;
 
 const CreatePostModal = ({ isOpen, onClose }) => {
   const [content, setContent] = useState("");
@@ -21,7 +24,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
   const [attachedNovelId, setAttachedNovelId] = useState(null);
   const [showNovelSelector, setShowNovelSelector] = useState(false);
   const [novelSource, setNovelSource] = useState(null); // 'library', 'reading-lists', 'my-novels'
-  // A refused picture, or the API's refusal of the post: shown until the post changes.
+  // A refused picture, or the API's refusal of the post: shown under the toolbar until the post changes.
   const [error, setError] = useState(null);
 
   const { data: currentUser } = useGetLoggedInUser();
@@ -52,7 +55,8 @@ const CreatePostModal = ({ isOpen, onClose }) => {
   const hasSomething = trimmedContent.length > 0 || !!imageFile || !!attachedNovelId;
   const canSubmit = hasSomething && !contentTooLong && !isSubmitting;
 
-  const refuse = (message) => {
+  // The API's refusal: a toast, as the site shows errors, and under the toolbar while the post stays as it was.
+  const showRefusal = (message) => {
     setError(message);
     toast.error(message);
   };
@@ -68,13 +72,13 @@ const CreatePostModal = ({ isOpen, onClose }) => {
     e.target.value = "";
     if (!file) return;
 
-    // An empty file is no picture of any type.
+    // Said next to the picker only: toasts would pile up over the buttons on a phone. An empty file is no picture.
     if (!limits.imageTypes.includes(file.type) || file.size === 0) {
-      refuse(IMAGE_TYPE_MESSAGE);
+      setError(IMAGE_TYPE_MESSAGE);
       return;
     }
     if (file.size > limits.imageMaxBytes) {
-      refuse(imageTooLargeMessage(limits.imageMaxBytes));
+      setError(imageTooLargeMessage(limits.imageMaxBytes));
       return;
     }
 
@@ -175,7 +179,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
           onClose();
         },
         // The API's Arabic message (PostContentTooLong, PostImageTooLarge, UploadFailed...), and the post stays as it was.
-        onError: (submitError) => refuse(submitError.message),
+        onError: (submitError) => showRefusal(submitError.message),
       }
     );
   };
@@ -246,11 +250,16 @@ const CreatePostModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" dir="rtl">
-      <div className="w-full max-w-2xl rounded-xl bg-[#1A1A1A] border border-[#3C3C3C] shadow-2xl max-h-[90vh] flex flex-col">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-post-title"
+        className="w-full max-w-2xl rounded-xl bg-[#1A1A1A] border border-[#3C3C3C] shadow-2xl max-h-[90vh] flex flex-col"
+      >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#3C3C3C] p-4 sm:p-6">
           <div>
-            <h3 className="text-white text-xl font-bold noto-sans-arabic-extrabold">
+            <h3 id="create-post-title" className="text-white text-xl font-bold noto-sans-arabic-extrabold">
               ماذا يدور في ذهنك؟
             </h3>
             <p className="text-[#B0B0B0] text-sm noto-sans-arabic-medium mt-1">
@@ -421,7 +430,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
             <div className="flex items-center gap-2">
               {/* The types the API takes (JPEG, PNG, WebP); a picture over the size limit is refused before uploading. */}
               <label
-                title={`صورة JPEG أو PNG أو WebP، حتى ${Math.round(limits.imageMaxBytes / (1024 * 1024))} ميغابايت`}
+                title={`صورة JPEG أو PNG أو WebP، حتى ${megabytes(limits.imageMaxBytes)} ميغابايت`}
                 className="relative flex items-center justify-center p-2 rounded-full hover:bg-white/10 text-[#B0B0B0] hover:text-white transition-colors cursor-pointer focus-within:ring-2 focus-within:ring-[#4A9EFF]"
               >
                 <ImageIcon className="w-5 h-5" />
