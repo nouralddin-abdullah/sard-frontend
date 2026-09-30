@@ -8,6 +8,7 @@
 //   /novel/:slug, /novel/:slug/chapter/:id    -> a novel and its chapters
 //   /novel/:novelId/wikipedia[/:entityId]     -> the novel's wiki (موسوعة الرواية) and its entries
 //   /privacy, /terms, /guidelines             -> the legal pages: the owner's texts in src/content/legal, in full
+//   /android                                  -> the Android beta's join page, from src/content/android-beta-page.js
 // Crawler HTML and the sitemap are cached for an hour, share images for a week. Anything made without all of its data
 // (an API call failed) is cached for five minutes only, so a hiccup isn't served as the real page for long.
 // Page titles and descriptions, genre names and the wiki thin-page rule come from the web app's own modules (src/utils),
@@ -18,6 +19,8 @@ import { translateGenre } from '../src/utils/translate-genre.js';
 import { GENRES } from '../src/utils/genreSections.js';
 import { countLetters, hasRealWikiName, isIndexableWikiEntity, isIndexableWikiListEntry } from '../src/utils/wiki-pages.js';
 import { LEGAL_PAGES, legalPageAt } from '../src/utils/legal-pages.js';
+import { ANDROID_BETA_NAME, ANDROID_BETA_PATH, isAndroidBetaPath } from '../src/utils/android-beta.js';
+import { ANDROID_BETA_PAGE, EMAIL_URL, SUPPORT_EMAIL, WHATSAPP_NUMBER, WHATSAPP_URL } from '../src/content/android-beta-page.js';
 import { chapterDate } from '../src/utils/chapter-date.js';
 import { toUtcIso } from '../src/utils/date.js';
 import LEGAL_HTML from './dist/legal-pages.js';
@@ -100,6 +103,7 @@ function crawlerPage(url, env) {
   if (/^\/home\/?$/.test(path)) return () => renderHome(env);
   const legal = legalPageAt(path);
   if (legal) return () => renderLegal(legal);
+  if (isAndroidBetaPath(path)) return () => renderAndroidBeta();
   if ((m = path.match(/^\/genre\/([^/]+)\/?$/))) return () => renderGenre(m[1], url.searchParams, env);
   if ((m = path.match(/^\/profile\/([^/]+)\/?$/))) return () => renderProfile(m[1], env);
   if ((m = path.match(/^\/novel\/([^/]+)\/wikipedia\/?$/))) return () => renderWiki(m[1], env);
@@ -276,6 +280,62 @@ function renderLegal(page) {
   <main>
     <article>
 ${LEGAL_HTML[page.key]}
+    </article>
+  </main>`,
+  });
+}
+
+// ─── The Android beta ───
+
+/** The join page of the Android beta: the texts and pictures the app's page shows (src/content/android-beta-page.js). */
+function renderAndroidBeta() {
+  const page = ANDROID_BETA_PAGE;
+  const { hero, features, gallery, join, testers, faq } = page;
+  const url = `${SITE}${page.path}`;
+  const picture = (image, alt, lazy) =>
+    `<img src="${escapeHtml(image.src)}" width="${image.width}" height="${image.height}" alt="${escapeHtml(alt)}"${lazy ? ' loading="lazy"' : ''}>`;
+  const list = (items) => items.map((item) => `        <li>${escapeHtml(item.text)}</li>`).join('\n');
+
+  return html({
+    title: page.title,
+    description: page.description,
+    url,
+    image: page.shareImage,
+    jsonLd: [breadcrumbs([{ name: page.name, url }])],
+    body: `
+  ${siteHeader([{ name: page.name }])}
+  <main>
+    <article>
+      <h1>${escapeHtml(hero.title)}</h1>
+      <p>${escapeHtml(hero.text)}</p>
+      <p><a href="#${join.id}">${escapeHtml(hero.cta)}</a></p>
+      <p>${picture(hero.image, hero.image.alt, false)}</p>
+      <section>
+        <h2>${escapeHtml(features.heading)}</h2>
+        <ul>
+${list(features.items)}
+        </ul>
+      </section>
+      <section>
+        <h2>${escapeHtml(gallery.heading)}</h2>
+${gallery.shots.map((shot) => `        <figure>${picture(shot, gallery.alt(shot), true)}<figcaption>${escapeHtml(shot.caption)}</figcaption></figure>`).join('\n')}
+      </section>
+      <section id="${join.id}">
+        <h2>${escapeHtml(join.heading)}</h2>
+        <p>${escapeHtml(join.text)}</p>
+        <p><a href="${escapeHtml(WHATSAPP_URL)}">${escapeHtml(join.whatsapp)}</a> | <a href="${escapeHtml(EMAIL_URL)}">${escapeHtml(join.email)}</a></p>
+        <p>${escapeHtml(join.whatsappLabel)}: <bdi dir="ltr">${escapeHtml(WHATSAPP_NUMBER)}</bdi><br>${escapeHtml(join.emailLabel)}: <bdi dir="ltr">${escapeHtml(SUPPORT_EMAIL)}</bdi></p>
+      </section>
+      <section>
+        <h2>${escapeHtml(testers.heading)}</h2>
+        <ul>
+${list(testers.items)}
+        </ul>
+      </section>
+      <section>
+        <h2>${escapeHtml(faq.heading)}</h2>
+${faq.items.map((item) => `        <h3>${escapeHtml(item.question)}</h3>\n        <p>${escapeHtml(item.answer)}</p>`).join('\n')}
+      </section>
     </article>
   </main>`,
   });
@@ -913,6 +973,7 @@ function siteHeader(trail = []) {
 function siteFooter() {
   return `<footer>
     <nav aria-label="الأنواع">تصفح الروايات حسب النوع: ${GENRES.map((g) => `<a href="${genrePath(g.slug)}">${escapeHtml(translateGenre(g.name))}</a>`).join(' | ')}</nav>
+    <p><a href="${ANDROID_BETA_PATH}">${escapeHtml(ANDROID_BETA_NAME)}</a></p>
     <nav aria-label="الشروط والسياسات">${LEGAL_PAGES.map((p) => `<a href="${p.path}">${escapeHtml(p.name)}</a>`).join(' | ')}</nav>
     <p><a href="/">سرد - منصة القراءة والكتابة العربية</a></p>
   </footer>`;
@@ -961,7 +1022,7 @@ function profilePath(userName) {
 // ─── Sitemap ───
 
 // Everything a search engine should index: home pages, genres, novels and their chapters, the authors' profiles, the
-// wiki pages with real content, and the legal pages. An API from before the author/genre/wiki fields still gives novels
+// wiki pages with real content, the legal pages and the Android beta's join page. An API from before the author/genre/wiki fields still gives novels
 // and chapters, with the genres from the genre list.
 async function renderSitemap(env, part) {
   const urls = await sitemapUrls(env);
@@ -998,6 +1059,7 @@ async function sitemapUrls(env) {
     { loc: `${SITE}/home`, lastmod: newest, priority: '0.9' },
     { loc: `${SITE}/leaderboard`, priority: '0.5' },
     ...LEGAL_PAGES.map((page) => ({ loc: `${SITE}${page.path}`, priority: '0.3' })),
+    { loc: `${SITE}${ANDROID_BETA_PATH}`, priority: '0.5' },
   ];
 
   // Genres: the ones that have novels, when the API says which; otherwise every genre.
