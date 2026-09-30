@@ -28,6 +28,8 @@ import { TOKEN_KEY } from '../../constants/token-key';
 import { DEFAULT_AVATAR_SVG } from '../../components/common/SafeImage';
 import NovelCover from "../../components/common/NovelCover";
 import { encodeImageUrl, novelShareImageUrl } from "../../utils/cover-image";
+import { chapterDate } from "../../utils/chapter-date";
+import { toUtcIso } from "../../utils/date";
 
 const ChapterReaderPage = () => {
   const { novelSlug, chapterId } = useParams();
@@ -155,6 +157,14 @@ const ChapterReaderPage = () => {
   const currentChapterIndex = useMemo(() => {
     return allChapters.findIndex(ch => ch.id === chapter?.id);
   }, [allChapters, chapter]);
+
+  // When the chapter came out, for the published-time tags: the chapter's publishedAt (backend #39). An API from before
+  // it doesn't send one here, so the chapter's entry in the novel's chapter list gives it (its publishedAt or createdAt).
+  // Null for a draft the author previews: it hasn't come out.
+  const publishedTime = useMemo(
+    () => toUtcIso(chapter?.publishedAt) ?? chapterDate(allChapters[currentChapterIndex]),
+    [chapter, allChapters, currentChapterIndex]
+  );
 
   // Get previous and next chapter IDs
   const prevChapterId = currentChapterIndex > 0 
@@ -385,7 +395,7 @@ const ChapterReaderPage = () => {
         <meta property="og:locale" content="ar_AR" />
         <meta property="og:site_name" content="سرد" />
         <meta property="article:author" content={novel?.author?.displayName || ''} />
-        <meta property="article:published_time" content={chapter?.createdAt || ''} />
+        {publishedTime && <meta property="article:published_time" content={publishedTime} />}
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -409,7 +419,7 @@ const ChapterReaderPage = () => {
               "name": novel?.author?.displayName || '',
               "url": `https://www.sardnovels.com/profile/${novel?.author?.userName || ''}`
             },
-            "datePublished": chapter?.createdAt || '',
+            "datePublished": publishedTime ?? undefined,
             "inLanguage": "ar",
             "isPartOf": {
               "@type": "Book",

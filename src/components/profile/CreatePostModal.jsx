@@ -1,11 +1,21 @@
 import React, { useState } from "react";
 import { X, Image as ImageIcon, Book, Upload, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { useCreatePost } from "../../hooks/post/useCreatePost";
+import { usePostLimits } from "../../hooks/app/useAppConfig";
 import { useGetLoggedInUser } from "../../hooks/user/useGetLoggedInUser";
 import { useGetMyReadingLists } from "../../hooks/reading-list/useGetMyReadingLists";
 import { useGetMyWorks } from "../../hooks/work/useGetMyWorks";
 import { useGetReadingHistory } from "../../hooks/novel/useGetReadingHistory";
+import { countCharacters } from "../../utils/text-length";
 import NovelCover from "../common/NovelCover";
+
+// A size in megabytes as the API writes it: 5 (5,242,880 bytes), or 1.5.
+const megabytes = (bytes) => Math.round((bytes / (1024 * 1024)) * 10) / 10;
+
+// The picture refusals, in the API's words (PostImageType, PostImageTooLarge), checked before uploading.
+const IMAGE_TYPE_MESSAGE = "صيغة الصورة غير مدعومة: اختر صورة JPEG أو PNG أو WebP.";
+const imageTooLargeMessage = (maxBytes) => `الصورة كبيرة: الحد الأقصى ${megabytes(maxBytes)} ميغابايت.`;
 
 const CreatePostModal = ({ isOpen, onClose }) => {
   const [content, setContent] = useState("");
@@ -14,9 +24,13 @@ const CreatePostModal = ({ isOpen, onClose }) => {
   const [attachedNovelId, setAttachedNovelId] = useState(null);
   const [showNovelSelector, setShowNovelSelector] = useState(false);
   const [novelSource, setNovelSource] = useState(null); // 'library', 'reading-lists', 'my-novels'
+  // A refused picture, or the API's refusal of the post: shown under the toolbar until the post changes.
+  const [error, setError] = useState(null);
 
   const { data: currentUser } = useGetLoggedInUser();
   const { mutate: createPost, isPending: isSubmitting } = useCreatePost();
+  // The limits the API checks posts against (#43), from /api/app/config.
+  const limits = usePostLimits(isOpen);
 
   // Fetch novels based on selected source
   const { data: readingListsData, isLoading: loadingReadingLists } =
@@ -33,33 +47,65 @@ const CreatePostModal = ({ isOpen, onClose }) => {
   // Only show loading when actually using library data
   const isLibraryLoading = novelSource === "library" && loadingLibrary;
 
-  const maxWords = 1500;
-  const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
+  // Counted as the API counts it: trimmed, in user-perceived characters (an emoji or a letter with its tashkeel is one).
+  const trimmedContent = content.trim();
+  const contentLength = countCharacters(trimmedContent);
+  const contentTooLong = contentLength > limits.contentMaxLength;
+  // A post needs text, a picture or a novel (the API answers PostContentRequired otherwise).
+  const hasSomething = trimmedContent.length > 0 || !!imageFile || !!attachedNovelId;
+  const canSubmit = hasSomething && !contentTooLong && !isSubmitting;
+
+  // The API's refusal: a toast, as the site shows errors, and under the toolbar while the post stays as it was.
+  const showRefusal = (message) => {
+    setError(message);
+    toast.error(message);
+  };
+
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+    setError(null);
+  };
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+    const file = e.target.files?.[0];
+    // Cleared, so that the same file can be picked again after a refusal or a removal.
+    e.target.value = "";
+    if (!file) return;
+
+    // Said next to the picker only: toasts would pile up over the buttons on a phone. An empty file is no picture.
+    if (!limits.imageTypes.includes(file.type) || file.size === 0) {
+      setError(IMAGE_TYPE_MESSAGE);
+      return;
     }
+    if (file.size > limits.imageMaxBytes) {
+      setError(imageTooLargeMessage(limits.imageMaxBytes));
+      return;
+    }
+
+    setError(null);
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview(null);
+    setError(null);
   };
 
   const handleNovelSelect = (novelId) => {
     setAttachedNovelId(novelId);
     setShowNovelSelector(false);
+    setError(null);
   };
 
   const handleRemoveNovel = () => {
     setAttachedNovelId(null);
+    setError(null);
   };
 
   const getSelectedNovel = () => {
@@ -113,11 +159,11 @@ const CreatePostModal = ({ isOpen, onClose }) => {
   };
 
   const handleSubmit = async () => {
-    if (!content.trim()) return;
+    if (!canSubmit) return;
 
     createPost(
       {
-        content: content.trim(),
+        content: trimmedContent,
         image: imageFile,
         novelId: attachedNovelId,
       },
@@ -129,11 +175,11 @@ const CreatePostModal = ({ isOpen, onClose }) => {
           setImagePreview(null);
           setAttachedNovelId(null);
           setNovelSource(null);
+          setError(null);
           onClose();
         },
-        onError: (error) => {
-          console.error("Error creating post:", error);
-        },
+        // The API's Arabic message (PostContentTooLong, PostImageTooLarge, UploadFailed...), and the post stays as it was.
+        onError: (submitError) => showRefusal(submitError.message),
       }
     );
   };
@@ -204,11 +250,16 @@ const CreatePostModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" dir="rtl">
-      <div className="w-full max-w-2xl rounded-xl bg-[#1A1A1A] border border-[#3C3C3C] shadow-2xl max-h-[90vh] flex flex-col">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-post-title"
+        className="w-full max-w-2xl rounded-xl bg-[#1A1A1A] border border-[#3C3C3C] shadow-2xl max-h-[90vh] flex flex-col"
+      >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#3C3C3C] p-4 sm:p-6">
           <div>
-            <h3 className="text-white text-xl font-bold noto-sans-arabic-extrabold">
+            <h3 id="create-post-title" className="text-white text-xl font-bold noto-sans-arabic-extrabold">
               ماذا يدور في ذهنك؟
             </h3>
             <p className="text-[#B0B0B0] text-sm noto-sans-arabic-medium mt-1">
@@ -229,8 +280,11 @@ const CreatePostModal = ({ isOpen, onClose }) => {
             {/* Textarea */}
             <textarea
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={handleContentChange}
               placeholder="ابدأ الكتابة هنا..."
+              aria-label="نص المنشور"
+              aria-invalid={contentTooLong}
+              aria-describedby="post-content-count"
               className="w-full min-h-[200px] resize-none bg-transparent text-[#E0E0E0] focus:outline-none border-none p-0 text-lg leading-relaxed placeholder:text-[#556077] noto-sans-arabic-medium"
             />
 
@@ -239,12 +293,12 @@ const CreatePostModal = ({ isOpen, onClose }) => {
               <div className="relative">
                 <img
                   src={imagePreview}
-                  alt="Preview"
+                  alt="الصورة المرفقة"
                   className="w-full max-h-[300px] object-cover rounded-lg"
                 />
                 <button aria-label="إزالة الصورة"
                   onClick={handleRemoveImage}
-                  className="absolute top-2 left-2 p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                  className="absolute top-2 end-2 p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -374,13 +428,18 @@ const CreatePostModal = ({ isOpen, onClose }) => {
           {/* Action Toolbar */}
           <div className="flex items-center justify-between gap-4 px-6 py-3">
             <div className="flex items-center gap-2">
-              <label className="flex items-center justify-center p-2 rounded-full hover:bg-white/10 text-[#B0B0B0] hover:text-white transition-colors cursor-pointer">
+              {/* The types the API takes (JPEG, PNG, WebP); a picture over the size limit is refused before uploading. */}
+              <label
+                title={`صورة JPEG أو PNG أو WebP، حتى ${megabytes(limits.imageMaxBytes)} ميغابايت`}
+                className="relative flex items-center justify-center p-2 rounded-full hover:bg-white/10 text-[#B0B0B0] hover:text-white transition-colors cursor-pointer focus-within:ring-2 focus-within:ring-[#4A9EFF]"
+              >
                 <ImageIcon className="w-5 h-5" />
                 <input
                   type="file"
-                  accept="image/*"
+                  accept={limits.imageTypes.join(",")}
+                  aria-label="إرفاق صورة"
                   onChange={handleImageUpload}
-                  className="hidden"
+                  className="sr-only"
                 />
               </label>
               <button aria-label="إرفاق رواية"
@@ -390,10 +449,22 @@ const CreatePostModal = ({ isOpen, onClose }) => {
                 <Book className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-[#B0B0B0] text-sm noto-sans-arabic-medium">
-              {wordCount.toLocaleString("ar-SA")}/{maxWords.toLocaleString("ar-SA")} كلمة
-            </p>
+            <span
+              id="post-content-count"
+              dir="ltr"
+              aria-label={`${contentLength} من ${limits.contentMaxLength} حرف`}
+              className={`shrink-0 text-sm tabular-nums noto-sans-arabic-medium ${contentTooLong ? "text-red-400" : "text-[#B0B0B0]"}`}
+            >
+              {contentLength}/{limits.contentMaxLength}
+            </span>
           </div>
+
+          {(contentTooLong || error) && (
+            <div role="alert" className="space-y-1 px-6 pb-1 text-sm text-red-400 noto-sans-arabic-medium">
+              {contentTooLong && <p>المنشور أطول من {limits.contentMaxLength} حرف، اختصره لتتمكن من النشر.</p>}
+              {error && <p>{error}</p>}
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-3 px-6 py-4">
@@ -406,12 +477,12 @@ const CreatePostModal = ({ isOpen, onClose }) => {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={!content.trim() || isSubmitting || wordCount > maxWords}
+              disabled={!canSubmit}
               className="flex min-w-[84px] items-center justify-center rounded-lg h-10 px-4 bg-[#4A9EFF] text-white text-sm font-bold noto-sans-arabic-extrabold hover:bg-[#3A8EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 me-2 animate-spin" />
                   <span>جاري النشر...</span>
                 </>
               ) : (

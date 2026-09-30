@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Lock, Unlock, Eye } from "lucide-react";
 import { formatViews } from "../../utils/format-views";
+import { chapterDate } from "../../utils/chapter-date";
 
 const NovelChaptersTab = ({
   chapters,
@@ -43,6 +44,7 @@ const NovelChaptersTab = ({
           const lastReadChapterNumber = readingProgress?.progress?.lastReadChapterNumber || 0;
           const isRead = chapterNumber < lastReadChapterNumber;
           const isLastRead = chapterNumber === lastReadChapterNumber;
+          const cameOut = chapterDate(chapter);
 
           return (
             <Link
@@ -76,13 +78,16 @@ const NovelChaptersTab = ({
                   {formatViews(chapter.viewsCount)}
                   <Eye className="w-3 h-3" />
                 </span>
-                <span
-                  className={`text-xs noto-sans-arabic-medium ${
-                    isRead ? "text-[#888888]" : "text-[#B0B0B0]"
-                  } ${isLastRead ? "text-[#4A9EFF]" : ""}`}
-                >
-                  {formatDate(chapter.createdAt)}
-                </span>
+                {cameOut && (
+                  <time
+                    dateTime={cameOut}
+                    className={`text-xs noto-sans-arabic-medium ${
+                      isRead ? "text-[#888888]" : "text-[#B0B0B0]"
+                    } ${isLastRead ? "text-[#4A9EFF]" : ""}`}
+                  >
+                    {formatDate(cameOut)}
+                  </time>
+                )}
               </div>
             </Link>
           );
@@ -120,6 +125,7 @@ const NovelChaptersTab = ({
       <div className="divide-y divide-[#4A4A4A]">
         {lockedChapters.map((chapter) => {
           const canAccess = isUserSubscribed;
+          const cameOut = chapterDate(chapter);
 
           return (
             <Link
@@ -160,7 +166,11 @@ const NovelChaptersTab = ({
                   {formatViews(chapter.viewsCount)}
                   <Eye className="w-3 h-3" />
                 </span>
-                <span className="text-xs noto-sans-arabic-medium">{formatDate(chapter.createdAt)}</span>
+                {cameOut && (
+                  <time dateTime={cameOut} className="text-xs noto-sans-arabic-medium">
+                    {formatDate(cameOut)}
+                  </time>
+                )}
               </div>
             </Link>
           );
