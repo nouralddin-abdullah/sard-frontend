@@ -153,19 +153,21 @@ const AboutMePost = ({
         </div>
       </div>
 
-      {/* Post Content */}
-      <div className="px-6 pb-4">
-        <p className="text-lg leading-relaxed text-white noto-sans-arabic-medium whitespace-pre-wrap">
-          {content}
-        </p>
-      </div>
+      {/* Post Content: a post may have only a picture or a novel (its content is then ""). */}
+      {content && (
+        <div className="px-6 pb-4">
+          <p className="text-lg leading-relaxed text-white noto-sans-arabic-medium whitespace-pre-wrap">
+            {content}
+          </p>
+        </div>
+      )}
 
       {/* Attached Image */}
       {attachedImage && (
         <div className="px-2 sm:px-4 pb-4">
           <img
             src={attachedImage}
-            alt="Post attachment"
+            alt="صورة المنشور"
             className="w-full h-auto max-h-[500px] object-cover rounded-lg"
           />
         </div>
