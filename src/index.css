@@ -58,6 +58,22 @@ img::before {
   'opsz' 24
 }
 
+/* The site banner (components/common/AndroidBetaBanner) is this tall. While it shows, --site-banner-offset is its
+   height: a page that fills the screen with a fixed box (the wiki guide) starts that far down, below it. */
+:root {
+  --site-banner-height: 3.5rem;
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --site-banner-height: 2.75rem;
+  }
+}
+
+:root:has(#site-banner) {
+  --site-banner-offset: var(--site-banner-height);
+}
+
 /* Global Default Font - Tajawal */
 body {
   font-family: "Tajawal", sans-serif;

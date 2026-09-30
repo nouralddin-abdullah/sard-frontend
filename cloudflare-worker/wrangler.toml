@@ -58,3 +58,8 @@ zone_name = "sardnovels.com"
 [[routes]]
 pattern = "www.sardnovels.com/guidelines*"
 zone_name = "sardnovels.com"
+
+# The Android beta's join page (its pictures are under /app-screens/, outside this route).
+[[routes]]
+pattern = "www.sardnovels.com/android*"
+zone_name = "sardnovels.com"
