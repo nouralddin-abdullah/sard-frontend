@@ -23,6 +23,7 @@ import Button from "../../components/ui/button";
 import Select from "../../components/ui/select";
 import { Modal } from "../../components/ui/modal";
 import { formatSmart } from "../../utils/date";
+import { chapterDate } from "../../utils/chapter-date";
 import { translateGenre } from "../../utils/translate-genre";
 import { useGetGenresList } from "../../hooks/genre/useGetGenreList";
 import { useGetWorkById } from "../../hooks/work/useGetWorkById";
@@ -448,13 +449,11 @@ const EditWorkPage = () => {
     }
 
     if (chapterSort === "recent") {
+      // Newest first by each chapter's date: when it came out, or when a draft never published was written.
       entries = [...entries].sort((a, b) => {
         const toTime = (entry) => {
-          const dateStr = entry.chapter.updatedAt || entry.chapter.createdAt || 0;
-          if (!dateStr) return 0;
-          // Ensure UTC parsing
-          const utcStr = typeof dateStr === 'string' && !dateStr.endsWith('Z') ? dateStr + 'Z' : dateStr;
-          return new Date(utcStr).getTime();
+          const date = chapterDate(entry.chapter);
+          return date ? Date.parse(date) : 0;
         };
         return toTime(b) - toTime(a);
       });
@@ -1019,7 +1018,8 @@ const EditWorkPage = () => {
                           <ul className="chapter-scroll max-h-[24rem] md:max-h-[28rem] space-y-2 md:space-y-3 overflow-y-auto pl-1 md:pl-2">
                             {visibleChapters.map(({ chapter, orderIndex }) => {
                               const chapterKey = resolveChapterKey(chapter, orderIndex);
-                              const timelineLabel = chapter.updatedAt || chapter.createdAt;
+                              // When it came out; a draft never published, when it was written.
+                              const timelineLabel = chapterDate(chapter);
                               const sequenceNumber = orderIndex + 1;
                               return (
                                 <li key={chapterKey}>
