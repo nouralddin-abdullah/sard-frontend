@@ -9,6 +9,18 @@ const ensureUTC = (dateString) => {
   return dateString.endsWith('Z') ? dateString : dateString + 'Z';
 };
 
+/**
+ * A date from the API as an ISO string in UTC ("…Z"), or null when there is none. The API's dates are UTC; most come
+ * without the "Z" (createdAt) and newer ones with it (a chapter's publishedAt), so both are read as UTC, never as the
+ * browser's local time.
+ */
+export const toUtcIso = (value) => {
+  if (!value) return null;
+  const text = String(value);
+  const date = new Date(/[zZ]|[+-]\d\d:\d\d$/.test(text) ? text : `${text}Z`);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+};
+
 // Basic formatting functions
 export const formatDate = (dateString) => {
   const date = new Date(ensureUTC(dateString));

@@ -18,6 +18,8 @@ import { translateGenre } from '../src/utils/translate-genre.js';
 import { GENRES } from '../src/utils/genreSections.js';
 import { countLetters, hasRealWikiName, isIndexableWikiEntity, isIndexableWikiListEntry } from '../src/utils/wiki-pages.js';
 import { LEGAL_PAGES, legalPageAt } from '../src/utils/legal-pages.js';
+import { chapterDate } from '../src/utils/chapter-date.js';
+import { toUtcIso } from '../src/utils/date.js';
 import LEGAL_HTML from './dist/legal-pages.js';
 import {
   SITE_URL as SITE,
@@ -593,6 +595,9 @@ async function renderChapter(slug, chapterId, env) {
   const next = position >= 0 && position < chapters.length - 1 ? chapters[position + 1] : null;
   const author = novel.author?.displayName || '';
   const authorPath = novel.author?.userName ? profilePath(novel.author.userName) : null;
+  // When the chapter came out, as the app's reader page gives it: its publishedAt (backend #39), or, from an API
+  // without it, its entry in the chapter list (publishedAt or createdAt).
+  const published = toUtcIso(chapter.publishedAt) ?? chapterDate(chapters[position]);
 
   const paragraphs = (chapter.paragraphs || [])
     .filter((p) => (p.contentType || 'text') === 'text')
@@ -614,6 +619,7 @@ async function renderChapter(slug, chapterId, env) {
     author: { '@type': 'Person', name: author, url: authorPath ? `${SITE}${authorPath}` : undefined },
     isPartOf: { '@type': 'Book', name: novel.title, url: novelUrl },
     isAccessibleForFree: !chapter.isLocked,
+    datePublished: published ?? undefined,
   };
 
   const pager = [
@@ -629,6 +635,7 @@ async function renderChapter(slug, chapterId, env) {
     image: { url: shareImageUrl(novel.slug, novel.coverImageUrl), type: 'image/jpeg', width: 1200, height: 630, alt: `غلاف رواية ${novel.title}` },
     ogType: 'article',
     jsonLd: [jsonLd, breadcrumbs([{ name: novel.title, url: novelUrl }, { name: chapter.title, url }])],
+    head: published ? `<meta property="article:published_time" content="${published}">` : '',
     partial: !chaptersRes.data,
     body: `
   ${siteHeader([{ name: novel.title, path: novelPathname }, { name: chapter.title }])}
