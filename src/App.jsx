@@ -1,4 +1,5 @@
 import "./App.css";
+import AndroidBetaBanner from "./components/common/AndroidBetaBanner";
 import AppRouter from "./components/common/AppRouter";
 import ScrollToTop from "./components/common/ScrollToTop";
 
@@ -10,6 +11,7 @@ function App() {
   return (
     <>
       <ScrollToTop />
+      <AndroidBetaBanner />
       <AppRouter />
     </>
   );
