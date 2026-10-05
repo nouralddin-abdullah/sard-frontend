@@ -6,6 +6,7 @@ import { useGetEntity } from "../../hooks/entity/useGetEntity";
 import PageMeta from "../../components/common/PageMeta";
 import { clip } from "../../utils/seo";
 import { hasRealWikiName, isIndexableWikiEntity } from "../../utils/wiki-pages";
+import { safeArticleHtml } from "../../utils/safe-html";
 
 const EntityDetailsPage = () => {
   const { novelId, entityId } = useParams();
@@ -218,7 +219,7 @@ const EntityDetailsPage = () => {
                   </h2>
                   <div 
                     className="text-[#B8B8B8] noto-sans-arabic-regular"
-                    dangerouslySetInnerHTML={{ __html: article.content }}
+                    dangerouslySetInnerHTML={{ __html: safeArticleHtml(article.content) }}
                   />
                 </div>
               ))}

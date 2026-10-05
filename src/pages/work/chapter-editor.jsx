@@ -28,14 +28,14 @@ import { useDeleteChapter } from "../../hooks/work/useDeleteChapter";
 import mainPicture from "../../assets/mainPicture.jpg";
 import { formatSmart } from "../../utils/date";
 import { paragraphsToEditorHtml } from "../../utils/chapter-paragraphs";
+import { htmlToText, parseHtml } from "../../utils/safe-html";
 
 // Utility function to remove empty paragraphs from HTML content
 const cleanEmptyParagraphs = (html) => {
   if (!html) return html;
   
-  // Parse HTML and remove paragraphs that are empty or only contain whitespace/class attributes
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = html;
+  // Parse HTML (inertly) and remove paragraphs that are empty or only contain whitespace/class attributes
+  const tempDiv = parseHtml(html);
   
   // Get all paragraph elements
   const paragraphs = tempDiv.querySelectorAll('p');
@@ -223,9 +223,7 @@ const ChapterEditorPage = () => {
 
   const wordCount = useMemo(() => {
     // Strip HTML tags and get plain text
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = editorState.content || '';
-    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    const plainText = htmlToText(editorState.content);
     
     return plainText.trim().length
       ? plainText
@@ -237,9 +235,7 @@ const ChapterEditorPage = () => {
 
   const characterCount = useMemo(() => {
     // Strip HTML tags and get plain text
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = editorState.content || '';
-    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    const plainText = htmlToText(editorState.content);
     return plainText.trim().length;
   }, [editorState.content]);
 

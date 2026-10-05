@@ -30,6 +30,7 @@ import NovelCover from "../../components/common/NovelCover";
 import { encodeImageUrl, novelShareImageUrl } from "../../utils/cover-image";
 import { chapterDate } from "../../utils/chapter-date";
 import { toUtcIso } from "../../utils/date";
+import { htmlToText } from "../../utils/safe-html";
 
 const ChapterReaderPage = () => {
   const { novelSlug, chapterId } = useParams();
@@ -272,10 +273,8 @@ const ChapterReaderPage = () => {
   };
 
   const handleParagraphClick = (paragraph) => {
-    // Strip HTML tags from paragraph content
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = paragraph.content;
-    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    // The paragraph's text, read without rendering its HTML
+    const plainText = htmlToText(paragraph.content);
     
     setCommentContext({
       type: "paragraph",
