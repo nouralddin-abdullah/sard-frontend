@@ -12,6 +12,7 @@ import AddRelationshipModal from '../../components/novel/AddRelationshipModal';
 import EditRelationshipModal from '../../components/novel/EditRelationshipModal';
 import ConfirmModal from '../../components/common/ConfirmModal';
 import { useGetEntity } from '../../hooks/entity/useGetEntity';
+import { safeArticleHtml } from '../../utils/safe-html';
 import { useUpdateEntity } from '../../hooks/entity/useUpdateEntity';
 import { useAddArticle } from '../../hooks/entity/useAddArticle';
 import { useUpdateArticle } from '../../hooks/entity/useUpdateArticle';
@@ -55,7 +56,7 @@ const ArticleCard = ({
           )}
           <div
             className="text-[#B8B8B8] noto-sans-arabic-regular line-clamp-3"
-            dangerouslySetInnerHTML={{ __html: article.content }}
+            dangerouslySetInnerHTML={{ __html: safeArticleHtml(article.content) }}
           />
         </div>
 
@@ -150,7 +151,7 @@ const ArticleCard = ({
             wordBreak: 'break-word',
             lineHeight: '1.8'
           }}
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          dangerouslySetInnerHTML={{ __html: safeArticleHtml(article.content) }}
         />
       </div>
     </div>

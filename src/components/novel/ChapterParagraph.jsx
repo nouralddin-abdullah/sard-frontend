@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, memo, useCallback } from 'react';
+import { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
 import { MessageSquarePlus } from 'lucide-react';
+import { safeParagraphHtml } from '../../utils/safe-html';
 
 const ChapterParagraph = memo(({ 
   paragraph, 
@@ -176,6 +177,7 @@ const ChapterParagraph = memo(({
   const currentTheme = themeStyles[theme];
   const paragraphColor = textColor || currentTheme.text;
   const hasComments = paragraph.commentsCount > 0;
+  const safeContent = useMemo(() => safeParagraphHtml(paragraph.content), [paragraph.content]);
 
   return (
     <div
@@ -195,7 +197,7 @@ const ChapterParagraph = memo(({
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden'
         }}
-        dangerouslySetInnerHTML={{ __html: paragraph.content }}
+        dangerouslySetInnerHTML={{ __html: safeContent }}
       />
 
       {/* Circular Comment Button - Positioned on Left Side */}
