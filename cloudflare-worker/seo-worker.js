@@ -659,10 +659,17 @@ async function renderChapter(slug, chapterId, env) {
   // without it, its entry in the chapter list (publishedAt or createdAt).
   const published = toUtcIso(chapter.publishedAt) ?? chapterDate(chapters[position]);
 
+  // Every paragraph a reader sees (chapter format v1, backend #74): text, centered and quoted paragraphs as their text,
+  // a picture as its caption (its address is not text); a scene break and unknown kinds' markup show nothing.
   const paragraphs = (chapter.paragraphs || [])
-    .filter((p) => (p.contentType || 'text') === 'text')
+    .slice()
     .sort((a, b) => a.orderIndex - b.orderIndex)
-    .map((p) => htmlToText(p.content))
+    .map((p) => {
+      const kind = String(p.contentType || 'text').toLowerCase();
+      if (kind === 'break') return '';
+      if (kind === 'image') return String(p.caption || '').trim();
+      return htmlToText(p.content);
+    })
     .filter(Boolean);
 
   const text = chapter.isLocked
