@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
 import { MessageSquarePlus } from 'lucide-react';
-import { safeParagraphHtml } from '../../utils/safe-html';
+import { safeInlineHtml, safeParagraphHtml } from '../../utils/safe-html';
+import { paragraphKind, safeImageSrc } from '../../utils/chapter-paragraphs';
 
 const ChapterParagraph = memo(({ 
   paragraph, 
@@ -174,10 +175,110 @@ const ChapterParagraph = memo(({
     }
   };
 
-  const currentTheme = themeStyles[theme];
+  const currentTheme = themeStyles[theme] || themeStyles.dark;
   const paragraphColor = textColor || currentTheme.text;
   const hasComments = paragraph.commentsCount > 0;
-  const safeContent = useMemo(() => safeParagraphHtml(paragraph.content), [paragraph.content]);
+  const kind = paragraphKind(paragraph);
+  // Chapter format v1 (backend #74): text, center and quote hold inline HTML; an image's content is its address and its
+  // caption plain text. A text paragraph stored before the format may still hold a picture among its text, so text
+  // keeps the older cleaning that allows one.
+  const safeContent = useMemo(() => {
+    if (kind === 'center' || kind === 'quote') return safeInlineHtml(paragraph.content);
+    if (kind === 'text') return safeParagraphHtml(paragraph.content);
+    return '';
+  }, [kind, paragraph.content]);
+  const imageSrc = kind === 'image' ? safeImageSrc(paragraph.content) : null;
+  const [imageFailed, setImageFailed] = useState(false);
+  // What the comment panel quotes (it reads the text of `content`): a picture's caption, or «صورة», never its address.
+  const commentTarget = useMemo(() => {
+    if (kind !== 'image') return paragraph;
+    const caption = (paragraph.caption || 'صورة').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return { ...paragraph, content: caption };
+  }, [kind, paragraph]);
+
+  const textStyle = {
+    color: paragraphColor,
+    fontSize: `${fontSize}px`,
+    fontFamily: fontFamily,
+    transform: 'translateZ(0)',
+    backfaceVisibility: 'hidden'
+  };
+
+  // A scene break: a separator, nothing to comment on.
+  if (kind === 'break') {
+    return (
+      <div className="py-6 px-4 md:px-6" role="separator" aria-label="فاصل مشهد" data-paragraph-kind="break">
+        <div
+          className="text-center select-none tracking-[0.6em] opacity-60"
+          style={{ color: paragraphColor, fontSize: `${Math.max(fontSize, 16)}px` }}
+          aria-hidden="true"
+        >
+          * * *
+        </div>
+      </div>
+    );
+  }
+
+  // An image paragraph without an address the site can load has nothing to show.
+  if (kind === 'image' && !imageSrc) {
+    return null;
+  }
+
+  let body;
+  if (kind === 'image') {
+    body = (
+      <figure className="m-0 px-4 md:px-6 flex flex-col items-center gap-2" data-paragraph-kind="image">
+        {imageFailed ? (
+          <div
+            className="w-full rounded-lg border border-dashed py-10 text-center text-sm noto-sans-arabic-medium opacity-70"
+            style={{ color: paragraphColor, borderColor: 'currentColor' }}
+          >
+            تعذّر تحميل الصورة
+          </div>
+        ) : (
+          <img
+            src={imageSrc}
+            alt={paragraph.caption || 'صورة من الفصل'}
+            loading="lazy"
+            decoding="async"
+            onError={() => setImageFailed(true)}
+            className="block max-w-full h-auto max-h-[80vh] rounded-lg shadow-md"
+          />
+        )}
+        {paragraph.caption && (
+          <figcaption
+            className="text-center leading-relaxed opacity-75"
+            style={{ color: paragraphColor, fontSize: `${Math.max(fontSize - 3, 13)}px`, fontFamily }}
+          >
+            {paragraph.caption}
+          </figcaption>
+        )}
+      </figure>
+    );
+  } else if (kind === 'quote') {
+    body = (
+      <blockquote
+        className="m-0 ms-4 me-11 md:ms-6 md:me-12 rounded-lg border-s-4 py-3 ps-4 pe-3 md:ps-5"
+        style={{ borderColor: '#4A9EFF', backgroundColor: theme === 'light' ? 'rgba(74, 158, 255, 0.07)' : theme === 'sepia' ? 'rgba(92, 75, 55, 0.08)' : 'rgba(74, 158, 255, 0.10)' }}
+        data-paragraph-kind="quote"
+      >
+        <p
+          className="leading-[2] whitespace-pre-line"
+          style={textStyle}
+          dangerouslySetInnerHTML={{ __html: safeContent }}
+        />
+      </blockquote>
+    );
+  } else {
+    body = (
+      <p
+        className={`leading-[2] whitespace-pre-line px-4 md:px-6 ${kind === 'center' ? 'text-center' : ''}`}
+        style={textStyle}
+        data-paragraph-kind={kind}
+        dangerouslySetInnerHTML={{ __html: safeContent }}
+      />
+    );
+  }
 
   return (
     <div
@@ -187,25 +288,14 @@ const ChapterParagraph = memo(({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Paragraph Text */}
-      <p
-        className="leading-[2] whitespace-pre-line px-4 md:px-6"
-        style={{
-          color: paragraphColor,
-          fontSize: `${fontSize}px`,
-          fontFamily: fontFamily,
-          transform: 'translateZ(0)',
-          backfaceVisibility: 'hidden'
-        }}
-        dangerouslySetInnerHTML={{ __html: safeContent }}
-      />
+      {body}
 
       {/* Circular Comment Button - Positioned on Left Side */}
       <div className={`absolute left-0 top-1/2 -translate-y-1/2 transition-opacity duration-300 ${(isHovered || hasComments) ? 'opacity-100' : 'opacity-0'}`}>
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onCommentClick(paragraph);
+            onCommentClick(commentTarget);
           }}
           className="relative group/button flex h-9 w-9 items-center justify-center rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-[#4A9EFF] focus:ring-offset-2 focus:ring-offset-[#2C2C2C]"
           style={{

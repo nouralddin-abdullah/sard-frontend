@@ -21,6 +21,16 @@ export const safeParagraphHtml = (html) => {
   return holder.innerHTML;
 };
 
+// A text, center or quote paragraph in chapter format v1 (backend #74) holds inline formatting only: its pictures are
+// image paragraphs of their own, so none is shown inside one.
+const INLINE = {
+  ALLOWED_TAGS: ["strong", "b", "em", "i", "u", "s", "br"],
+  ALLOWED_ATTR: [],
+};
+
+/** A format v1 paragraph's inline HTML (text, center, quote), safe to render. */
+export const safeInlineHtml = (html) => DOMPurify.sanitize(html ?? "", INLINE);
+
 /** A wiki article's stored HTML, safe to render: its formatting stays, while scripts, event handlers and unsafe links go. */
 export const safeArticleHtml = (html) => DOMPurify.sanitize(html ?? "", { USE_PROFILES: { html: true } });
 
